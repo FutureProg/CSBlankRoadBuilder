@@ -2,7 +2,7 @@
 
 # Blank Road Builder
 
-[![GitHub license](https://img.shields.io/github/license/user/repo.svg)](https://github.com/FutureProg/CSBlankRoadBuilder/blob/branch/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/user/repo.svg)](https://github.com/FutureProg/CSBlankRoadBuilder/blob/main/LICENSE)
 
 Blank Road Builder is a Cities: Skylines mod that allows you to create roads without dealing with the tedious asset editor!
 
