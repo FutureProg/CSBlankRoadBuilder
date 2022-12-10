@@ -33,7 +33,7 @@ bld/
 [Ll]og/
 [Ll]ogs/
 BlankRoadBuilder/Build/
-#[Ll]ibs
+[Ll]ibs
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
