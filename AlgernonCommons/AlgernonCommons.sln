@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32526.322
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlgernonCommons", "AlgernonCommons.csproj", "{1045F2F1-D30D-415B-AEDE-E6BD20DB2016}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "AlgernonCommonsShared", "AlgernonCommonsShared.shproj", "{25AEF446-6F0D-43A8-BB84-D1306789B68C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1045F2F1-D30D-415B-AEDE-E6BD20DB2016}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1045F2F1-D30D-415B-AEDE-E6BD20DB2016}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1045F2F1-D30D-415B-AEDE-E6BD20DB2016}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1045F2F1-D30D-415B-AEDE-E6BD20DB2016}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {56D4EB54-3324-4E3D-A923-19C8F840888F}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		AlgernonCommonsShared.projitems*{1045f2f1-d30d-415b-aede-e6bd20db2016}*SharedItemsImports = 5
+		AlgernonCommonsShared.projitems*{25aef446-6f0d-43a8-bb84-d1306789b68c}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal
