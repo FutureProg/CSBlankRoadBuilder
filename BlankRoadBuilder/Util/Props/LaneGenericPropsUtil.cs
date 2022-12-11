@@ -18,9 +18,7 @@ public static partial class LanePropsUtil
 		if (!road.ContainsWiredLanes)
 			yield break;
 
-		var tramLanesAreNextToMedians = road.WiredLanesAreNextToMedians && road.Width > 10F;
-		var leftTram = tramLanesAreNextToMedians && lane.LeftLane != null && ((lane.LeftLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
-		var rightTram = tramLanesAreNextToMedians && lane.RightLane != null && ((lane.RightLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
+		getLaneTramInfo(lane, road, out var tramLanesAreNextToMedians, out var leftTram, out var rightTram);
 
 		var angle = !leftTram ? 0 : 180;
 
@@ -62,7 +60,12 @@ public static partial class LanePropsUtil
 			var nextLane = leftTram ? tramLane?.LeftLane : tramLane?.RightLane;
 
 			if ((nextLane?.IsFiller() ?? false) || (nextLane?.Type.HasFlag(LaneType.Pedestrian) ?? false))
-				yield break;
+			{
+				getLaneTramInfo(nextLane, road, out _, out var l, out var r);
+
+				if ((l && r) || (l && rightTram))
+					yield break;
+			}
 
 			if (rightTram && nextLane != null && ((nextLane.Type & LaneType.Tram) != 0))
 			{
@@ -70,11 +73,12 @@ public static partial class LanePropsUtil
 
 				if ((nextNextLane?.IsFiller() ?? false) || (nextNextLane?.Type.HasFlag(LaneType.Pedestrian) ?? false))
 					yield break;
+
 			}
 
 			poleProp = Prop("Tram Pole Wide Side");
-			position = nextLane != null && (nextLane.Type & LaneType.Tram) != 0
-				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (-1.1 - road.BufferSize / 2F) : (lane.Width - 1F)) / 2F, 3) * (leftTram ? -1F : 1F)
+			position = nextLane != null && nextLane.Type.HasFlag(LaneType.Tram)
+				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (0.1 + (lane.Width + road.BufferSize) / 2F) : ((lane.Width - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
 				: (float)Math.Round(Math.Max(0F, lane.Width - 4F) / 2F, 3) * (leftTram ? -1F : 1F);
 		}
 		else
@@ -104,6 +108,13 @@ public static partial class LanePropsUtil
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags { Forbidden = RoadUtils.S_RemoveTramSupports }
 			});
+		}
+
+		static void getLaneTramInfo(LaneInfo lane, RoadInfo road, out bool tramLanesAreNextToMedians, out bool leftTram, out bool rightTram)
+		{
+			tramLanesAreNextToMedians = road.WiredLanesAreNextToMedians && road.Width > 10F;
+			leftTram = tramLanesAreNextToMedians && lane.LeftLane != null && ((lane.LeftLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
+			rightTram = tramLanesAreNextToMedians && lane.RightLane != null && ((lane.RightLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
 		}
 	}
 

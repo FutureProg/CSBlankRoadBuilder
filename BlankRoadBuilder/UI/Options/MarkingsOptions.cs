@@ -113,11 +113,11 @@ internal class MarkingsOptions : OptionsPanelBase
 		lineWidth.eventValueChanged += (s, v) => value.LineWidth = v;
 		xPos += 160 + 2 * Margin;
 
-		var dashSlider = AddSlider("Dash Length", xPos, 0.1F, 3F, 0.1F, value.DashLength, "m");
+		var dashSlider = AddSlider("Dash Length", xPos, 0.1F, 10F, 0.1F, value.DashLength, "m");
 		dashSlider.eventValueChanged += (s, v) => value.DashLength = v;
 		xPos += 160 + 2 * Margin;
 
-		var dashSpace = AddSlider("Dash Space", xPos, 0.1F, 3F, 0.1F, value.DashSpace, "m");
+		var dashSpace = AddSlider("Dash Space", xPos, 0.1F, 10F, 0.1F, value.DashSpace, "m");
 		dashSpace.eventValueChanged += (s, v) => value.DashSpace = v;
 
 		xPos = LeftMargin;
