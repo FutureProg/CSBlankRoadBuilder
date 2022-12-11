@@ -43,8 +43,8 @@ public static partial class LanePropsUtil
 	{
 		var totalProps = GetPropCount(road, weight, props);
 		var propsReturned = 0;
-		var halfWidth = (int)((road.Width - 1) / 2);
-		var validProps = props.Where(x => x.Key < road.Width).ToList();
+		var halfWidth = (int)((road.AsphaltWidth - 1) / 2);
+		var validProps = props.Where(x => x.Key < road.AsphaltWidth).ToList();
 
 		while (propsReturned < totalProps)
 		{
@@ -75,14 +75,14 @@ public static partial class LanePropsUtil
 
 	private static int GetPropCount(RoadInfo road, float weight, List<KeyValuePair<float, string>> props)
 	{
-		var validProps = props.Count(x => x.Key < road.Width);
+		var validProps = props.Count(x => x.Key < road.AsphaltWidth);
 
 		if (validProps == 0)
 			return 0;
 
 		weight *= (float)validProps / props.Count;
 
-		return (int)Math.Ceiling(weight * road.Width / 100);
+		return (int)Math.Ceiling(weight * road.AsphaltWidth / 100);
 	}
 
 	private static readonly List<KeyValuePair<float, string>> _potHoleProps = new()

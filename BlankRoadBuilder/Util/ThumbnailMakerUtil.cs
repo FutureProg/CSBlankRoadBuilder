@@ -59,12 +59,12 @@ public static class ThumbnailMakerUtil
 			roadInfo.SpeedLimit = 40F;
 		}
 
-		if (roadInfo.Width <= 0F)
+		if (roadInfo.AsphaltWidth <= 0F)
 		{
-			roadInfo.Width = 0F;
+			roadInfo.AsphaltWidth = 0F;
 		}
 
-		roadInfo.BufferSize *= 2F;
+		roadInfo.BufferWidth *= 2F;
 
 		roadInfo.OneWay = IsOneWay(roadInfo.Lanes);
 		roadInfo.DiagonalParking = roadInfo.Lanes.Any(x => x.DiagonalParking);

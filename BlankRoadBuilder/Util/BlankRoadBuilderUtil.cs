@@ -100,7 +100,7 @@ public static class BlankRoadBuilderUtil
         netInfo.m_surfaceLevel = roadInfo.RoadType == RoadType.Road ? -0.3F : 0F;
         netInfo.m_clipTerrain = true;
         netInfo.m_pavementWidth = 3F;
-		netInfo.m_halfWidth = (float)Math.Round(roadInfo.Width / 2D + 3F, 2);
+		netInfo.m_halfWidth = (float)Math.Round(roadInfo.AsphaltWidth / 2D + 3F, 2);
         netInfo.m_maxBuildAngle = roadInfo.RoadType == RoadType.Highway ? 45F : 90F;
 		netInfo.m_createPavement = roadInfo.RoadType != RoadType.Highway && elevation.Key == ElevationType.Basic;
         netInfo.m_createGravel = roadInfo.RoadType == RoadType.Highway && elevation.Key == ElevationType.Basic;
@@ -163,7 +163,7 @@ public static class BlankRoadBuilderUtil
 
         foreach (var p in _pillars)
         {
-            if (roadInfo.Width + 1.5F < p.Key)
+            if (roadInfo.AsphaltWidth + 1.5F < p.Key)
                 continue;
 
             var pillar = PrefabCollection<BuildingInfo>.FindLoaded(p.Value);
@@ -191,7 +191,7 @@ public static class BlankRoadBuilderUtil
     private static void GenerateLaneWidthsAndPositions(RoadInfo roadInfo)
     {
         // calculate non-filler widths
-        foreach (var lane in roadInfo.Lanes.Where(x => !x.IsFiller() || roadInfo.Width <= 0))
+        foreach (var lane in roadInfo.Lanes.Where(x => !x.IsFiller() || roadInfo.AsphaltWidth <= 0))
         {
             lane.Width = r(lane.CustomWidth > 0F
                 ? lane.CustomWidth
@@ -203,10 +203,10 @@ public static class BlankRoadBuilderUtil
 			.Sum(x => x.Width);
 
 		// calculate the fillers' width based on the provided road width
-		if (roadInfo.Width > 0 && roadInfo.Lanes.Any(x => x.IsFiller()))
+		if (roadInfo.AsphaltWidth > 0 && roadInfo.Lanes.Any(x => x.IsFiller()))
         {
 			var totalFillersSize = (float)roadInfo.Lanes.Where(x => x.IsFiller()).Sum(x => x.FillerSize);
-			var remainingWidth = roadInfo.Width - lanesWidth - roadInfo.BufferSize;
+			var remainingWidth = roadInfo.AsphaltWidth - lanesWidth - roadInfo.BufferWidth;
 
 			foreach (var lane in roadInfo.Lanes.Where(x => x.IsFiller()))
 			{
@@ -217,9 +217,9 @@ public static class BlankRoadBuilderUtil
 			    .Where(x => x.Tags.HasFlag(LaneTag.Asphalt))
 			    .Sum(x => x.Width);
 		}
-        else if (roadInfo.Width <= 0) // calculate default road width if not provided
+        else if (roadInfo.AsphaltWidth <= 0) // calculate default road width if not provided
         {
-            roadInfo.Width = roadInfo.BufferSize + lanesWidth;
+            roadInfo.AsphaltWidth = roadInfo.BufferWidth + lanesWidth;
         }
 
         var index = r(lanesWidth / -2F);
@@ -236,11 +236,11 @@ public static class BlankRoadBuilderUtil
             }
             else if (lane.Tags.HasFlag(LaneTag.Buffer))
             {
-                lane.Position = r((index < 0 ? -1F : 1F) * (roadInfo.Width / 2F + 3F - 0.25F));
+                lane.Position = r((index < 0 ? -1F : 1F) * (roadInfo.AsphaltWidth / 2F + 3F - 0.25F));
             }
             else if (lane.Tags.HasFlag(LaneTag.Sidewalk))
 			{
-				lane.Position = r((index < 0 ? -1F : 1F) * (roadInfo.Width / 2F + 3F - 1.25F));
+				lane.Position = r((index < 0 ? -1F : 1F) * (roadInfo.AsphaltWidth / 2F + 3F - 1.25F));
 			}
         }
 

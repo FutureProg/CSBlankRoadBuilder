@@ -18,7 +18,7 @@ public static partial class LanePropsUtil
 
 		if (lane.Tags.HasFlag(LaneTag.Sidewalk))
 		{
-			propPosition -= 0.25F + (road.BufferSize / 2F);
+			propPosition -= 0.25F + (road.BufferWidth / 2F);
 		}
 
 		foreach (var prop in GetSignsAndTrafficLights(lane.RightDrivableArea, lane.LeftInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true)))

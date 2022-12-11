@@ -1,6 +1,7 @@
 ﻿using AdaptiveRoads.DTO;
 
 using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
 using System.IO;
@@ -11,11 +12,11 @@ namespace BlankRoadBuilder.Util;
 
 public static class AssetUtil
 {
-	public static AssetModel ImportAsset(float roadWidth, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb, bool flatten)
+	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb)
 	{
 		var fileName = $"br4_{elevationType.ToString().ToLower()}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 
-		PrepareMeshFiles(meshType, fileName, 8F, roadWidth, flatten);
+		PrepareMeshFiles(road, meshType, fileName);
 
 		return ImportAsset(
 			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
@@ -54,13 +55,17 @@ public static class AssetUtil
 		}
 	}
 
-	private static void PrepareMeshFiles(MeshType meshType, string fileName, float baseWidth, float newWidth, bool flattenRoad = false)
+	private static void PrepareMeshFiles(RoadInfo road, MeshType meshType, string fileName)
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
 		
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			Resize(file, baseWidth, newWidth, flattenRoad: flattenRoad);
+			Resize(file,
+				baseWidth: 8F,
+				newWidth: road.AsphaltWidth,
+				newWidth: road.PavementWidth,
+				flattenRoad: road.RoadType == RoadType.Flat);
 		}
 	}
 

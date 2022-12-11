@@ -64,7 +64,7 @@ public class MeshUtil
 		data.TrackLaneCount = tracks.Count;
 		
 		AssetModel model(CurbType id, RoadAssetType type)
-			=> AssetUtil.ImportAsset(roadInfo.Width + 6F, MeshType.Road, elevation, type, id, roadInfo.RoadType == RoadType.Flat);
+			=> AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, roadInfo.RoadType == RoadType.Flat);
 	}
 
 	private static IEnumerable<Track> GenerateTracksAndWires(NetInfo netInfo, RoadInfo road)
@@ -139,7 +139,7 @@ public class MeshUtil
 			};
 		}
 
-		if (!road.WiredLanesAreNextToMedians || road.Width <= 10F)
+		if (!road.WiredLanesAreNextToMedians || road.AsphaltWidth <= 10F)
 		{
 			var supportModel = AssetUtil.ImportAsset(ShaderType.Wire, MeshType.Tram, "TramSupport.fbx");
 

@@ -78,7 +78,7 @@ public static partial class LanePropsUtil
 
 			poleProp = Prop("Tram Pole Wide Side");
 			position = nextLane != null && nextLane.Type.HasFlag(LaneType.Tram)
-				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (0.1 + (lane.Width + road.BufferSize) / 2F) : ((lane.Width - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
+				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (0.1 + (lane.Width + road.BufferWidth) / 2F) : ((lane.Width - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
 				: (float)Math.Round(Math.Max(0F, lane.Width - 4F) / 2F, 3) * (leftTram ? -1F : 1F);
 		}
 		else
@@ -112,7 +112,7 @@ public static partial class LanePropsUtil
 
 		static void getLaneTramInfo(LaneInfo lane, RoadInfo road, out bool tramLanesAreNextToMedians, out bool leftTram, out bool rightTram)
 		{
-			tramLanesAreNextToMedians = road.WiredLanesAreNextToMedians && road.Width > 10F;
+			tramLanesAreNextToMedians = road.WiredLanesAreNextToMedians && road.AsphaltWidth > 10F;
 			leftTram = tramLanesAreNextToMedians && lane.LeftLane != null && ((lane.LeftLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
 			rightTram = tramLanesAreNextToMedians && lane.RightLane != null && ((lane.RightLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
 		}
@@ -209,10 +209,10 @@ public static partial class LanePropsUtil
 		}
 		else if (lane.Tags.HasFlag(LaneTag.Sidewalk))
 		{
-			if (road.ContainsCenterMedian && road.Width < 30F)
+			if (road.ContainsCenterMedian && road.AsphaltWidth < 30F)
 				yield break;
 
-			if (!road.ContainsCenterMedian && road.Width < 20F && lane.Position < 0)
+			if (!road.ContainsCenterMedian && road.AsphaltWidth < 20F && lane.Position < 0)
 				yield break;
 
 			xPos = -1F;
