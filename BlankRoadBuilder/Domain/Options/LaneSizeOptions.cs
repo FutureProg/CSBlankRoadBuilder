@@ -96,11 +96,11 @@ public class LaneSizeOptions
         {
             LaneType.Empty or LaneType.Grass or LaneType.Pavement or LaneType.Gravel => 3F,
             LaneType.Trees => 4F,
-            LaneType.Tram or LaneType.Car or LaneType.Trolley or LaneType.Emergency => 3F,
+            LaneType.Tram or LaneType.Car or LaneType.Trolley or LaneType.Bus or LaneType.Emergency => 3F,
             LaneType.Pedestrian => 2F,
             LaneType.Bike => 2F,
             LaneType.Parking => 2F,
-            LaneType.Highway or LaneType.Bus or LaneType.Train => 4F,
+            LaneType.Highway or LaneType.Train => 4F,
             _ => 3F,
         };
     }
