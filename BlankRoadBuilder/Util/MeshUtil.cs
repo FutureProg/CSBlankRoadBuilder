@@ -42,10 +42,15 @@ public class MeshUtil
 
 		if (nodes.Length > 1)
 		{
-			ApplyModel(nodes[1], model(CurbType.HC, RoadAssetType.Node));
-			ApplyModel(nodes[2], model(CurbType.HC, RoadAssetType.Node));
-			ApplyModel(nodes[3], model(CurbType.LCS, RoadAssetType.Node));
-			ApplyModel(nodes[4], model(CurbType.LCF, RoadAssetType.Node));
+			if (roadInfo.RoadType == RoadType.Road)
+			{
+				ApplyModel(nodes[1], model(CurbType.HC, RoadAssetType.Node));
+				ApplyModel(nodes[2], model(CurbType.HC, RoadAssetType.Node));
+				ApplyModel(nodes[3], model(CurbType.LCS, RoadAssetType.Node));
+				ApplyModel(nodes[4], model(CurbType.LCF, RoadAssetType.Node));
+			}
+			else
+				ApplyModel(nodes[1], model(CurbType.TR, RoadAssetType.Node));
 		}
 
 		netInfo.m_segments = segments;
@@ -64,7 +69,7 @@ public class MeshUtil
 		data.TrackLaneCount = tracks.Count;
 		
 		AssetModel model(CurbType id, RoadAssetType type)
-			=> AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, roadInfo.RoadType == RoadType.Flat);
+			=> AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id);
 	}
 
 	private static IEnumerable<Track> GenerateTracksAndWires(NetInfo netInfo, RoadInfo road)
@@ -220,7 +225,7 @@ public class MeshUtil
 
 	private static NetInfo.Node[] GetNodes(RoadType roadType)
 	{
-		var arr = new NetInfo.Node[roadType == RoadType.Road ? 5 : 1];
+		var arr = new NetInfo.Node[roadType == RoadType.Road ? 5 : 2];
 
 		for (var i = 0; i < arr.Length; i++)
 		{
@@ -229,8 +234,13 @@ public class MeshUtil
 			arr[i].m_tagsRequired = new string[0];
 		}
 
-		if (arr.Length == 1)
+		if (roadType != RoadType.Road)
+		{
+			arr[0].flagsForbidden = NetNode.FlagsLong.Transition;
+			arr[1].flagsRequired = NetNode.FlagsLong.Transition;
+
 			return arr;
+		}
 
 		(arr[0] as IInfoExtended)?.SetMetaData(new Node(arr[0])
 		{

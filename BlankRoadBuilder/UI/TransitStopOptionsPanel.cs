@@ -168,7 +168,7 @@ public class TransitStopOptionsPanel : StandalonePanel
         for (int i = startIndex; i < endIndex; i++)
         {
             LaneInfo lane = roadInfo.Lanes[i];
-            if (((lane.Type & LaneType.Pedestrian) != 0 || lane.IsFiller() || (lane.Type & LaneType.Parking) != 0) && // if it's a pedestrian, filler, or parking lane
+            if (((lane.Type & LaneType.Pedestrian) != 0 ||  (lane.Type & LaneType.Parking) != 0) && // if it's a pedestrian, filler, or parking lane
                 ((lane.Tags & LaneTag.StoppableVehicleOnRight) != 0 || (lane.Tags & LaneTag.StoppableVehicleOnLeft) != 0)) // if there's a vehicle stop on the left or right
             {
                 laneLabels.Add(lane.Type.ToString() + " Lane, " + (i - startIndex) + " from the left sidewalk.");

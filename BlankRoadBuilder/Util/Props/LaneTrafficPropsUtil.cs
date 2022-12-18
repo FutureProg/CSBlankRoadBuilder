@@ -18,7 +18,7 @@ public static partial class LanePropsUtil
 
 		if (lane.Tags.HasFlag(LaneTag.Sidewalk))
 		{
-			propPosition -= 0.25F + (road.BufferWidth / 2F);
+			propPosition -= 0.25F + road.BufferWidth;
 		}
 
 		foreach (var prop in GetSignsAndTrafficLights(lane.RightDrivableArea, lane.LeftInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true)))
@@ -86,7 +86,7 @@ public static partial class LanePropsUtil
 			{
 				yield return TrafficLight(road, "Traffic Light 02" + (swapped ? " Mirror" : ""), propPosition);
 			}
-			else if (!swapped || !sideLanes.Take(2).Any(x => x.Type == LaneType.Pedestrian || x.IsFiller()))
+			else if (!swapped || !sideLanes.Take(2).Any(x => x.Type.HasAnyFlag(LaneType.Pedestrian, LaneType.Filler, LaneType.Curb)))
 			{
 				yield return TrafficLight(road, "Traffic Light 01" + (!swapped ? " Mirror" : ""), propPosition);
 			}
@@ -111,7 +111,7 @@ public static partial class LanePropsUtil
 			yield break;
 		}
 
-		if (!sidewalk && invertedSideLanes.Take(lane.Width >= 2.5F ? 1 : 2).Any(x => x.Type == LaneType.Pedestrian || x.IsFiller()))
+		if (!sidewalk && invertedSideLanes.Take(lane.Width >= 2.5F ? 1 : 2).Any(x => x.Type.HasAnyFlag(LaneType.Pedestrian, LaneType.Filler, LaneType.Curb)))
 		{
 			yield break;
 		}

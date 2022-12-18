@@ -59,7 +59,7 @@ public static partial class LanePropsUtil
 			var tramLane = leftTram ? lane.LeftLane : lane.RightLane;
 			var nextLane = leftTram ? tramLane?.LeftLane : tramLane?.RightLane;
 
-			if ((nextLane?.IsFiller() ?? false) || (nextLane?.Type.HasFlag(LaneType.Pedestrian) ?? false))
+			if ((nextLane?.Type == LaneType.Filler) || (nextLane?.Type.HasFlag(LaneType.Pedestrian) ?? false))
 			{
 				getLaneTramInfo(nextLane, road, out _, out var l, out var r);
 
@@ -71,14 +71,14 @@ public static partial class LanePropsUtil
 			{
 				var nextNextLane = leftTram ? nextLane?.LeftLane : nextLane?.RightLane;
 
-				if ((nextNextLane?.IsFiller() ?? false) || (nextNextLane?.Type.HasFlag(LaneType.Pedestrian) ?? false))
+				if ((nextNextLane?.Type == LaneType.Filler) || (nextNextLane?.Type.HasFlag(LaneType.Pedestrian) ?? false))
 					yield break;
 
 			}
 
 			poleProp = Prop("Tram Pole Wide Side");
 			position = nextLane != null && nextLane.Type.HasFlag(LaneType.Tram)
-				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (0.1 + (lane.Width + road.BufferWidth) / 2F) : ((lane.Width - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
+				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (0.1 + lane.Width / 2F + road.BufferWidth) : ((lane.Width - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
 				: (float)Math.Round(Math.Max(0F, lane.Width - 4F) / 2F, 3) * (leftTram ? -1F : 1F);
 		}
 		else
@@ -161,53 +161,16 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetTrees()
-	{
-		var tree = PrefabCollection<TreeInfo>.FindLoaded("mp9-YoungLinden");
-
-		for (var i = 6; i <= 6 + 12 * 7; i += 12)
-		{
-			yield return getTree(i, false);
-			yield return getTree(-i, false);
-			yield return getTree(i, true);
-			yield return getTree(-i, true);
-		}
-
-		NetLaneProps.Prop getTree(float position, bool flag) => new NetLaneProps.Prop
-		{
-			m_tree = tree,
-			m_finalTree = tree,
-			m_startFlagsForbidden = position < 0 && !flag ? NetNode.Flags.Junction : NetNode.Flags.None,
-			m_endFlagsForbidden = position > 0 && !flag ? NetNode.Flags.Junction : NetNode.Flags.None,
-			m_startFlagsRequired = position < 0 && flag ? NetNode.Flags.Junction : NetNode.Flags.None,
-			m_endFlagsRequired = position > 0 && flag ? NetNode.Flags.Junction : NetNode.Flags.None,
-			m_minLength = Math.Abs(position) * 2F + 10F,
-			m_upgradable = true,
-			m_probability = 100,
-			m_position = new Vector3(0, 0, position)
-		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
-		{
-			EndNodeFlags = new NetInfoExtionsion.NodeInfoFlags
-			{ Required = position > 0 && flag ? RoadUtils.N_ShowTreesCloseToIntersection : NetNodeExt.Flags.None },
-			StartNodeFlags = new NetInfoExtionsion.NodeInfoFlags
-			{ Required = position < 0 && flag ? RoadUtils.N_ShowTreesCloseToIntersection : NetNodeExt.Flags.None },
-			LaneFlags = new NetInfoExtionsion.LaneInfoFlags
-			{ Forbidden = RoadUtils.L_RemoveTrees },
-			VanillaSegmentFlags = new NetInfoExtionsion.VanillaSegmentInfoFlags
-			{ Forbidden = Math.Abs(position) <= 18 ? NetSegment.Flags.StopAll : NetSegment.Flags.None }
-		});
-	}
-
 	private static IEnumerable<NetLaneProps.Prop> GetLights(LaneInfo lane, RoadInfo road)
 	{
 		PropInfo lightProp;
 		var xPos = 0F;
 
-		if (lane.Tags.HasFlag(LaneTag.CenterMedian) && !lane.Tags.HasFlag(LaneTag.SecondaryCenterMedian))
+		if (lane.Tags.HasFlag(LaneTag.CenterMedian))
 		{
 			lightProp = Prop("Toll Road Light Double");//Prop("Avenue Light");
 		}
-		else if (lane.Tags.HasFlag(LaneTag.Sidewalk))
+		else if (lane.Type == LaneType.Curb)
 		{
 			if (road.ContainsCenterMedian && road.AsphaltWidth < 30F)
 				yield break;
@@ -215,7 +178,7 @@ public static partial class LanePropsUtil
 			if (!road.ContainsCenterMedian && road.AsphaltWidth < 20F && lane.Position < 0)
 				yield break;
 
-			xPos = -1F;
+			xPos = -lane.Width / 2 + 0.5F;
 			lightProp = Prop("Toll Road Light Single");//Prop("New Street Light Avenue");
 		}
 		else
@@ -240,6 +203,6 @@ public static partial class LanePropsUtil
 		{
 			LaneFlags = new NetInfoExtionsion.LaneInfoFlags
 			{ Forbidden = RoadUtils.L_RemoveStreetLights }
-		}).ToggleForwardBackward(lane.Position < 0 && lane.Tags.HasFlag(LaneTag.Sidewalk));
+		}).ToggleForwardBackward(lane.Position < 0 && lane.Type == LaneType.Curb);
 	}
 }

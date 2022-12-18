@@ -17,7 +17,7 @@ public static partial class LanePropsUtil
 {
 	private class RhtProp : NetLaneProps.Prop { }
 
-	public static NetLaneProps.Prop[] GetLaneProps(LaneType type, LaneInfo lane, RoadInfo road)
+	public static NetLaneProps.Prop[] GetLaneProps(int index, LaneType type, LaneInfo lane, RoadInfo road)
 	{
 		var result = new List<NetLaneProps.Prop>();
 
@@ -34,87 +34,74 @@ public static partial class LanePropsUtil
 			}
 		}
 
-		if (type >= LaneType.Grass && type <=  LaneType.Trees)
-		{
-			try
-			{
-				var props = result.Count;
-
-				for (var i = 0; i < props; i++)
-				{
-					if (result[i].m_prop != null && result[i].m_prop.name.Contains("Tram Pole"))
-						continue;
-
-					var newProp = result[i].Clone();
-
-					newProp.m_position = new Vector3(newProp.m_position.x, (float)Math.Round(newProp.m_position.y + ModOptions.FillerHeight - 0.01F, 3), newProp.m_position.z);
-
-					if (newProp is not IInfoExtended)
-						newProp = newProp.Extend().Base;
-
-					if (result[i] is not IInfoExtended)
-						result[i] = result[i].Extend().Base;
-
-					var newMeta = newProp.GetOrCreateMetaData();
-					var oldMeta = result[i].GetOrCreateMetaData();
-					
-					if (ModOptions.KeepMarkingsHiddenByDefault)
-					{
-						newMeta.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
-						oldMeta.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
-					}
-					else
-					{
-						newMeta.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
-						oldMeta.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
-					}
-
-					result.Add(newProp);
-				}
-			}catch(Exception ex) { Debug.LogException(ex); }
-		}
-
 		return result.ToArray();
 
 		IEnumerable<NetLaneProps.Prop> getLaneProps()
 		{
 			if (lane.Tags.HasFlag(LaneTag.Damage))
-				return GetRoadDamageProps(road);
+			{
+				foreach (var prop in GetRoadDamageProps(road))
+				{
+					yield return prop;
+				}
+
+				yield break;
+			}
+
+			if (index == 0)
+			{
+				foreach (var prop in GetDecorationProps(lane, road))
+				{
+					yield return prop;
+				}
+			}
 
 			switch (type)
 			{
 				case LaneType.Pedestrian:
-					return GetPedestrianLaneProps(lane, road);
+					foreach (var prop in GetPedestrianLaneProps(lane, road))
+						yield return prop;
 
+					break;
 				case LaneType.Bike:
-					return GetBikeLaneProps();
+					foreach (var prop in GetBikeLaneProps())
+						yield return prop;
 
+					break;
 				case LaneType.Bus:
-					return GetBusLaneProps(lane);
+					foreach (var prop in GetBusLaneProps(lane))
+						yield return prop;
 
+					break;
 				case LaneType.Emergency:
-				case LaneType.Highway:
-				case LaneType.Car:
-					return GetLaneArrowProps();
+					if (lane.Type.HasFlag(LaneType.Car))
+						yield break;
 
-				case LaneType.Empty:
-				case LaneType.Grass:
-				case LaneType.Gravel:
-				case LaneType.Pavement:
-				case LaneType.Trees:
-					if (lane.Width >= 0.75F)
-						return GetMedianProps(lane, road);
+					foreach (var prop in GetLaneArrowProps())
+						yield return prop;
+
+					break;
+				case LaneType.Car:
+					foreach (var prop in GetLaneArrowProps())
+						yield return prop;
+
+					break;
+				case LaneType.Curb:
+				case LaneType.Filler:
+					if (lane.Width < 0.75F)
+						yield break;
+
+					foreach (var prop in GetMedianProps(lane, road))
+						yield return prop;
 					
 					break;
 			}
-
-			return new NetLaneProps.Prop[0];
 		}
 	}
 
 	private static IEnumerable<NetLaneProps.Prop> GetMedianProps(LaneInfo lane, RoadInfo road)
 	{
-		if (lane.Tags.HasFlag(LaneTag.StackedLane) || lane.Tags.HasFlag(LaneTag.Buffer))
+		if (lane.Tags.HasFlag(LaneTag.StackedLane) || lane.Tags.HasFlag(LaneTag.Ghost))
 		{
 			yield break;
 		}
@@ -137,14 +124,6 @@ public static partial class LanePropsUtil
 		foreach (var prop in GetLights(lane, road))
 		{
 			yield return prop;
-		}
-
-		if (lane.Type.HasFlag(LaneType.Trees))
-		{
-			foreach (var prop in GetTrees())
-			{
-				yield return prop;
-			}
 		}
 	}
 
@@ -171,7 +150,7 @@ public static partial class LanePropsUtil
 				m_flagsRequired = NetLane.Flags.Stop,
 				m_angle = 90,
 				m_probability = 100,
-				m_position = new Vector3(stopDiff, 0, lane.Tags.HasFlag(LaneTag.Sidewalk) || (lane.Tags.HasFlag(LaneTag.CenterMedian) && !lane.Tags.HasFlag(LaneTag.SecondaryCenterMedian)) ? 5F : 3F),
+				m_position = new Vector3(stopDiff, 0, lane.Tags.HasFlag(LaneTag.Sidewalk) || lane.Tags.HasFlag(LaneTag.CenterMedian) ? 5F : 3F),
 			}.ToggleForwardBackward((bool)forward && lane.Direction != LaneDirection.Backwards);
 		}
 
@@ -186,7 +165,7 @@ public static partial class LanePropsUtil
 				m_flagsRequired = NetLane.Flags.Stop2,
 				m_angle = 90,
 				m_probability = 100,
-				m_position = new Vector3(lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F : 0.1F, 0, lane.Tags.HasFlag(LaneTag.Sidewalk) || (lane.Tags.HasFlag(LaneTag.CenterMedian) && !lane.Tags.HasFlag(LaneTag.SecondaryCenterMedian)) ? -5F : -3F)
+				m_position = new Vector3(lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F : 0.1F, 0, lane.Tags.HasFlag(LaneTag.Sidewalk) || lane.Tags.HasFlag(LaneTag.CenterMedian) ? -5F : -3F)
 			}.ToggleForwardBackward((bool)forward && lane.Direction != LaneDirection.Backwards);
 		}
 

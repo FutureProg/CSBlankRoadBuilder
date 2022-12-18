@@ -206,7 +206,7 @@ public class RoadBuilderPanel : StandalonePanel
 			return listItems;
 		}
 
-		foreach (var file in Directory.GetFiles(roadDir))
+		foreach (var file in Directory.GetFiles(roadDir, "*.xml", SearchOption.AllDirectories))
 		{
 			var roadInfo = ThumbnailMakerUtil.GetRoadInfo(file);
 

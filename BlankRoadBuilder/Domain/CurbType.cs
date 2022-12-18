@@ -4,5 +4,6 @@ public enum CurbType
 {
 	HC = 1,
 	LCS = 2,
-	LCF = 3
+	LCF = 3,
+	TR = 4,
 }

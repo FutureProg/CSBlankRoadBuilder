@@ -12,11 +12,15 @@ public static class ModOptions
     private static readonly SavedFloat _fillerHeight = new(nameof(_fillerHeight), nameof(BlankRoadBuilder), 0.3F);
     private static readonly SavedBool _disableAutoFillInTheSavePanel = new(nameof(_disableAutoFillInTheSavePanel), nameof(BlankRoadBuilder), false);
     private static readonly SavedBool _keepMarkingsHiddenByDefault = new(nameof(_keepMarkingsHiddenByDefault), nameof(BlankRoadBuilder), false);
+    private static readonly SavedBool _addGrassPropsToGrassLanes = new(nameof(_addGrassPropsToGrassLanes), nameof(BlankRoadBuilder), true);
     private static readonly SavedInt _markingsStyle = new(nameof(_markingsStyle), nameof(BlankRoadBuilder), (int)MarkingStyle.Vanilla);
     private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);
 
     [ModOptions("Keep markings hidden by default", "Sets the default state of automatically generated markings OFF by default, they can still be toggled ON with Adaptive Networks")]
     public static bool KeepMarkingsHiddenByDefault { get => _keepMarkingsHiddenByDefault; set => _keepMarkingsHiddenByDefault.value = value; }
+
+    [ModOptions("Add grass props to grass lanes", "Enabling this adds repeating grass props to any lane with grass decorations on top of the generated filler")]
+    public static bool AddGrassPropsToGrassLanes { get => _addGrassPropsToGrassLanes; set => _addGrassPropsToGrassLanes.value = value; }
 
     [ModOptions("Disable the auto-fill of information and thumbnails in the save panel")]
     public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }

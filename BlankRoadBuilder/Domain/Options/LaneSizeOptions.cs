@@ -83,6 +83,7 @@ public class LaneSizeOptions
 
         xML.Serialize(stream, new SavedSettings
         {
+            Version = 1,
             DiagonalParkingSize = _diagonalParkingSize,
             HorizontalParkingSize = _horizontalParkingSize,
             LaneTypes = _sizes.Keys.Cast<int>().ToList(),
@@ -91,22 +92,41 @@ public class LaneSizeOptions
     }
 
     public static float GetDefaultLaneWidth(LaneType type)
-    {
-        return type switch
-        {
-            LaneType.Empty or LaneType.Grass or LaneType.Pavement or LaneType.Gravel => 3F,
-            LaneType.Trees => 4F,
-            LaneType.Tram or LaneType.Car or LaneType.Trolley or LaneType.Bus or LaneType.Emergency => 3F,
-            LaneType.Pedestrian => 2F,
-            LaneType.Bike => 2F,
-            LaneType.Parking => 2F,
-            LaneType.Highway or LaneType.Train => 4F,
-            _ => 3F,
-        };
-    }
+	{
+		switch (type)
+		{
+			case LaneType.Filler:
+				return 3F;
+
+			case LaneType.Tram:
+			case LaneType.Car:
+			case LaneType.Bus:
+			case LaneType.Emergency:
+				return 3F;
+
+			case LaneType.Pedestrian:
+				return 2F;
+
+			case LaneType.Bike:
+				return 2F;
+
+			case LaneType.Parking:
+				return 2F;
+
+			case LaneType.Train:
+				return 4F;
+
+			case LaneType.Curb:
+			case LaneType.Empty:
+				return 1F;
+		}
+
+		return 3F;
+	}
 
     public class SavedSettings
     {
+		public int Version { get; set; }
         public float DiagonalParkingSize { get; set; }
         public float HorizontalParkingSize { get; set; }
         public List<int> LaneTypes { get; set; }

@@ -32,7 +32,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetBusLaneProps(LaneInfo lane)
 	{
-		if ((lane.Type & (LaneType.Car | LaneType.Highway)) == 0)
+		if (!lane.Type.HasFlag(LaneType.Car))
 		{
 			foreach (var prop in GetLaneArrowProps())
 			{
