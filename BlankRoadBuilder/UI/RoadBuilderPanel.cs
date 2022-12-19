@@ -103,23 +103,23 @@ public class RoadBuilderPanel : StandalonePanel
 			return;
 		}
 
-		if (optionsPanel == null)
-		{
-			_fileList.isVisible = false;
-			_refreshButton.isVisible = false;
-			_searchTextBox.isVisible = false;
+		//if (optionsPanel == null)
+		//{
+		_fileList.isVisible = false;
+		_refreshButton.isVisible = false;
+		_searchTextBox.isVisible = false;
 
-			_continueButton.text = "Build";
-			_continueButton.SetIcon("I_Tools.png");
+		//	_continueButton.text = "Build";
+		//	_continueButton.SetIcon("I_Tools.png");
 
-			optionsPanel = new RoadOptionsPanel(this);
+		//	optionsPanel = new RoadOptionsPanel(this);
 
-			return;
-		}
+		//	return;
+		//}
 
-		_currentSelection.RoadInfo.Options = optionsPanel.GetOptions();
+		_currentSelection.RoadInfo.Options = new Domain.RoadOptions();// optionsPanel.GetOptions();
 
-		optionsPanel.Clear();
+		//optionsPanel.Clear();
 
 		height = 200;
 		_continueButton.isVisible = false;

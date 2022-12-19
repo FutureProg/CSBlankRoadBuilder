@@ -5,6 +5,7 @@ using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 using UnityEngine;
 
@@ -16,60 +17,82 @@ public static class AssetUtil
 	{
 		var fileName = $"{elevationType.ToString().ToLower()}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 
-		PrepareMeshFiles(road, meshType, type, curb, fileName);
+		PrepareMeshFiles(road, meshType, elevationType, type, curb, fileName);
 
 		return ImportAsset(
 			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
 			meshType,
 			fileName,
-			prepareMesh: false,
-			noCurb: road.RoadType == RoadType.Highway);
+			filesReady: true);
 	}
 
-	public static AssetModel ImportAsset(ShaderType shaderType, MeshType meshType, string fileName, bool prepareMesh = true, bool filesReady = false, bool noCurb = false)
+	public static AssetModel ImportAsset(ShaderType shaderType, MeshType meshType, string fileName, bool prepareMesh = true, bool filesReady = false)
 	{
 		if (!filesReady)
-			PrepareFiles(meshType, fileName, prepareMesh, noCurb);
+			PrepareFiles(meshType, fileName, prepareMesh);
 
 		var assetModel = new AssetModelUtil(shaderType);
 
 		return assetModel.Import(fileName);
 	}
 
-	private static void PrepareFiles(MeshType meshType, string fileName, bool prepareMesh, bool noCurb)
+	private static void PrepareFiles(MeshType meshType, string fileName, bool prepareMesh)
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
 
 		Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
-		if (prepareMesh)
-		{
-			foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
-			{
-				File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file)), true);
-			}
-		}
-
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			if (noCurb && file.EndsWith("_p.png"))
-				File.Copy(file.RegexReplace(@"\w+_(\w+-\d_\w+)(_lod)?_\w\.", x => x.Value.Replace(x.Groups[1].Value, "highway")), Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file)), true);
-			else
-				File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file)), true);
+			File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file)), true);
+		}
+
+		if (!prepareMesh)
+		{
+			return;
+		}
+
+		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
+		{
+			File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file)), true);
 		}
 	}
 
-	private static void PrepareMeshFiles(RoadInfo road, MeshType meshType, RoadAssetType assetType, CurbType curb, string fileName)
+	private static void PrepareMeshFiles(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType assetType, CurbType curb, string fileName)
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
 		
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			Resize(file, road, curb, assetType);
+			Resize(file, road, curb, elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : (road.BridgeSideTexture == BridgeTextureType.Asphalt));
+		}
+
+		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{elevationType}*"))
+		{
+			var regex = Regex.Match(Path.GetFileName(file), @"(_[^l][A-z]+)?_(\w)\.png", RegexOptions.IgnoreCase);
+			var lod = file.Contains("_lod");
+			var mesh = regex.Groups[2].Value.ToLower();
+			var type = regex.Groups[1].Value.ToLower().TrimStart('_');
+			var newName = $"{baseName}{(lod ? "_lod" : "")}_{mesh}.png";
+
+			if ((mesh == "p" || mesh == "r") && elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : (road.BridgeSideTexture == BridgeTextureType.Asphalt))
+			{
+				if (curb != CurbType.TR == (type == "asphalt"))
+					File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, newName), true);
+			}
+			else if (mesh == "p" && road.RoadType == RoadType.Highway)
+			{
+				if (curb != CurbType.TR == (type == "nocurb"))
+					File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, newName), true);
+			}
+			else if (string.IsNullOrEmpty(type))
+			{
+				File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, newName), true);
+			}
 		}
 	}
 
-	public static string Resize(string file, RoadInfo road, CurbType curb, RoadAssetType assetType)
+	public static string Resize(string file, RoadInfo road, CurbType curb, bool raiseSurface)
 	{
 		var baseWidth = 8F;
 		var newWidth = road.TotalWidth;
@@ -107,8 +130,11 @@ public static class AssetUtil
 
 					data[1] = xPos.ToString("0.00000000");
 
-					if (road.RoadType != RoadType.Road && curb != CurbType.TR && Math.Round(double.Parse(data[2]), 2) == -0.3D)
-						data[2] = "0.00000000";
+					if (road.RoadType != RoadType.Road && curb != CurbType.TR && Math.Round(yPos, 2) == -0.3D)
+						data[2] = raiseSurface ? "0.00050000" : "0.00000000";
+
+					if (yPos == 0D && raiseSurface)
+						data[2] = "0.00050000";
 
 					lines[i] = string.Join(" ", data);
 					break;
