@@ -79,8 +79,11 @@ public static class ThumbnailMakerUtil
 
 	private static void CreateMissingLanes(RoadInfo roadInfo)
 	{
-		roadInfo.Lanes.Insert(0, bufferLane(LaneDirection.Backwards));
-		roadInfo.Lanes.Add(bufferLane(LaneDirection.Forward));
+		if (ModOptions.AddGhostLanes)
+		{
+			roadInfo.Lanes.Insert(0, ghostLane(LaneDirection.Backwards));
+			roadInfo.Lanes.Add(ghostLane(LaneDirection.Forward));
+		}
 
 		roadInfo.Lanes.Insert(0, new LaneInfo
 		{
@@ -88,7 +91,7 @@ public static class ThumbnailMakerUtil
 			Tags = LaneTag.Damage | LaneTag.StackedLane
 		});
 
-		static LaneInfo bufferLane(LaneDirection direction) => new()
+		static LaneInfo ghostLane(LaneDirection direction) => new()
 		{
 			Type = LaneType.Empty,
 			Direction = direction,
@@ -301,11 +304,11 @@ public static class ThumbnailMakerUtil
 		{
 			forward = lane.Position > 0;
 
-			if (forward == true && (road.Options?.DisableRightSidewalkStop ?? false))
-				forward = null;
+			//if (forward == true && (road.Options?.DisableRightSidewalkStop ?? false))
+			//	forward = null;
 
-			if (forward == false && (road.Options?.DisableLeftSidewalkStop ?? false))
-				forward = null;
+			//if (forward == false && (road.Options?.DisableLeftSidewalkStop ?? false))
+			//	forward = null;
 		}
 		else if (lane.Tags.HasFlag(LaneTag.StoppableVehicleOnLeft))
 		{

@@ -13,16 +13,20 @@ public static class ModOptions
     private static readonly SavedBool _disableAutoFillInTheSavePanel = new(nameof(_disableAutoFillInTheSavePanel), nameof(BlankRoadBuilder), false);
     private static readonly SavedBool _keepMarkingsHiddenByDefault = new(nameof(_keepMarkingsHiddenByDefault), nameof(BlankRoadBuilder), false);
     private static readonly SavedBool _addGrassPropsToGrassLanes = new(nameof(_addGrassPropsToGrassLanes), nameof(BlankRoadBuilder), true);
+    private static readonly SavedBool _addBufferLanes = new(nameof(_addBufferLanes), nameof(BlankRoadBuilder), true);
     private static readonly SavedInt _markingsStyle = new(nameof(_markingsStyle), nameof(BlankRoadBuilder), (int)MarkingStyle.Vanilla);
     private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);
 
     [ModOptions("Keep markings hidden by default", "Sets the default state of automatically generated markings OFF by default, they can still be toggled ON with Adaptive Networks")]
     public static bool KeepMarkingsHiddenByDefault { get => _keepMarkingsHiddenByDefault; set => _keepMarkingsHiddenByDefault.value = value; }
 
-    [ModOptions("Add grass props to grass lanes", "Enabling this adds repeating grass props to any lane with grass decorations on top of the generated filler")]
-    public static bool AddGrassPropsToGrassLanes { get => _addGrassPropsToGrassLanes; set => _addGrassPropsToGrassLanes.value = value; }
+	[ModOptions("Add ghost lanes for IMT", "Adds 2 extra IMT points on each side of the road")]
+	public static bool AddGhostLanes { get => _addBufferLanes; set => _addBufferLanes.value = value; }
 
-    [ModOptions("Disable the auto-fill of information and thumbnails in the save panel")]
+	[ModOptions("Add grass props to grass lanes", "Enabling this adds repeating grass props to any lane with grass decorations on top of the generated filler")]
+	public static bool AddGrassPropsToGrassLanes { get => _addGrassPropsToGrassLanes; set => _addGrassPropsToGrassLanes.value = value; }
+
+	[ModOptions("Disable the auto-fill of information and thumbnails in the save panel")]
     public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }
 
     [ModOptions("Filler Height", "Changes the default height of filler lanes' generated median", 0.05F, 0.3F, 0.01F, "m")]

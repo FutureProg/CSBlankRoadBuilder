@@ -35,7 +35,6 @@ public class RoadBuilderPanel : StandalonePanel
 
 	private ListData? _currentSelection;
 	private List<ListData>? listData;
-	private RoadOptionsPanel optionsPanel;
 
 	private static string? lastLoadedRoad;
 
@@ -52,10 +51,10 @@ public class RoadBuilderPanel : StandalonePanel
 		_fileList.eventDoubleClick += _continueButton_eventClick;
 
 		_continueButton = AddUIComponent<SlickButton>();
-		_continueButton.text = "Continue";
+		_continueButton.text = "Build";
 		_continueButton.size = new Vector2(180, 36);
 		_continueButton.relativePosition = new Vector2(width - 180 - 10, height - 46);
-		_continueButton.SetIcon("I_Right.png");
+		_continueButton.SetIcon("I_Tools.png");
 		_continueButton.eventClick += _continueButton_eventClick;
 
 		_refreshButton = AddUIComponent<SlickButton>();
@@ -103,26 +102,12 @@ public class RoadBuilderPanel : StandalonePanel
 			return;
 		}
 
-		//if (optionsPanel == null)
-		//{
 		_fileList.isVisible = false;
 		_refreshButton.isVisible = false;
 		_searchTextBox.isVisible = false;
-
-		//	_continueButton.text = "Build";
-		//	_continueButton.SetIcon("I_Tools.png");
-
-		//	optionsPanel = new RoadOptionsPanel(this);
-
-		//	return;
-		//}
-
-		_currentSelection.RoadInfo.Options = new Domain.RoadOptions();// optionsPanel.GetOptions();
-
-		//optionsPanel.Clear();
+		_continueButton.isVisible = false;
 
 		height = 200;
-		_continueButton.isVisible = false;
 
 		StartCoroutine(LoadRoad());
 	}

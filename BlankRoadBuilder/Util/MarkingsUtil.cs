@@ -154,7 +154,8 @@ public static class MarkingsUtil
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.L_RemoveFiller },
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lane.NetLanes[0]),
 			Tiling = 2F,
-			VerticalOffset = (float)Math.Round(offset ?? (lane.Type == LaneType.Pedestrian ? -0.25F : (ModOptions.FillerHeight - 0.3F)), 6)
+			VerticalOffset = (float)Math.Round(offset ?? (lane.Type == LaneType.Pedestrian ? -0.25F : (ModOptions.FillerHeight - 0.3F)), 6),
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = AdaptiveRoads.Data.NetworkExtensions.LaneTransition.Flags.SimilarLaneIndex }
 		};
 	}
 
@@ -174,9 +175,10 @@ public static class MarkingsUtil
 			m_lodMaterial = model.m_lodMaterial,
 			RenderNode = false,
 			TreatBendAsSegment = true,
-			Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 10F / (filler.DashLength + filler.DashSpace) : 10F,
+			Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lane.NetLanes[0]),
-			VerticalOffset = 0F
+			VerticalOffset = 0.0025F,
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = AdaptiveRoads.Data.NetworkExtensions.LaneTransition.Flags.SimilarLaneIndex }
 		};
 	}
 
@@ -192,29 +194,6 @@ public static class MarkingsUtil
 
 		rht.SegmentFlags.Forbidden |= AdaptiveRoads.Manager.NetSegmentExt.Flags.LeftHandTraffic;
 		lht.SegmentFlags.Required |= AdaptiveRoads.Manager.NetSegmentExt.Flags.LeftHandTraffic;
-
-		//if (type.HasFlag(GenericMarkingType.Soft))
-		//{
-		//	var rhtSolid = GetMarking(netInfo, lane, !right, type & ~GenericMarkingType.Soft | GenericMarkingType.Hard);
-		//	var lhtSolid = GetMarking(netInfo, lane, right, type & ~GenericMarkingType.Soft | GenericMarkingType.Hard);
-
-		//	if (rhtSolid == null || lhtSolid == null)
-		//	{
-		//		yield break;
-		//	}
-
-		//	rhtSolid.SegmentFlags = new SegmentInfoFlags { Forbidden = AdaptiveRoads.Manager.NetSegmentExt.Flags.LeftHandTraffic };
-		//	lhtSolid.SegmentFlags = new SegmentInfoFlags { Required = AdaptiveRoads.Manager.NetSegmentExt.Flags.LeftHandTraffic };
-
-		//	rhtSolid.VanillaNodeFlags = new VanillaNodeInfoFlagsLong { Required = NetNode.FlagsLong.Junction };
-		//	lhtSolid.VanillaNodeFlags = new VanillaNodeInfoFlagsLong { Required = NetNode.FlagsLong.Junction };
-
-		//	rhtSolid.VanillaSegmentFlags = new VanillaSegmentInfoFlags { Forbidden = NetSegment.Flags.Invert };
-		//	lhtSolid.VanillaSegmentFlags = new VanillaSegmentInfoFlags { Forbidden = NetSegment.Flags.Invert };
-
-		//	//yield return rhtSolid;
-		//	//yield return lhtSolid;
-		//}
 
 		yield return rht;
 		yield return lht;
@@ -244,8 +223,9 @@ public static class MarkingsUtil
 			RenderNode = false,
 			TreatBendAsSegment = true,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lane.NetLanes[0]),
-			Tiling = lineInfo.MarkingStyle == MarkingLineType.Solid ? 10F : 10F / (lineInfo.DashLength + lineInfo.DashSpace),
-			VerticalOffset = 0.005F
+			Tiling = lineInfo.MarkingStyle == MarkingLineType.Solid ? 10F : 20F / (lineInfo.DashLength + lineInfo.DashSpace),
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = AdaptiveRoads.Data.NetworkExtensions.LaneTransition.Flags.SimilarLaneIndex },
+			VerticalOffset = 0.0075F
 		};
 	}
 
@@ -296,7 +276,7 @@ public static class MarkingsUtil
 			var alphaTexture = new Image(file).CreateTexture();
 			var width = alphaTexture.width;
 			var pixels = alphaTexture.GetPixels32();
-			var ratio = (int)(width * (dashLength / Math.Max(0.01, (dashLength + dashSpace))));
+			var ratio = (int)(width * (dashLength / Math.Max(0.01, dashLength + dashSpace)));
 
 			for (var i = 0; i < pixels.Length; i++)
 			{

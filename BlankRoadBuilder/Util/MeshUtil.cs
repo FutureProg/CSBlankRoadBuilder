@@ -24,9 +24,6 @@ public class MeshUtil
 		if (elevation > ElevationType.Elevated)
 			return;
 
-		if (roadInfo.Options?.DoNotChangeTheRoadMeshes ?? false)
-			return;
-
 		var segments = GetSegments(elevation, roadInfo.RoadType);
 		var nodes = GetNodes(roadInfo.RoadType);
 
@@ -178,6 +175,7 @@ public class MeshUtil
 			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Concrete Barrier.obj"),
 			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Soundwall.obj"),
 			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Single Steel Barrier.obj"),
+			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Single Steel Barrier.obj"),
 			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Double Steel Barrier.obj"),
 		};
 
@@ -191,12 +189,14 @@ public class MeshUtil
 			RenderNode = false,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lanes),
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.L_RemoveBarrier },
+			LaneTags = new LaneTagsT(new[] { "RoadBuilderLane" }),
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = AdaptiveRoads.Data.NetworkExtensions.LaneTransition.Flags.SimilarLaneIndex }
 		}).ToList();
 
 		for (var i = 0; i < tracks.Count; i++)
 		{
-			tracks[i].LaneFlags.Required |= i == 1 ? RoadUtils.L_Barrier_1 : i == 2 ? RoadUtils.L_Barrier_2 : i == 3 ? RoadUtils.L_Barrier_3 : NetLaneExt.Flags.None;
-			tracks[i].LaneFlags.Forbidden |= (RoadUtils.L_Barrier_1 | RoadUtils.L_Barrier_2 | RoadUtils.L_Barrier_3) & ~tracks[i].LaneFlags.Required;
+			tracks[i].LaneFlags.Required |= i == 1 ? RoadUtils.L_Barrier_1 : i == 2 ? RoadUtils.L_Barrier_2 : i == 3 ? RoadUtils.L_Barrier_3 : i == 4 ? RoadUtils.L_Barrier_4 : NetLaneExt.Flags.None;
+			tracks[i].LaneFlags.Forbidden |= (RoadUtils.L_Barrier_1 | RoadUtils.L_Barrier_2 | RoadUtils.L_Barrier_3 | RoadUtils.L_Barrier_4) & ~tracks[i].LaneFlags.Required;
 
 			yield return tracks[i];
 		}

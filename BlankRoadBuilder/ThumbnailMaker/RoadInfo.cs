@@ -28,8 +28,6 @@ public class RoadInfo
 	public byte[] LargeThumbnail { get; set; }
 	public byte[] TooltipImage { get; set; }
 
-	[XmlIgnore] public RoadOptions? Options { get; set; }
-
 	[XmlIgnore] public float TotalWidth { get; set; }
 	[XmlIgnore] public float AsphaltWidth { get; set; }
 	[XmlIgnore] public float PavementWidth { get; set; }
