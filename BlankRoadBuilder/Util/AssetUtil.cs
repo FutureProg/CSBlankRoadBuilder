@@ -59,7 +59,7 @@ public static class AssetUtil
 		
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			Resize(file, road, curb, elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : (road.BridgeSideTexture == BridgeTextureType.Asphalt));
+			Resize(file, road, curb);
 		}
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{elevationType}*"))
@@ -87,7 +87,7 @@ public static class AssetUtil
 		}
 	}
 
-	public static string Resize(string file, RoadInfo road, CurbType curb, bool raiseSurface)
+	public static string Resize(string file, RoadInfo road, CurbType curb)
 	{
 		var baseWidth = 8F;
 		var newWidth = road.TotalWidth;
@@ -125,9 +125,9 @@ public static class AssetUtil
 					data[1] = xPos.ToString("0.00000000");
 
 					if (road.RoadType != RoadType.Road && curb != CurbType.TR && Math.Round(yPos, 2) == -0.3D)
-						data[2] = raiseSurface ? "0.00050000" : "0.00000000";
+						data[2] ="0.00050000";
 
-					if (yPos == 0D && raiseSurface)
+					if (yPos == 0D)
 						data[2] = "0.00050000";
 
 					lines[i] = string.Join(" ", data);

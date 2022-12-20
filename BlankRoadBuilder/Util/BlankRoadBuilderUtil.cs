@@ -102,7 +102,7 @@ public static class BlankRoadBuilderUtil
         netInfo.m_clipTerrain = true;
         netInfo.m_pavementWidth = roadInfo.PavementWidth;
 		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 2);
-        netInfo.m_maxBuildAngle = roadInfo.RoadType == RoadType.Highway ? 45F : 90F;
+        netInfo.m_maxBuildAngle = roadInfo.RoadType == RoadType.Highway ? 60F : 90F;
         netInfo.m_createPavement = elevation.Key == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
         netInfo.m_createGravel = elevation.Key == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
         netInfo.m_createRuining = elevation.Key == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
@@ -111,8 +111,8 @@ public static class BlankRoadBuilderUtil
             m_layer = ItemClass.Layer.None,
             m_service = ItemClass.Service.Road,
             m_subService = ItemClass.SubService.None,
-            m_level = (ItemClass.Level)(int)Math.Floor(roadInfo.TotalWidth / 8),
-            name = ((RoadClass)(int)Math.Floor(roadInfo.TotalWidth / 8)).ToString().FormatWords() 
+            m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(4, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5,
+            name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(4, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway" 
         };
 
 		RoadUtils.SetNetAi(netInfo, "m_outsideConnection", null);
