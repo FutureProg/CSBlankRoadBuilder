@@ -22,12 +22,18 @@ public static class RoadUtils
 	public const NetNodeExt.Flags N_RemoveTramTracks = NetNodeExt.Flags.Custom4;
 	public const NetNodeExt.Flags N_ShowTreesCloseToIntersection = NetNodeExt.Flags.Custom5;
 
-	public const NetLaneExt.Flags L_RemoveTramTracks = NetLaneExt.Flags.Custom0;
-	public const NetLaneExt.Flags L_TramTracks_1 = NetLaneExt.Flags.Custom1;
+	public const NetLaneExt.Flags L_RemoveFiller = NetLaneExt.Flags.Custom0;
+	public const NetLaneExt.Flags L_RemoveTrees = NetLaneExt.Flags.Custom1;
 	public const NetLaneExt.Flags L_RemoveStreetLights = NetLaneExt.Flags.Custom2;
-	public const NetLaneExt.Flags L_RemoveTrees = NetLaneExt.Flags.Custom3;
-	public const NetLaneExt.Flags L_TramTracks_2 = NetLaneExt.Flags.Custom4;
-	public const NetLaneExt.Flags L_RemoveFiller = NetLaneExt.Flags.Custom5;
+
+	public const NetLaneExt.Flags L_RemoveTramTracks = NetLaneExt.Flags.Custom3;
+	public const NetLaneExt.Flags L_TramTracks_1 = NetLaneExt.Flags.Custom4;
+	public const NetLaneExt.Flags L_TramTracks_2 = NetLaneExt.Flags.Custom5;
+
+	public const NetLaneExt.Flags L_RemoveBarrier = NetLaneExt.Flags.Custom3;
+	public const NetLaneExt.Flags L_Barrier_1 = NetLaneExt.Flags.Custom4;
+	public const NetLaneExt.Flags L_Barrier_2 = NetLaneExt.Flags.Custom5;
+	public const NetLaneExt.Flags L_Barrier_3 = NetLaneExt.Flags.Custom6;
 
 	public static IEnumerable<KeyValuePair<ElevationType, NetInfo>> GetElevations(this NetInfo ground)
 	{

@@ -106,6 +106,14 @@ public static class BlankRoadBuilderUtil
         netInfo.m_createPavement = elevation.Key == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
         netInfo.m_createGravel = elevation.Key == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
         netInfo.m_createRuining = elevation.Key == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
+        netInfo.m_class = new ItemClass
+        {
+            m_layer = ItemClass.Layer.None,
+            m_service = ItemClass.Service.Road,
+            m_subService = ItemClass.SubService.None,
+            m_level = (ItemClass.Level)(int)Math.Floor(roadInfo.TotalWidth / 8),
+            name = ((RoadClass)(int)Math.Floor(roadInfo.TotalWidth / 8)).ToString().FormatWords() 
+        };
 
 		RoadUtils.SetNetAi(netInfo, "m_outsideConnection", null);
         RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation.Key, false));
@@ -135,15 +143,34 @@ public static class BlankRoadBuilderUtil
 		data.RenameCustomFlag(RoadUtils.N_RemoveTramTracks, "Remove tram tracks");
 		data.RenameCustomFlag(RoadUtils.N_ShowTreesCloseToIntersection, "Show trees that are close to the intersection");
 
-		for (var i = 0; i < netInfo.m_lanes.Length; i++)
+        var netLanes = netInfo.m_lanes.ToList();
+
+		foreach (var lane in roadInfo.Lanes)
         {
-			data.RenameCustomFlag(i, RoadUtils.L_RemoveTramTracks, "Remove tram tracks");
-			data.RenameCustomFlag(i, RoadUtils.L_TramTracks_1, ModOptions.TramTracks != TramTracks.Rev0 ? "Use Rev0's tram tracks" : "Use Vanilla tram tracks");
-			data.RenameCustomFlag(i, RoadUtils.L_TramTracks_2, ModOptions.TramTracks == TramTracks.Clus ? "Use Vanilla tram tracks" : "Use Clus's LRT tram tracks");
-			data.RenameCustomFlag(i, RoadUtils.L_RemoveStreetLights, "Remove street lights");
-			data.RenameCustomFlag(i, RoadUtils.L_RemoveTrees, "Remove trees");
-			data.RenameCustomFlag(i, RoadUtils.L_RemoveFiller, "Remove filler");
-		}
+            foreach (var netLane in lane.NetLanes)
+            {
+                var i = netLanes.IndexOf(netLane);
+
+			    data.RenameCustomFlag(i, RoadUtils.L_RemoveTrees, "Remove trees");
+				data.RenameCustomFlag(i, RoadUtils.L_RemoveFiller, "Remove filler");
+				data.RenameCustomFlag(i, RoadUtils.L_RemoveStreetLights, "Remove street lights");
+
+				if (netLane.m_vehicleType == VehicleInfo.VehicleType.Tram)
+                {
+					data.RenameCustomFlag(i, RoadUtils.L_RemoveTramTracks, "Remove tram tracks");
+					data.RenameCustomFlag(i, RoadUtils.L_TramTracks_1, ModOptions.TramTracks != TramTracks.Rev0 ? "Use Rev0's tram tracks" : "Use Vanilla tram tracks");
+					data.RenameCustomFlag(i, RoadUtils.L_TramTracks_2, ModOptions.TramTracks == TramTracks.Clus ? "Use Vanilla tram tracks" : "Use Clus's LRT tram tracks");
+				}
+
+                if (lane.Decorations.HasFlag(LaneDecoration.Barrier))
+                {
+					data.RenameCustomFlag(i, RoadUtils.L_RemoveBarrier, "Remove barrier");
+                    data.RenameCustomFlag(i, RoadUtils.L_Barrier_1, "Use sound barrier");
+                    data.RenameCustomFlag(i, RoadUtils.L_Barrier_2, "Use single-sided metal barrier");
+                    data.RenameCustomFlag(i, RoadUtils.L_Barrier_3, "Use double-sided metal barrier");
+				}
+			}
+        }
 	}
 
 	private static int GetCost(RoadInfo roadInfo, ElevationType elevation, bool maintenance)

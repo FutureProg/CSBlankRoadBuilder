@@ -17,7 +17,7 @@ public static class AssetUtil
 	{
 		var fileName = $"{elevationType.ToString().ToLower()}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 
-		PrepareMeshFiles(road, meshType, elevationType, type, curb, fileName);
+		PrepareMeshFiles(road, meshType, elevationType, curb, fileName);
 
 		return ImportAsset(
 			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
@@ -26,39 +26,34 @@ public static class AssetUtil
 			filesReady: true);
 	}
 
-	public static AssetModel ImportAsset(ShaderType shaderType, MeshType meshType, string fileName, bool prepareMesh = true, bool filesReady = false)
+	public static AssetModel ImportAsset(ShaderType shaderType, MeshType meshType, string fileName, bool filesReady = false)
 	{
 		if (!filesReady)
-			PrepareFiles(meshType, fileName, prepareMesh);
+			PrepareFiles(meshType, fileName);
 
 		var assetModel = new AssetModelUtil(shaderType);
 
 		return assetModel.Import(fileName);
 	}
 
-	private static void PrepareFiles(MeshType meshType, string fileName, bool prepareMesh)
+	private static void PrepareFiles(MeshType meshType, string fileName)
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
 
 		Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
-		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{baseName}*"))
+		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
 			File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file)), true);
 		}
 
-		if (!prepareMesh)
-		{
-			return;
-		}
-
-		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
+		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{baseName}*"))
 		{
 			File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file)), true);
 		}
 	}
 
-	private static void PrepareMeshFiles(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType assetType, CurbType curb, string fileName)
+	private static void PrepareMeshFiles(RoadInfo road, MeshType meshType, ElevationType elevationType, CurbType curb, string fileName)
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
 		
@@ -109,11 +104,10 @@ public static class AssetUtil
 
 			switch (data[0])
 			{
-				//case "g":
-				//case "G":
-				//	if (!string.IsNullOrEmpty(newName))
-				//		lines[i] = lines[i].Substring(0, 2) + newName;
-				//	break;
+				case "g":
+				case "G":
+					lines[i] = Path.GetFileNameWithoutExtension(file).FormatWords();
+					break;
 
 				case "v":
 				case "V":

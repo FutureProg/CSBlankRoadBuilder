@@ -65,6 +65,8 @@ public class MeshUtil
 			tracks.AddRange(GenerateTracksAndWires(netInfo, roadInfo));
 		}
 
+		tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
+
 		data.Tracks = tracks.ToArray();
 		data.TrackLaneCount = tracks.Count;
 		
@@ -161,6 +163,42 @@ public class MeshUtil
 				LaneCount = 1,
 				LaneIndeces = 1UL
 			};
+		}
+	}
+
+	private static IEnumerable<Track> GenerateBarriers(NetInfo netInfo, RoadInfo road)
+	{
+		if (!road.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier)))
+			yield break;
+
+		var lanes = road.Lanes.Where(x => x.Decorations.HasFlag(LaneDecoration.Barrier)).Select(x => x.NetLanes[0]).ToArray();
+
+		var barriers = new AssetModel[]
+		{
+			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Concrete Barrier.obj"),
+			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Soundwall.obj"),
+			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Single Steel Barrier.obj"),
+			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Double Steel Barrier.obj"),
+		};
+
+		var tracks = barriers.Select(x => new Track(netInfo)
+		{
+			m_mesh = x.m_mesh,
+			m_material = x.m_material,
+			m_lodMesh = x.m_lodMesh,
+			m_lodMaterial = x.m_lodMaterial,
+			TreatBendAsSegment = true,
+			RenderNode = false,
+			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lanes),
+			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.L_RemoveBarrier },
+		}).ToList();
+
+		for (var i = 0; i < tracks.Count; i++)
+		{
+			tracks[i].LaneFlags.Required |= i == 1 ? RoadUtils.L_Barrier_1 : i == 2 ? RoadUtils.L_Barrier_2 : i == 3 ? RoadUtils.L_Barrier_3 : NetLaneExt.Flags.None;
+			tracks[i].LaneFlags.Forbidden |= (RoadUtils.L_Barrier_1 | RoadUtils.L_Barrier_2 | RoadUtils.L_Barrier_3) & ~tracks[i].LaneFlags.Required;
+
+			yield return tracks[i];
 		}
 	}
 

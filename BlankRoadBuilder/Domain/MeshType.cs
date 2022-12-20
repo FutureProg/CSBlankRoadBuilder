@@ -7,5 +7,6 @@ public enum MeshType
 	Pedestrian,
 	Tram,
 	Markings,
-	Filler
+	Filler,
+	Barriers
 }

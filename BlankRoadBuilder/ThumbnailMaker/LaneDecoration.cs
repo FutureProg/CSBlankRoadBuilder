@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BlankRoadBuilder.ThumbnailMaker;
 
@@ -26,22 +23,22 @@ public enum LaneDecoration
 	[StyleIdentity(4, 72, 161, 73)]
 	Tree = 16,
 
-	[StyleIdentity(7, 207, 133, 46)]
+	[StyleIdentity(7, 194, 145, 87)]
 	Benches = 32,
 
-	[StyleIdentity(8, 238, 62, 75)]
+	[StyleIdentity(8, 204, 69, 96)]
 	FlowerPots = 64,
 
-	[StyleIdentity(9, 148, 157, 166)]
+	[StyleIdentity(9, 123, 133, 143)]
 	StreetLight = 128,
 
-	[StyleIdentity(10, 148, 157, 166)]
+	[StyleIdentity(10, 123, 133, 143)]
 	DoubleStreetLight = 256,
 
-	[StyleIdentity(11, 255, 232, 118)]
+	[StyleIdentity(11, 214, 196, 105)]
 	Bollard = 512,
 
-	[StyleIdentity(13, 154, 203, 96)]
+	[StyleIdentity(13, 145, 186, 97)]
 	Hedge = 1024,
 
 	[StyleIdentity(14, 237, 186, 64)]
@@ -52,4 +49,10 @@ public enum LaneDecoration
 
 	[StyleIdentity(16, 111, 187, 217)]
 	BikeParking = 8192,
+
+	[StyleIdentity(17, 132, 138, 177)]
+	StreetAds = 16384,
+
+	[StyleIdentity(18, 128, 147, 156)]
+	Barrier = 32768,
 }
