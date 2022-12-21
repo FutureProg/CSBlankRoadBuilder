@@ -13,7 +13,7 @@ public static class ModOptions
     private static readonly SavedBool _disableAutoFillInTheSavePanel = new(nameof(_disableAutoFillInTheSavePanel), nameof(BlankRoadBuilder), false);
     private static readonly SavedBool _keepMarkingsHiddenByDefault = new(nameof(_keepMarkingsHiddenByDefault), nameof(BlankRoadBuilder), false);
     private static readonly SavedBool _addGrassPropsToGrassLanes = new(nameof(_addGrassPropsToGrassLanes), nameof(BlankRoadBuilder), true);
-    private static readonly SavedBool _vanillaTreePlacement = new(nameof(_vanillaTreePlacement), nameof(BlankRoadBuilder), true);
+    private static readonly SavedBool _vanillaTreePlacement = new(nameof(_vanillaTreePlacement), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _addBufferLanes = new(nameof(_addBufferLanes), nameof(BlankRoadBuilder), true);
     private static readonly SavedInt _markingsStyle = new(nameof(_markingsStyle), nameof(BlankRoadBuilder), (int)MarkingStyle.Vanilla);
     private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);
@@ -33,8 +33,8 @@ public static class ModOptions
 	[ModOptions("Disable the auto-fill of information and thumbnails in the save panel")]
     public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }
 
-    [ModOptions("Filler Height", "Changes the default height of filler lanes' generated median", 0.05F, 0.3F, 0.01F, "m")]
-    public static float FillerHeight { get => _fillerHeight; set => _fillerHeight.value = value; }
+    //[ModOptions("Filler Height", "Changes the default height of filler lanes' generated median", 0.05F, 0.3F, 0.01F, "m")]
+    //public static float FillerHeight { get => _fillerHeight; set => _fillerHeight.value = value; }
 
     [ModOptions("Global Markings Style", "Changes the style of lane markings used when generating a road")]
     public static MarkingStyle MarkingsStyle { get => (MarkingStyle)_markingsStyle.value; set => _markingsStyle.value = (int)value; }

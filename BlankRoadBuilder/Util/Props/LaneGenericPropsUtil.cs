@@ -22,7 +22,7 @@ public static partial class LanePropsUtil
 
 		var angle = !leftTram ? 0 : 180;
 
-		var position = lane.Tags.HasFlag(LaneTag.Asphalt) ? 0 : lane.Position < 0 ? 1F : -1F;
+		var position = 0F;//lane.Tags.HasFlag(LaneTag.Asphalt) ? 0 : lane.Position < 0 ? 1F : -1F;
 		var verticalOffset = lane.Tags.HasFlag(LaneTag.Asphalt) ? -0.45F : -0.75F;
 
 		PropInfo poleProp;
@@ -31,8 +31,7 @@ public static partial class LanePropsUtil
 		{
 			poleProp = Prop("Tram Pole Side");
 
-			if (lane.Tags.HasFlag(LaneTag.Sidewalk))
-				verticalOffset = -0.2F;
+			verticalOffset = lane.Tags.HasFlag(LaneTag.Asphalt) ? -0.1F : -0.4F;
 		}
 		else if (leftTram && rightTram)
 		{

@@ -62,7 +62,7 @@ public static class ThumbnailMakerUtil
 
 		roadInfo.WiredLanesAreNextToMedians = roadInfo.Lanes
 			.Where(x => (x.Type & (LaneType.Tram | LaneType.Trolley)) != 0)
-			.All(x => x.Tags.HasFlag(LaneTag.MedianOnLeft) || x.Tags.HasFlag(LaneTag.MedianOnRight)
+			.All(x => (x.LeftLane?.Type == LaneType.Filler && x.LeftLane?.LaneWidth > 0.5F) || (x.RightLane?.Type == LaneType.Filler && x.RightLane?.LaneWidth > 0.5F)
 				|| x.LeftLane?.Type == LaneType.Pedestrian || x.RightLane?.Type == LaneType.Pedestrian);
 
 		if (roadInfo.ContainsWiredLanes)
@@ -157,68 +157,21 @@ public static class ThumbnailMakerUtil
 			lane.LeftLane = left;
 			lane.RightLane = right;
 
-			if (left != null)
+			if (left != null && (left.Type & stoppableVehicleLanes) != 0)
 			{
-				if (left.Type == LaneType.Filler && left.LaneWidth > 0.5F)
-				{
-					lane.Tags |= LaneTag.MedianOnLeft;
-				}
-
-				if ((left.Type & stoppableVehicleLanes) != 0)
-				{
-					lane.Tags |= LaneTag.StoppableVehicleOnLeft;
-				}
+				lane.Tags |= LaneTag.StoppableVehicleOnLeft;
 			}
 
-			if (right != null)
+			if (right != null && (right.Type & stoppableVehicleLanes) != 0)
 			{
-				if (right.Type == LaneType.Filler && right.LaneWidth > 0.5F)
-				{
-					lane.Tags |= LaneTag.MedianOnRight;
-				}
-
-				if ((right.Type & stoppableVehicleLanes) != 0)
-				{
-					lane.Tags |= LaneTag.StoppableVehicleOnRight;
-				}
+				lane.Tags |= LaneTag.StoppableVehicleOnRight;
 			}
 
-			if (lane.Type == LaneType.Filler
-				&& lane.LaneWidth >= 1.5F)
+			if (lane.Type == LaneType.Filler && lane.LaneWidth >= 1.5F)
 			{
 				lane.Tags |= LaneTag.CenterMedian;
 			}
 		}
-	}
-
-	public static bool? IsOneWay(List<LaneInfo> lanes)
-	{
-		var car = lanes.FirstOrDefault(x => x.Type.HasFlag(LaneType.Car));
-		var bus = lanes.FirstOrDefault(x => x.Type.HasFlag(LaneType.Bus));
-		var bike = lanes.FirstOrDefault(x => x.Type.HasFlag(LaneType.Bike));
-
-		if (car != null)
-		{
-			return car.Direction != LaneDirection.Both && lanes
-				.Where(x => x.Type.HasFlag(LaneType.Car))
-				.All(x => x.Direction == car.Direction);
-		}
-
-		if (bus != null)
-		{
-			return bus.Direction != LaneDirection.Both && lanes
-				.Where(x => x.Type.HasFlag(LaneType.Bus))
-				.All(x => x.Direction == bus.Direction);
-		}
-
-		if (bike != null)
-		{
-			return bike.Direction != LaneDirection.Both && lanes
-				.Where(x => x.Type.HasFlag(LaneType.Bike))
-				.All(x => x.Direction == bike.Direction);
-		}
-
-		return null;
 	}
 
 	public static NetInfo.LaneType GetLaneType(LaneType laneType)
@@ -445,12 +398,15 @@ public static class ThumbnailMakerUtil
 			return Math.Max((float)lane.Elevation, -0.3F);
 		}
 
-		if (lane.Tags.HasFlag(LaneTag.Sidewalk))
-		{
-			return 0F;
-		}
+		var elevation = 0F;
 
-		return road.RoadType == RoadType.Road ? -0.3F : 0F;
+		if (!lane.Tags.HasFlag(LaneTag.Sidewalk) && road.RoadType == RoadType.Road)
+			elevation = -0.3F;
+
+		if (lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel, LaneDecoration.Pavement))
+			elevation = elevation == 0F ? 0.2F : 0F;
+
+		return elevation;
 	}
 
 	public static VehicleInfo.VehicleCategoryPart1 GetVehicleCategory1(LaneType laneType)

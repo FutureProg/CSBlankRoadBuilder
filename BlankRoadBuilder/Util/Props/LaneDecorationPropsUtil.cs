@@ -264,6 +264,10 @@ public static partial class LanePropsUtil
 			}.Extend(prop => new LaneProp(prop)
 			{
 				JunctionDistance = 2.5F,
+				VanillaSegmentFlags = new VanillaSegmentInfoFlags
+				{
+					Forbidden = lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None
+				},
 				SegmentFlags = new SegmentInfoFlags
 				{
 					Required = ModOptions.KeepMarkingsHiddenByDefault ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,

@@ -15,6 +15,8 @@ public static class RoadUtils
 	public const NetSegmentExt.Flags S_RemoveTramSupports = NetSegmentExt.Flags.Custom4;
 	public const NetSegmentExt.Flags S_RemoveMarkings = NetSegmentExt.Flags.Custom5;
 
+	public const NetSegmentExt.Flags S_AnyStop = NetSegmentExt.Flags.Expression0;
+
 	public const NetNodeExt.Flags N_FullLowCurb = NetNodeExt.Flags.Custom0;
 	public const NetNodeExt.Flags N_ForceHighCurb = NetNodeExt.Flags.Custom1;
 	public const NetNodeExt.Flags N_RemoveLaneArrows = NetNodeExt.Flags.Custom2;

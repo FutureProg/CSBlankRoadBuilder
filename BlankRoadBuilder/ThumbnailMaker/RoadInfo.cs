@@ -34,7 +34,6 @@ public class RoadInfo
 	[XmlIgnore] public bool ContainsWiredLanes { get; set; }
 	[XmlIgnore] public bool WiredLanesAreNextToMedians { get; set; }
 	[XmlIgnore] public bool ContainsCenterMedian => Lanes.Any(x => x.Tags.HasFlag(LaneTag.CenterMedian));
-	[XmlIgnore] public bool? OneWay => ThumbnailMakerUtil.IsOneWay(Lanes);
 	[XmlIgnore] public ParkingAngle ParkingAngle => Lanes.Max(x => x.ParkingAngle);
 }
 

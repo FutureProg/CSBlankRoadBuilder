@@ -38,6 +38,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ModContents\AnyStop.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ModContents\AnyStop.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="2.1.0" />
     <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
   </ItemGroup>

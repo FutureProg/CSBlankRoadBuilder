@@ -119,7 +119,7 @@ public class RoadBuilderPanel : StandalonePanel
 		var loadingLabel = GenerateLoadingLabel();
 		yield return 0;
 
-		foreach (var stateInfo in BlankRoadBuilderUtil.Build(_currentSelection?.RoadInfo))
+		foreach (var stateInfo in RoadBuilderUtil.Build(_currentSelection?.RoadInfo))
 		{
 			if (stateInfo.Exception != null)
 			{
