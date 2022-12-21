@@ -143,13 +143,10 @@ public static class BlankRoadBuilderUtil
 		{
 			metadata.Lanes.Add(item, new Lane(item)
 			{
-				LaneTags = new LaneTagsT(new[] { "RoadBuilderLane" })
-				{
-					Selected = new[] { "RoadBuilderLane" }
-				}
+				LaneTags = new LaneTagsT(new[] { "RoadBuilderLane" }) { Selected = new[] { "RoadBuilderLane" } }
 			});
 		}
-		NetInfo.Lane
+
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");
 		metadata.RenameCustomFlag(RoadUtils.S_AddRoadDamage, "Add road damage");

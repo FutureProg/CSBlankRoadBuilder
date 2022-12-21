@@ -17,6 +17,7 @@ using ICities;
 using JetBrains.Annotations;
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
@@ -27,7 +28,7 @@ public class BlankRoadBuilderMod : IUserMod
 	public static Version ModVersion => typeof(BlankRoadBuilderMod).Assembly.GetName().Version;
 	public static string VersionString => ModVersion.ToString(3);
 
-	public static string BuilderFolder => Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder");
+	public static string BuilderFolder => Path.Combine(DataLocation.localApplicationData, "RoadBuilder");
 	public static string ImportFolder => Path.Combine(BuilderFolder, "Import");
 	public static string ThumbnailMakerFolder => Path.Combine(BuilderFolder, "Thumbnail Maker");
 	public static string MeshesFolder => Path.Combine(ModFolder, "Meshes");
@@ -38,19 +39,26 @@ public class BlankRoadBuilderMod : IUserMod
 	{
 		Directory.CreateDirectory(BuilderFolder);
 
-		try
-		{
-			DeleteAll(Path.Combine(BuilderFolder, "Meshes"));
-			DeleteAll(Path.Combine(BuilderFolder, "Textures"));
-
-			DeleteAll(ImportFolder);
-		}
-		catch { }
-
 		ModFolder = PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly())?.modPath;
 
 		try
 		{ CopyThumbnailMaker(); }
+		catch { }
+
+		try
+		{
+			DeleteAll(ImportFolder);
+
+			if (Directory.Exists(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder")))
+			{
+				var roads = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "Roads");
+
+				if (Directory.Exists(roads) && Directory.GetFiles(roads, "*.xml").Length > 0)
+					Process.Start(Path.Combine(ThumbnailMakerFolder, "ThumbnailMaker.exe"), "update");
+				else
+					DeleteAll(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"));
+			}
+		}
 		catch { }
 
 		HarmonyHelper.DoOnHarmonyReady(Patcher.PatchAll);

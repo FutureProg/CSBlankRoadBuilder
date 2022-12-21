@@ -55,6 +55,7 @@ public static class MarkingsUtil
 				case LaneDecoration.Filler:
 					yield return GetLaneFiller(netInfo, lane, GetFillerMarkingInfo(lane.Type));
 					break;
+
 				case LaneDecoration.Grass:
 				case LaneDecoration.Pavement:
 				case LaneDecoration.Gravel:
@@ -62,7 +63,22 @@ public static class MarkingsUtil
 
 					fillerLane.Width += 0.5125F;
 
-					yield return GetFiller(netInfo, decoration, fillerLane, -0.285F - (lane.Position / 1000F));
+					var filler = GetFiller(netInfo, decoration, fillerLane, -0.285F - (lane.Position / 1000F));
+
+					if (decoration != LaneDecoration.Pavement && lane.Decorations.HasFlag(LaneDecoration.TransitStop))
+					{
+						var pavementFiller1 = GetFiller(netInfo, LaneDecoration.Pavement, fillerLane, -0.285F - (lane.Position / 1000F));
+						var pavementFiller2 = GetFiller(netInfo, LaneDecoration.Pavement, fillerLane, -0.285F - (lane.Position / 1000F));
+						
+						filler.VanillaSegmentFlags.Forbidden |= NetSegment.Flags.StopAll;
+						pavementFiller1.VanillaSegmentFlags.Required |= NetSegment.Flags.StopAll;
+						pavementFiller2.VanillaSegmentFlags.Required |= NetSegment.Flags.StopAll;
+
+						yield return pavementFiller1;
+						yield return pavementFiller2;
+					}
+
+					yield return filler;
 					break;
 			}
 		}

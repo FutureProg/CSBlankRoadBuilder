@@ -104,7 +104,7 @@ public static partial class LanePropsUtil
 			yield break;
 		}
 
-		var sidewalk = lane.Tags.HasFlag(LaneTag.Sidewalk);
+		var sidewalk = lane.Type == LaneType.Curb;
 
 		if (sidewalk && ((lane.Position < 0) == (swapped == flipped)))
 		{
