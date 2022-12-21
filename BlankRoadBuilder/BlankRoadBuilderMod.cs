@@ -1,4 +1,5 @@
-﻿namespace BlankRoadBuilder;
+﻿
+namespace BlankRoadBuilder;
 
 using AdaptiveRoads.LifeCycle;
 
@@ -23,7 +24,7 @@ using System.Reflection;
 
 public class BlankRoadBuilderMod : IUserMod
 {
-	public string Name => "Blank Road Builder v" + VersionString;
+	public string Name => "Road Builder v" + VersionString;
 	public string Description => "Tool that allows you to create roads without dealing with the tedious asset editor";
 	public static Version ModVersion => typeof(BlankRoadBuilderMod).Assembly.GetName().Version;
 	public static string VersionString => ModVersion.ToString(3);
@@ -53,7 +54,7 @@ public class BlankRoadBuilderMod : IUserMod
 			{
 				var roads = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "Roads");
 
-				if (Directory.Exists(roads) && Directory.GetFiles(roads, "*.xml").Length > 0)
+				if (Directory.Exists(roads) && Directory.GetFiles(roads, "*.xml", SearchOption.AllDirectories).Length > 0)
 					Process.Start(Path.Combine(ThumbnailMakerFolder, "ThumbnailMaker.exe"), "update");
 				else
 					DeleteAll(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"));
@@ -118,11 +119,12 @@ public class BlankRoadBuilderMod : IUserMod
 	{
 		if (!Directory.Exists(directory))
 			return;
-		foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
+
+		foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.TopDirectoryOnly))
 			File.Delete(file);
 
-		foreach (var file in Directory.GetDirectories(directory, "*", SearchOption.AllDirectories))
-			Directory.Delete(file);
+		foreach (var file in Directory.GetDirectories(directory, "*", SearchOption.TopDirectoryOnly))
+			DeleteAll(file);
 
 		Directory.Delete(directory);
 	}
