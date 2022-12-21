@@ -50,7 +50,14 @@ public class BlankRoadBuilderMod : IUserMod
 		{
 			DeleteAll(ImportFolder);
 
-			if (Directory.Exists(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder")))
+            var assetsMatcherXML = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "SavedAssets.xml");
+            if (File.Exists(assetsMatcherXML))
+            {
+                string destPath = Path.Combine(BuilderFolder, "SavedAssets.xml");
+                File.Move(assetsMatcherXML, destPath);
+            }
+
+            if (Directory.Exists(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder")))
 			{
 				var roads = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "Roads");
 
