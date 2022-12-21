@@ -8,8 +8,8 @@ public enum LaneTag
 	Asphalt = 1, // Used by default to specify the lane is on the asphalt part of the road
 	Ghost = 2,
 	Sidewalk = 4,
-	MedianOnLeft = 8,
-	MedianOnRight = 16,
+	//MedianOnLeft = 8,
+	//MedianOnRight = 16,
 	StoppableVehicleOnLeft = 32,
 	StoppableVehicleOnRight = 64,
 	CenterMedian = 128,

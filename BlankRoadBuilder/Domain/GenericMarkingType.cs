@@ -5,6 +5,7 @@ namespace BlankRoadBuilder.Domain;
 [Flags]
 public enum GenericMarkingType
 {
+	None = 0,
 	Normal = 1,
 	Flipped = 2,
 	End = 4,

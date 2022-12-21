@@ -186,7 +186,7 @@ public class MeshUtil
 			m_lodMesh = x.m_lodMesh,
 			m_lodMaterial = x.m_lodMaterial,
 			TreatBendAsSegment = true,
-			RenderNode = false,
+			RenderNode = true,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lanes),
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.L_RemoveBarrier },
 			LaneTags = new LaneTagsT(new[] { "RoadBuilderLane" }),
