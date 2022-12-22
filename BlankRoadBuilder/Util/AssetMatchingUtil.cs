@@ -78,19 +78,30 @@ public static class AssetMatchingUtil
         }
         return UpdateMatchingFile();
     }
-    public static string? GetMatchForRoadConfig(string roadConfigFile)
-    {
+    public static Asset? GetMatchForRoadConfig(string roadConfigFile)
+    {        
         var matchingData = MatchingData;
         if (matchingData == null)
         {
             return null;
         }
-        string re;
-        if (matchingData.Assets.TryGetValue(roadConfigFile, out re))
+
+        Asset re = new Asset();
+        re.RoadConfigFile = roadConfigFile;
+        string outStr;
+        if (matchingData.Assets.TryGetValue(roadConfigFile, out outStr))
         {
-            return re;
+            re.CrpFile = outStr;
+        } else
+        {
+            return null;
         }
-        return null;
+        Domain.RoadOptions outRO;
+        if (matchingData.RoadOptions.TryGetValue(roadConfigFile, out outRO))
+        {
+            re.RoadOptions = outRO;
+        }        
+        return re;
     }
 
     public static Asset? RemoveMatch(string roadConfigFile)

@@ -236,6 +236,7 @@ public class RoadBuilderPanel : StandalonePanel
 		public string? FileName;
 		public string? FilePath;
 		public UITextureAtlas? TextureAtlas;
+		public AssetMatchingUtil.Asset? assetMatch;
 		public RoadInfo? RoadInfo;
 		public FileInfo? FileInfo;
 	}
@@ -327,5 +328,16 @@ public class RoadBuilderPanel : StandalonePanel
 
 			return label;
 		}
+
+		private UISprite GetAssetFileStatus()
+		{
+			var sprite = AddUIComponent<UISprite>();
+            sprite.height = 10f;
+            sprite.width = 10f;
+            sprite.relativePosition = new Vector2(ThumbnailWidth + Margin * 2, height - sprite.height - Margin);
+
+            return sprite;
+        }
+		
 	}
 }
