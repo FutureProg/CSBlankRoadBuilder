@@ -253,7 +253,7 @@ public static class MarkingsUtil
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.L_RemoveFiller },
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lane.NetLanes[0]),
 			Tiling = 2F,
-			VerticalOffset = 0.01F,
+			VerticalOffset = 0.1F,
 			//VerticalOffset = (float)Math.Round(offset ?? (lane.Type == LaneType.Pedestrian ? -0.25F : (ModOptions.FillerHeight - 0.3F)), 6),
 			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = AdaptiveRoads.Data.NetworkExtensions.LaneTransition.Flags.SimilarLaneIndex }
 		};
@@ -549,14 +549,17 @@ public static class MarkingsUtil
 		public override bool Equals(object obj)
 		{
 			if (obj is MarkingIndex mi)
-				return mi.Index == Index;
+				return mi.Index == Index && mi.Right == Right;
 
 			return false;
 		}
 
 		public override int GetHashCode()
 		{
-			return -2134847229 + Index.GetHashCode();
+			var hashCode = -1621135224;
+			hashCode = hashCode * -1521134295 + Index.GetHashCode();
+			hashCode = hashCode * -1521134295 + Right.GetHashCode();
+			return hashCode;
 		}
 	}
 

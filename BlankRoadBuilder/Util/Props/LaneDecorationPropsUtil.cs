@@ -89,6 +89,13 @@ public static partial class LanePropsUtil
 					}
 
 					break;
+				case LaneDecoration.StreetAds:
+					foreach (var prop in GetStreetAds(lane))
+					{
+						yield return prop;
+					}
+
+					break;
 			}
 		}
 	}
@@ -103,8 +110,8 @@ public static partial class LanePropsUtil
 			m_finalProp = prop,
 			m_probability = 100,
 			m_angle = propAngle(lane) * 90,
-			m_repeatDistance = 30F,
-			m_position = new Vector3(0, 0, lane.Decorations.HasFlag(LaneDecoration.Benches) ? -4F : 1F)
+			m_repeatDistance = lane.Decorations.HasFlag(LaneDecoration.Benches) ? 15F : 30F,
+			m_position = new Vector3(0, 0, lane.Decorations.HasFlag(LaneDecoration.Benches) ? -5F : 1F)
 		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
 	}
 
@@ -121,6 +128,22 @@ public static partial class LanePropsUtil
 			m_repeatDistance = 15F,
 			m_position = new Vector3(0, 0, 1.5F)
 		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
+	}
+
+	private static IEnumerable<NetLaneProps.Prop> GetStreetAds(LaneInfo lane)
+	{
+		var prop = Prop("904031558.Street Ads 01_Data");
+		var hasOtherDecos = lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots);
+
+		yield return new NetLaneProps.Prop
+		{
+			m_prop = prop,
+			m_finalProp = prop,
+			m_probability = 100,
+			m_angle = 0,
+			m_repeatDistance = 25F,
+			m_position = new Vector3(hasOtherDecos ? propAngle(lane) * lane.Width / 2 : 0, 0, 0)
+		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 5F });
 	}
 
 	private static IEnumerable<NetLaneProps.Prop> GetStreetLights(LaneInfo lane, RoadInfo road, LaneDecoration decoration)
@@ -173,7 +196,9 @@ public static partial class LanePropsUtil
 
 		if (lane.Decorations != LaneDecoration.Hedge)
 		{
-			position = propAngle(lane) * ((-lane.Width / 2) + 0.55F);
+			var hasOtherDecos = lane.Decorations.HasFlag(LaneDecoration.Bollard) && lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots, LaneDecoration.StreetAds, LaneDecoration.BikeParking);
+			
+			position = propAngle(lane) * ((-lane.Width / 2) + (hasOtherDecos ? 0.75F : 0.55F));
 		}
 
 		yield return new NetLaneProps.Prop
@@ -189,6 +214,7 @@ public static partial class LanePropsUtil
 	private static IEnumerable<NetLaneProps.Prop> GetBollards(LaneInfo lane)
 	{
 		var prop = Prop("1650964670.Bollard A 05_Data");
+		var hasOtherDecos = lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots, LaneDecoration.StreetAds, LaneDecoration.BikeParking);
 
 		yield return new NetLaneProps.Prop
 		{
@@ -196,7 +222,7 @@ public static partial class LanePropsUtil
 			m_finalProp = prop,
 			m_probability = 100,
 			m_repeatDistance = 2F,
-			m_position = new Vector3(0, 0.01F, 0)
+			m_position = new Vector3(hasOtherDecos ? propAngle(lane) * lane.Width / -2 : 0, 0.01F, 0)
 		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 2F });
 	}
 
@@ -213,7 +239,7 @@ public static partial class LanePropsUtil
 				m_probability = 100,
 				m_angle = propAngle(lane) * 90,
 				m_repeatDistance = 15F,
-				m_position = new Vector3(0, 0, lane.Decorations.HasFlag(LaneDecoration.TrashBin) ? 3F : 2.25F)
+				m_position = new Vector3(0, 0, lane.Decorations.HasFlag(LaneDecoration.TrashBin) ? 2.75F : 2F)
 			}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
 
 			yield return new NetLaneProps.Prop
@@ -223,7 +249,7 @@ public static partial class LanePropsUtil
 				m_probability = 100,
 				m_angle = propAngle(lane) * 90,
 				m_repeatDistance = 15F,
-				m_position = new Vector3(0, 0, -2.25F)
+				m_position = new Vector3(0, 0, -2F)
 			}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
 
 			yield break;
@@ -281,8 +307,9 @@ public static partial class LanePropsUtil
 	{
 		var tree = PrefabCollection<TreeInfo>.FindLoaded("mp9-YoungLinden");
 		var planter = Prop("2086553476.Tree Planter 03 1m_Data");
+		var hasOtherDecos = lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots);
 
-		if(ModOptions.VanillaTreePlacement)
+		if (ModOptions.VanillaTreePlacement)
 		{
 			yield return getTree(2);
 			yield return getPlanter(2);
@@ -309,7 +336,7 @@ public static partial class LanePropsUtil
 			m_upgradable = true,
 			m_probability = 100,
 			m_repeatDistance = ModOptions.VanillaTreePlacement ? 12 : 0,
-			m_position = new Vector3(0, 0, position)
+			m_position = new Vector3(hasOtherDecos ? propAngle(lane) * -Math.Min(1, lane.Width / 2) : 0, 0, position)
 		}.Extend(prop => new LaneProp(prop)
 		{
 			EndNodeFlags = new NodeInfoFlags
@@ -330,7 +357,7 @@ public static partial class LanePropsUtil
 			m_upgradable = true,
 			m_probability = 100,
 			m_repeatDistance = ModOptions.VanillaTreePlacement ? 12 : 0,
-			m_position = new Vector3(propAngle(lane) * 0.01F, 0, position)
+			m_position = new Vector3((hasOtherDecos ? propAngle(lane) * -Math.Min(1, lane.Width / 2) : 0) + (propAngle(lane) * 0.01F), 0, position)
 		}.Extend(prop => new LaneProp(prop)
 		{
 			EndNodeFlags = new NodeInfoFlags
