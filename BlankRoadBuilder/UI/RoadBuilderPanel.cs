@@ -87,11 +87,6 @@ public class RoadBuilderPanel : StandalonePanel
 		if (value is ListData objVal)
 		{
 			_currentSelection = objVal;
-
-			if (StandalonePanelManager<TransitStopOptionsPanel>.Panel != null)
-			{
-				StandalonePanelManager<TransitStopOptionsPanel>.Panel.SetRoadInfo(objVal.FileName, objVal.RoadInfo);
-			}
 		}     
     }
 

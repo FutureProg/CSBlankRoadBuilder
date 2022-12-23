@@ -1,5 +1,7 @@
 ﻿using AlgernonCommons.UI;
 
+using BlankRoadBuilder.Domain;
+
 using ColossalFramework;
 using ColossalFramework.UI;
 
@@ -93,12 +95,28 @@ public class EditorPanel : UIPanel
 
 	private void TMButton_Click(UIComponent component, UIMouseEventParameter eventParam)
 	{
-		var openTMs = Process.GetProcessesByName("ThumbnailMaker");
+		var tm = Path.Combine(BlankRoadBuilderMod.ThumbnailMakerFolder, "ThumbnailMaker.exe");
+		var openTMs = false;
 
-		if (openTMs.Length > 0)
-			File.WriteAllText(Path.Combine(BlankRoadBuilderMod.ThumbnailMakerFolder, "Wake"), "It's time to wake up");
-		else
-			Process.Start(Path.Combine(BlankRoadBuilderMod.ThumbnailMakerFolder, "ThumbnailMaker.exe"));
+		try
+		{
+			openTMs = Process.GetProcessesByName("ThumbnailMaker").Length > 0;
+		}
+		catch { }
+
+		try
+		{
+			if (openTMs)
+				File.WriteAllText(Path.Combine(BlankRoadBuilderMod.ThumbnailMakerFolder, "Wake"), "It's time to wake up");
+			else if (File.Exists(tm))
+				Process.Start(tm);
+			else
+			{
+				var panel = UIView.library.ShowModal<ExceptionPanel>("ThumbnailMakerMissing");
+				panel.SetMessage("Thumbnail Maker Missing", "The thumbnail maker application is missing from your computer.\r\n\r\nThis may be caused by missing files in the mod folder, or that your antivirus removed it.", true);
+			}
+		}
+		catch (Exception ex) { UnityEngine.Debug.LogException(ex); }
 	}
 
 	private void BuildButton_Click(UIComponent component, UIMouseEventParameter eventParam)
