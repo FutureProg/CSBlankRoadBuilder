@@ -10,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Security.Policy;
 
 using UnityEngine;
 
@@ -24,7 +22,7 @@ public class RoadBuilderPanel : StandalonePanel
 	public static string? LastLoadedRoadFileName { get => lastLoadedRoad; }
 
 	protected override float TitleXPos => 9999;
-	protected override string PanelTitle => "Road Builder v" + BlankRoadBuilderMod.VersionString;
+	protected override string PanelTitle => "Road Builder";
 
 	public UIButton ContinueButton => _continueButton;
 
@@ -32,6 +30,7 @@ public class RoadBuilderPanel : StandalonePanel
 	private readonly SlickButton _continueButton;
 	private readonly SlickButton _refreshButton;
 	private readonly UITextField _searchTextBox;
+	private readonly UICheckBox _hideBuiltCheckBox;
 
 	private ListData? _currentSelection;
 	private List<ListData>? listData;
@@ -64,10 +63,19 @@ public class RoadBuilderPanel : StandalonePanel
 		_refreshButton.SetIcon("I_Refresh.png");
 		_refreshButton.eventClick += _refreshButton_eventClick;
 
-		_searchTextBox = UITextFields.AddLabelledTextField(this, 16F + 90F, 46F, "Search:", width - 32F - 90F, 30F, 1.2F, 6);
+		_hideBuiltCheckBox = UICheckBoxes.AddLabelledCheckBox(this, 0, 0, "Hide generated roads", tooltip: "Only shows road configs that you haven't generated & saved yet");
+		_hideBuiltCheckBox.relativePosition = new Vector3(width - _hideBuiltCheckBox.width - 2 * Margin, 52F, 0);
+		_hideBuiltCheckBox.eventCheckChanged += _hideBuiltCheckBox_eventCheckChanged;
+
+		_searchTextBox = UITextFields.AddLabelledTextField(this, 10F + 90F, 46F, "Search:", width - 32F - 90F - _hideBuiltCheckBox.width - Margin, 30F, 1.2F, 6);
 		_searchTextBox.eventTextChanged += _searchTextBox_eventTextChanged;
 
 		_searchTextBox.Focus();
+	}
+
+	private void _hideBuiltCheckBox_eventCheckChanged(UIComponent component, bool value)
+	{
+		RefreshList(false);
 	}
 
 	private void _refreshButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -101,6 +109,7 @@ public class RoadBuilderPanel : StandalonePanel
 		_refreshButton.isVisible = false;
 		_searchTextBox.isVisible = false;
 		_continueButton.isVisible = false;
+		_hideBuiltCheckBox.isVisible = false;
 
 		height = 200;
 
@@ -153,7 +162,7 @@ public class RoadBuilderPanel : StandalonePanel
 		if (reload)
 			listData = ReadXMLFiles();
 
-		var data = listData.Where(SearchCheck).OrderByDescending(x => x.FileInfo?.LastWriteTime).ToList();
+		var data = listData.Where(SearchCheck).OrderByDescending(x => x.RoadInfo?.DateCreated).ToList();
 
 		_fileList.Data = new FastList<object>()
 		{
@@ -171,6 +180,9 @@ public class RoadBuilderPanel : StandalonePanel
 
 	private bool SearchCheck(ListData item)
 	{
+		if (_hideBuiltCheckBox.isChecked && item.assetMatch != null)
+			return false;
+
 		return string.IsNullOrEmpty(_searchTextBox.text)
 			|| (item.RoadInfo?.Name.SearchCheck(_searchTextBox.text) ?? false)
 			|| (item.RoadInfo?.Description.SearchCheck(_searchTextBox.text) ?? false);
@@ -201,7 +213,8 @@ public class RoadBuilderPanel : StandalonePanel
 				FilePath = file,
 				TextureAtlas = GetThumbnailTextureAtlas(file, roadInfo),
 				RoadInfo = roadInfo,
-				FileInfo = new FileInfo(file)
+				FileInfo = new FileInfo(file),
+				assetMatch = AssetMatchingUtil.GetMatchForRoadConfig(Path.GetFileNameWithoutExtension(file)),
 			});
 		}
 
@@ -246,6 +259,7 @@ public class RoadBuilderPanel : StandalonePanel
 
 		private UILabel? _roadNameLabel;
 		private UISprite? _thumbnailImage;
+		private UISprite? _buildTick;
 		private UILabel? _roadDescriptionLabel;
 		private UILabel? _roadDateLabel;
 
@@ -263,13 +277,15 @@ public class RoadBuilderPanel : StandalonePanel
 			_roadNameLabel ??= GetRoadNameLabel();
 			_roadDescriptionLabel ??= GetRoadDescriptionLabel();
 			_roadDateLabel ??= GetRoadDateLabel();
+			_buildTick ??= GetAssetFileStatus();
 
-            _thumbnailImage.atlas = listData?.TextureAtlas;
+			_thumbnailImage.atlas = listData.TextureAtlas;
             _thumbnailImage.spriteName = "normal";
-            _roadNameLabel.text = listData?.RoadInfo?.Name.RegexReplace("^BR[B4] ", "");
-            _roadDescriptionLabel.text = listData?.RoadInfo?.Description;
-            _roadDateLabel.text = listData?.FileInfo?.LastWriteTime.ToRelatedString(true);
+            _roadNameLabel.text = listData.RoadInfo?.Name.RegexReplace("^BR[B4] ", "");
+            _roadDescriptionLabel.text = listData.RoadInfo?.Description;
+            _roadDateLabel.text = listData.FileInfo?.LastWriteTime.ToRelatedString(true);
 			_roadDateLabel.relativePosition = new Vector2(width - _roadDateLabel.width - Margin * 2 - 5F, height - _roadDateLabel.height - Margin);
+			_buildTick.isVisible = listData.assetMatch != null;
 
 			Deselect(rowIndex);
 		}
@@ -327,12 +343,12 @@ public class RoadBuilderPanel : StandalonePanel
 		private UISprite GetAssetFileStatus()
 		{
 			var sprite = AddUIComponent<UISprite>();
-            sprite.height = 10f;
-            sprite.width = 10f;
-            sprite.relativePosition = new Vector2(ThumbnailWidth + Margin * 2, height - sprite.height - Margin);
+			sprite.size = new Vector2(16, 16);
+            sprite.relativePosition = new Vector2(width - sprite.width - Margin * 3, Margin);
+			sprite.atlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "I_BuildTick"));
+			sprite.spriteName = "normal";
 
-            return sprite;
-        }
-		
+			return sprite;
+        }		
 	}
 }

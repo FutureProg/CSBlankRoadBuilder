@@ -26,7 +26,6 @@ public static class RoadUtils
 	public const NetNodeExt.Flags N_RemoveTramTracks = NetNodeExt.Flags.Custom4;
 	public const NetNodeExt.Flags N_HideTreesCloseToIntersection = NetNodeExt.Flags.Custom5;
 
-	public const NetLaneExt.Flags L_RemoveFiller = NetLaneExt.Flags.Custom0;
 	public const NetLaneExt.Flags L_RemoveTrees = NetLaneExt.Flags.Custom1;
 	public const NetLaneExt.Flags L_RemoveStreetLights = NetLaneExt.Flags.Custom2;
 

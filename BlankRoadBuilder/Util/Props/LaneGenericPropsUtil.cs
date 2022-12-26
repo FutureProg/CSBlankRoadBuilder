@@ -58,7 +58,7 @@ public static partial class LanePropsUtil
 			var tramLane = leftTram ? lane.LeftLane : lane.RightLane;
 			var nextLane = leftTram ? tramLane?.LeftLane : tramLane?.RightLane;
 
-			if ((nextLane?.Type == LaneType.Filler) || (nextLane?.Type.HasFlag(LaneType.Pedestrian) ?? false))
+			if (nextLane?.Type.HasAnyFlag(LaneType.Filler, LaneType.Curb, LaneType.Pedestrian) ?? false)
 			{
 				getLaneTramInfo(nextLane, road, out _, out var l, out var r);
 
@@ -70,7 +70,7 @@ public static partial class LanePropsUtil
 			{
 				var nextNextLane = leftTram ? nextLane?.LeftLane : nextLane?.RightLane;
 
-				if ((nextNextLane?.Type == LaneType.Filler) || (nextNextLane?.Type.HasFlag(LaneType.Pedestrian) ?? false))
+				if (nextNextLane?.Type.HasAnyFlag(LaneType.Filler, LaneType.Curb, LaneType.Pedestrian) ?? false)
 					yield break;
 
 			}
@@ -111,7 +111,7 @@ public static partial class LanePropsUtil
 
 		static void getLaneTramInfo(LaneInfo lane, RoadInfo road, out bool tramLanesAreNextToMedians, out bool leftTram, out bool rightTram)
 		{
-			tramLanesAreNextToMedians = road.WiredLanesAreNextToMedians && road.AsphaltWidth > 10F;
+			tramLanesAreNextToMedians = road.WiredLanesAreNextToMedians /*&& road.AsphaltWidth > 10F*/;
 			leftTram = tramLanesAreNextToMedians && lane.LeftLane != null && ((lane.LeftLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
 			rightTram = tramLanesAreNextToMedians && lane.RightLane != null && ((lane.RightLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
 		}

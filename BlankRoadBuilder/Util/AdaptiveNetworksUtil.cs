@@ -298,15 +298,18 @@ public static class AdaptiveNetworksUtil
 		}
 	}
 
-	public static NetLaneProps.Prop ToggleForwardBackward(this NetLaneProps.Prop prop, bool toggle = true)
+	public static NetLaneProps.Prop ToggleForwardBackward(this NetLaneProps.Prop prop, bool toggle = true, bool keepAngle = false)
 	{
 		if (!toggle || prop?.m_prop == null)
 			return prop;
 
 		prop.m_segmentOffset = -prop.m_segmentOffset;
-		prop.m_angle = (prop.m_angle + 180) % 360;
+		if (!keepAngle)
+		{
+			prop.m_angle = (prop.m_angle + 180) % 360;
+			prop.m_position.x = -prop.m_position.x;
+		}
 		prop.m_position.z = -prop.m_position.z;
-		prop.m_position.x = -prop.m_position.x;
 
 		prop.m_colorMode = prop.m_colorMode.InvertStartEnd();
 		prop.m_flagsRequired.InvertStartEnd();

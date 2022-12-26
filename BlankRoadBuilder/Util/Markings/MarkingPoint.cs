@@ -5,9 +5,11 @@ using System;
 namespace BlankRoadBuilder.Util.Markings;
 public struct MarkingPoint : IEquatable<MarkingPoint>
 {
-	public float X => LeftLane != null ? (LeftLane.Position + LeftLane.Width / 2) : RightLane != null ? (RightLane.Position - RightLane.Width / 2) : 0F;
 	public LaneInfo? LeftLane { get; }
 	public LaneInfo? RightLane { get; }
+	public float X => 
+		LeftLane != null && LeftLane.Type != LaneType.Curb ? (LeftLane.Position + LeftLane.Width / 2) :
+		RightLane != null && RightLane.Type != LaneType.Curb ? (RightLane.Position - RightLane.Width / 2) : 0F;
 
 	public MarkingPoint(LaneInfo? leftLane, LaneInfo? rightLane)
 	{
@@ -16,4 +18,12 @@ public struct MarkingPoint : IEquatable<MarkingPoint>
 	}
 
 	public bool Equals(MarkingPoint other) => other.X == X;
+
+	public override bool Equals(object obj) => obj is MarkingPoint p && p.X == X;
+
+	public override int GetHashCode() => -1830369473 + X.GetHashCode();
+
+	public static bool operator ==(MarkingPoint left, MarkingPoint right) => left.Equals(right);
+
+	public static bool operator !=(MarkingPoint left, MarkingPoint right) => !left.Equals(right);
 }

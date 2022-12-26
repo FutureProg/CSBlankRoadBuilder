@@ -22,7 +22,6 @@ public class ModSettingsPanel : UIPanel
     {
         try
         {
-            Debug.LogError("HELLO?");
             var tabStrip = AutoTabstrip.AddTabstrip(this, 0f, 0f, OptionsPanelManager<ModSettingsPanel>.PanelWidth, OptionsPanelManager<ModSettingsPanel>.PanelHeight, out _, tabHeight: 32f);
 
             new GeneralOptions(tabStrip, 0);

@@ -153,6 +153,11 @@ public static partial class LanePropsUtil
 
 		yield return getLight(road.ContainsWiredLanes ? 2F : 0F);
 
+		if (ModOptions.VanillaStreetLightPlacement)
+		{
+			yield break;
+		}
+		
 		for (var i = 24; i <= 24 * 4; i += 24)
 		{
 			yield return getLight(i);
@@ -163,7 +168,8 @@ public static partial class LanePropsUtil
 		{
 			m_prop = lightProp,
 			m_finalProp = lightProp,
-			m_minLength = (Math.Abs(position) * 2F) + 10F,
+			m_minLength = ModOptions.VanillaTreePlacement ? 10 : ((Math.Abs(position) * 2F) + 10F),
+			m_repeatDistance = ModOptions.VanillaTreePlacement ? 24 : 0,
 			m_probability = 100,
 			m_position = new Vector3(xPos, 0, position)
 		}.Extend(prop => new LaneProp(prop)
@@ -266,7 +272,7 @@ public static partial class LanePropsUtil
 		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 5F });
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetGrassProps(LaneInfo lane)
+	public static IEnumerable<NetLaneProps.Prop> GetGrassProps(LaneInfo lane)
 	{
 		var prop = Prop("Roof Vegetation 01");
 		var odd = (int)lane.Width % 2 == 1;
@@ -303,7 +309,7 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetTrees(LaneInfo lane)
+	public static IEnumerable<NetLaneProps.Prop> GetTrees(LaneInfo lane)
 	{
 		var tree = PrefabCollection<TreeInfo>.FindLoaded("mp9-YoungLinden");
 		var planter = Prop("2086553476.Tree Planter 03 1m_Data");
@@ -312,6 +318,7 @@ public static partial class LanePropsUtil
 		if (ModOptions.VanillaTreePlacement)
 		{
 			yield return getTree(2);
+			if (planter != null && !lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel))
 			yield return getPlanter(2);
 			yield break;
 		}
@@ -340,9 +347,9 @@ public static partial class LanePropsUtil
 		}.Extend(prop => new LaneProp(prop)
 		{
 			EndNodeFlags = new NodeInfoFlags
-			{ Required = position > 0 && lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
+			{ Forbidden = position > 0 && lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
 			StartNodeFlags = new NodeInfoFlags
-			{ Required = position < 0 && lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
+			{ Forbidden = position < 0 && lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
 			LaneFlags = new LaneInfoFlags
 			{ Forbidden = RoadUtils.L_RemoveTrees },
 			VanillaSegmentFlags = new VanillaSegmentInfoFlags
@@ -361,9 +368,9 @@ public static partial class LanePropsUtil
 		}.Extend(prop => new LaneProp(prop)
 		{
 			EndNodeFlags = new NodeInfoFlags
-			{ Required = position > 0 && lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
+			{ Forbidden = position > 0 && lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
 			StartNodeFlags = new NodeInfoFlags
-			{ Required = position < 0 && lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
+			{ Forbidden = position < 0 && lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
 			LaneFlags = new LaneInfoFlags
 			{ Forbidden = RoadUtils.L_RemoveTrees },
 			VanillaSegmentFlags = new VanillaSegmentInfoFlags

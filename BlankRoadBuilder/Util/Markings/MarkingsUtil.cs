@@ -11,10 +11,6 @@ using System.Linq;
 
 using UnityEngine;
 
-using static AdaptiveRoads.DTO.NetInfoDTO;
-using static AdaptiveRoads.Manager.NetInfoExtionsion;
-using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
-
 namespace BlankRoadBuilder.Util.Markings;
 public static class MarkingsUtil
 {
@@ -22,28 +18,31 @@ public static class MarkingsUtil
     {
         var markingInfo = new MarkingsInfo();
         var currentFiller = (FillerMarking?)null;
+        var currentLane = (LaneInfo?)null;
 
         foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.Ghost, LaneTag.StackedLane)))
         {
             var laneFiller = lane.Decorations & (LaneDecoration.Filler | LaneDecoration.Grass | LaneDecoration.Gravel | LaneDecoration.Pavement);
+			var elevation = ThumbnailMakerUtil.GetLaneVerticalOffset(lane, roadInfo);
 
-            if (laneFiller != 0)
+			if (laneFiller != 0)
             {
-                if (laneFiller == LaneDecoration.Filler
-                    || currentFiller?.LeftPoint.LeftLane == null
+                if (currentFiller == null
                     || currentFiller.Type != laneFiller
-                    || ThumbnailMakerUtil.GetLaneVerticalOffset(currentFiller.LeftPoint.LeftLane, roadInfo) != ThumbnailMakerUtil.GetLaneVerticalOffset(lane, roadInfo))
+                    || (laneFiller == LaneDecoration.Filler && currentLane?.Type != lane.Type)
+                    || currentFiller.Elevation != elevation)
                 {
                     if (currentFiller != null)
                     {
                         markingInfo.Fillers.Add(currentFiller);
                     }
 
+                    currentLane = lane;
                     currentFiller = new FillerMarking
                     {
                         Type = laneFiller,
-                        LeftPoint = new MarkingPoint(lane.LeftLane, lane),
-                        RightPoint = new MarkingPoint(lane, lane.RightLane)
+                        Elevation = elevation,
+						LeftPoint = new MarkingPoint(lane.LeftLane, lane)
                     };
                 }
 
@@ -56,8 +55,9 @@ public static class MarkingsUtil
             {
                 markingInfo.Fillers.Add(currentFiller);
                 currentFiller = null;
-            } 
-        }
+                currentLane = null;
+			}
+		}
 
         foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.Ghost, LaneTag.StackedLane)))
         {
@@ -65,6 +65,13 @@ public static class MarkingsUtil
 
             foreach (var item in GenerateLaneMarkings(roadInfo, lane, currentCategory))
             {
+                if (markingInfo.Fillers.Any(x =>
+                    (x.LeftPoint == item.Point && (x.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))||
+				    (x.RightPoint == item.Point && (x.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))))
+                {
+                    continue;
+                }
+
                 if (!markingInfo.Lines.ContainsKey(item.Point) || markingInfo.Lines[item.Point].Marking < item.Marking)
                 {
                     markingInfo.Lines[item.Point] = item;
@@ -75,7 +82,7 @@ public static class MarkingsUtil
 		return markingInfo;
     }
 
-    private static IEnumerable<LineMarking> GenerateLaneMarkings(RoadInfo road, LaneInfo lane, LaneVehicleCategory currentCategory)
+    private static IEnumerable<LineMarking> GenerateLaneMarkings(RoadInfo roadInfo, LaneInfo lane, LaneVehicleCategory currentCategory)
     {
         var leftLane = lane.Direction == LaneDirection.Backwards ? lane.RightLane : lane.LeftLane;
         var rightLane = lane.Direction == LaneDirection.Backwards ? lane.LeftLane : lane.RightLane;
@@ -126,8 +133,9 @@ public static class MarkingsUtil
 
         LineMarking marking(bool r, GenericMarkingType t) => new LineMarking
         {
-            Marking = road.BufferWidth == 0F && (r ? rightLane : leftLane)?.Type == LaneType.Curb ? GenericMarkingType.None : t,
-            Point = r ? new MarkingPoint(lane, lane.RightLane) : new MarkingPoint(lane.LeftLane, lane)
+            Marking = roadInfo.BufferWidth == 0F && (r ? rightLane : leftLane)?.Type == LaneType.Curb ? GenericMarkingType.None : t,
+			Elevation = ThumbnailMakerUtil.GetLaneVerticalOffset(lane, roadInfo),
+			Point = r == (lane.Direction != LaneDirection.Backwards) ? new MarkingPoint(lane, lane.RightLane) : new MarkingPoint(lane.LeftLane, lane)
         };
     }
 }

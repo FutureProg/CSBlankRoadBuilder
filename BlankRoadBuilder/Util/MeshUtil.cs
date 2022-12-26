@@ -58,7 +58,9 @@ public class MeshUtil
 
 		// if AN markings
 		{
-			tracks.AddRange(AdaptiveNetworksMarkings.Markings(netInfo, MarkingsUtil.GenerateMarkings(roadInfo)));
+			var markings = MarkingsUtil.GenerateMarkings(roadInfo);
+
+			tracks.AddRange(AdaptiveNetworksMarkings.Markings(roadInfo, netInfo, markings));
 
 			if (roadInfo.ContainsWiredLanes)
 			{
@@ -147,7 +149,7 @@ public class MeshUtil
 			};
 		}
 
-		if (!road.WiredLanesAreNextToMedians || road.AsphaltWidth <= 10F)
+		if (!road.WiredLanesAreNextToMedians /*|| road.AsphaltWidth <= 10F*/)
 		{
 			var supportModel = AssetUtil.ImportAsset(ShaderType.Wire, MeshType.Tram, "TramSupport.fbx");
 

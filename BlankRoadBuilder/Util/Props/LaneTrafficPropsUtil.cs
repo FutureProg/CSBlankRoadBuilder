@@ -1,5 +1,6 @@
 ﻿using AdaptiveRoads.Manager;
 
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
@@ -19,22 +20,22 @@ public static partial class LanePropsUtil
 
 		var propPosition = -Math.Max(0, (lane.Width / 2) - 0.5F);
 
-		foreach (var prop in GetSignsAndTrafficLights(lane.RightDrivableArea, lane.LeftInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true)))
+		foreach (var prop in GetSignsAndTrafficLights(lane.RightDrivableArea, lane.LeftDrivableArea, lane.LeftInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true)))
 		{
 			yield return prop;
 		}
 
-		foreach (var prop in GetSignsAndTrafficLights(lane.LeftInvertedDrivableArea, lane.RightDrivableArea, propPosition, lane, road, GetSideLanes(lane, true), GetSideLanes(lane, false), true))
+		foreach (var prop in GetSignsAndTrafficLights(lane.LeftInvertedDrivableArea, lane.RightInvertedDrivableArea, lane.RightDrivableArea, propPosition, lane, road, GetSideLanes(lane, true), GetSideLanes(lane, false), true))
 		{
 			yield return prop;
 		}
 
-		foreach (var prop in GetSignsAndTrafficLights(lane.LeftDrivableArea, lane.RightInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, true), GetSideLanes(lane, false), false, true))
+		foreach (var prop in GetSignsAndTrafficLights(lane.LeftDrivableArea, lane.RightDrivableArea, lane.RightInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, true), GetSideLanes(lane, false), false, true))
 		{
 			yield return prop.ToggleForwardBackward();
 		}
 
-		foreach (var prop in GetSignsAndTrafficLights(lane.RightInvertedDrivableArea, lane.LeftDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true), true, true))
+		foreach (var prop in GetSignsAndTrafficLights(lane.RightInvertedDrivableArea, lane.LeftInvertedDrivableArea, lane.LeftDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true), true, true))
 		{
 			yield return prop.ToggleForwardBackward();
 		}
@@ -45,7 +46,7 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetSignsAndTrafficLights(float drivableArea, float invertedDrivableArea, float propPosition, LaneInfo lane, RoadInfo road, IEnumerable<LaneInfo> sideLanes, IEnumerable<LaneInfo> invertedSideLanes, bool swapped = false, bool flipped = false)
+	private static IEnumerable<NetLaneProps.Prop> GetSignsAndTrafficLights(float drivableArea, float oppositeDrivableArea, float invertedDrivableArea, float propPosition, LaneInfo lane, RoadInfo road, IEnumerable<LaneInfo> sideLanes, IEnumerable<LaneInfo> invertedSideLanes, bool swapped = false, bool flipped = false)
 	{
 		if (swapped)
 		{
@@ -57,64 +58,54 @@ public static partial class LanePropsUtil
 			if (!swapped)
 			{
 				yield return StopSign(propPosition);
-			}
 
-			if (drivableArea >= 2F)
-			{
-				yield return RailwayCrossing(road, drivableArea, propPosition);
-			}
-
-			if (drivableArea >= 3)
-			{
-				if (sideLanes.Any(x => (x.Type & (LaneType.Parking | LaneType.Bike)) == 0))
+				if (drivableArea >= 2F)
 				{
-					foreach (var prop in GetWarningSigns(lane))
-					{
-						yield return prop;
-					}
+					yield return RailwayCrossing(road, drivableArea, propPosition);
 				}
 
-				if (sideLanes.Any(x => (x.Type & (LaneType.Parking | LaneType.Bike | LaneType.Tram)) == 0))
+				if (drivableArea >= 3)
 				{
-					yield return SpeedSign(road, lane);
+					if (sideLanes.Any(x => (x.Type & (LaneType.Parking | LaneType.Bike)) == 0))
+					{
+						foreach (var prop in GetWarningSigns(lane))
+						{
+							yield return prop;
+						}
+					}
+
+					if (sideLanes.Any(x => (x.Type & (LaneType.Parking | LaneType.Bike | LaneType.Tram)) == 0))
+					{
+						yield return SpeedSign(road, lane);
+					}
 				}
 			}
 
 			if (drivableArea >= (swapped ? 9F : 6F))
 			{
 				yield return TrafficLight(road, "Traffic Light 02" + (swapped ? " Mirror" : ""), propPosition);
+				yield break;
 			}
-			else if (!swapped || !sideLanes.Take(2).Any(x => x.Type.HasAnyFlag(LaneType.Pedestrian, LaneType.Filler, LaneType.Curb)))
+
+			if (!swapped || !sideLanes.Take(2).Any(x => x.Type.HasAnyFlag(LaneType.Pedestrian, LaneType.Filler, LaneType.Curb)))
 			{
 				yield return TrafficLight(road, "Traffic Light 01" + (!swapped ? " Mirror" : ""), propPosition);
+				yield break;
 			}
-			else
-			{
-				goto ped;
-			}
-
-			yield break;
-		}
-
-	ped:
-		if (lane.Width < 1.5F && lane.Type != LaneType.Curb)
-		{
-			yield break;
 		}
 
 		var sidewalk = lane.Type == LaneType.Curb;
 
-		if (sidewalk && ((lane.Position < 0) == (swapped == flipped)))
+		if ((!sidewalk && lane.Width <= 1F) ||
+			(sidewalk && ((lane.Position < 0) == (swapped == flipped))) ||
+			(!sidewalk && (swapped ? invertedDrivableArea : oppositeDrivableArea) <= 3))
 		{
 			yield break;
 		}
 
-		if (!sidewalk && invertedSideLanes.Take(lane.Width >= 2.5F ? 1 : 2).Any(x => x.Type.HasAnyFlag(LaneType.Pedestrian, LaneType.Filler, LaneType.Curb)))
-		{
-			yield break;
-		}
+		var normalLight = lane.Type == LaneType.Curb && ModOptions.FlipTrafficLights;
 
-		yield return TrafficLight(road, "Traffic Light Pedestrian", propPosition, !swapped);
+		yield return TrafficLight(road, normalLight ? "Traffic Light 01 Mirror" : "Traffic Light Pedestrian", propPosition, normalLight ? swapped : !swapped);
 	}
 
 	private static IEnumerable<LaneInfo> GetSideLanes(LaneInfo? lane, bool left)
@@ -250,12 +241,12 @@ public static partial class LanePropsUtil
 
 	private static NetLaneProps.Prop TrafficLight(RoadInfo road, string propName, float propPosition, bool flipAngle = false)
 	{
-		var prop = Prop(propName);
-
+		var propTemplate = Prop(propName);
+		
 		return new NetLaneProps.Prop
 		{
-			m_prop = prop,
-			m_finalProp = prop,
+			m_prop = propTemplate,
+			m_finalProp = propTemplate,
 			m_flagsRequired = NetLane.Flags.None,
 			m_flagsForbidden = NetLane.Flags.JoinedJunction | NetLane.Flags.Inverted,
 			m_startFlagsRequired = NetNode.Flags.None,
@@ -270,7 +261,7 @@ public static partial class LanePropsUtil
 			m_colorMode = NetLaneProps.ColorMode.EndState,
 			m_probability = 100,
 			m_position = new Vector3(propPosition, 0, road.ContainsWiredLanes ? -1.5F : -0.75F),
-		};
+		}.ToggleForwardBackward(ModOptions.FlipTrafficLights, true);
 	}
 
 	private static NetLaneProps.Prop StopSign(float propPosition)

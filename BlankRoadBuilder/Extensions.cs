@@ -178,11 +178,14 @@ public static class Extensions
 
 	public static string RemoveDoubleSpaces(this string S)
 	{
-		return Regex.Replace(S, " {2,}", " ");
+		return Regex.Replace(S ?? string.Empty, " {2,}", " ");
 	}
 
 	public static bool SearchCheck(this string s1, string s2, bool caseCheck = false)
 	{
+		if (s1 == null || s2 == null)
+			return false;
+
 		return s1.SpellCheck(s2, caseCheck) <= (int)Math.Ceiling((s2.Length - 4) / 5m) || (caseCheck ? s1 : s1.ToLower()).Contains(caseCheck ? s2 : s2.ToLower()) || (s1.AbbreviationCheck(s2) && s2.GetWords().Length > 2);
 	}
 

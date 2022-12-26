@@ -142,9 +142,9 @@ public static class RoadBuilderUtil
 		metadata.PavementWidthRight = roadInfo.PavementWidth;
 		metadata.ParkingAngleDegrees = roadInfo.ParkingAngle switch { ParkingAngle.Horizontal => 90F, ParkingAngle.Diagonal => 60F, ParkingAngle.InvertedDiagonal => -60F, _ => 0F };
 
-		foreach (var item in netInfo.m_lanes)
+		foreach (var item in roadInfo.Lanes.Where(x => x.Tags.HasFlag(LaneTag.Damage) || x.Decorations.HasFlag(LaneDecoration.Barrier)))
 		{
-			metadata.Lanes.Add(item, new Lane(item)
+			metadata.Lanes.Add(item.NetLanes[0], new Lane(item.NetLanes[0])
 			{
 				LaneTags = new LaneTagsT(new[] { "RoadBuilderLane" }) { Selected = new[] { "RoadBuilderLane" } }
 			});
@@ -176,7 +176,6 @@ public static class RoadBuilderUtil
 				var i = netLanes.IndexOf(netLane);
 
 				metadata.RenameCustomFlag(i, RoadUtils.L_RemoveTrees, "Remove trees");
-				metadata.RenameCustomFlag(i, RoadUtils.L_RemoveFiller, "Remove filler");
 				metadata.RenameCustomFlag(i, RoadUtils.L_RemoveStreetLights, "Remove street lights");
 
 				if (netLane.m_vehicleType == VehicleInfo.VehicleType.Tram)
@@ -307,7 +306,7 @@ public static class RoadBuilderUtil
 		if (roadInfo.VanillaWidth)
 			roadInfo.TotalWidth = (float)(16 * Math.Ceiling(roadInfo.TotalWidth / 16D));
 
-		var index = -roadInfo.AsphaltWidth / 2 - roadInfo.BufferWidth - leftPavementWidth;
+		var index = -roadInfo.AsphaltWidth / 2 - leftPavementWidth;
 
 		foreach (var lane in roadInfo.Lanes)
 		{
@@ -333,6 +332,15 @@ public static class RoadBuilderUtil
 
 				index = r(index + roadInfo.BufferWidth);
 			}
+		}
+
+		if (roadInfo.VanillaWidth)
+		{
+			var newWidth = (float)(16 * Math.Ceiling((roadInfo.TotalWidth - 1F) / 16D));
+
+			roadInfo.PavementWidth += (newWidth - roadInfo.TotalWidth) / 2;
+
+			roadInfo.TotalWidth = newWidth;
 		}
 
 		if (roadInfo.RoadWidth > roadInfo.TotalWidth)

@@ -62,8 +62,8 @@ public static class ThumbnailMakerUtil
 
 		roadInfo.WiredLanesAreNextToMedians = roadInfo.Lanes
 			.Where(x => (x.Type & (LaneType.Tram | LaneType.Trolley)) != 0)
-			.All(x => (x.LeftLane?.Type == LaneType.Filler && x.LeftLane?.LaneWidth > 0.5F) || (x.RightLane?.Type == LaneType.Filler && x.RightLane?.LaneWidth > 0.5F)
-				|| x.LeftLane?.Type == LaneType.Pedestrian || x.RightLane?.Type == LaneType.Pedestrian);
+			.All(x => (x.LeftLane != null && x.LeftLane.Type.HasAnyFlag(LaneType.Filler, LaneType.Curb, LaneType.Pedestrian) && x.LeftLane.LaneWidth > 0.5F)
+				|| (x.RightLane != null && x.RightLane.Type.HasAnyFlag(LaneType.Filler, LaneType.Curb, LaneType.Pedestrian) && x.RightLane.LaneWidth > 0.5F));
 
 		if (roadInfo.ContainsWiredLanes)
 		{

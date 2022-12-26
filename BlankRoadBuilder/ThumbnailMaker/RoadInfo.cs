@@ -13,8 +13,10 @@ public class RoadInfo
 {
 	[XmlAttribute] public int Version { get; set; }
 	public string Name { get; set; }
+	public string CustomName { get; set; }
 	public string Description { get; set; }
 	public string CustomText { get; set; }
+	public DateTime DateCreated { get; set; }
 	public RoadType RoadType { get; set; }
 	public RegionType RegionType { get; set; }
 	public TextureType SideTexture { get; set; }
