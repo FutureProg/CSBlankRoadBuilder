@@ -1,6 +1,5 @@
 ﻿using BlankRoadBuilder.ThumbnailMaker;
-using BlankRoadBuilder.Util;
-
+using BlankRoadBuilder.Util.Markings;
 using ColossalFramework;
 
 using System;
@@ -11,7 +10,7 @@ using System.Text;
 namespace BlankRoadBuilder.Domain.Options;
 public class SavedFillerOption
 {
-    private readonly SavedInt _lineType;
+    private readonly SavedInt _fillerType;
     private readonly SavedFloat _dashLength;
     private readonly SavedFloat _dashSpace;
 	private readonly SavedInt _colorR;
@@ -25,7 +24,7 @@ public class SavedFillerOption
     {
         var baseName = $"Filler_{(int)laneType}";
 
-        _lineType = new(baseName + nameof(_lineType), nameof(BlankRoadBuilder), (int)MarkingLineType.None);
+        _fillerType = new(baseName + nameof(_fillerType), nameof(BlankRoadBuilder), (int)MarkingFillerType.Filled);
 		_dashLength = new(baseName + nameof(_dashLength), nameof(BlankRoadBuilder), 1F);
 		_dashSpace = new(baseName + nameof(_dashSpace), nameof(BlankRoadBuilder), 1F);
         _colorR = new(baseName + nameof(_colorR), nameof(BlankRoadBuilder), 255);
@@ -36,7 +35,7 @@ public class SavedFillerOption
         LaneType = laneType;
 	}
 
-	public MarkingFillerType MarkingType { get => (MarkingFillerType)_lineType.value; set => _lineType.value = (int)value; }
+	public MarkingFillerType MarkingType { get => (MarkingFillerType)_fillerType.value; set => _fillerType.value = (int)value; }
 	public float DashSpace { get => _dashSpace; set => _dashSpace.value = value; }
 	public float DashLength { get => _dashLength; set => _dashLength.value = value; }
 	public int R { get => _colorR; set => _colorR.value = value; }

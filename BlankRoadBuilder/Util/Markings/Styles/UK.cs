@@ -8,14 +8,12 @@ using System.Text;
 
 using UnityEngine;
 
-using static BlankRoadBuilder.Util.MarkingStyleUtil;
+using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
 
-namespace BlankRoadBuilder.Util.MarkingStyles;
+namespace BlankRoadBuilder.Util.Markings;
 public partial class MarkingStylesTemplates
 {
-	private static readonly Color32 _canadaBusFillerColor = new(89, 20, 6, 90);
-
-	public static Dictionary<GenericMarkingType, LineInfo> Canada()
+	public static Dictionary<GenericMarkingType, LineInfo> UK()
 	{
 		return new Dictionary<GenericMarkingType, LineInfo>
 		{
@@ -29,9 +27,9 @@ public partial class MarkingStylesTemplates
 			{ GenericMarkingType.Bike | GenericMarkingType.Flipped, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Dashed,
-					Color = _yellowLineColor,
+					Color = _whiteLineColor,
 					DashLength = 0.5F,
-					DashSpace = 1.5F,
+					DashSpace = 0.5F,
 					LineWidth = 0.15F
 				}
 			},
@@ -46,7 +44,7 @@ public partial class MarkingStylesTemplates
 			},
 			{ GenericMarkingType.End | GenericMarkingType.Flipped, new LineInfo
 				{
-					MarkingStyle = MarkingLineType.Solid,
+					MarkingStyle = MarkingLineType.SolidDouble,
 					Color =  _yellowLineColor,
 					LineWidth = 0.15F
 				}
@@ -55,7 +53,7 @@ public partial class MarkingStylesTemplates
 				{
 					MarkingStyle = MarkingLineType.SolidDouble,
 					Color =  _yellowLineColor,
-					LineWidth = 0.15F
+					LineWidth = 0.1F
 				}
 			},
 			{ GenericMarkingType.Hard | GenericMarkingType.Normal, new LineInfo
@@ -70,37 +68,36 @@ public partial class MarkingStylesTemplates
 					MarkingStyle = MarkingLineType.Dashed,
 					Color = _whiteLineColor,
 					DashLength = 1.5F,
-					DashSpace = 2F,
 					LineWidth = 0.15F
 				}
 			},
 		};
 	}
 
-	public static Dictionary<LaneType, FillerInfo> Canada_Fillers()
+	public static Dictionary<LaneType, FillerInfo> UK_Fillers()
 	{
 		return new Dictionary<LaneType, FillerInfo>
 		{
 			{ LaneType.Tram, new FillerInfo
 				{
-					MarkingStyle = MarkingFillerType.Pavement,
 				}
 			},
 			{ LaneType.Bike, new FillerInfo
 				{
-					MarkingStyle = MarkingFillerType.None
+					MarkingStyle = MarkingFillerType.Filled,
+					Color = _bikeFillerColor,
 				}
 			},
 			{ LaneType.Bus, new FillerInfo
 				{
 					MarkingStyle = MarkingFillerType.Filled,
-					Color = _canadaBusFillerColor,
+					Color = _busFillerColor,
 				}
 			},
 			{ LaneType.Trolley, new FillerInfo
 				{
 					MarkingStyle = MarkingFillerType.Filled,
-					Color = _canadaBusFillerColor,
+					Color = _busFillerColor,
 				}
 			},
 		};

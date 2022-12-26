@@ -24,7 +24,7 @@ public class RoadBuilderPanel : StandalonePanel
 	public static string? LastLoadedRoadFileName { get => lastLoadedRoad; }
 
 	protected override float TitleXPos => 9999;
-	protected override string PanelTitle => "Blank Road Builder";
+	protected override string PanelTitle => "Road Builder v" + BlankRoadBuilderMod.VersionString;
 
 	public UIButton ContinueButton => _continueButton;
 

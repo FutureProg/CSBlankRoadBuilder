@@ -3,8 +3,7 @@
 using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
-using BlankRoadBuilder.Util;
-using BlankRoadBuilder.Util.MarkingStyles;
+using BlankRoadBuilder.Util.Markings;
 using ColossalFramework.UI;
 
 using System;
@@ -121,7 +120,7 @@ internal class FillerOptions : OptionsPanelBase
 			if (vanilla.ContainsKey(value.LaneType))
 				value.Set(vanilla[value.LaneType]);
 			else
-				value.Set(new Util.MarkingStyleUtil.FillerInfo());
+				value.Set(new MarkingStyleUtil.FillerInfo());
 
 			dropDown.selectedIndex = enumVales.Keys.ToList().IndexOf((int)value.MarkingType);
 			dashSlider.value = value.DashLength;

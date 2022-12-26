@@ -23,6 +23,7 @@ public class RoadInfo
 	public float BufferWidth { get; set; }
 	public int SpeedLimit { get; set; }
 	public bool LHT { get; set; }
+	public bool VanillaWidth { get; set; }
 	public List<LaneInfo> Lanes { get; set; }
 	public byte[] SmallThumbnail { get; set; }
 	public byte[] LargeThumbnail { get; set; }

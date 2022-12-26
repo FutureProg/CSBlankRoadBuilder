@@ -119,14 +119,14 @@ public static class RoadBuilderUtil
 		netInfo.m_createPavement = elevation.Key == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
 		netInfo.m_createGravel = elevation.Key == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
 		netInfo.m_createRuining = elevation.Key == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
-		netInfo.m_class = new ItemClass
-		{
-			m_layer = ItemClass.Layer.Default,
-			m_service = ItemClass.Service.Road,
-			m_subService = ItemClass.SubService.None,
-			m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(4, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5,
-			name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(4, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway"
-		};
+		
+		var itemClass = ScriptableObject.CreateInstance<ItemClass>();
+		itemClass.m_layer = ItemClass.Layer.Default;
+		itemClass.m_service = ItemClass.Service.Road;
+		itemClass.m_subService = ItemClass.SubService.None;
+		itemClass.m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(4, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5;
+		itemClass.name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(4, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway";
+		netInfo.m_class = itemClass;
 
 		RoadUtils.SetNetAi(netInfo, "m_outsideConnection", null);
 		RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation.Key, false));
@@ -150,7 +150,8 @@ public static class RoadBuilderUtil
 			});
 		}
 
-		metadata.ScriptedFlags[RoadUtils.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStop"), "AnyStop");
+		metadata.ScriptedFlags[RoadUtils.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
+		metadata.ScriptedFlags[RoadUtils.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
 
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");
@@ -294,7 +295,19 @@ public static class RoadBuilderUtil
 		}
 
 		var sizeLanes = roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.Ghost, LaneTag.StackedLane));
-		var index = r(sizeLanes.Sum(x => x.Width) / -2F - roadInfo.BufferWidth);
+		var leftCurb = roadInfo.Lanes.FirstOrDefault(x => x.Type == LaneType.Curb);
+		var rightCurb = roadInfo.Lanes.LastOrDefault(x => x.Type == LaneType.Curb);
+		var leftPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) <= roadInfo.Lanes.IndexOf(leftCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.Width);
+		var rightPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) >= roadInfo.Lanes.IndexOf(rightCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.Width);
+
+		roadInfo.PavementWidth = Math.Max(1.5F, Math.Max(leftPavementWidth, rightPavementWidth));
+		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.Width) + (2 * roadInfo.BufferWidth);
+		roadInfo.TotalWidth = 2 * roadInfo.PavementWidth + roadInfo.AsphaltWidth;
+
+		if (roadInfo.VanillaWidth)
+			roadInfo.TotalWidth = (float)(16 * Math.Ceiling(roadInfo.TotalWidth / 16D));
+
+		var index = -roadInfo.AsphaltWidth / 2 - roadInfo.BufferWidth - leftPavementWidth;
 
 		foreach (var lane in roadInfo.Lanes)
 		{
@@ -303,7 +316,7 @@ public static class RoadBuilderUtil
 
 			if (lane.Tags.HasFlag(LaneTag.Ghost))
 			{
-				lane.Position = r(index + (index < 0 ? -3F : 3F));
+				lane.Position = r((index < 0 ? -1 : 1) * (roadInfo.AsphaltWidth / 2 + 3F));
 			}
 			else
 			{
@@ -313,7 +326,7 @@ public static class RoadBuilderUtil
 
 			if (lane.Type == LaneType.Curb)
 			{
-				if (lane.Direction == LaneDirection.Forward)
+				if (lane == rightCurb)
 				{
 					lane.Position = r(lane.Position + roadInfo.BufferWidth);
 				}
@@ -321,12 +334,6 @@ public static class RoadBuilderUtil
 				index = r(index + roadInfo.BufferWidth);
 			}
 		}
-
-		var leftPavementWidth = sizeLanes.Where(x => x.Position < 0 && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.Width);
-		var rightPavementWidth = sizeLanes.Where(x => x.Position > 0 && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.Width);
-		roadInfo.PavementWidth = Math.Max(1.5F, Math.Max(leftPavementWidth, rightPavementWidth));
-		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.Width) + (2 * roadInfo.BufferWidth);
-		roadInfo.TotalWidth = 2 * roadInfo.PavementWidth + roadInfo.AsphaltWidth;
 
 		if (roadInfo.RoadWidth > roadInfo.TotalWidth)
 		{

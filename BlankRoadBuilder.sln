@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlankRoadBuilder", "BlankRoadBuilder\BlankRoadBuilder.csproj", "{F925132A-26D3-42CC-A0BB-27067938E4DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlankRoadBuilder", "BlankRoadBuilder\BlankRoadBuilder.csproj", "{F925132A-26D3-42CC-A0BB-27067938E4DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnyStopFlag", "AnyStopFlag\AnyStopFlag.csproj", "{89805810-553B-43F0-AA77-5B61C81DE82A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkingTransitionFlag", "MarkingTransitionFlag\MarkingTransitionFlag.csproj", "{79BD3C30-454C-48BF-9570-EE4CCFAB315E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{F925132A-26D3-42CC-A0BB-27067938E4DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F925132A-26D3-42CC-A0BB-27067938E4DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F925132A-26D3-42CC-A0BB-27067938E4DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89805810-553B-43F0-AA77-5B61C81DE82A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89805810-553B-43F0-AA77-5B61C81DE82A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89805810-553B-43F0-AA77-5B61C81DE82A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89805810-553B-43F0-AA77-5B61C81DE82A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79BD3C30-454C-48BF-9570-EE4CCFAB315E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79BD3C30-454C-48BF-9570-EE4CCFAB315E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79BD3C30-454C-48BF-9570-EE4CCFAB315E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79BD3C30-454C-48BF-9570-EE4CCFAB315E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
-﻿using AdaptiveRoads.Manager;
+﻿using AdaptiveRoads.Data.NetworkExtensions;
+using AdaptiveRoads.Manager;
 
 using BlankRoadBuilder.Domain;
 
@@ -16,6 +17,7 @@ public static class RoadUtils
 	public const NetSegmentExt.Flags S_RemoveMarkings = NetSegmentExt.Flags.Custom5;
 
 	public const NetSegmentExt.Flags S_AnyStop = NetSegmentExt.Flags.Expression0;
+	public const LaneTransition.Flags T_Markings = LaneTransition.Flags.Expression0;
 
 	public const NetNodeExt.Flags N_FullLowCurb = NetNodeExt.Flags.Custom0;
 	public const NetNodeExt.Flags N_ForceHighCurb = NetNodeExt.Flags.Custom1;

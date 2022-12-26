@@ -38,11 +38,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="ModContents\AnyStop.dll" />
+    <None Remove="ModContents\AnyStopFlag.dll" />
+    <None Remove="ModContents\MarkingTransitionFlag.dll" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="ModContents\AnyStop.dll" />
+    <EmbeddedResource Include="ModContents\AnyStopFlag.dll" />
+    <EmbeddedResource Include="ModContents\MarkingTransitionFlag.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,6 +66,10 @@
     </Reference>
     <Reference Include="ICities">
       <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NodeMarkup">
+      <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2140418403\NodeMarkup.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="AdaptiveRoads">

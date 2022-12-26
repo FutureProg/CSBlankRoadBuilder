@@ -8,9 +8,9 @@ using System.Text;
 
 using UnityEngine;
 
-using static BlankRoadBuilder.Util.MarkingStyleUtil;
+using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
 
-namespace BlankRoadBuilder.Util.MarkingStyles;
+namespace BlankRoadBuilder.Util.Markings;
 public partial class MarkingStylesTemplates
 {
 	private static readonly Color32 _bikeNLFillerColor = new(55, 17, 4, 100);
@@ -82,7 +82,6 @@ public partial class MarkingStylesTemplates
 		{
 			{ LaneType.Tram, new FillerInfo
 				{
-					MarkingStyle = MarkingFillerType.Grass
 				}
 			},
 			{ LaneType.Bike, new FillerInfo

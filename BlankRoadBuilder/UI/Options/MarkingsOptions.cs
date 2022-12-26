@@ -2,8 +2,7 @@
 
 using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
-using BlankRoadBuilder.Util;
-using BlankRoadBuilder.Util.MarkingStyles;
+using BlankRoadBuilder.Util.Markings;
 
 using ColossalFramework.UI;
 
@@ -184,7 +183,7 @@ internal class MarkingsOptions : OptionsPanelBase
 			if (vanilla.ContainsKey(value.GenericMarking))
 				value.Set(vanilla[value.GenericMarking]);
 			else
-				value.Set(new Util.MarkingStyleUtil.LineInfo());
+				value.Set(new MarkingStyleUtil.LineInfo());
 
 			dropDown.selectedIndex = enumVales.Keys.ToList().IndexOf((int)value.MarkingType);
 			lineWidth.value = value.LineWidth;

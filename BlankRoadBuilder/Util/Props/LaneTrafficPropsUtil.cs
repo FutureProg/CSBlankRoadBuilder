@@ -14,12 +14,10 @@ public static partial class LanePropsUtil
 {
 	private static IEnumerable<NetLaneProps.Prop> GetSignsAndTrafficLights(LaneInfo lane, RoadInfo road)
 	{
-		var propPosition = -Math.Max(0, (lane.Width / 2) - 0.5F);
+		if (lane.Tags.HasFlag(LaneTag.Sidewalk) && lane.Type != LaneType.Curb)
+			yield break;
 
-		if (lane.Tags.HasFlag(LaneTag.Sidewalk))
-		{
-			propPosition -= 0.25F + road.BufferWidth;
-		}
+		var propPosition = -Math.Max(0, (lane.Width / 2) - 0.5F);
 
 		foreach (var prop in GetSignsAndTrafficLights(lane.RightDrivableArea, lane.LeftInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true)))
 		{
@@ -99,7 +97,7 @@ public static partial class LanePropsUtil
 		}
 
 	ped:
-		if (lane.Width < 1.5F)
+		if (lane.Width < 1.5F && lane.Type != LaneType.Curb)
 		{
 			yield break;
 		}

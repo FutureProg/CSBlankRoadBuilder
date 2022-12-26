@@ -6,92 +6,43 @@ using ColossalFramework.Importers;
 
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 using UnityEngine;
 
-using static AdaptiveRoads.DTO.NetInfoDTO;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
-using static BlankRoadBuilder.Util.MarkingStyleUtil;
 
-namespace BlankRoadBuilder.Util;
-public static class MarkingsUtil
+using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
+
+namespace BlankRoadBuilder.Util.Markings;
+public class AdaptiveNetworksMarkings
 {
-	public static List<Track> GenerateMarkings(NetInfo netInfo, RoadInfo roadInfo)
+	public static List<Track> Markings(NetInfo netInfo, MarkingsInfo markings)
 	{
 		var tracks = new List<Track>();
-		var markings = new List<MarkingIndex>();
-		var fillers = new List<FillerIndex> { new FillerIndex() };
 
-		foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.Ghost, LaneTag.StackedLane)))
+		foreach (var item in markings.Fillers)
 		{
-			var laneFiller = lane.Decorations & (LaneDecoration.Filler | LaneDecoration.Grass | LaneDecoration.Gravel | LaneDecoration.Pavement);
-
-			if (laneFiller != 0)
+			if (item.Type == LaneDecoration.Filler && item.LeftPoint.LeftLane != null)
 			{
-				if (laneFiller != LaneDecoration.Filler
-					&& fillers[0].Lane != null
-					&& fillers[0].Type == laneFiller
-					&& ThumbnailMakerUtil.GetLaneVerticalOffset(fillers[0].Lane, roadInfo) == ThumbnailMakerUtil.GetLaneVerticalOffset(lane, roadInfo))
-				{
-					fillers[0].Lanes.Add(lane);
-				}
-				else
-				{
-					fillers.Insert(0, new FillerIndex
-					{
-						Type = laneFiller,
-						Lanes = new List<LaneInfo> { lane }
-					});
-				}
-			}
-			else
-				fillers.Insert(0, new FillerIndex());
-
-			var currentCategory = lane.GetVehicleCategory();
-
-			foreach (var item in GenerateLaneMarkings(roadInfo, lane, currentCategory))
-			{
-				var current = markings.FirstOrDefault(x => x.Equals(item));
-
-				if (current != null)
-				{
-					if (current.Marking > item.Marking)
-						continue;
-
-					markings.Remove(current);
-				}
-
-				markings.Add(item);
-			}
-		}
-
-		foreach (var item in fillers)
-		{
-			if (item?.Lane == null)
-				continue;
-
-			if (item.Type == LaneDecoration.Filler)
-			{
-				var filler = GetLaneFiller(netInfo, item.Lane, GetFillerMarkingInfo(item.Lane.Type));
+				var filler = GetLaneFiller(netInfo, item.LeftPoint.LeftLane, GetFillerMarkingInfo(item.LeftPoint.LeftLane?.Type ?? LaneType.Empty));
 
 				if (filler != null)
 					tracks.Add(filler);
 			}
-			else
+			else if (item.LeftPoint.LeftLane != null)
 			{
-				var medianLane = item.Lane.Duplicate(LaneType.Empty);
-
-				medianLane.Width += 0.5125F;
-
-				var filler = GetFiller(netInfo, item, medianLane);
+				var filler = GetFiller(netInfo, item);
 
 				if (item.Type != LaneDecoration.Pavement && item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop)))
 				{
 					item.Type = LaneDecoration.Pavement;
 
-					var pavementFiller = GetFiller(netInfo, item, medianLane);
+					var pavementFiller = GetFiller(netInfo, item);
 
 					filler.VanillaSegmentFlags.Forbidden |= NetSegment.Flags.StopAll;
 					pavementFiller.SegmentFlags.Required |= RoadUtils.S_AnyStop;
@@ -103,9 +54,9 @@ public static class MarkingsUtil
 			}
 		}
 
-		foreach (var item in markings)
+		foreach (var item in markings.Lines.Values)
 		{
-			tracks.AddRange(GetMarkings(netInfo, item.Lane, item.Right, item.Marking));
+			tracks.AddRange(GetMarkings(netInfo, item));
 		}
 
 		foreach (var track in tracks)
@@ -123,104 +74,9 @@ public static class MarkingsUtil
 		return tracks;
 	}
 
-	//private static IEnumerable<Track> GenerateLaneFillers(NetInfo netInfo, LaneInfo lane)
-	//{
-	//	foreach (var decoration in lane.Decorations.GetValues())
-	//	{
-	//		switch (decoration)
-	//		{
-	//			case LaneDecoration.Filler:
-	//				var fillerLane = GetLaneFiller(netInfo, lane, GetFillerMarkingInfo(lane.Type));
-
-	//				if (fillerLane != null)
-	//					yield return fillerLane;
-	//				break;
-
-	//			case LaneDecoration.Grass:
-	//			case LaneDecoration.Pavement:
-	//			case LaneDecoration.Gravel:
-	//				var medianLane = lane.Duplicate(LaneType.Empty);
-
-	//				medianLane.Width += 0.5125F;
-
-	//				var filler = GetFiller(netInfo, item, medianLane);
-
-	//				if (decoration != LaneDecoration.Pavement && lane.Decorations.HasFlag(LaneDecoration.TransitStop))
-	//				{
-	//					var pavementFiller = GetFiller(netInfo, LaneDecoration.Pavement, medianLane);
-
-	//					filler.VanillaSegmentFlags.Forbidden |= NetSegment.Flags.StopAll;
-	//					pavementFiller.SegmentFlags.Required |= RoadUtils.S_AnyStop;
-
-	//					yield return pavementFiller;
-	//				}
-
-	//				yield return filler;
-	//				break;
-	//		}
-	//	}
-	//}
-
-	private static IEnumerable<MarkingIndex> GenerateLaneMarkings(RoadInfo road, LaneInfo lane, LaneVehicleCategory currentCategory)
+	private static Track GetFiller(NetInfo netInfo, FillerMarking fillerIndex)
 	{
-		var leftLane = lane.Direction == LaneDirection.Backwards ? lane.RightLane : lane.LeftLane;
-		var rightLane = lane.Direction == LaneDirection.Backwards ? lane.LeftLane : lane.RightLane;
-
-		var leftCategory = leftLane?.GetVehicleCategory() ?? LaneVehicleCategory.Unknown;
-		var rightCategory = rightLane?.GetVehicleCategory() ?? LaneVehicleCategory.Unknown;
-
-		if ((currentCategory & (LaneVehicleCategory.Vehicle | LaneVehicleCategory.Bike | LaneVehicleCategory.Tram)) != 0)
-		{
-			if (rightCategory != currentCategory && (rightCategory <= LaneVehicleCategory.Pedestrian || rightLane?.Direction != leftLane?.Direction))
-			{
-				yield return marking(true, GenericMarkingType.End);
-			}
-
-			if (leftCategory != currentCategory && leftCategory != LaneVehicleCategory.Parking)
-			{
-				yield return marking(false, 
-					currentCategory != LaneVehicleCategory.Vehicle ? GenericMarkingType.End
-					: (leftLane?.Direction == lane.Direction ? (GenericMarkingType.Normal | GenericMarkingType.Hard) : (GenericMarkingType.Flipped | GenericMarkingType.End)));
-			}
-		}
-
-		if (currentCategory == LaneVehicleCategory.Parking)
-		{
-			if (leftCategory == LaneVehicleCategory.Vehicle)
-			{
-				yield return marking(false, GenericMarkingType.Parking);
-			}
-
-			if (rightCategory == LaneVehicleCategory.Vehicle)
-			{
-				yield return marking(true, GenericMarkingType.Parking);
-			}
-		}
-		else
-		{
-			if (currentCategory == leftCategory && leftLane?.Direction != lane.Direction)
-			{
-				if (lane.Direction != LaneDirection.Backwards)
-					yield return marking(false, GenericMarkingType.Flipped | (currentCategory == LaneVehicleCategory.Vehicle ? GenericMarkingType.Hard : (GenericMarkingType)(int)currentCategory));
-			}
-
-			if (currentCategory == leftCategory && leftLane?.Direction == lane.Direction)
-			{
-				yield return marking(false, GenericMarkingType.Normal | (currentCategory == LaneVehicleCategory.Vehicle ? (leftLane.Type.HasFlag(lane.Type) || lane.Type.HasFlag(leftLane.Type) ? GenericMarkingType.Soft : GenericMarkingType.Hard) : (GenericMarkingType)(int)currentCategory));
-			}
-		}
-
-		MarkingIndex marking(bool r, GenericMarkingType t) => new MarkingIndex
-		{
-			Lane = lane,
-			Right = r,
-			Marking = road.BufferWidth == 0F && (r ? rightLane:leftLane)?.Type == LaneType.Curb ? GenericMarkingType.None : t
-		};
-	}
-
-	private static Track GetFiller(NetInfo netInfo, FillerIndex fillerIndex, LaneInfo lane)
-	{
-		var mesh = GenerateMesh(true, false, false, 0F, 0F, lane, fillerIndex, $"{lane.Type} {fillerIndex.Type} Median");
+		var mesh = GenerateMesh(true, false, false, 0F, 0F, fillerIndex.LeftPoint.RightLane, fillerIndex, $"{fillerIndex.LeftPoint.RightLane?.Type} {fillerIndex.Type} Median");
 
 		GenerateTexture(true, mesh, fillerIndex.Type);
 
@@ -251,11 +107,11 @@ public static class MarkingsUtil
 			TreatBendAsSegment = true,
 			LaneTags = new LaneTagsT(new[] { "RoadBuilderLane" }),
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.L_RemoveFiller },
-			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lane.NetLanes[0]),
+			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, fillerIndex.LeftPoint.RightLane.NetLanes[0]),
 			Tiling = 2F,
 			VerticalOffset = 0.1F,
 			//VerticalOffset = (float)Math.Round(offset ?? (lane.Type == LaneType.Pedestrian ? -0.25F : (ModOptions.FillerHeight - 0.3F)), 6),
-			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = AdaptiveRoads.Data.NetworkExtensions.LaneTransition.Flags.SimilarLaneIndex }
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = RoadUtils.T_Markings }
 		};
 	}
 
@@ -282,17 +138,17 @@ public static class MarkingsUtil
 			Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lane.NetLanes[0]),
 			VerticalOffset = 0.0025F,
-			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = AdaptiveRoads.Data.NetworkExtensions.LaneTransition.Flags.SimilarLaneIndex }
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = RoadUtils.T_Markings }
 		};
 	}
 
-	private static IEnumerable<Track> GetMarkings(NetInfo netInfo, LaneInfo? lane, bool right, GenericMarkingType type)
+	private static IEnumerable<Track> GetMarkings(NetInfo netInfo, LineMarking marking)
 	{
-		if (lane == null || type == GenericMarkingType.None)
+		if (marking.Marking == GenericMarkingType.None)
 			yield break;
 
-		var rht = GetMarking(netInfo, lane, !right, type);
-		var lht = GetMarking(netInfo, lane, right, type);
+		var rht = GetMarking(netInfo, marking.Point.RightLane, true, marking.Marking);
+		var lht = GetMarking(netInfo, marking.Point.LeftLane, false, marking.Marking);
 
 		if (rht == null || lht == null)
 		{
@@ -332,14 +188,14 @@ public static class MarkingsUtil
 			TreatBendAsSegment = true,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lane.NetLanes[0]),
 			Tiling = lineInfo.MarkingStyle == MarkingLineType.Solid ? 10F : 20F / (lineInfo.DashLength + lineInfo.DashSpace),
-			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = AdaptiveRoads.Data.NetworkExtensions.LaneTransition.Flags.SimilarLaneIndex },
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = RoadUtils.T_Markings },
 			VerticalOffset = 0.0075F
 		};
 	}
 
 	private static void GenerateTexture(bool filler, string name, LaneDecoration decoration, Color32 color = default, MarkingLineType style = default, float dashLength = 0F, float dashSpace = 0F)
 	{
-		var baseName = !filler ? "Marking" : decoration==LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
+		var baseName = !filler ? "Marking" : decoration == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, "Markings"), $"{baseName}*"))
 		{
@@ -394,7 +250,7 @@ public static class MarkingsUtil
 						pixels[i] = Color.white;
 						break;
 					case MarkingLineType.SolidDouble:
-						pixels[i] = (i % width < width / 3 || i % width > width * 2 / 3) ? Color.white : Color.black;
+						pixels[i] = i % width < width / 3 || i % width > width * 2 / 3 ? Color.white : Color.black;
 						break;
 					case MarkingLineType.Dashed:
 						pixels[i] = i / width < ratio ? Color.white : Color.black;
@@ -403,10 +259,10 @@ public static class MarkingsUtil
 						pixels[i] = i / width < ratio && (i % width < width / 3 || i % width > width * 2 / 3) ? Color.white : Color.black;
 						break;
 					case MarkingLineType.SolidDashed:
-						pixels[i] = (i % width < width / 3 || (i / width < ratio && i % width > width * 2 / 3)) ? Color.white : Color.black;
+						pixels[i] = i % width < width / 3 || i / width < ratio && i % width > width * 2 / 3 ? Color.white : Color.black;
 						break;
 					case MarkingLineType.DashedSolid:
-						pixels[i] = ((i / width < ratio && i % width < width / 3) || i % width > width * 2 / 3) ? Color.white : Color.black;
+						pixels[i] = i / width < ratio && i % width < width / 3 || i % width > width * 2 / 3 ? Color.white : Color.black;
 						break;
 					case MarkingLineType.ZigZag:
 						var y = i / width;
@@ -416,8 +272,8 @@ public static class MarkingsUtil
 
 						var pointIndex = Math.Max(2, Math.Min(width - 2, 2 * (y % width)));
 
-						pixels[i] = (i % width) >= (pointIndex - 2) && (i % width) <= (pointIndex + 2) ? Color.white 
-							: (i % width) >= (pointIndex - 3) && (i % width) <= (pointIndex + 3) ? Color.gray : Color.black;
+						pixels[i] = i % width >= pointIndex - 2 && i % width <= pointIndex + 2 ? Color.white
+							: i % width >= pointIndex - 3 && i % width <= pointIndex + 3 ? Color.gray : Color.black;
 						break;
 				}
 			}
@@ -429,16 +285,11 @@ public static class MarkingsUtil
 		}
 	}
 
-	private static string GenerateMesh(bool filler, bool laneFiller, bool right, float width, MarkingLineType type, LaneInfo lane, FillerIndex? fillerIndex, string name)
+	private static string GenerateMesh(bool filler, bool laneFiller, bool right, float width, MarkingLineType type, LaneInfo lane, FillerMarking? fillerIndex, string name)
 	{
 		const float baseWidth = 1F;
 
 		var diff = lane.Width / 2F - baseWidth / 2F;
-
-		if (filler)
-		{
-			diff -= 0.175F;
-		}
 
 		if (type == MarkingLineType.SolidDouble || type == MarkingLineType.SolidDashed || type == MarkingLineType.DashedDouble || type == MarkingLineType.DashedSolid)
 			width *= 3;
@@ -485,18 +336,24 @@ public static class MarkingsUtil
 					case "V":
 						var xPos = float.Parse(data[1]);
 
-						if (filler)
+						if (filler && fillerIndex != null)
 						{
-							var minX = Math.Abs((fillerIndex?.Lanes.Min(x => x.Position - x.Width / 2) ?? 0F) - lane.Position);
-							var maxX = Math.Abs((fillerIndex?.Lanes.Max(x => x.Position + x.Width / 2) ?? 0F) - lane.Position);
+							var minX = fillerIndex.LeftPoint.X;
+							var maxX = fillerIndex.RightPoint.X;
 
 							if (xPos <= -0.05)
 							{
 								xPos -= minX - baseWidth / 2F;
+
+								if (!(fillerIndex.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
+									xPos += 0.2F;
 							}
 							else if (xPos >= 0.05)
 							{
 								xPos += maxX - baseWidth / 2F;
+
+								if (!(fillerIndex.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
+									xPos -= 0.2F;
 							}
 						}
 						else if (laneFiller)
@@ -539,34 +396,4 @@ public static class MarkingsUtil
 		return guid;
 	}
 
-	private class MarkingIndex
-	{
-		public double Index => Lane == null ? 0F : Math.Round(Lane.Position + Lane.Width / (Right ? 2 : -2), 3);
-		public LaneInfo? Lane;
-		public bool Right;
-		public GenericMarkingType Marking;
-
-		public override bool Equals(object obj)
-		{
-			if (obj is MarkingIndex mi)
-				return mi.Index == Index && mi.Right == Right;
-
-			return false;
-		}
-
-		public override int GetHashCode()
-		{
-			var hashCode = -1621135224;
-			hashCode = hashCode * -1521134295 + Index.GetHashCode();
-			hashCode = hashCode * -1521134295 + Right.GetHashCode();
-			return hashCode;
-		}
-	}
-
-	private class FillerIndex
-	{
-		public LaneInfo? Lane => Lanes?.OrderBy(x => x?.Position).LastOrDefault();
-		public LaneDecoration Type;
-		public List<LaneInfo> Lanes;
-	}
 }

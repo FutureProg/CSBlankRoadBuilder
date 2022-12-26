@@ -8,12 +8,18 @@ using System.Text;
 
 using UnityEngine;
 
-using static BlankRoadBuilder.Util.MarkingStyleUtil;
+using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
 
-namespace BlankRoadBuilder.Util.MarkingStyles;
+namespace BlankRoadBuilder.Util.Markings;
 public partial class MarkingStylesTemplates
 {
-	public static Dictionary<GenericMarkingType, LineInfo> UK()
+	private static readonly Color32 _yellowLineColor = new(167, 113, 19, 100);
+	private static readonly Color32 _whiteLineColor = new(200, 200, 200, 55);
+	private static readonly Color32 _bikeFillerColor = new(9, 85, 39, 55);
+	private static readonly Color32 _tramFillerColor = new(9, 85, 39, 25);
+	private static readonly Color32 _busFillerColor = new(55, 17, 4, 128);
+
+	public static Dictionary<GenericMarkingType, LineInfo> USA()
 	{
 		return new Dictionary<GenericMarkingType, LineInfo>
 		{
@@ -27,24 +33,20 @@ public partial class MarkingStylesTemplates
 			{ GenericMarkingType.Bike | GenericMarkingType.Flipped, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Dashed,
-					Color = _whiteLineColor,
+					Color = _yellowLineColor,
 					DashLength = 0.5F,
-					DashSpace = 0.5F,
+					DashSpace = 1.5F,
 					LineWidth = 0.15F
 				}
 			},
 			{ GenericMarkingType.Parking, new LineInfo
 				{
-					MarkingStyle = MarkingLineType.Dashed,
-					Color = _whiteLineColor,
-					DashLength = 0.25F,
-					DashSpace = 0.25F,
-					LineWidth = 0.1F
+					MarkingStyle = MarkingLineType.None
 				}
 			},
 			{ GenericMarkingType.End | GenericMarkingType.Flipped, new LineInfo
 				{
-					MarkingStyle = MarkingLineType.SolidDouble,
+					MarkingStyle = MarkingLineType.Solid,
 					Color =  _yellowLineColor,
 					LineWidth = 0.15F
 				}
@@ -53,7 +55,7 @@ public partial class MarkingStylesTemplates
 				{
 					MarkingStyle = MarkingLineType.SolidDouble,
 					Color =  _yellowLineColor,
-					LineWidth = 0.1F
+					LineWidth = 0.15F
 				}
 			},
 			{ GenericMarkingType.Hard | GenericMarkingType.Normal, new LineInfo
@@ -68,21 +70,17 @@ public partial class MarkingStylesTemplates
 					MarkingStyle = MarkingLineType.Dashed,
 					Color = _whiteLineColor,
 					DashLength = 1.5F,
+					DashSpace = 2F,
 					LineWidth = 0.15F
 				}
 			},
 		};
 	}
 
-	public static Dictionary<LaneType, FillerInfo> UK_Fillers()
+	public static Dictionary<LaneType, FillerInfo> USA_Fillers()
 	{
 		return new Dictionary<LaneType, FillerInfo>
 		{
-			{ LaneType.Tram, new FillerInfo
-				{
-					MarkingStyle = MarkingFillerType.None
-				}
-			},
 			{ LaneType.Bike, new FillerInfo
 				{
 					MarkingStyle = MarkingFillerType.Filled,

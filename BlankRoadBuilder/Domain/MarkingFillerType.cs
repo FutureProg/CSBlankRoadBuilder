@@ -2,10 +2,6 @@
 
 public enum MarkingFillerType
 {
-	None,
 	Filled,
-	Dashed,
-	Grass,
-	Pavement,
-	Gravel
+	Dashed
 }

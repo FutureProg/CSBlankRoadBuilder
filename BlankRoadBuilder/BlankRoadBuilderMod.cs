@@ -1,9 +1,7 @@
-﻿
-namespace BlankRoadBuilder;
-
-using AdaptiveRoads.LifeCycle;
+﻿namespace BlankRoadBuilder;
 
 using AlgernonCommons.UI;
+
 using BlankRoadBuilder.UI.Options;
 
 using CitiesHarmony.API;
@@ -14,8 +12,6 @@ using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 
 using ICities;
-
-using JetBrains.Annotations;
 
 using System;
 using System.Diagnostics;
@@ -56,7 +52,7 @@ public class BlankRoadBuilderMod : IUserMod
                 File.Move(assetsMatcherXML, Path.Combine(BuilderFolder, "SavedAssets.xml"));
             }
 
-            if (Directory.Exists(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder")))
+			if (Directory.Exists(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder")))
 			{
 				var roads = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "Roads");
 
@@ -88,7 +84,7 @@ public class BlankRoadBuilderMod : IUserMod
 
 		s_optionsParentPanel.autoLayout = false;
 
-		var tabStrip = AutoTabstrip.AddTabstrip(s_optionsParentPanel, 0f, 0f, s_optionsParentPanel.width , s_optionsParentPanel.height-15F, out _, tabHeight: 32f);
+		var tabStrip = AutoTabstrip.AddTabstrip(s_optionsParentPanel, 0f, 0f, s_optionsParentPanel.width, s_optionsParentPanel.height - 15F, out _, tabHeight: 32f);
 
 		new GeneralOptions(tabStrip, 0);
 		new LaneSizeOptions(tabStrip, 1);

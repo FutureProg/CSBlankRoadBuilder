@@ -8,18 +8,14 @@ using System.Text;
 
 using UnityEngine;
 
-using static BlankRoadBuilder.Util.MarkingStyleUtil;
+using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
 
-namespace BlankRoadBuilder.Util.MarkingStyles;
+namespace BlankRoadBuilder.Util.Markings;
 public partial class MarkingStylesTemplates
 {
-	private static readonly Color32 _yellowLineColor = new(167, 113, 19, 100);
-	private static readonly Color32 _whiteLineColor = new(200, 200, 200, 55);
-	private static readonly Color32 _bikeFillerColor = new(9, 85, 39, 55);
-	private static readonly Color32 _tramFillerColor = new(9, 85, 39, 25);
-	private static readonly Color32 _busFillerColor = new(55, 17, 4, 128);
+	private static readonly Color32 _canadaBusFillerColor = new(89, 20, 6, 90);
 
-	public static Dictionary<GenericMarkingType, LineInfo> USA()
+	public static Dictionary<GenericMarkingType, LineInfo> Canada()
 	{
 		return new Dictionary<GenericMarkingType, LineInfo>
 		{
@@ -41,7 +37,11 @@ public partial class MarkingStylesTemplates
 			},
 			{ GenericMarkingType.Parking, new LineInfo
 				{
-					MarkingStyle = MarkingLineType.None
+					MarkingStyle = MarkingLineType.Dashed,
+					Color = _whiteLineColor,
+					DashLength = 0.25F,
+					DashSpace = 0.25F,
+					LineWidth = 0.1F
 				}
 			},
 			{ GenericMarkingType.End | GenericMarkingType.Flipped, new LineInfo
@@ -77,26 +77,28 @@ public partial class MarkingStylesTemplates
 		};
 	}
 
-	public static Dictionary<LaneType, FillerInfo> USA_Fillers()
+	public static Dictionary<LaneType, FillerInfo> Canada_Fillers()
 	{
 		return new Dictionary<LaneType, FillerInfo>
 		{
+			{ LaneType.Tram, new FillerInfo
+				{
+				}
+			},
 			{ LaneType.Bike, new FillerInfo
 				{
-					MarkingStyle = MarkingFillerType.Filled,
-					Color = _bikeFillerColor,
 				}
 			},
 			{ LaneType.Bus, new FillerInfo
 				{
 					MarkingStyle = MarkingFillerType.Filled,
-					Color = _busFillerColor,
+					Color = _canadaBusFillerColor,
 				}
 			},
 			{ LaneType.Trolley, new FillerInfo
 				{
 					MarkingStyle = MarkingFillerType.Filled,
-					Color = _busFillerColor,
+					Color = _canadaBusFillerColor,
 				}
 			},
 		};

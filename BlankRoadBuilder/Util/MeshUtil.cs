@@ -3,7 +3,7 @@
 using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
-
+using BlankRoadBuilder.Util.Markings;
 using PrefabMetadata.API;
 using PrefabMetadata.Helpers;
 
@@ -54,19 +54,23 @@ public class MeshUtil
 		netInfo.m_nodes = nodes;
 
 		var data = netInfo.GetMetaData();
+		var tracks = new List<Track>();
 
-		var tracks = MarkingsUtil.GenerateMarkings(netInfo, roadInfo);
-
-		if (roadInfo.ContainsWiredLanes)
+		// if AN markings
 		{
-			tracks.AddRange(GenerateTracksAndWires(netInfo, roadInfo));
-		}
+			tracks.AddRange(AdaptiveNetworksMarkings.Markings(netInfo, MarkingsUtil.GenerateMarkings(roadInfo)));
 
-		tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
+			if (roadInfo.ContainsWiredLanes)
+			{
+				tracks.AddRange(GenerateTracksAndWires(netInfo, roadInfo));
+			}
+
+			tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
+		}
 
 		data.Tracks = tracks.ToArray();
 		data.TrackLaneCount = tracks.Count;
-		
+
 		AssetModel model(CurbType id, RoadAssetType type)
 			=> AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id);
 	}
@@ -190,7 +194,7 @@ public class MeshUtil
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lanes),
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.L_RemoveBarrier },
 			LaneTags = new LaneTagsT(new[] { "RoadBuilderLane" }),
-			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = AdaptiveRoads.Data.NetworkExtensions.LaneTransition.Flags.SimilarLaneIndex }
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = RoadUtils.T_Markings }
 		}).ToList();
 
 		for (var i = 0; i < tracks.Count; i++)
