@@ -29,7 +29,7 @@ public static partial class LanePropsUtil
 
 		if (!tramLanesAreNextToMedians && lane.Tags.HasFlag(LaneTag.WirePoleLane))
 		{
-			poleProp = Prop("Tram Pole Side");
+			poleProp = GetProp(Prop.TramPole);
 
 			verticalOffset = lane.Tags.HasFlag(LaneTag.Asphalt) ? -0.1F : -0.4F;
 		}
@@ -37,7 +37,7 @@ public static partial class LanePropsUtil
 		{
 			if (lane.Width > 4F)
 			{
-				poleProp = Prop("Tram Pole Wide Side");
+				poleProp = GetProp(Prop.TramSidePole);
 
 				position = -(float)Math.Round(Math.Max(0F, lane.Width - 4F) / 2F, 3);
 
@@ -50,7 +50,7 @@ public static partial class LanePropsUtil
 			}
 			else
 			{
-				poleProp = Prop("Tram Pole Center");
+				poleProp = GetProp(Prop.TramCenterPole);
 			}
 		}
 		else if (leftTram || rightTram)
@@ -75,7 +75,7 @@ public static partial class LanePropsUtil
 
 			}
 
-			poleProp = Prop("Tram Pole Wide Side");
+			poleProp = GetProp(Prop.TramSidePole);
 			position = nextLane != null && nextLane.Type.HasFlag(LaneType.Tram)
 				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (0.1 + lane.Width / 2F + road.BufferWidth) : ((lane.Width - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
 				: (float)Math.Round(Math.Max(0F, lane.Width - 4F) / 2F, 3) * (leftTram ? -1F : 1F);
@@ -121,7 +121,7 @@ public static partial class LanePropsUtil
 	{
 		if (lane.LeftLane?.Type == LaneType.Parking)
 		{
-			var parkingMeter = Prop("Parking Meter");
+			var parkingMeter = GetProp(Prop.ParkingMeter);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -141,7 +141,7 @@ public static partial class LanePropsUtil
 
 		if (lane.RightLane?.Type == LaneType.Parking)
 		{
-			var parkingMeter = Prop("Parking Meter");
+			var parkingMeter = GetProp(Prop.ParkingMeter);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -167,7 +167,7 @@ public static partial class LanePropsUtil
 
 		if (lane.Tags.HasFlag(LaneTag.CenterMedian))
 		{
-			lightProp = Prop("Toll Road Light Double");//Prop("Avenue Light");
+			lightProp = GetProp(Prop.DoubleStreetLight);//Prop("Avenue Light");
 		}
 		else if (lane.Type == LaneType.Curb)
 		{
@@ -178,7 +178,7 @@ public static partial class LanePropsUtil
 				yield break;
 
 			xPos = -lane.Width / 2 + 0.5F;
-			lightProp = Prop("Toll Road Light Single");//Prop("New Street Light Avenue");
+			lightProp = GetProp(Prop.SingleStreetLight);//Prop("New Street Light Avenue");
 		}
 		else
 			yield break;

@@ -139,7 +139,7 @@ public static partial class LanePropsUtil
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Car))
 		{
-			var busStopLarge = Prop(lane.Tags.HasFlag(LaneTag.Sidewalk) ? "Bus Stop Large" : "Bus Stop Small");
+			var busStopLarge = GetProp(lane.Tags.HasFlag(LaneTag.Sidewalk) ? Prop.BusStopLarge : Prop.BusStopSmall);
 			var stopDiff = lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F 
 				: (float)Math.Round(Math.Abs(lane.Position - ThumbnailMakerUtil.GetLanePosition(lane.Type, lane, road)) - 0.2F, 3);
 
@@ -156,7 +156,7 @@ public static partial class LanePropsUtil
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Tram))
 		{
-			var tramStopLarge = Prop(lane.Tags.HasFlag(LaneTag.Sidewalk) ? "Tram Stop" : "Tram Stop Sign");
+			var tramStopLarge = GetProp(lane.Tags.HasFlag(LaneTag.Sidewalk) ? Prop.TramStopLarge : Prop.TramStopSmall);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -171,8 +171,8 @@ public static partial class LanePropsUtil
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Trolleybus))
 		{
-			var sightSeeingProp = Prop("Sightseeing Bus Stop Small");
-			var trolleyStop = Prop("Trolleybus Stop");
+			var sightSeeingProp = GetProp(Prop.TrolleyStopSmall);
+			var trolleyStop = GetProp(Prop.TrolleyStopLarge);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -197,8 +197,5 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static PropInfo Prop(string name)
-	{
-		return PrefabCollection<PropInfo>.FindLoaded(name);
-	}
+	private static PropTemplate GetProp(Prop prop) => PropUtil.GetProp(prop);
 }	

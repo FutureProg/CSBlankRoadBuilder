@@ -102,7 +102,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetBikeParking(LaneInfo lane)
 	{
-		var prop = Prop("bicycle_stand");
+		var prop = GetProp(Prop.BicycleParking);
 
 		yield return new NetLaneProps.Prop
 		{
@@ -117,7 +117,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetTrashBin(LaneInfo lane)
 	{
-		var prop = Prop("Park Trashbin 01");
+		var prop = GetProp(Prop.TrashBin);
 
 		yield return new NetLaneProps.Prop
 		{
@@ -132,7 +132,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetStreetAds(LaneInfo lane)
 	{
-		var prop = Prop("904031558.Street Ads 01_Data");
+		var prop = GetProp(Prop.StreetAd);
 		var hasOtherDecos = lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots);
 
 		yield return new NetLaneProps.Prop
@@ -148,7 +148,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetStreetLights(LaneInfo lane, RoadInfo road, LaneDecoration decoration)
 	{
-		var lightProp = Prop(decoration == LaneDecoration.DoubleStreetLight ? "Toll Road Light Double" : "Toll Road Light Single");
+		var lightProp = GetProp(decoration == LaneDecoration.DoubleStreetLight ? Prop.DoubleStreetLight:Prop.SingleStreetLight );
 		var xPos = decoration == LaneDecoration.DoubleStreetLight ? 0 : (-lane.Width / 2) + 0.5F;
 
 		yield return getLight(road.ContainsWiredLanes ? 2F : 0F);
@@ -182,7 +182,7 @@ public static partial class LanePropsUtil
 	private static IEnumerable<NetLaneProps.Prop> GetBenches(LaneInfo lane)
 	{
 		var position = lane.Type != LaneType.Curb ? 0 : lane.Direction == LaneDirection.Both && lane.Position < 0 ? -0.25F : 0.25F;
-		var prop = Prop("Bench 01");
+		var prop = GetProp(Prop.Bench);
 
 		yield return new NetLaneProps.Prop
 		{
@@ -198,7 +198,7 @@ public static partial class LanePropsUtil
 	private static IEnumerable<NetLaneProps.Prop> GetHedge(LaneInfo lane)
 	{
 		var position = propAngle(lane) * 0.05F;
-		var prop = Prop("Plant Pot 06");
+		var prop = GetProp(Prop.Hedge);
 
 		if (lane.Decorations != LaneDecoration.Hedge)
 		{
@@ -209,6 +209,8 @@ public static partial class LanePropsUtil
 
 		yield return new NetLaneProps.Prop
 		{
+			m_tree = prop,
+			m_finalTree = prop,
 			m_prop = prop,
 			m_finalProp = prop,
 			m_probability = 100,
@@ -219,11 +221,13 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetBollards(LaneInfo lane)
 	{
-		var prop = Prop("1650964670.Bollard A 05_Data");
+		var prop = GetProp(Prop.Bollard);
 		var hasOtherDecos = lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots, LaneDecoration.StreetAds, LaneDecoration.BikeParking);
 
 		yield return new NetLaneProps.Prop
 		{
+			m_tree = prop,
+			m_finalTree = prop,
 			m_prop = prop,
 			m_finalProp = prop,
 			m_probability = 100,
@@ -234,7 +238,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetFlowerPots(LaneInfo lane)
 	{
-		var prop = Prop("Flowerpot 04");
+		var prop = GetProp(Prop.FlowerPot);
 
 		if (lane.Decorations.HasFlag(LaneDecoration.Benches))
 		{
@@ -263,6 +267,8 @@ public static partial class LanePropsUtil
 
 		yield return new NetLaneProps.Prop
 		{
+			m_tree = prop,
+			m_finalTree = prop,
 			m_prop = prop,
 			m_finalProp = prop,
 			m_probability = 100,
@@ -274,7 +280,7 @@ public static partial class LanePropsUtil
 
 	public static IEnumerable<NetLaneProps.Prop> GetGrassProps(LaneInfo lane)
 	{
-		var prop = Prop("Roof Vegetation 01");
+		var prop = GetProp(Prop.Grass);
 		var odd = (int)lane.Width % 2 == 1;
 		var numLines = Math.Max((int)Math.Ceiling(lane.Width) - 1, 1);
 		var pos = numLines == 1 ? (lane.Width / 2) : (1 - (lane.Width / 2));
@@ -288,6 +294,8 @@ public static partial class LanePropsUtil
 
 			yield return new NetLaneProps.Prop
 			{
+				m_tree = prop,
+				m_finalTree = prop,
 				m_prop = prop,
 				m_finalProp = prop,
 				m_probability = 100,
@@ -311,8 +319,8 @@ public static partial class LanePropsUtil
 
 	public static IEnumerable<NetLaneProps.Prop> GetTrees(LaneInfo lane)
 	{
-		var tree = PrefabCollection<TreeInfo>.FindLoaded("mp9-YoungLinden");
-		var planter = Prop("2086553476.Tree Planter 03 1m_Data");
+		var tree = GetProp(Prop.Tree);
+		var planter = GetProp(Prop.TreePlanter);
 		var hasOtherDecos = lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots);
 
 		if (ModOptions.VanillaTreePlacement)

@@ -20,6 +20,9 @@ public static partial class LanePropsUtil
 
 		var propPosition = -Math.Max(0, (lane.Width / 2) - 0.5F);
 
+
+
+
 		foreach (var prop in GetSignsAndTrafficLights(lane.RightDrivableArea, lane.LeftDrivableArea, lane.LeftInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true)))
 		{
 			yield return prop;
@@ -83,13 +86,13 @@ public static partial class LanePropsUtil
 
 			if (drivableArea >= (swapped ? 9F : 6F))
 			{
-				yield return TrafficLight(road, "Traffic Light 02" + (swapped ? " Mirror" : ""), propPosition);
+				yield return TrafficLight(road, swapped ? Prop.TrafficLight02Mirror : Prop.TrafficLight02, propPosition);
 				yield break;
 			}
 
 			if (!swapped || !sideLanes.Take(2).Any(x => x.Type.HasAnyFlag(LaneType.Pedestrian, LaneType.Filler, LaneType.Curb)))
 			{
-				yield return TrafficLight(road, "Traffic Light 01" + (!swapped ? " Mirror" : ""), propPosition);
+				yield return TrafficLight(road, swapped ? Prop.TrafficLight01 : Prop.TrafficLight01Mirror, propPosition);
 				yield break;
 			}
 		}
@@ -105,7 +108,32 @@ public static partial class LanePropsUtil
 
 		var normalLight = lane.Type == LaneType.Curb && ModOptions.FlipTrafficLights;
 
-		yield return TrafficLight(road, normalLight ? "Traffic Light 01 Mirror" : "Traffic Light Pedestrian", propPosition, normalLight ? swapped : !swapped);
+		yield return TrafficLight(road, normalLight ? Prop.TrafficLight01Mirror : Prop.TrafficLightPedestrian, propPosition, normalLight ? swapped : !swapped);
+	}
+
+	private static NetLaneProps.Prop TrafficLight(RoadInfo road, Prop propName, float propPosition, bool flipAngle = false)
+	{
+		var propTemplate = GetProp(propName);
+
+		return new NetLaneProps.Prop
+		{
+			m_prop = propTemplate,
+			m_finalProp = propTemplate,
+			m_flagsRequired = NetLane.Flags.None,
+			m_flagsForbidden = NetLane.Flags.JoinedJunction | NetLane.Flags.Inverted,
+			m_startFlagsRequired = NetNode.Flags.None,
+			m_startFlagsForbidden = NetNode.Flags.None,
+			m_endFlagsRequired = NetNode.Flags.TrafficLights,
+			m_endFlagsForbidden = NetNode.Flags.LevelCrossing,
+			m_cornerAngle = 0.5F,
+			m_minLength = 0,
+			m_repeatDistance = 0,
+			m_segmentOffset = 1,
+			m_angle = flipAngle ? 270 : 90,
+			m_colorMode = NetLaneProps.ColorMode.EndState,
+			m_probability = 100,
+			m_position = new Vector3(propPosition, 0, road.ContainsWiredLanes ? -1.5F : -0.75F),
+		}.ToggleForwardBackward(ModOptions.FlipTrafficLights, true);
 	}
 
 	private static IEnumerable<LaneInfo> GetSideLanes(LaneInfo? lane, bool left)
@@ -123,7 +151,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetBikeSignProps(LaneInfo lane)
 	{
-		var bikeProp = Prop("1779509676.R2 WF11-1 Bicycle Sign_Data");
+		var bikeProp = GetProp(Prop.BicycleSign);
 
 		if (bikeProp == null)
 		{
@@ -189,8 +217,8 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetWarningSigns(LaneInfo lane)
 	{
-		var railroadCrossingProp = Prop("1779509676.R2 W10-1 Railroad Crossing Sign_Data");
-		var signalAheadProp = Prop("1779509676.R2 W3-3 Signal Ahead Sign_Data");
+		var railroadCrossingProp = GetProp(Prop.RailwayCrossingAheadSign);
+		var signalAheadProp = GetProp(Prop.TrafficLightAheadSign);
 
 		yield return new NetLaneProps.Prop
 		{
@@ -239,34 +267,9 @@ public static partial class LanePropsUtil
 		});
 	}
 
-	private static NetLaneProps.Prop TrafficLight(RoadInfo road, string propName, float propPosition, bool flipAngle = false)
-	{
-		var propTemplate = Prop(propName);
-		
-		return new NetLaneProps.Prop
-		{
-			m_prop = propTemplate,
-			m_finalProp = propTemplate,
-			m_flagsRequired = NetLane.Flags.None,
-			m_flagsForbidden = NetLane.Flags.JoinedJunction | NetLane.Flags.Inverted,
-			m_startFlagsRequired = NetNode.Flags.None,
-			m_startFlagsForbidden = NetNode.Flags.None,
-			m_endFlagsRequired = NetNode.Flags.TrafficLights,
-			m_endFlagsForbidden = NetNode.Flags.LevelCrossing,
-			m_cornerAngle = 0.5F,
-			m_minLength = 0,
-			m_repeatDistance = 0,
-			m_segmentOffset = 1,
-			m_angle = flipAngle ? 270 : 90,
-			m_colorMode = NetLaneProps.ColorMode.EndState,
-			m_probability = 100,
-			m_position = new Vector3(propPosition, 0, road.ContainsWiredLanes ? -1.5F : -0.75F),
-		}.ToggleForwardBackward(ModOptions.FlipTrafficLights, true);
-	}
-
 	private static NetLaneProps.Prop StopSign(float propPosition)
 	{
-		var stopSign = Prop("Stop Sign");
+		var stopSign = GetProp(Prop.StopSign);
 
 		return new NetLaneProps.Prop
 		{
@@ -287,19 +290,26 @@ public static partial class LanePropsUtil
 		};
 	}
 
-	private static readonly int[] _speedSigns = new[] { 30, 40, 50, 60, 100 };
-
 	private static NetLaneProps.Prop SpeedSign(RoadInfo road, LaneInfo lane)
 	{
 		PropInfo? sign = null;
 
-		foreach (var item in _speedSigns)
+		switch ((int)Math.Round(road.SpeedLimit / 10D) * 10)
 		{
-			if ((int)road.SpeedLimit <= item)
-			{
-				sign = Prop($"{item} Speed Limit");
-				break;
-			}
+			case 10: sign = GetProp(Prop.SpeedSign10); break;
+			case 20: sign = GetProp(Prop.SpeedSign20); break;
+			case 30: sign = GetProp(Prop.SpeedSign30); break;
+			case 40: sign = GetProp(Prop.SpeedSign40); break;
+			case 50: sign = GetProp(Prop.SpeedSign50); break;
+			case 60: sign = GetProp(Prop.SpeedSign60); break;
+			case 70: sign = GetProp(Prop.SpeedSign70); break;
+			case 80: sign = GetProp(Prop.SpeedSign80); break;
+			case 90: sign = GetProp(Prop.SpeedSign90); break;
+			case 100: sign = GetProp(Prop.SpeedSign100); break;
+			case 110: sign = GetProp(Prop.SpeedSign110); break;
+			case 120: sign = GetProp(Prop.SpeedSign120); break;
+			case 130: sign = GetProp(Prop.SpeedSign130); break;
+			case 140: sign = GetProp(Prop.SpeedSign140); break;
 		}
 
 		return new NetLaneProps.Prop
@@ -351,15 +361,15 @@ public static partial class LanePropsUtil
 		{
 			if (drivableArea >= 11F)
 			{
-				return Prop("Railway Crossing Very Long");
+				return GetProp(Prop.RailwayCrossingVeryLong);
 			}
 
 			if (drivableArea >= 8F)
 			{
-				return Prop("Railway Crossing Long");
+				return GetProp(Prop.RailwayCrossingLong);
 			}
 
-			return drivableArea >= 6F ? Prop("Railway Crossing Medium") : Prop("Railway Crossing Short");
+			return drivableArea >= 6F ? GetProp(Prop.RailwayCrossingMedium) : GetProp(Prop.RailwayCrossingShort);
 		}
 	}
 }

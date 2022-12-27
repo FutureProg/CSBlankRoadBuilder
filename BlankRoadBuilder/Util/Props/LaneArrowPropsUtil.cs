@@ -14,7 +14,7 @@ public static partial class LanePropsUtil
 {
 	private static IEnumerable<NetLaneProps.Prop> GetBikeLaneProps()
 	{
-		var bikeLane = Prop("Bike Lane");
+		var bikeLane = GetProp(Prop.BicycleLaneDecal);
 		var prop = new NetLaneProps.Prop()
 		{
 			m_prop = bikeLane,
@@ -40,7 +40,7 @@ public static partial class LanePropsUtil
 			}
 		}
 
-		var busLane = Prop("Bus Lane");
+		var busLane = GetProp(Prop.BusLaneDecal);
 
 		yield return new NetLaneProps.Prop()
 		{
@@ -57,13 +57,13 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetLaneArrowProps()
 	{
-		var arrowF = Prop("Road Arrow F");
-		var arrowFR = Prop("Road Arrow FR");
-		var arrowL = Prop("Road Arrow L");
-		var arrowLF = Prop("Road Arrow LF");
-		var arrowLFR = Prop("Road Arrow LFR");
-		var arrowLR = Prop("Road Arrow LR");
-		var arrowR = Prop("Road Arrow R");
+		var arrowF = GetProp(Prop.ArrowForward);
+		var arrowFR = GetProp(Prop.ArrowForwardRight);
+		var arrowL = GetProp(Prop.ArrowLeft);
+		var arrowLF = GetProp(Prop.ArrowForwardLeft);
+		var arrowLFR = GetProp(Prop.ArrowForwardLeftRight);
+		var arrowLR = GetProp(Prop.ArrowLeftRight);
+		var arrowR = GetProp(Prop.ArrowRight);
 
 		yield return arrow(arrowF, NetLane.Flags.Forward, NetLane.Flags.LeftRight);
 
