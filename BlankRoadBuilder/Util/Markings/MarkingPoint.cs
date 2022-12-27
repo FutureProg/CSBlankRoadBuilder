@@ -8,8 +8,8 @@ public struct MarkingPoint : IEquatable<MarkingPoint>
 	public LaneInfo? LeftLane { get; }
 	public LaneInfo? RightLane { get; }
 	public float X => 
-		LeftLane != null && LeftLane.Type != LaneType.Curb ? (LeftLane.Position + LeftLane.Width / 2) :
-		RightLane != null && RightLane.Type != LaneType.Curb ? (RightLane.Position - RightLane.Width / 2) : 0F;
+		LeftLane != null && LeftLane.Type != LaneType.Curb ? (LeftLane.Position + LeftLane.LaneWidth / 2) :
+		RightLane != null && RightLane.Type != LaneType.Curb ? (RightLane.Position - RightLane.LaneWidth / 2) : 0F;
 
 	public MarkingPoint(LaneInfo? leftLane, LaneInfo? rightLane)
 	{

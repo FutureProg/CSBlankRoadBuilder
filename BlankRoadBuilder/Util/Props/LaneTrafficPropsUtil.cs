@@ -18,7 +18,7 @@ public static partial class LanePropsUtil
 		if (lane.Tags.HasFlag(LaneTag.Sidewalk) && lane.Type != LaneType.Curb)
 			yield break;
 
-		var propPosition = -Math.Max(0, (lane.Width / 2) - 0.5F);
+		var propPosition = -Math.Max(0, (lane.LaneWidth / 2) - 0.5F);
 
 		foreach (var prop in GetTrafficSigns(road, lane, propPosition))
 		{
@@ -30,10 +30,10 @@ public static partial class LanePropsUtil
 			yield return prop;
 		}
 
-		yield return TrafficLight(road, lane.TrafficLight.LeftForward, propPosition);
-		yield return TrafficLight(road, lane.TrafficLight.RightForward, -propPosition);
-		yield return TrafficLight(road, lane.TrafficLight.LeftBackward, propPosition).ToggleForwardBackward(true, ModOptions.FlipTrafficLights);
-		yield return TrafficLight(road, lane.TrafficLight.RightBackward, -propPosition).ToggleForwardBackward(true, ModOptions.FlipTrafficLights);
+		yield return TrafficLight(road, lane.TrafficLight.LeftForward, propPosition, true && lane.TrafficLight.RightForward == Prop.TrafficLightPedestrian);
+		yield return TrafficLight(road, lane.TrafficLight.RightForward, -propPosition, ModOptions.FlipTrafficLights && lane.TrafficLight.RightForward != Prop.TrafficLightPedestrian);
+		yield return TrafficLight(road, lane.TrafficLight.LeftBackward, -propPosition).ToggleForwardBackward(true, ModOptions.FlipTrafficLights && lane.TrafficLight.RightForward != Prop.TrafficLightPedestrian);
+		yield return TrafficLight(road, lane.TrafficLight.RightBackward, propPosition, true && lane.TrafficLight.RightForward == Prop.TrafficLightPedestrian).ToggleForwardBackward(true, false);
 	}
 
 	private static IEnumerable<NetLaneProps.Prop> GetTrafficSigns(RoadInfo road, LaneInfo lane, float propPosition)
@@ -79,9 +79,9 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static NetLaneProps.Prop TrafficLight(RoadInfo road, Prop propName, float propPosition, bool flipAngle = false)
+	private static NetLaneProps.Prop TrafficLight(RoadInfo road, Prop prop, float propPosition, bool flipAngle = false)
 	{
-		var propTemplate = GetProp(propName);
+		var propTemplate = GetProp(prop);
 
 		return new NetLaneProps.Prop
 		{
@@ -101,7 +101,7 @@ public static partial class LanePropsUtil
 			m_colorMode = NetLaneProps.ColorMode.EndState,
 			m_probability = 100,
 			m_position = new Vector3(propPosition, 0, road.ContainsWiredLanes ? -1.5F : -0.75F),
-		}.ToggleForwardBackward(ModOptions.FlipTrafficLights, true);
+		};//.ToggleForwardBackward(ModOptions.FlipTrafficLights, true);
 	}
 
 	private static IEnumerable<LaneInfo> GetSideLanes(LaneInfo? lane, bool left, bool forward)
@@ -149,7 +149,7 @@ public static partial class LanePropsUtil
 				m_segmentOffset = 1F,
 				m_angle = 250F,
 				m_probability = 100,
-				m_position = new Vector3((lane.Width / 2F) - 0.3F, 0, 0),
+				m_position = new Vector3((lane.LaneWidth / 2F) - 0.3F, 0, 0),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -177,7 +177,7 @@ public static partial class LanePropsUtil
 				m_segmentOffset = -1F,
 				m_angle = 70F,
 				m_probability = 100,
-				m_position = new Vector3((-lane.Width / 2F) + 0.3F, 0, 0),
+				m_position = new Vector3((-lane.LaneWidth / 2F) + 0.3F, 0, 0),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -209,7 +209,7 @@ public static partial class LanePropsUtil
 			m_segmentOffset = -0.65F,
 			m_angle = 70F,
 			m_probability = 100,
-			m_position = new Vector3((-lane.Width / 2F) + 0.4F, 0, 2F),
+			m_position = new Vector3((-lane.LaneWidth / 2F) + 0.4F, 0, 2F),
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -232,7 +232,7 @@ public static partial class LanePropsUtil
 			m_segmentOffset = -0.65F,
 			m_angle = 70F,
 			m_probability = 100,
-			m_position = new Vector3((-lane.Width / 2F) + 0.4F, 0, 2F),
+			m_position = new Vector3((-lane.LaneWidth / 2F) + 0.4F, 0, 2F),
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -296,7 +296,7 @@ public static partial class LanePropsUtil
 			m_segmentOffset = -0.65F,
 			m_angle = 340F,
 			m_probability = 100,
-			m_position = new Vector3((-lane.Width / 2F) + 0.4F, 0, -1F),
+			m_position = new Vector3((-lane.LaneWidth / 2F) + 0.4F, 0, -1F),
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags

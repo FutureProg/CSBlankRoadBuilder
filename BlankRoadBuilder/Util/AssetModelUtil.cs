@@ -16,17 +16,17 @@ namespace BlankRoadBuilder.Util;
 
 public class AssetModelUtil : ImportAssetLodded
 {
-	private readonly ShaderType _shaderType;
 	private readonly Shader _templateShader;
 	private readonly bool _importLOD;
+	private readonly float? _scale;
 
 	protected override int textureAnisoLevel => 4;
 
-	public AssetModelUtil(ShaderType shaderType, bool importLOD = true) : base(new GameObject(), new PreviewCamera())
+	public AssetModelUtil(ShaderType shaderType, float? scale = null) : base(new GameObject(), new PreviewCamera())
 	{
 		m_LodTriangleTarget = 50;
 
-		_templateShader = (_shaderType = shaderType) switch
+		_templateShader = shaderType switch
 		{	
 			ShaderType.Bridge => Shader.Find("Custom/Net/RoadBridge"),
 			ShaderType.Rail => Shader.Find("Custom/Net/TrainBridge"),
@@ -34,10 +34,8 @@ public class AssetModelUtil : ImportAssetLodded
 			_ => Shader.Find("Custom/Net/Road"),
 		};
 
-		if (shaderType == ShaderType.Wire)
-			importLOD = false;
-
-		_importLOD = importLOD;
+		_importLOD = shaderType != ShaderType.Wire;
+		_scale = scale;
 	}
 
 	public AssetModel Import(string filename)
@@ -61,9 +59,9 @@ public class AssetModelUtil : ImportAssetLodded
 
 		GenerateAssetData();
 
-		if (!(m_Filename?.EndsWith(".fbx", StringComparison.CurrentCultureIgnoreCase) ?? false))
+		if (_scale != null ? _scale != 1F : !(m_Filename?.EndsWith(".fbx", StringComparison.CurrentCultureIgnoreCase) ?? false))
 		{
-			ApplyTransform(new Vector3(100F, 100F, 100F), Vector3.zero, false);
+			ApplyTransform(new Vector3(_scale ?? 100F, _scale ?? 100F, _scale ?? 100F), Vector3.zero, false);
 		}
 
 		if (_importLOD)

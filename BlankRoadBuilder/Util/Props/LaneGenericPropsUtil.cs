@@ -35,11 +35,11 @@ public static partial class LanePropsUtil
 		}
 		else if (leftTram && rightTram)
 		{
-			if (lane.Width > 4F)
+			if (lane.LaneWidth > 4F)
 			{
 				poleProp = GetProp(Prop.TramSidePole);
 
-				position = -(float)Math.Round(Math.Max(0F, lane.Width - 4F) / 2F, 3);
+				position = -(float)Math.Round(Math.Max(0F, lane.LaneWidth - 4F) / 2F, 3);
 
 				yield return pole(-1F);
 				yield return pole(0F);
@@ -77,8 +77,8 @@ public static partial class LanePropsUtil
 
 			poleProp = GetProp(Prop.TramSidePole);
 			position = nextLane != null && nextLane.Type.HasFlag(LaneType.Tram)
-				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (0.1 + lane.Width / 2F + road.BufferWidth) : ((lane.Width - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
-				: (float)Math.Round(Math.Max(0F, lane.Width - 4F) / 2F, 3) * (leftTram ? -1F : 1F);
+				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (0.1 + lane.LaneWidth / 2F + road.BufferWidth) : ((lane.LaneWidth - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
+				: (float)Math.Round(Math.Max(0F, lane.LaneWidth - 4F) / 2F, 3) * (leftTram ? -1F : 1F);
 		}
 		else
 		{
@@ -131,7 +131,7 @@ public static partial class LanePropsUtil
 				m_minLength = 22,
 				m_segmentOffset = -0.65F,
 				m_probability = 100,
-				m_position = new Vector3((float)Math.Round((lane.Width - (lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / -2, 3), 0, 4F),
+				m_position = new Vector3((float)Math.Round((lane.LaneWidth - (lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / -2, 3), 0, 4F),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -151,7 +151,7 @@ public static partial class LanePropsUtil
 				m_minLength = 22,
 				m_segmentOffset = 0.65F,
 				m_probability = 100,
-				m_position = new Vector3((float)Math.Round((lane.Width - (lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / 2, 3), 0, -4F),
+				m_position = new Vector3((float)Math.Round((lane.LaneWidth - (lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / 2, 3), 0, -4F),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -177,7 +177,7 @@ public static partial class LanePropsUtil
 			if (!road.ContainsCenterMedian && road.AsphaltWidth < 20F && lane.Position < 0)
 				yield break;
 
-			xPos = -lane.Width / 2 + 0.5F;
+			xPos = -lane.LaneWidth / 2 + 0.5F;
 			lightProp = GetProp(Prop.SingleStreetLight);//Prop("New Street Light Avenue");
 		}
 		else

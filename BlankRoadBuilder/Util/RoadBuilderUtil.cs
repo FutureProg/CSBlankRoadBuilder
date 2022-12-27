@@ -189,8 +189,8 @@ public static class RoadBuilderUtil
 				{
 					metadata.RenameCustomFlag(i, RoadUtils.L_RemoveBarrier, "Remove barrier");
 					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_1, "Use sound barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_2, "Use right single-sided metal barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_3, "Use left single-sided metal barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_2, "Use left single-sided metal barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_3, "Use right single-sided metal barrier");
 					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_4, "Use double-sided metal barrier");
 				}
 			}
@@ -236,7 +236,7 @@ public static class RoadBuilderUtil
 			roadInfo.Lanes.Add(new LaneInfo
 			{
 				Type = LaneType.Empty,
-				Width = 0.1F,
+				CustomWidth = 0.1F,
 				Decorations = LaneDecoration.Barrier,
 				Position = -(roadInfo.TotalWidth / 2) + 0.45F,
 				Tags = LaneTag.StackedLane
@@ -248,7 +248,7 @@ public static class RoadBuilderUtil
 			roadInfo.Lanes.Add(new LaneInfo
 			{
 				Type = LaneType.Empty,
-				Width = 0.1F,
+				CustomWidth = 0.1F,
 				Decorations = LaneDecoration.Barrier,
 				Position = (roadInfo.TotalWidth / 2) - 0.45F,
 				Tags = LaneTag.StackedLane
@@ -287,20 +287,14 @@ public static class RoadBuilderUtil
 
 	private static void GenerateLaneWidthsAndPositions(RoadInfo roadInfo)
 	{
-		// calculate non-filler widths
-		foreach (var lane in roadInfo.Lanes)
-		{
-			lane.Width = r(lane.LaneWidth);
-		}
-
 		var sizeLanes = roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.Ghost, LaneTag.StackedLane));
 		var leftCurb = roadInfo.Lanes.FirstOrDefault(x => x.Type == LaneType.Curb);
 		var rightCurb = roadInfo.Lanes.LastOrDefault(x => x.Type == LaneType.Curb);
-		var leftPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) <= roadInfo.Lanes.IndexOf(leftCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.Width);
-		var rightPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) >= roadInfo.Lanes.IndexOf(rightCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.Width);
+		var leftPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) <= roadInfo.Lanes.IndexOf(leftCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth);
+		var rightPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) >= roadInfo.Lanes.IndexOf(rightCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth);
 
 		roadInfo.PavementWidth = Math.Max(1.5F, Math.Max(leftPavementWidth, rightPavementWidth));
-		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.Width) + (2 * roadInfo.BufferWidth);
+		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
 		roadInfo.TotalWidth = 2 * roadInfo.PavementWidth + roadInfo.AsphaltWidth;
 
 		if (roadInfo.VanillaWidth)
@@ -319,8 +313,8 @@ public static class RoadBuilderUtil
 			}
 			else
 			{
-				lane.Position = r(index + lane.Width / 2F);
-				index = r(index + lane.Width);
+				lane.Position = r(index + lane.LaneWidth / 2F);
+				index = r(index + lane.LaneWidth);
 			}
 
 			if (lane.Type == LaneType.Curb)
@@ -373,7 +367,7 @@ public static class RoadBuilderUtil
 			var rightPole = roadInfo.Lanes.LastOrDefault(x => x.Tags.HasFlag(LaneTag.WirePoleLane));
 
 			roadInfo.Lanes[0].Position = r(leftPole.Position + (rightPole.Position - leftPole.Position) / 2F);
-			roadInfo.Lanes[0].Width = r(rightPole.Position - leftPole.Position);
+			roadInfo.Lanes[0].CustomWidth = r(rightPole.Position - leftPole.Position);
 		}
 
 		static float r(float f) => (float)Math.Round(f, 3);
@@ -399,7 +393,7 @@ public static class RoadBuilderUtil
 			if (road.Lanes[i].Direction == LaneDirection.Forward && (invert != left))
 				break;
 
-			drivableArea += road.Lanes[i].Width;
+			drivableArea += road.Lanes[i].LaneWidth;
 		}
 
 		return drivableArea;
@@ -414,14 +408,14 @@ public static class RoadBuilderUtil
 
 		if (lane.Type != LaneType.Pedestrian && lane.Decorations.HasFlag(LaneDecoration.TransitStop))
 		{
-			var leftPed = lane.Duplicate(LaneType.Pedestrian, (lane.Width - 2.1F) / -2F);
-			var rightPed = lane.Duplicate(LaneType.Pedestrian, (lane.Width - 2.1F) / 2F);
+			var leftPed = lane.Duplicate(LaneType.Pedestrian, (lane.LaneWidth - 2.1F) / -2F);
+			var rightPed = lane.Duplicate(LaneType.Pedestrian, (lane.LaneWidth - 2.1F) / 2F);
 
-			leftPed.Width = 2F;
+			leftPed.CustomWidth = 2F;
 			leftPed.Tags &= ~LaneTag.StoppableVehicleOnRight;
 			leftPed.RightLane = null;
 
-			rightPed.Width = 2F;
+			rightPed.CustomWidth = 2F;
 			rightPed.Tags &= ~LaneTag.StoppableVehicleOnLeft;
 			rightPed.LeftLane = null;
 
@@ -465,7 +459,7 @@ public static class RoadBuilderUtil
 		static NetInfo.Lane getLane(int index, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation) => new()
 		{
 			m_position = ThumbnailMakerUtil.GetLanePosition(type, lane, road),
-			m_width = Math.Max(0.1F, lane.Width),
+			m_width = Math.Max(0.1F, lane.LaneWidth),
 			m_verticalOffset = ThumbnailMakerUtil.GetLaneVerticalOffset(lane, road),
 			m_speedLimit = ThumbnailMakerUtil.GetLaneSpeedLimit(type, lane, road),
 			m_laneType = ThumbnailMakerUtil.GetLaneType(type),

@@ -180,9 +180,9 @@ public class MeshUtil
 		{
 			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Concrete Barrier.obj"),
 			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Soundwall.obj"),
-			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Single Steel Barrier.obj"),
-			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Single Steel Barrier.obj"),
-			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Double Steel Barrier.obj"),
+			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Left Steel Barrier.fbx"),
+			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Right Steel Barrier.fbx"),
+			AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, "Double Steel Barrier.fbx", scale: 100F),
 		};
 
 		var tracks = barriers.Select(x => new Track(netInfo)

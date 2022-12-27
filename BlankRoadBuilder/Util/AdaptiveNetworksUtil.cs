@@ -307,8 +307,8 @@ public static class AdaptiveNetworksUtil
 		if (!keepAngle)
 		{
 			prop.m_angle = (prop.m_angle + 180) % 360;
-			prop.m_position.x = -prop.m_position.x;
 		}
+		prop.m_position.x = -prop.m_position.x;
 		prop.m_position.z = -prop.m_position.z;
 
 		prop.m_colorMode = prop.m_colorMode.InvertStartEnd();

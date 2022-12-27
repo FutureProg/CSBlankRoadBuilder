@@ -88,7 +88,7 @@ public static partial class LanePropsUtil
 					break;
 				case LaneType.Curb:
 				case LaneType.Filler:
-					if (lane.Width < 0.75F)
+					if (lane.LaneWidth < 0.75F)
 						yield break;
 
 					foreach (var prop in GetMedianProps(lane, road))

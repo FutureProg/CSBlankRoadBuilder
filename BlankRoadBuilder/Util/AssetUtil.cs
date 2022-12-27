@@ -26,12 +26,12 @@ public static class AssetUtil
 			filesReady: true);
 	}
 
-	public static AssetModel ImportAsset(ShaderType shaderType, MeshType meshType, string fileName, bool filesReady = false)
+	public static AssetModel ImportAsset(ShaderType shaderType, MeshType meshType, string fileName, bool filesReady = false, float? scale = null)
 	{
 		if (!filesReady)
 			PrepareFiles(meshType, fileName);
 
-		var assetModel = new AssetModelUtil(shaderType);
+		var assetModel = new AssetModelUtil(shaderType, scale: scale);
 
 		return assetModel.Import(fileName);
 	}

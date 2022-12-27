@@ -316,11 +316,11 @@ public static class ThumbnailMakerUtil
 
 		if (lane.RightLane?.Type == LaneType.Parking)
 		{
-			return (type == LaneType.Bus ? 0.5F : 0F) + lane.RightLane.Width;
+			return (type == LaneType.Bus ? 0.5F : 0F) + lane.RightLane.LaneWidth;
 		}
 		else if (lane.LeftLane?.Type == LaneType.Parking)
 		{
-			return -((type == LaneType.Bus ? 0.5F : 0F) + lane.LeftLane.Width);
+			return -((type == LaneType.Bus ? 0.5F : 0F) + lane.LeftLane.LaneWidth);
 		}
 
 		return 0F;

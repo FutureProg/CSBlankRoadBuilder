@@ -9,7 +9,6 @@ namespace BlankRoadBuilder.ThumbnailMaker;
 
 public partial class LaneInfo
 {
-	[XmlIgnore] public float Width { get; set; }
 	[XmlIgnore] public float Position { get; set; }
 	[XmlIgnore] public LaneTag Tags { get; set; } = LaneTag.Asphalt;
 	[XmlIgnore] public LaneInfo? LeftLane { get; set; }
@@ -60,16 +59,14 @@ public partial class LaneInfo
 		Elevation = Elevation,
 		Decorations = Decorations,
 		ParkingAngle = ParkingAngle,
-		LeftDrivableArea = LeftDrivableArea,
-		RightDrivableArea = RightDrivableArea,
-		LeftInvertedDrivableArea = LeftInvertedDrivableArea,
-		RightInvertedDrivableArea = RightInvertedDrivableArea,
 		LeftLane = LeftLane,
-		Position = (float)Math.Round(Position + positionDifference, 3),
 		RightLane = RightLane,
 		SpeedLimit = SpeedLimit,
+		NetLanes = NetLanes,
+		FillerPadding = FillerPadding,
+		PropAngle = PropAngle,
+		TrafficLight = TrafficLight,
 		Tags = Tags | LaneTag.StackedLane,
-		Width = Width,
-		NetLanes = NetLanes
+		Position = (float)Math.Round(Position + positionDifference, 3),
 	};
 }
