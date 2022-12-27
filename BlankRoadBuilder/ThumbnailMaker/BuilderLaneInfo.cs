@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BlankRoadBuilder.Domain;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
@@ -12,10 +14,7 @@ public partial class LaneInfo
 	[XmlIgnore] public LaneTag Tags { get; set; } = LaneTag.Asphalt;
 	[XmlIgnore] public LaneInfo? LeftLane { get; set; }
 	[XmlIgnore] public LaneInfo? RightLane { get; set; }
-	[XmlIgnore] public float LeftDrivableArea { get; set; }
-	[XmlIgnore] public float RightDrivableArea { get; set; }
-	[XmlIgnore] public float LeftInvertedDrivableArea { get; set; }
-	[XmlIgnore] public float RightInvertedDrivableArea { get; set; }
+	[XmlIgnore] public TrafficLight TrafficLight { get; set; }
 	[XmlIgnore] public List<NetInfo.Lane> NetLanes { get; set; } = new();
 
 	public LaneVehicleCategory GetVehicleCategory()

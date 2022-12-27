@@ -350,14 +350,7 @@ public static class RoadBuilderUtil
 			roadInfo.TotalWidth = roadInfo.RoadWidth;
 		}
 
-		foreach (var lane in roadInfo.Lanes)
-		{
-			lane.LeftDrivableArea = GetDrivableArea(lane, roadInfo, true, false);
-			lane.RightDrivableArea = GetDrivableArea(lane, roadInfo, false, false);
-
-			lane.LeftInvertedDrivableArea = GetDrivableArea(lane, roadInfo, true, true);
-			lane.RightInvertedDrivableArea = GetDrivableArea(lane, roadInfo, false, true);
-		}
+		TrafficLightsUtil.GetTrafficLights(roadInfo);
 
 		if (roadInfo.Lanes.Count(x => x.Tags.HasFlag(LaneTag.CenterMedian)) > 1)
 		{

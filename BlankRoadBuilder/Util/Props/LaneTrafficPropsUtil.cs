@@ -20,95 +20,63 @@ public static partial class LanePropsUtil
 
 		var propPosition = -Math.Max(0, (lane.Width / 2) - 0.5F);
 
-
-
-
-		foreach (var prop in GetSignsAndTrafficLights(lane.RightDrivableArea, lane.LeftDrivableArea, lane.LeftInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true)))
+		foreach (var prop in GetTrafficSigns(road, lane, propPosition))
 		{
 			yield return prop;
-		}
-
-		foreach (var prop in GetSignsAndTrafficLights(lane.LeftInvertedDrivableArea, lane.RightInvertedDrivableArea, lane.RightDrivableArea, propPosition, lane, road, GetSideLanes(lane, true), GetSideLanes(lane, false), true))
-		{
-			yield return prop;
-		}
-
-		foreach (var prop in GetSignsAndTrafficLights(lane.LeftDrivableArea, lane.RightDrivableArea, lane.RightInvertedDrivableArea, propPosition, lane, road, GetSideLanes(lane, true), GetSideLanes(lane, false), false, true))
-		{
-			yield return prop.ToggleForwardBackward();
-		}
-
-		foreach (var prop in GetSignsAndTrafficLights(lane.RightInvertedDrivableArea, lane.LeftInvertedDrivableArea, lane.LeftDrivableArea, propPosition, lane, road, GetSideLanes(lane, false), GetSideLanes(lane, true), true, true))
-		{
-			yield return prop.ToggleForwardBackward();
 		}
 
 		foreach (var prop in GetBikeSignProps(lane))
 		{
 			yield return prop;
 		}
+
+		yield return TrafficLight(road, lane.TrafficLight.LeftForward, propPosition);
+		yield return TrafficLight(road, lane.TrafficLight.RightForward, -propPosition);
+		yield return TrafficLight(road, lane.TrafficLight.LeftBackward, propPosition).ToggleForwardBackward(true, ModOptions.FlipTrafficLights);
+		yield return TrafficLight(road, lane.TrafficLight.RightBackward, -propPosition).ToggleForwardBackward(true, ModOptions.FlipTrafficLights);
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetSignsAndTrafficLights(float drivableArea, float oppositeDrivableArea, float invertedDrivableArea, float propPosition, LaneInfo lane, RoadInfo road, IEnumerable<LaneInfo> sideLanes, IEnumerable<LaneInfo> invertedSideLanes, bool swapped = false, bool flipped = false)
+	private static IEnumerable<NetLaneProps.Prop> GetTrafficSigns(RoadInfo road, LaneInfo lane, float propPosition)
 	{
-		if (swapped)
+		if (lane.TrafficLight.LeftForwardSpace >= 2F)
 		{
-			propPosition *= -1F;
-		}
+			yield return RailwayCrossing(road, lane.TrafficLight.LeftForwardSpace, propPosition);
 
-		if (drivableArea > 0F)
-		{
-			if (!swapped)
+			if (GetSideLanes(lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
 			{
 				yield return StopSign(propPosition);
 
-				if (drivableArea >= 2F)
+				foreach (var prop in GetWarningSigns(lane))
 				{
-					yield return RailwayCrossing(road, drivableArea, propPosition);
-				}
-
-				if (drivableArea >= 3)
-				{
-					if (sideLanes.Any(x => (x.Type & (LaneType.Parking | LaneType.Bike)) == 0))
-					{
-						foreach (var prop in GetWarningSigns(lane))
-						{
-							yield return prop;
-						}
-					}
-
-					if (sideLanes.Any(x => (x.Type & (LaneType.Parking | LaneType.Bike | LaneType.Tram)) == 0))
-					{
-						yield return SpeedSign(road, lane);
-					}
+					yield return prop;
 				}
 			}
 
-			if (drivableArea >= (swapped ? 9F : 6F))
+			if (GetSideLanes(lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
-				yield return TrafficLight(road, swapped ? Prop.TrafficLight02Mirror : Prop.TrafficLight02, propPosition);
-				yield break;
-			}
-
-			if (!swapped || !sideLanes.Take(2).Any(x => x.Type.HasAnyFlag(LaneType.Pedestrian, LaneType.Filler, LaneType.Curb)))
-			{
-				yield return TrafficLight(road, swapped ? Prop.TrafficLight01 : Prop.TrafficLight01Mirror, propPosition);
-				yield break;
+				yield return SpeedSign(road, lane);
 			}
 		}
 
-		var sidewalk = lane.Type == LaneType.Curb;
-
-		if ((!sidewalk && lane.Width <= 1F) ||
-			(sidewalk && ((lane.Position < 0) == (swapped == flipped))) ||
-			(!sidewalk && (swapped ? invertedDrivableArea : oppositeDrivableArea) <= 3))
+		if (lane.TrafficLight.RightBackwardSpace >= 2F)
 		{
-			yield break;
+			yield return RailwayCrossing(road, lane.TrafficLight.LeftForwardSpace, propPosition).ToggleForwardBackward();
+
+			if (GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
+			{
+				yield return StopSign(propPosition).ToggleForwardBackward();
+
+				foreach (var prop in GetWarningSigns(lane))
+				{
+					yield return prop.ToggleForwardBackward();
+				}
+			}
+
+			if (GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
+			{
+				yield return SpeedSign(road, lane).ToggleForwardBackward();
+			}
 		}
-
-		var normalLight = lane.Type == LaneType.Curb && ModOptions.FlipTrafficLights;
-
-		yield return TrafficLight(road, normalLight ? Prop.TrafficLight01Mirror : Prop.TrafficLightPedestrian, propPosition, normalLight ? swapped : !swapped);
 	}
 
 	private static NetLaneProps.Prop TrafficLight(RoadInfo road, Prop propName, float propPosition, bool flipAngle = false)
@@ -136,7 +104,7 @@ public static partial class LanePropsUtil
 		}.ToggleForwardBackward(ModOptions.FlipTrafficLights, true);
 	}
 
-	private static IEnumerable<LaneInfo> GetSideLanes(LaneInfo? lane, bool left)
+	private static IEnumerable<LaneInfo> GetSideLanes(LaneInfo? lane, bool left, bool forward)
 	{
 		while (lane != null)
 		{
@@ -144,8 +112,13 @@ public static partial class LanePropsUtil
 
 			if (lane != null)
 			{
+				if (lane.Direction == (forward ? LaneDirection.Backwards : LaneDirection.Forward))
+					break;
+
 				yield return lane;
 			}
+			else
+				break;
 		}
 	}
 
