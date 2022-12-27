@@ -11,6 +11,9 @@ public class PropTemplate
 		IsTree = isTree;
 	}
 
-	public static implicit operator PropInfo(PropTemplate prop) => prop.IsTree ? null : PrefabCollection<PropInfo>.FindLoaded(prop.PropName);
-	public static implicit operator TreeInfo(PropTemplate prop) => prop.IsTree ? PrefabCollection<TreeInfo>.FindLoaded(prop.PropName) : null;
+	public static implicit operator PropInfo(PropTemplate prop)
+		=> string.IsNullOrEmpty(prop.PropName) ? null : prop.IsTree ? null : PrefabCollection<PropInfo>.FindLoaded(prop.PropName);
+
+	public static implicit operator TreeInfo(PropTemplate prop)
+		=> string.IsNullOrEmpty(prop.PropName) ? null : prop.IsTree ? PrefabCollection<TreeInfo>.FindLoaded(prop.PropName) : null;
 }

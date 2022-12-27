@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BlankRoadBuilder.Util.Props;
+﻿namespace BlankRoadBuilder.Util.Props;
 public class PropUtil
 {
 	public static PropTemplate GetProp(Prop prop)
@@ -13,54 +8,67 @@ public class PropUtil
 
 	private static PropTemplate GetDefaultProp(Prop prop)
 	{
-		switch (prop)
+		return prop switch
 		{
-			case Prop.TrafficLight01: return new PropTemplate("Traffic Light 01");
-			case Prop.TrafficLight01Mirror: return new PropTemplate("Traffic Light 01 Mirror");
-			case Prop.TrafficLight02: return new PropTemplate("Traffic Light 02");
-			case Prop.TrafficLight02Mirror: return new PropTemplate("Traffic Light 02 Mirror");
-			case Prop.TrafficLightPedestrian: return new PropTemplate("Traffic Light Pedestrian");
-			case Prop.BicycleSign: return new PropTemplate("1779509676.R2 WF11-1 Bicycle Sign_Data");
-			case Prop.RailwayCrossingAheadSign: return new PropTemplate("1779509676.R2 W10-1 Railroad Crossing Sign_Data");
-			case Prop.TrafficLightAheadSign: return new PropTemplate("1779509676.R2 W3-3 Signal Ahead Sign_Data");
-			case Prop.StopSign: return new PropTemplate("Stop Sign");
-			case Prop.RailwayCrossingVeryLong: return new PropTemplate("Railway Crossing Very Long");
-			case Prop.RailwayCrossingLong: return new PropTemplate("Railway Crossing Long");
-			case Prop.RailwayCrossingMedium: return new PropTemplate("Railway Crossing Medium");
-			case Prop.RailwayCrossingShort: return new PropTemplate("Railway Crossing Short");
-			case Prop.BicycleLaneDecal: return new PropTemplate("Bike Lane");
-			case Prop.BusLaneDecal: return new PropTemplate("Bus Lane");
-			case Prop.ArrowForward: return new PropTemplate("Road Arrow F");
-			case Prop.ArrowLeft: return new PropTemplate("Road Arrow L");
-			case Prop.ArrowRight: return new PropTemplate("Road Arrow R");
-			case Prop.ArrowLeftRight: return new PropTemplate("Road Arrow LR");
-			case Prop.ArrowForwardLeft: return new PropTemplate("Road Arrow LF");
-			case Prop.ArrowForwardRight: return new PropTemplate("Road Arrow FR");
-			case Prop.ArrowForwardLeftRight: return new PropTemplate("Road Arrow LFR");
-			case Prop.BicycleParking: return new PropTemplate("bicycle_stand");
-			case Prop.TrashBin: return new PropTemplate("Park Trashbin 01");
-			case Prop.StreetAd: return new PropTemplate("904031558.Street Ads 01_Data");
-			case Prop.SingleStreetLight: return new PropTemplate("Toll Road Light Single");
-			case Prop.DoubleStreetLight: return new PropTemplate("Toll Road Light Double");
-			case Prop.Bench: return new PropTemplate("Bench 01");
-			case Prop.Hedge: return new PropTemplate("Plant Pot 06");
-			case Prop.FlowerPot: return new PropTemplate("Flowerpot 04");
-			case Prop.Bollard: return new PropTemplate("1650964670.Bollard A 05_Data");
-			case Prop.Grass: return new PropTemplate("Roof Vegetation 01");
-			case Prop.Tree: return new PropTemplate("mp9-YoungLinden", true);
-			case Prop.TreePlanter: return new PropTemplate("2086553476.Tree Planter 03 1m_Data");
-			case Prop.TramPole: return new PropTemplate("Tram Pole Side");
-			case Prop.TramSidePole: return new PropTemplate("Tram Pole Wide Side");
-			case Prop.TramCenterPole: return new PropTemplate("Tram Pole Center");
-			case Prop.ParkingMeter: return new PropTemplate("Parking Meter");
-			case Prop.BusStopLarge: return new PropTemplate("Bus Stop Large");
-			case Prop.BusStopSmall: return new PropTemplate("Bus Stop Small");
-			case Prop.TramStopLarge: return new PropTemplate("Tram Stop");
-			case Prop.TramStopSmall: return new PropTemplate("Tram Stop Sign");
-			case Prop.TrolleyStopLarge: return new PropTemplate("Trolleybus Stop");
-			case Prop.TrolleyStopSmall: return new PropTemplate("Sightseeing Bus Stop Small");
-
-			default: return null;
-		}
+			Prop.TrafficLight01 => new PropTemplate("Traffic Light 01"),
+			Prop.TrafficLight01Mirror => new PropTemplate("Traffic Light 01 Mirror"),
+			Prop.TrafficLight02 => new PropTemplate("Traffic Light 02"),
+			Prop.TrafficLight02Mirror => new PropTemplate("Traffic Light 02 Mirror"),
+			Prop.TrafficLightPedestrian => new PropTemplate("Traffic Light Pedestrian"),
+			Prop.BicycleSign => new PropTemplate("1779509676.R2 WF11-1 Bicycle Sign_Data"),
+			Prop.RailwayCrossingAheadSign => new PropTemplate("1779509676.R2 W10-1 Railroad Crossing Sign_Data"),
+			Prop.TrafficLightAheadSign => new PropTemplate("1779509676.R2 W3-3 Signal Ahead Sign_Data"),
+			Prop.StopSign => new PropTemplate("Stop Sign"),
+			Prop.RailwayCrossingVeryLong => new PropTemplate("Railway Crossing Very Long"),
+			Prop.RailwayCrossingLong => new PropTemplate("Railway Crossing Long"),
+			Prop.RailwayCrossingMedium => new PropTemplate("Railway Crossing Medium"),
+			Prop.RailwayCrossingShort => new PropTemplate("Railway Crossing Short"),
+			Prop.BicycleLaneDecal => new PropTemplate("Bike Lane"),
+			Prop.BusLaneDecal => new PropTemplate("Bus Lane"),
+			Prop.ArrowForward => new PropTemplate("Road Arrow F"),
+			Prop.ArrowLeft => new PropTemplate("Road Arrow L"),
+			Prop.ArrowRight => new PropTemplate("Road Arrow R"),
+			Prop.ArrowLeftRight => new PropTemplate("Road Arrow LR"),
+			Prop.ArrowForwardLeft => new PropTemplate("Road Arrow LF"),
+			Prop.ArrowForwardRight => new PropTemplate("Road Arrow FR"),
+			Prop.ArrowForwardLeftRight => new PropTemplate("Road Arrow LFR"),
+			Prop.BicycleParking => new PropTemplate("bicycle_stand"),
+			Prop.TrashBin => new PropTemplate("Park Trashbin 01"),
+			Prop.StreetAd => new PropTemplate("904031558.Street Ads 01_Data"),
+			Prop.SingleStreetLight => new PropTemplate("Toll Road Light Single"),
+			Prop.DoubleStreetLight => new PropTemplate("Toll Road Light Double"),
+			Prop.Bench => new PropTemplate("Bench 01"),
+			Prop.Hedge => new PropTemplate("Plant Pot 06"),
+			Prop.FlowerPot => new PropTemplate("Flowerpot 04"),
+			Prop.Bollard => new PropTemplate("1650964670.Bollard A 05_Data"),
+			Prop.Grass => new PropTemplate("Roof Vegetation 01"),
+			Prop.Tree => new PropTemplate("mp9-YoungLinden", true),
+			Prop.TreePlanter => new PropTemplate("2086553476.Tree Planter 03 1m_Data"),
+			Prop.TramPole => new PropTemplate("Tram Pole Side"),
+			Prop.TramSidePole => new PropTemplate("Tram Pole Wide Side"),
+			Prop.TramCenterPole => new PropTemplate("Tram Pole Center"),
+			Prop.ParkingMeter => new PropTemplate("Parking Meter"),
+			Prop.BusStopLarge => new PropTemplate("Bus Stop Large"),
+			Prop.BusStopSmall => new PropTemplate("Bus Stop Small"),
+			Prop.TramStopLarge => new PropTemplate("Tram Stop"),
+			Prop.TramStopSmall => new PropTemplate("Tram Stop Sign"),
+			Prop.TrolleyStopLarge => new PropTemplate("Trolleybus Stop"),
+			Prop.TrolleyStopSmall => new PropTemplate("Sightseeing Bus Stop Small"),
+			Prop.SpeedSign10 => new PropTemplate($"30 Speed Limit"),
+			Prop.SpeedSign20 => new PropTemplate($"30 Speed Limit"),
+			Prop.SpeedSign30 => new PropTemplate($"30 Speed Limit"),
+			Prop.SpeedSign40 => new PropTemplate($"40 Speed Limit"),
+			Prop.SpeedSign50 => new PropTemplate($"50 Speed Limit"),
+			Prop.SpeedSign60 => new PropTemplate($"60 Speed Limit"),
+			Prop.SpeedSign70 => new PropTemplate($"60 Speed Limit"),
+			Prop.SpeedSign80 => new PropTemplate($"60 Speed Limit"),
+			Prop.SpeedSign90 => new PropTemplate($"60 Speed Limit"),
+			Prop.SpeedSign100 => new PropTemplate($"100 Speed Limit"),
+			Prop.SpeedSign110 => new PropTemplate($"100 Speed Limit"),
+			Prop.SpeedSign120 => new PropTemplate($"100 Speed Limit"),
+			Prop.SpeedSign130 => new PropTemplate($"100 Speed Limit"),
+			Prop.SpeedSign140 => new PropTemplate($"100 Speed Limit"),
+			_ => new PropTemplate(string.Empty),
+		};
 	}
 }
