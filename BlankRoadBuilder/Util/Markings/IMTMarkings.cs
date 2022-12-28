@@ -87,8 +87,8 @@ public class IMTMarkings
 				}
 				else
 				{
-					markup.AddRegularLine(new MarkupPointPair(pointsA[item.LeftPoint.X], pointsB[item.LeftPoint.X]), new NetworkLineStyle(curb, 0.15F, 0F, 100F, 0F, 0F, 0, false));
-					markup.AddRegularLine(new MarkupPointPair(pointsA[item.RightPoint.X], pointsB[item.RightPoint.X]), new NetworkLineStyle(curb, -0.15F, 0F, 100F, 0F, 0F, 0, false));
+					markup.AddRegularLine(new MarkupPointPair(pointsA[item.LeftPoint.X], pointsB[item.LeftPoint.X]), new NetworkLineStyle(curb, 0.15F, 0F, 1F, 0F, 0F, 0, false));
+					markup.AddRegularLine(new MarkupPointPair(pointsA[item.RightPoint.X], pointsB[item.RightPoint.X]), new NetworkLineStyle(curb, -0.15F, 0F, 1F, 0F, 0F, 0, false));
 				}
 			}
 			
