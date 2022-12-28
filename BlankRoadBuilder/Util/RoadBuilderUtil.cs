@@ -26,6 +26,8 @@ using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
 public static class RoadBuilderUtil
 {
+	public static RoadInfo? CurrentRoad { get; private set; }
+
 	public static IEnumerable<StateInfo> Build(RoadInfo? roadInfo)
 	{
 		ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
@@ -104,6 +106,7 @@ public static class RoadBuilderUtil
 		yield return new StateInfo($"Road generation completed, applying changes..");
 
 		SavePanelPatch.LastLoadedRoad = roadInfo;
+		CurrentRoad = roadInfo;
 
 		ToolsModifierControl.toolController.m_editPrefabInfo = info;
 		AdaptiveNetworksUtil.Refresh();
@@ -371,32 +374,6 @@ public static class RoadBuilderUtil
 		}
 
 		static float r(float f) => (float)Math.Round(f, 3);
-	}
-
-	private static readonly LaneType _drivingLaneTypes = LaneType.Car | LaneType.Parking | LaneType.Bike | LaneType.Bus | LaneType.Emergency | LaneType.Tram | LaneType.Trolley;
-
-	private static float GetDrivableArea(LaneInfo lane, RoadInfo road, bool left, bool invert)
-	{
-		var drivableArea = 0F;
-
-		for (var i = road.Lanes.IndexOf(lane) + (left ? 1 : -1); i < road.Lanes.Count - 1 && i > 0; i += left ? 1 : -1)
-		{
-			if (!road.Lanes[i].Tags.HasFlag(LaneTag.Asphalt))
-				break;
-
-			if ((road.Lanes[i].Type & _drivingLaneTypes) == 0)
-				break;
-
-			if (road.Lanes[i].Direction == LaneDirection.Backwards && (invert == left))
-				break;
-
-			if (road.Lanes[i].Direction == LaneDirection.Forward && (invert != left))
-				break;
-
-			drivableArea += road.Lanes[i].LaneWidth;
-		}
-
-		return drivableArea;
 	}
 
 	private static IEnumerable<NetInfo.Lane> GenerateLanes(LaneInfo lane, RoadInfo road, ElevationType elevation)
