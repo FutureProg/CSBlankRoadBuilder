@@ -15,21 +15,21 @@ public partial class MarkingStylesTemplates
 {
 	private static readonly Color32 _bikeNLFillerColor = new(55, 17, 4, 100);
 
-	public static Dictionary<GenericMarkingType, LineInfo> Netherlands()
+	public static Dictionary<GenericMarkingType, LineInfo> Netherlands(MarkingType type)
 	{
 		return new Dictionary<GenericMarkingType, LineInfo>
 		{
 			{ GenericMarkingType.End, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Solid,
-					Color = _whiteLineColor,
+					Color = type == MarkingType.IMT ? _imtWhiteLineColor :  _whiteLineColor,
 					LineWidth = 0.15F
 				}
 			},
 			{ GenericMarkingType.Bike | GenericMarkingType.Flipped, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Dashed,
-					Color = _whiteLineColor,
+					Color = type == MarkingType.IMT ? _imtWhiteLineColor :  _whiteLineColor,
 					DashLength = 1F,
 					DashSpace = 2F,
 					LineWidth = 0.25F
@@ -38,7 +38,7 @@ public partial class MarkingStylesTemplates
 			{ GenericMarkingType.Parking, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Dashed,
-					Color = _whiteLineColor,
+					Color = type == MarkingType.IMT ? _imtWhiteLineColor :  _whiteLineColor,
 					DashLength = 0.6F,
 					DashSpace = 1F,
 					LineWidth = 0.1F
@@ -47,28 +47,28 @@ public partial class MarkingStylesTemplates
 			{ GenericMarkingType.End | GenericMarkingType.Flipped, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Solid,
-					Color =  _whiteLineColor,
+					Color = type == MarkingType.IMT ? _imtWhiteLineColor :   _whiteLineColor,
 					LineWidth = 0.15F
 				}
 			},
 			{ GenericMarkingType.Hard | GenericMarkingType.Flipped, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Solid,
-					Color =  _whiteLineColor,
+					Color = type == MarkingType.IMT ? _imtWhiteLineColor :   _whiteLineColor,
 					LineWidth = 0.15F
 				}
 			},
 			{ GenericMarkingType.Hard | GenericMarkingType.Normal, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Solid,
-					Color = _whiteLineColor,
+					Color = type == MarkingType.IMT ? _imtWhiteLineColor :  _whiteLineColor,
 					LineWidth = 0.15F
 				}
 			},
 			{ GenericMarkingType.Soft | GenericMarkingType.Normal, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Dashed,
-					Color = _whiteLineColor,
+					Color = type == MarkingType.IMT ? _imtWhiteLineColor :  _whiteLineColor,
 					DashLength = 1.5F,
 					LineWidth = 0.15F
 				}
@@ -76,32 +76,16 @@ public partial class MarkingStylesTemplates
 		};
 	}
 
-	public static Dictionary<LaneType, FillerInfo> Netherlands_Fillers()
+	public static Dictionary<LaneType, FillerInfo> Netherlands_Fillers(MarkingType type)
 	{
 		return new Dictionary<LaneType, FillerInfo>
 		{
-			{ LaneType.Tram, new FillerInfo
-				{
-				}
-			},
 			{ LaneType.Bike, new FillerInfo
 				{
 					MarkingStyle = MarkingFillerType.Filled,
-					Color = _bikeNLFillerColor,
+					Color = type == MarkingType.IMT ? _imtBusFillerColor : _bikeNLFillerColor,
 				}
-			},
-			{ LaneType.Bus, new FillerInfo
-				{
-					MarkingStyle = MarkingFillerType.Filled,
-					Color = _busFillerColor,
-				}
-			},
-			{ LaneType.Trolley, new FillerInfo
-				{
-					MarkingStyle = MarkingFillerType.Filled,
-					Color = _busFillerColor,
-				}
-			},
+			}
 		};
 	}
 }

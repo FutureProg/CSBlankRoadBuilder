@@ -19,10 +19,10 @@ internal class MarkingsOptions : OptionsPanelBase
 
 	public MarkingsOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex)
 	{
-		foreach (var option in MarkingStyleUtil.CustomLineMarkings)
-		{
-			AddLineOption(option.Key, option.Value);
-		}
+		//foreach (var option in MarkingStyleUtil.CustomLineMarkings)
+		//{
+		//	AddLineOption(option.Key, option.Value);
+		//}
 	}
 
 	private static string GetTitle(GenericMarkingType key)
@@ -178,7 +178,7 @@ internal class MarkingsOptions : OptionsPanelBase
 		
 		void ResetLine()
 		{
-			var vanilla = MarkingStylesTemplates.Vanilla();
+			var vanilla = MarkingStylesTemplates.Vanilla(MarkingType.AN);
 
 			if (vanilla.ContainsKey(value.GenericMarking))
 				value.Set(vanilla[value.GenericMarking]);

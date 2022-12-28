@@ -2,72 +2,68 @@
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using UnityEngine;
-
 namespace BlankRoadBuilder.Util.Markings;
 
-public class MarkingStyleUtil
+public partial class MarkingStyleUtil
 {
-    public static LineInfo? GetLineMarkingInfo(GenericMarkingType type)
+	public static Dictionary<MarkingType, Dictionary<GenericMarkingType, SavedLineOption>> CustomLineMarkings { get; }
+	public static Dictionary<MarkingType, Dictionary<LaneType, SavedFillerOption>> CustomFillerMarkings { get; }
+
+	public static LineInfo? GetLineMarkingInfo(GenericMarkingType type, MarkingType markingType)
     {
         if (ModOptions.MarkingsStyle == MarkingStyle.Custom)
         {
-            return CustomLineMarkings.ContainsKey(type) ? CustomLineMarkings[type].AsLine() : null;
-        }
+            return CustomLineMarkings[markingType].ContainsKey(type) ? CustomLineMarkings[markingType][type].AsLine() : null;
+		}
 
-        if (!_markings.ContainsKey(ModOptions.MarkingsStyle))
-        {
-            return null;
-        }
+		var markings = _markings(ModOptions.MarkingsStyle, markingType);
 
-        return !_markings[ModOptions.MarkingsStyle].ContainsKey(type) ? null : _markings[ModOptions.MarkingsStyle][type];
+		return (markings?.ContainsKey(type) ?? false) ? markings[type] : null;
     }
 
-    public static FillerInfo? GetFillerMarkingInfo(LaneType type)
+    public static FillerInfo? GetFillerMarkingInfo(LaneType type, MarkingType markingType)
     {
         if (ModOptions.MarkingsStyle == MarkingStyle.Custom)
         {
-            return CustomFillerMarkings.ContainsKey(type) ? CustomFillerMarkings[type].AsFiller() : null;
+            return CustomFillerMarkings[markingType].ContainsKey(type) ? CustomFillerMarkings[markingType][type].AsFiller() : null;
         }
 
-        if (!_fillers.ContainsKey(ModOptions.MarkingsStyle))
-        {
-            return null;
-        }
+        var fillers = _fillers(ModOptions.MarkingsStyle, markingType);
 
-        return !_fillers[ModOptions.MarkingsStyle].ContainsKey(type) ? null : _fillers[ModOptions.MarkingsStyle][type];
+        return (fillers?.ContainsKey(type) ?? false) ? fillers[type] : null;
     }
 
-    public static Dictionary<GenericMarkingType, SavedLineOption> CustomLineMarkings { get; }
-    public static Dictionary<LaneType, SavedFillerOption> CustomFillerMarkings { get; }
+    private static readonly Func<MarkingStyle, MarkingType, Dictionary<GenericMarkingType, LineInfo>?> _markings;
 
-    private static readonly Dictionary<MarkingStyle, Dictionary<GenericMarkingType, LineInfo>> _markings;
-    private static readonly Dictionary<MarkingStyle, Dictionary<LaneType, FillerInfo>> _fillers;
+    private static readonly Func<MarkingStyle, MarkingType, Dictionary<LaneType, FillerInfo>?> _fillers;
 
     static MarkingStyleUtil()
     {
-        _markings = new Dictionary<MarkingStyle, Dictionary<GenericMarkingType, LineInfo>>
+        _markings = (m, s) => m switch
         {
-            { MarkingStyle.Vanilla, MarkingStylesTemplates.Vanilla() },
-            { MarkingStyle.USA, MarkingStylesTemplates.USA() },
-            { MarkingStyle.UK, MarkingStylesTemplates.UK() },
-            { MarkingStyle.Canada, MarkingStylesTemplates.Canada() },
-            { MarkingStyle.Netherlands, MarkingStylesTemplates.Netherlands() }
+            MarkingStyle.Vanilla => MarkingStylesTemplates.Vanilla(s),
+            MarkingStyle.USA => MarkingStylesTemplates.USA(s),
+            MarkingStyle.UK => MarkingStylesTemplates.UK(s),
+            MarkingStyle.Canada => MarkingStylesTemplates.Canada(s),
+            MarkingStyle.Netherlands => MarkingStylesTemplates.Netherlands(s),
+            _ => null
         };
 
-        _fillers = new Dictionary<MarkingStyle, Dictionary<LaneType, FillerInfo>>
-        {
-            { MarkingStyle.Vanilla, MarkingStylesTemplates.Vanilla_Fillers() },
-            { MarkingStyle.USA, MarkingStylesTemplates.USA_Fillers() },
-            { MarkingStyle.UK, MarkingStylesTemplates.UK_Fillers() },
-            { MarkingStyle.Canada, MarkingStylesTemplates.Canada_Fillers() },
-            { MarkingStyle.Netherlands, MarkingStylesTemplates.Netherlands_Fillers() }
-        };
+		_fillers = (m, s) => m switch
+		{
+			MarkingStyle.Vanilla => MarkingStylesTemplates.Vanilla_Fillers(s),
+			MarkingStyle.USA => MarkingStylesTemplates.USA_Fillers(s),
+			MarkingStyle.UK => MarkingStylesTemplates.UK_Fillers(s),
+			MarkingStyle.Canada => MarkingStylesTemplates.Canada_Fillers(s),
+			MarkingStyle.Netherlands => MarkingStylesTemplates.Netherlands_Fillers(s),
+            _ => null
+		};
 
-        var customMarkingTypes = new[]
+		var customMarkingTypes = new[]
         {
             GenericMarkingType.End,
             GenericMarkingType.Parking,
@@ -83,8 +79,9 @@ public class MarkingStyleUtil
 
         var customFillerTypes = new[]
         {
+            LaneType.Filler,
             LaneType.Car,
-            LaneType.Parking,
+			LaneType.Parking,
             LaneType.Bike,
             LaneType.Tram,
             LaneType.Bus,
@@ -93,24 +90,16 @@ public class MarkingStyleUtil
             LaneType.Pedestrian,
         };
 
-        CustomLineMarkings = customMarkingTypes.ToDictionary(x => x, x => new SavedLineOption(x));
-        CustomFillerMarkings = customFillerTypes.ToDictionary(x => x, x => new SavedFillerOption(x));
-    }
+        CustomLineMarkings = new Dictionary<MarkingType, Dictionary<GenericMarkingType, SavedLineOption>>
+        {
+            { MarkingType.IMT, customMarkingTypes.ToDictionary(x => x, x => new SavedLineOption(x, MarkingType.IMT)) },
+            { MarkingType.AN, customMarkingTypes.ToDictionary(x => x, x => new SavedLineOption(x, MarkingType.AN)) },
+        };
 
-    public class LineInfo
-    {
-        public MarkingLineType MarkingStyle { get; set; }
-        public float LineWidth { get; set; } = 0.15F;
-        public float DashLength { get; set; } = 1F;
-        public float DashSpace { get; set; } = 1F;
-        public Color32 Color { get; set; } = new Color32(255, 255, 255, 255);
-    }
-
-    public class FillerInfo
-    {
-        public MarkingFillerType MarkingStyle { get; set; }
-        public float DashLength { get; set; } = 1F;
-        public float DashSpace { get; set; } = 1F;
-        public Color32 Color { get; set; } = new Color32(255, 255, 255, 255);
+        CustomFillerMarkings = new Dictionary<MarkingType, Dictionary<LaneType, SavedFillerOption>>
+		{
+			{ MarkingType.IMT, customFillerTypes.ToDictionary(x => x, x => new SavedFillerOption(x, MarkingType.IMT)) },
+			{ MarkingType.AN, customFillerTypes.ToDictionary(x => x, x => new SavedFillerOption(x, MarkingType.AN)) },
+		};
     }
 }

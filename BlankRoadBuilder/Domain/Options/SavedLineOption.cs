@@ -20,9 +20,9 @@ public class SavedLineOption
 
     public GenericMarkingType GenericMarking { get; }
 
-    public SavedLineOption(GenericMarkingType genericMarking)
+    public SavedLineOption(GenericMarkingType genericMarking, MarkingType type)
     {
-        var baseName = $"Marking_{(int)genericMarking}";
+        var baseName = $"Marking_{(int)type}_{(int)genericMarking}";
 
         _lineType = new(baseName + nameof(_lineType), nameof(BlankRoadBuilder), (int)MarkingLineType.None);
 		_dashSpace = new(baseName + nameof(_dashSpace), nameof(BlankRoadBuilder), 1F);

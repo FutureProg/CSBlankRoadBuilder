@@ -20,10 +20,10 @@ internal class FillerOptions : OptionsPanelBase
 
 	public FillerOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex)
 	{
-		foreach (var option in MarkingStyleUtil.CustomFillerMarkings)
-		{
-			AddFillerOption(option.Key, option.Value);
-		}
+		//foreach (var option in MarkingStyleUtil.CustomFillerMarkings)
+		//{
+		//	AddFillerOption(option.Key, option.Value);
+		//}
 	}
 
 	private void AddFillerOption(LaneType key, SavedFillerOption value)
@@ -115,7 +115,7 @@ internal class FillerOptions : OptionsPanelBase
 
 		void ResetFiller()
 		{
-			var vanilla = MarkingStylesTemplates.Vanilla_Fillers();
+			var vanilla = MarkingStylesTemplates.Vanilla_Fillers( MarkingType.AN);
 
 			if (vanilla.ContainsKey(value.LaneType))
 				value.Set(vanilla[value.LaneType]);

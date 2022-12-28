@@ -160,7 +160,7 @@ public static class AdaptiveNetworksMarkings
 
 	private static Track? GetLaneFiller(RoadInfo roadInfo, NetInfo netInfo, FillerMarking fillerMarking)
 	{
-		var filler = fillerMarking?.FillerInfo;
+		var filler = fillerMarking?.AN_Info;
 
 		if (fillerMarking == null || filler == null)
 			return null;
@@ -191,7 +191,7 @@ public static class AdaptiveNetworksMarkings
 
 	private static Track? GetMarking(RoadInfo roadInfo, NetInfo netInfo, LineMarking marking)
 	{
-		var lineInfo = GetLineMarkingInfo(marking.Marking);
+		var lineInfo = marking.AN_Info;
 
 		if (lineInfo == null || lineInfo.MarkingStyle == MarkingLineType.None)
 		{
@@ -316,7 +316,7 @@ public static class AdaptiveNetworksMarkings
 
 	private static string GenerateMesh(FillerMarking? fillerMarking, LineMarking? lineMarking, string name)
 	{
-		var type = lineMarking?.LineInfo;
+		var type = lineMarking?.AN_Info;
 		var lineWidth = type == null ? 0F : type.LineWidth;
 
 		if (type != null && (type.MarkingStyle == MarkingLineType.SolidDouble || type.MarkingStyle == MarkingLineType.SolidDashed || type.MarkingStyle == MarkingLineType.DashedDouble || type.MarkingStyle == MarkingLineType.DashedSolid))

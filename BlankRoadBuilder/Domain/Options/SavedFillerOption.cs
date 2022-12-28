@@ -1,38 +1,34 @@
 ﻿using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Markings;
-using ColossalFramework;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using ColossalFramework;
 
 namespace BlankRoadBuilder.Domain.Options;
 public class SavedFillerOption
 {
-    private readonly SavedInt _fillerType;
-    private readonly SavedFloat _dashLength;
-    private readonly SavedFloat _dashSpace;
+	private readonly SavedInt _fillerType;
+	private readonly SavedFloat _dashLength;
+	private readonly SavedFloat _dashSpace;
 	private readonly SavedInt _colorR;
-    private readonly SavedInt _colorG;
-    private readonly SavedInt _colorB;
-    private readonly SavedInt _colorA;
+	private readonly SavedInt _colorG;
+	private readonly SavedInt _colorB;
+	private readonly SavedInt _colorA;
 
-    public LaneType LaneType { get; }
+	public LaneType LaneType { get; }
 
-    public SavedFillerOption(LaneType laneType)
-    {
-        var baseName = $"Filler_{(int)laneType}";
+	public SavedFillerOption(LaneType laneType, MarkingType type)
+	{
+		var baseName = $"Filler_{(int)type}_{(int)laneType}";
 
-        _fillerType = new(baseName + nameof(_fillerType), nameof(BlankRoadBuilder), (int)MarkingFillerType.Filled);
+		_fillerType = new(baseName + nameof(_fillerType), nameof(BlankRoadBuilder), (int)MarkingFillerType.Filled);
 		_dashLength = new(baseName + nameof(_dashLength), nameof(BlankRoadBuilder), 1F);
 		_dashSpace = new(baseName + nameof(_dashSpace), nameof(BlankRoadBuilder), 1F);
-        _colorR = new(baseName + nameof(_colorR), nameof(BlankRoadBuilder), 255);
-        _colorG = new(baseName + nameof(_colorG), nameof(BlankRoadBuilder), 255);
-        _colorB = new(baseName + nameof(_colorB), nameof(BlankRoadBuilder), 255);
-        _colorA = new(baseName + nameof(_colorA), nameof(BlankRoadBuilder), 255);
+		_colorR = new(baseName + nameof(_colorR), nameof(BlankRoadBuilder), 255);
+		_colorG = new(baseName + nameof(_colorG), nameof(BlankRoadBuilder), 255);
+		_colorB = new(baseName + nameof(_colorB), nameof(BlankRoadBuilder), 255);
+		_colorA = new(baseName + nameof(_colorA), nameof(BlankRoadBuilder), 255);
 
-        LaneType = laneType;
+		LaneType = laneType;
 	}
 
 	public MarkingFillerType MarkingType { get => (MarkingFillerType)_fillerType.value; set => _fillerType.value = (int)value; }

@@ -1,11 +1,12 @@
-﻿using BlankRoadBuilder.Patches;
+﻿using BlankRoadBuilder.ThumbnailMaker;
+
 using ModsCommon;
+
 using NodeMarkup.Manager;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using UnityEngine;
 
@@ -15,7 +16,9 @@ public class IMTMarkings
 	public static void ApplyMarkings(ushort segmentId)
 	{
 		if (RoadBuilderUtil.CurrentRoad == null)
+		{
 			return;
+		}
 
 		var markings = MarkingsUtil.GenerateMarkings(RoadBuilderUtil.CurrentRoad);
 		var markup = SingletonManager<SegmentMarkupManager>.Instance[segmentId];
@@ -43,11 +46,8 @@ public class IMTMarkings
 				continue;
 			}
 
-			var info = item.FillerInfo;
-
-			if (info == null)
-				continue;
-
+			var elevation = getElevation(item);
+			var curb = item.Type != LaneDecoration.Filler ? PrefabCollection<NetInfo>.FindLoaded("2187355678.R69 Prague Curb Network_Data") : null;
 			var vertices = new[]
 			{
 				new EnterFillerVertex(pointsA[item.LeftPoint.X]),
@@ -58,42 +58,83 @@ public class IMTMarkings
 
 			FillerStyle style;
 
+			Debug.Log(item.Type);
+
 			switch (item.Type)
 			{
-				case ThumbnailMaker.LaneDecoration.Filler:
+				case LaneDecoration.Filler:
+					var info = item.IMT_Info;
+
+					if (info == null)
+					{
+						continue;
+					}
+
 					style = new SolidFillerStyle(info.Color, 0F, 0F);
 					break;
-				case ThumbnailMaker.LaneDecoration.Grass:
-					style = new GrassFillerStyle(info.Color, 0F, 0.2F, 0F, 0.01F, 0F, 0F, 0F, 0F);
+				case LaneDecoration.Grass:
+					style = new GrassFillerStyle(Color.white, 1F, 0.2F, 0F, elevation + 0.01F, 0F, 0F, 0F, 0F);
 					break;
-				case ThumbnailMaker.LaneDecoration.Pavement:
-					style = new PavementFillerStyle(info.Color, 0F, 0.2F, 0F, 0.01F, 0F, 0F);
+				case LaneDecoration.Pavement:
+					style = new PavementFillerStyle(Color.white, 1F, 0.2F, 0F, elevation + 0.01F, 0F, 0F);
 					break;
-				case ThumbnailMaker.LaneDecoration.Gravel:
-					style = new GravelFillerStyle(info.Color, 0F, 0.2F, 0F, 0.01F, 0F, 0F, 0F, 0F);
+				case LaneDecoration.Gravel:
+					style = new GravelFillerStyle(Color.white, 1F, 0.2F, 0F, elevation + 0.01F, 0F, 0F, 0F, 0F);
 					break;
 				default:
 					continue;
 			}
 
-			if (item.Type != ThumbnailMaker.LaneDecoration.Filler)
+			if (item.Type != LaneDecoration.Filler)
 			{
-				var curb = PrefabCollection<NetInfo>.FindLoaded("");
-
 				if (curb == null)
 				{
 					if (style is CurbTriangulationFillerStyle cstyle)
+					{
 						cstyle.CurbSize.Value = 0.2F;
+					}
 				}
 				else
 				{
-					markup.AddRegularLine(new MarkupPointPair(pointsA[item.LeftPoint.X], pointsB[item.LeftPoint.X]), new NetworkLineStyle(curb, 0.15F, 0F, 1F, 0F, 0F, 0, false));
-					markup.AddRegularLine(new MarkupPointPair(pointsA[item.RightPoint.X], pointsB[item.RightPoint.X]), new NetworkLineStyle(curb, -0.15F, 0F, 1F, 0F, 0F, 0, false));
+					var networkLine1 = new NetworkLineStyle(curb, (item.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false) ? 0.15F : 0.3F, elevation + 0.05F, 1F, 0F, 0F, 64, false);
+					var networkLine2 = new NetworkLineStyle(curb, (item.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false) ? 0.15F : 0.3F, elevation + 0.05F, 1F, 0F, 0F, 64, false);
+
+					if (pointsA[item.LeftPoint.X].Lines.FirstOrDefault() is MarkupRegularLine line1)
+					{
+						line1.AddRule(networkLine1, false);
+					}
+					else
+					{
+						markup.AddRegularLine(new MarkupPointPair(pointsA[item.LeftPoint.X], pointsB[item.LeftPoint.X]), networkLine1);
+					}
+
+					if (pointsA[item.RightPoint.X].Lines.FirstOrDefault() is MarkupRegularLine line2)
+					{
+						line2.AddRule(networkLine2, false);
+					}
+					else
+					{
+						markup.AddRegularLine(new MarkupPointPair(pointsA[item.RightPoint.X], pointsB[item.RightPoint.X]), networkLine2);
+					}
 				}
 			}
-			
+
 			markup.AddFiller(new MarkupFiller(new FillerContour(markup, vertices), style));
 		}
+	}
+
+	private static float getElevation(FillerMarking item)
+	{
+		var elevation = item.Elevation;
+		var lanes = new List<LaneInfo>(item.Lanes);
+
+		if (lanes[0].LeftLane != null)
+			lanes.Add(lanes.First().LeftLane);
+
+		if (lanes.Last()?.RightLane != null)
+			lanes.Add(lanes.Last().RightLane);
+
+		return elevation + lanes.Select(x => ThumbnailMakerUtil.GetLaneVerticalOffset(x, RoadBuilderUtil.CurrentRoad)).Average();
 	}
 
 	private static void AddLines(MarkingsInfo markings, SegmentMarkup markup, Dictionary<float, MarkupEnterPoint> pointsA, Dictionary<float, MarkupEnterPoint> pointsB)
@@ -107,10 +148,12 @@ public class IMTMarkings
 			}
 
 			var pair = new MarkupPointPair(pointsA[item.Point.X], pointsB[item.Point.X]);
-			var info = item.LineInfo;
+			var info = item.IMT_Info;
 
 			if (info == null)
+			{
 				continue;
+			}
 
 			RegularLineStyle style;
 
@@ -150,9 +193,35 @@ public class IMTMarkings
 
 		foreach (var item in enter.Points)
 		{
-			points[item.LinePosition] = item;
+			Debug.Log($"{item.Index} - {GetSegmentPosition(item)}");
+
+			points[GetSegmentPosition(item)] = item;
 		}
 
 		return points;
+	}
+
+	public static float GetSegmentPosition(MarkupEnterPoint point)
+	{
+		var source = (NetInfoPointSource)point.Source;
+
+		if ((source.Location & MarkupPoint.LocationType.Between) != MarkupPoint.LocationType.None)
+		{
+			return (point.Enter.IsLaneInvert ? -source.RightLane.HalfWidth : source.RightLane.HalfWidth) + source.RightLane.Position;
+		}
+
+		else if ((source.Location & MarkupPoint.LocationType.Edge) != MarkupPoint.LocationType.None)
+		{
+			switch (source.Location)
+			{
+				case MarkupPoint.LocationType.LeftEdge:
+					return (point.Enter.IsLaneInvert ? -source.RightLane.HalfWidth : source.RightLane.HalfWidth) + source.RightLane.Position;
+
+				case MarkupPoint.LocationType.RightEdge:
+					return (point.Enter.IsLaneInvert ? source.LeftLane.HalfWidth : -source.LeftLane.HalfWidth) + source.LeftLane.Position;
+			}
+		}
+
+		return 0F;
 	}
 }

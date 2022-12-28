@@ -3,5 +3,8 @@
 public enum MarkingFillerType
 {
 	Filled,
-	Dashed
+	Dashed,
+	Striped,
+	Arrows,
+	FilledWithArrows
 }
