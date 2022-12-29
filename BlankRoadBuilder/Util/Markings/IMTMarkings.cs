@@ -1,4 +1,5 @@
-﻿using BlankRoadBuilder.ThumbnailMaker;
+﻿using BlankRoadBuilder.Domain.Options;
+using BlankRoadBuilder.ThumbnailMaker;
 
 using ModsCommon;
 
@@ -16,6 +17,11 @@ public class IMTMarkings
 	public static void ApplyMarkings(ushort segmentId)
 	{
 		if (RoadBuilderUtil.CurrentRoad == null)
+		{
+			return;
+		}
+
+		if (!(ModOptions.MarkingsGenerated == Domain.MarkingsSource.IMTOnly || ModOptions.MarkingsGenerated == Domain.MarkingsSource.IMTWithANHelpers || ModOptions.MarkingsGenerated == Domain.MarkingsSource.IMTWithANHelpersAndHiddenANMarkings))
 		{
 			return;
 		}
@@ -58,8 +64,6 @@ public class IMTMarkings
 
 			FillerStyle style;
 
-			Debug.Log(item.Type);
-
 			switch (item.Type)
 			{
 				case LaneDecoration.Filler:
@@ -70,7 +74,27 @@ public class IMTMarkings
 						continue;
 					}
 
-					style = new SolidFillerStyle(info.Color, 0F, 0F);
+					switch (info.MarkingStyle)
+					{
+						case Domain.MarkingFillerType.Filled:
+							style = new SolidFillerStyle(info.Color, 0F, 0F);
+							break;
+						case Domain.MarkingFillerType.Dashed:
+							style = new StripeFillerStyle(info.Color, info.DashLength, 0F, 0F, 90F, info.DashSpace, true);
+							break;
+						case Domain.MarkingFillerType.Striped:
+							style = new StripeFillerStyle(info.Color, info.DashLength, 0F, 0F, 45F, info.DashSpace, true);
+							break;
+						case Domain.MarkingFillerType.Arrows:
+							style = new ChevronFillerStyle(info.Color, info.DashLength, 0F, 0F, 90F, info.DashSpace);
+							break;
+						case Domain.MarkingFillerType.FilledWithArrows:
+							markup.AddFiller(new MarkupFiller(new FillerContour(markup, vertices), new SolidFillerStyle(info.Color, 0F, 0F)));
+							style = new ChevronFillerStyle(info.Color, info.DashLength, 0F, 0F, 90F, info.DashSpace);
+							break;
+						default:
+							continue;
+					}
 					break;
 				case LaneDecoration.Grass:
 					style = new GrassFillerStyle(Color.white, 1F, 0.2F, 0F, elevation + 0.01F, 0F, 0F, 0F, 0F);
@@ -134,7 +158,7 @@ public class IMTMarkings
 		if (lanes.Last()?.RightLane != null)
 			lanes.Add(lanes.Last().RightLane);
 
-		return elevation + lanes.Select(x => ThumbnailMakerUtil.GetLaneVerticalOffset(x, RoadBuilderUtil.CurrentRoad)).Average();
+		return elevation - lanes.Select(x => ThumbnailMakerUtil.GetLaneVerticalOffset(x, RoadBuilderUtil.CurrentRoad)).Average();
 	}
 
 	private static void AddLines(MarkingsInfo markings, SegmentMarkup markup, Dictionary<float, MarkupEnterPoint> pointsA, Dictionary<float, MarkupEnterPoint> pointsB)
@@ -193,8 +217,6 @@ public class IMTMarkings
 
 		foreach (var item in enter.Points)
 		{
-			Debug.Log($"{item.Index} - {GetSegmentPosition(item)}");
-
 			points[GetSegmentPosition(item)] = item;
 		}
 

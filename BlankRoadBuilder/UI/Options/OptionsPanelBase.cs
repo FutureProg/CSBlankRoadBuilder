@@ -15,7 +15,7 @@ namespace BlankRoadBuilder.UI.Options;
 public abstract class OptionsPanelBase
 {
     protected float yPos;
-
+    private UIScrollbar scrollbar;
     protected const float Margin = 12f;
     protected const float LeftMargin = 24f;
     protected const float GroupMargin = 40f;
@@ -38,7 +38,9 @@ public abstract class OptionsPanelBase
 		_panel.builtinKeyNavigation = true;
 		_panel.scrollWheelDirection = UIOrientation.Vertical;
 
-		UIScrollbars.AddScrollbar(panel, _panel);
+		scrollbar = UIScrollbars.AddScrollbar(panel, _panel);
+
+		panel.eventVisibilityChanged += (s,e)=>scrollbar.value = 0;
 	}
 
 	protected virtual UIDropDown AddDropdown(string labelKey, string[] items, int selectedIndex)

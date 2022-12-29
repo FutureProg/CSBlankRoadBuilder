@@ -56,7 +56,7 @@ public class MeshUtil
 		var data = netInfo.GetMetaData();
 		var tracks = new List<Track>();
 
-		// if AN markings
+		if (!(ModOptions.MarkingsGenerated == MarkingsSource.IMTOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpers || ModOptions.MarkingsGenerated == MarkingsSource.NoMarkings))
 		{
 			var markings = MarkingsUtil.GenerateMarkings(roadInfo);
 
@@ -68,6 +68,15 @@ public class MeshUtil
 			}
 
 			tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
+		}
+		else if (ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpers)
+			tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
+
+		if (ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpers || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings)
+		{
+			var markings = MarkingsUtil.GenerateMarkings(roadInfo);
+
+			tracks.AddRange(AdaptiveNetworksMarkings.IMTHelpers(roadInfo, netInfo, markings));
 		}
 
 		data.Tracks = tracks.ToArray();

@@ -70,15 +70,18 @@ public static class AssetUtil
 			var type = regex.Groups[1].Value.ToLower().TrimStart('_');
 			var newName = $"{baseName}{(lod ? "_lod" : "")}_{mesh}.png";
 
-			if ((mesh == "p" || mesh == "r") && elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : (road.BridgeSideTexture == BridgeTextureType.Asphalt))
+			if (mesh == "p" || mesh == "r")
 			{
-				if (curb != CurbType.TR == (type == "asphalt"))
+				var ashpalt = elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : elevationType <= ElevationType.Bridge ? (road.BridgeSideTexture == BridgeTextureType.Asphalt) : false;
+				var noashpalt = !ashpalt && road.AsphaltStyle == AsphaltStyle.None;
+				var noCurb = road.RoadType == RoadType.Highway && curb != CurbType.TR;
+
+				var requiredType = (ashpalt ? "asphalt" : noashpalt ? "noasphalt" : "") + (noCurb ? "nocurb" : "");
+
+				if (type == requiredType)
+				{
 					File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, newName), true);
-			}
-			else if (mesh == "p" && road.RoadType == RoadType.Highway)
-			{
-				if (curb != CurbType.TR == (type == "nocurb"))
-					File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, newName), true);
+				}
 			}
 			else if (string.IsNullOrEmpty(type))
 			{

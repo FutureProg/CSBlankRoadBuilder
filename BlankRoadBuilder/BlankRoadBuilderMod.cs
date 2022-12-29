@@ -88,11 +88,20 @@ public class BlankRoadBuilderMod : IUserMod
 
 		new GeneralOptions(tabStrip, 0);
 		new LaneSizeOptions(tabStrip, 1);
-		new MarkingsOptions(tabStrip, 2);
-		new FillerOptions(tabStrip, 3);
+		new IMTOptions(tabStrip, 2);
+		new ANOptions(tabStrip, 3);
 
 		tabStrip.selectedIndex = -1;
 		tabStrip.selectedIndex = 0;
+
+		s_optionsParentPanel.eventVisibilityChanged += (c, v) =>
+		{
+			if (v)
+			{
+				tabStrip.selectedIndex = -1;
+				tabStrip.selectedIndex = 0;
+			}
+		};
 	}
 
 	private static void CopyThumbnailMaker()

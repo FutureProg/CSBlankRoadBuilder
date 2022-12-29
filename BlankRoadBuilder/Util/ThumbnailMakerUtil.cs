@@ -56,7 +56,11 @@ public static class ThumbnailMakerUtil
 
 		roadInfo.ContainsWiredLanes = roadInfo.Lanes.Any(x => (x.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
 
-		CreateMissingLanes(roadInfo);
+		roadInfo.Lanes.Insert(0, new LaneInfo // Add damage & markings lanes
+		{
+			Type = LaneType.Empty,
+			Tags = LaneTag.Damage | LaneTag.StackedLane
+		});
 
 		FillLaneTags(roadInfo);
 
@@ -77,29 +81,6 @@ public static class ThumbnailMakerUtil
 		return roadInfo;
 	}
 
-	private static void CreateMissingLanes(RoadInfo roadInfo)
-	{
-		if (ModOptions.AddGhostLanes)
-		{
-			roadInfo.Lanes.Insert(0, ghostLane(LaneDirection.Backwards));
-			roadInfo.Lanes.Add(ghostLane(LaneDirection.Forward));
-		}
-
-		roadInfo.Lanes.Insert(0, new LaneInfo
-		{
-			Type = LaneType.Empty,
-			Tags = LaneTag.Damage | LaneTag.StackedLane
-		});
-
-		static LaneInfo ghostLane(LaneDirection direction) => new()
-		{
-			Type = LaneType.Empty,
-			Direction = direction,
-			Tags = LaneTag.Ghost,
-			CustomWidth = 2F
-		};
-	}
-
 	private static void FillLaneTags(RoadInfo roadInfo)
 	{
 		var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram;
@@ -107,11 +88,13 @@ public static class ThumbnailMakerUtil
 
 		for (var i = 0; i < roadInfo.Lanes.Count; i++)
 		{
+			roadInfo.Lanes[i].Road = roadInfo;
+
 			fillTag(roadInfo.Lanes[i]
 				, i == 0 ? null : roadInfo.Lanes[i - 1]
 				, i == roadInfo.Lanes.Count - 1 ? null : roadInfo.Lanes[i + 1]);
 
-			if ((curbToggle || roadInfo.Lanes[i].Type == LaneType.Curb) && !roadInfo.Lanes[i].Tags.HasAnyFlag(LaneTag.StackedLane, LaneTag.Ghost))
+			if ((curbToggle || roadInfo.Lanes[i].Type == LaneType.Curb) && !roadInfo.Lanes[i].Tags.HasAnyFlag(LaneTag.StackedLane))
 			{
 				roadInfo.Lanes[i].Tags |= LaneTag.Sidewalk;
 				roadInfo.Lanes[i].Tags &= ~LaneTag.Asphalt;
@@ -154,8 +137,10 @@ public static class ThumbnailMakerUtil
 
 		void fillTag(LaneInfo lane, LaneInfo? left, LaneInfo? right)
 		{
-			lane.LeftLane = left;
-			lane.RightLane = right;
+			if (!(left?.Tags.HasFlag(LaneTag.StackedLane) ?? false))
+				lane.LeftLane = left;
+			if (!(right?.Tags.HasFlag(LaneTag.StackedLane) ?? false))
+				lane.RightLane = right;
 
 			if (left != null && (left.Type & stoppableVehicleLanes) != 0)
 			{
@@ -200,20 +185,13 @@ public static class ThumbnailMakerUtil
 
 	public static VehicleInfo.VehicleType GetVehicleType(LaneType laneType, LaneInfo lane)
 	{
-		if (lane.Tags.HasFlag(LaneTag.StackedLane))
+		if (lane.Tags.HasFlag(LaneTag.StackedLane) && !lane.Tags.HasFlag(LaneTag.Placeholder))
 		{
 			return VehicleInfo.VehicleType.None;
 		}
 
 		switch (laneType)
 		{
-			case LaneType.Empty:
-			case LaneType.Filler:
-			case LaneType.Car:
-			case LaneType.Parking:
-			case LaneType.Bus:
-				return VehicleInfo.VehicleType.Car;
-
 			case LaneType.Curb:
 				return lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel, LaneDecoration.Pavement) ? VehicleInfo.VehicleType.Car : VehicleInfo.VehicleType.None;
 
@@ -227,7 +205,7 @@ public static class ThumbnailMakerUtil
 				return VehicleInfo.VehicleType.Trolleybus;
 		}
 
-		return VehicleInfo.VehicleType.None;
+		return VehicleInfo.VehicleType.Car;
 	}
 
 	public static VehicleInfo.VehicleType GetStopType(LaneType type, LaneInfo lane, RoadInfo road, out bool? forward)

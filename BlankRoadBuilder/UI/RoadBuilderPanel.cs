@@ -183,9 +183,15 @@ public class RoadBuilderPanel : StandalonePanel
 		if (_hideBuiltCheckBox.isChecked && item.assetMatch != null)
 			return false;
 
-		return string.IsNullOrEmpty(_searchTextBox.text)
-			|| (item.RoadInfo?.Name.SearchCheck(_searchTextBox.text) ?? false)
-			|| (item.RoadInfo?.Description.SearchCheck(_searchTextBox.text) ?? false);
+		if (string.IsNullOrEmpty(_searchTextBox.text))
+			return true;
+
+		var split = _searchTextBox.text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+		return (item.RoadInfo?.Name.SearchCheck(_searchTextBox.text) ?? false)
+			|| (item.RoadInfo?.Description.SearchCheck(_searchTextBox.text) ?? false)
+			|| split.All(x => item.RoadInfo?.Name.SearchCheck(x) ?? false)
+			|| split.All(x => item.RoadInfo?.Description.SearchCheck(x) ?? false);
 	}
 
 	private List<ListData> ReadXMLFiles()

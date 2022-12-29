@@ -47,7 +47,9 @@ public static class Extensions
 
 	public static string FormatWords(this string str, bool forceUpper = false)
 	{
-		str = str.RegexReplace("([a-z])([A-Z])", (Match x) => x.Groups[1].Value + " " + x.Groups[2].Value, ignoreCase: false).RegexReplace("(\\b)(?<!')([a-z])", (Match x) => x.Groups[1].Value + x.Groups[2].Value.ToUpper(), ignoreCase: false);
+		str = str.RegexReplace("([a-z])([A-Z])", (Match x) => x.Groups[1].Value + " " + x.Groups[2].Value, ignoreCase: false)
+			.RegexReplace("([A-Z])([A-Z][a-z])", (Match x) => x.Groups[1].Value + " " + x.Groups[2].Value, ignoreCase: false)
+			.RegexReplace("(\\b)(?<!')([a-z])", (Match x) => x.Groups[1].Value + x.Groups[2].Value.ToUpper(), ignoreCase: false);
 		if (forceUpper)
 		{
 			str = str.RegexReplace("(^[a-z])|(\\ [a-z])", (Match x) => x.Value.ToUpper());

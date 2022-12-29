@@ -23,6 +23,11 @@ public static partial class LanePropsUtil
 
 		foreach (var prop in getLaneProps().Where(x => x != null && (x.m_prop != null || x.m_tree != null)))
 		{
+			if (type == LaneType.Curb)
+			{
+				prop.m_position.x += road.BufferWidth / (lane.Direction == LaneDirection.Forward ? 2 : -2); 
+			}
+
 			result.Add(prop);
 
 			if (prop.m_flagsForbidden.HasFlag(NetLane.Flags.Inverted) && prop is not RhtProp)
@@ -101,7 +106,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetMedianProps(LaneInfo lane, RoadInfo road)
 	{
-		if (lane.Tags.HasFlag(LaneTag.StackedLane) || lane.Tags.HasFlag(LaneTag.Ghost))
+		if (lane.Tags.HasFlag(LaneTag.StackedLane))
 		{
 			yield break;
 		}

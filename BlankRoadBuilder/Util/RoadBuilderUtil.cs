@@ -161,7 +161,7 @@ public static class RoadBuilderUtil
 		metadata.RenameCustomFlag(RoadUtils.S_AddRoadDamage, "Add road damage");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveRoadClutter, "Remove road clutter");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, ModOptions.KeepMarkingsHiddenByDefault ? "Show markings & fillers" : "Remove markings & fillers");
+		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, (ModOptions.MarkingsGenerated == MarkingsSource.HiddenANMarkingsOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings) ? "Show markings & fillers" : "Remove markings & fillers");
 
 		metadata.RenameCustomFlag(RoadUtils.N_FullLowCurb, "Full low curb");
 		metadata.RenameCustomFlag(RoadUtils.N_ForceHighCurb, "Force high curb");
@@ -290,11 +290,11 @@ public static class RoadBuilderUtil
 
 	private static void GenerateLaneWidthsAndPositions(RoadInfo roadInfo)
 	{
-		var sizeLanes = roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.Ghost, LaneTag.StackedLane));
+		var sizeLanes = roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.StackedLane));
 		var leftCurb = roadInfo.Lanes.FirstOrDefault(x => x.Type == LaneType.Curb);
 		var rightCurb = roadInfo.Lanes.LastOrDefault(x => x.Type == LaneType.Curb);
-		var leftPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) <= roadInfo.Lanes.IndexOf(leftCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth);
-		var rightPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) >= roadInfo.Lanes.IndexOf(rightCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth);
+		var leftPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) <= roadInfo.Lanes.IndexOf(leftCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
+		var rightPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) >= roadInfo.Lanes.IndexOf(rightCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
 
 		roadInfo.PavementWidth = Math.Max(1.5F, Math.Max(leftPavementWidth, rightPavementWidth));
 		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
@@ -310,25 +310,8 @@ public static class RoadBuilderUtil
 			if (lane.Tags.HasFlag(LaneTag.StackedLane))
 				continue;
 
-			if (lane.Tags.HasFlag(LaneTag.Ghost))
-			{
-				lane.Position = r((index < 0 ? -1 : 1) * (roadInfo.AsphaltWidth / 2 + 3F));
-			}
-			else
-			{
-				lane.Position = r(index + lane.LaneWidth / 2F);
-				index = r(index + lane.LaneWidth);
-			}
-
-			if (lane.Type == LaneType.Curb)
-			{
-				if (lane == rightCurb)
-				{
-					lane.Position = r(lane.Position + roadInfo.BufferWidth);
-				}
-
-				index = r(index + roadInfo.BufferWidth);
-			}
+			lane.Position = r(index + lane.LaneWidth / 2F);
+			index = r(index + lane.LaneWidth);
 		}
 
 		if (roadInfo.VanillaWidth)
@@ -405,11 +388,13 @@ public static class RoadBuilderUtil
 			lane.Elevation = null;
 		}
 
-		if (lane.Type == LaneType.Pedestrian && lane.Tags.HasFlag(LaneTag.Asphalt))
+		if (lane.Type == LaneType.Pedestrian)
 		{
 			var fillerLane = lane.Duplicate(LaneType.Empty);
 
+			fillerLane.Tags |= LaneTag.Placeholder;
 			fillerLane.Elevation = null;
+			fillerLane.CustomWidth = lane.LaneWidth;
 
 			yield return getLane(index++, LaneType.Empty, fillerLane, road, elevation);
 		}

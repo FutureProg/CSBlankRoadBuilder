@@ -13,7 +13,7 @@ using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
 namespace BlankRoadBuilder.Util.Markings;
 public partial class MarkingStylesTemplates
 {
-	private static Color32 _vanillaWhiteIMTLineColor = new Color32(180, 180, 180, 100);
+	private static Color32 _vanillaWhiteIMTLineColor = new Color32(180, 180, 180, 120);
 	private static Color32 _vanillaYellowIMTLineColor = new Color32(161, 136, 88, 135);
 
 	public static Dictionary<GenericMarkingType, LineInfo> Vanilla(MarkingType type)
@@ -48,14 +48,14 @@ public partial class MarkingStylesTemplates
 			{ GenericMarkingType.End | GenericMarkingType.Flipped, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.Solid,
-					Color = type == MarkingType.IMT ?_vanillaYellowIMTLineColor: _yellowLineColor,
+					Color = type == MarkingType.IMT ?_vanillaWhiteIMTLineColor: _whiteLineColor,
 					LineWidth = 0.15F
 				}
 			},
 			{ GenericMarkingType.Hard | GenericMarkingType.Flipped, new LineInfo
 				{
 					MarkingStyle = MarkingLineType.SolidDouble,
-					Color = type == MarkingType.IMT ?_vanillaYellowIMTLineColor: _yellowLineColor,
+					Color = type == MarkingType.IMT ?_vanillaWhiteIMTLineColor: _whiteLineColor,
 					LineWidth = 0.15F
 				}
 			},

@@ -1,7 +1,6 @@
 ﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
-using BlankRoadBuilder.Util.Props;
 
 using ColossalFramework.Importers;
 
@@ -14,8 +13,6 @@ using UnityEngine;
 
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
-using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
-
 namespace BlankRoadBuilder.Util.Markings;
 public static class AdaptiveNetworksMarkings
 {
@@ -25,14 +22,14 @@ public static class AdaptiveNetworksMarkings
 
 		foreach (var item in markings.Fillers)
 		{
-			if (item.Type == LaneDecoration.Filler && item.LeftPoint.LeftLane != null)
+			if (item.Type == LaneDecoration.Filler)
 			{
 				var filler = GetLaneFiller(roadInfo, netInfo, item);
 
 				if (filler != null)
 					tracks.Add(filler);
 			}
-			else if (item.LeftPoint.LeftLane != null)
+			else
 			{
 				var filler = GetFiller(roadInfo, netInfo, item);
 
@@ -82,7 +79,7 @@ public static class AdaptiveNetworksMarkings
 
 		foreach (var track in tracks)
 		{
-			if (ModOptions.KeepMarkingsHiddenByDefault)
+			if (ModOptions.MarkingsGenerated == MarkingsSource.HiddenANMarkingsOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings)
 			{
 				track.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
 			}
@@ -141,7 +138,7 @@ public static class AdaptiveNetworksMarkings
 		var model = AssetUtil.ImportAsset(shader, MeshType.Filler, mesh + ".obj", filesReady: true);
 
 		var nlane = roadInfo.Lanes.First(x => x.Tags.HasFlag(LaneTag.Damage)).NetLanes[0];
-		
+
 		return new Track(netInfo)
 		{
 			m_mesh = model.m_mesh,
@@ -410,4 +407,8 @@ public static class AdaptiveNetworksMarkings
 		return guid;
 	}
 
+	internal static IEnumerable<Track> IMTHelpers(RoadInfo roadInfo, NetInfo netInfo, MarkingsInfo markings)
+	{
+		throw new NotImplementedException();
+	}
 }

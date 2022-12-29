@@ -2,8 +2,6 @@
 
 using BlankRoadBuilder.ThumbnailMaker;
 
-using PrefabMetadata.Helpers;
-
 using System;
 using System.Collections.Generic;
 
@@ -162,46 +160,23 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetLights(LaneInfo lane, RoadInfo road)
 	{
-		PropInfo lightProp;
-		var xPos = 0F;
-
 		if (lane.Tags.HasFlag(LaneTag.CenterMedian))
 		{
-			lightProp = GetProp(Prop.DoubleStreetLight);//Prop("Avenue Light");
+			if (!lane.Decorations.HasFlag(LaneDecoration.DoubleStreetLight))
+			{
+				return GetStreetLights(lane, road, LaneDecoration.DoubleStreetLight);
+			}
 		}
 		else if (lane.Type == LaneType.Curb)
 		{
-			if (road.ContainsCenterMedian && road.AsphaltWidth < 30F)
-				yield break;
-
-			if (!road.ContainsCenterMedian && road.AsphaltWidth < 20F && lane.Position < 0)
-				yield break;
-
-			xPos = -lane.LaneWidth / 2 + 0.5F;
-			lightProp = GetProp(Prop.SingleStreetLight);//Prop("New Street Light Avenue");
-		}
-		else
-			yield break;
-
-		yield return getLight(road.ContainsWiredLanes ? 2F : 0F);
-
-		for (var i = 24; i <= 24 * 4; i += 24)
-		{
-			yield return getLight(i);
-			yield return getLight(-i);
+			if ((!road.ContainsCenterMedian || road.AsphaltWidth >= 30F)
+				&& (road.ContainsCenterMedian || road.AsphaltWidth >= 20F || lane.Position >= 0)
+				&& !lane.Decorations.HasFlag(LaneDecoration.StreetLight))
+			{
+				return GetStreetLights(lane, road, LaneDecoration.StreetLight);
+			}
 		}
 
-		NetLaneProps.Prop getLight(float position) => new NetLaneProps.Prop
-		{
-			m_prop = lightProp,
-			m_finalProp = lightProp,
-			m_minLength = Math.Abs(position) * 2F + 10F,
-			m_probability = 100,
-			m_position = new Vector3(xPos, 0, position)
-		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
-		{
-			LaneFlags = new NetInfoExtionsion.LaneInfoFlags
-			{ Forbidden = RoadUtils.L_RemoveStreetLights }
-		}).ToggleForwardBackward(lane.Position < 0 && lane.Type == LaneType.Curb);
+		return new NetLaneProps.Prop[0];
 	}
 }

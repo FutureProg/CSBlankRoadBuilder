@@ -1,5 +1,6 @@
 ﻿using AdaptiveRoads.Manager;
 
+using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
@@ -310,8 +311,8 @@ public static partial class LanePropsUtil
 				},
 				SegmentFlags = new SegmentInfoFlags
 				{
-					Required = ModOptions.KeepMarkingsHiddenByDefault ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
-					Forbidden = !ModOptions.KeepMarkingsHiddenByDefault ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Required = (ModOptions.MarkingsGenerated == MarkingsSource.HiddenANMarkingsOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Forbidden = !(ModOptions.MarkingsGenerated == MarkingsSource.HiddenANMarkingsOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
 				}
 			});
 		}
@@ -388,6 +389,6 @@ public static partial class LanePropsUtil
 
 	private static int propAngle(LaneInfo lane)
 	{
-		return (lane.Position < 0 ? -1 : 1) * (lane.PropAngle == PropAngle.Right == (lane.Direction != LaneDirection.Backwards) ? 1 : -1);
+		return (lane.Position < 0 ? -1 : 1) * (lane.PropAngle == PropAngle.Right == (lane.Direction != LaneDirection.Backwards || lane.Type == LaneType.Curb) ? 1 : -1);
 	}
 }

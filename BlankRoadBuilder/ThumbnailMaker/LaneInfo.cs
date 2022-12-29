@@ -18,7 +18,8 @@ public partial class LaneInfo
 	public float? CustomWidth { get; set; }
 	public float? SpeedLimit { get; set; }
 
-	[XmlIgnore] public float LaneWidth => (float)Math.Round(CustomWidth ?? DefaultLaneWidth(), 3);
+	[XmlIgnore] public RoadInfo? Road { get; set; }
+	[XmlIgnore] public float LaneWidth => (float)Math.Round((CustomWidth ?? DefaultLaneWidth()) + (Type == LaneType.Curb ? (Road?.BufferWidth ?? 0F) : 0F), 3);
 
 	public float DefaultLaneWidth()
 	{

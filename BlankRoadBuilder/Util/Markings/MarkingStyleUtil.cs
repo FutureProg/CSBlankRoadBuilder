@@ -37,9 +37,9 @@ public partial class MarkingStyleUtil
         return (fillers?.ContainsKey(type) ?? false) ? fillers[type] : null;
     }
 
-    private static readonly Func<MarkingStyle, MarkingType, Dictionary<GenericMarkingType, LineInfo>?> _markings;
+    internal static readonly Func<MarkingStyle, MarkingType, Dictionary<GenericMarkingType, LineInfo>?> _markings;
 
-    private static readonly Func<MarkingStyle, MarkingType, Dictionary<LaneType, FillerInfo>?> _fillers;
+	internal static readonly Func<MarkingStyle, MarkingType, Dictionary<LaneType, FillerInfo>?> _fillers;
 
     static MarkingStyleUtil()
     {

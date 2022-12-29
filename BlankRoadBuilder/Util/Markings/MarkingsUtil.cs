@@ -20,7 +20,7 @@ public static class MarkingsUtil
         var currentFiller = (FillerMarking?)null;
         var currentLane = (LaneInfo?)null;
 
-        foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.Ghost, LaneTag.StackedLane)))
+        foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.StackedLane)))
         {
             var laneFiller = lane.Decorations & (LaneDecoration.Filler | LaneDecoration.Grass | LaneDecoration.Gravel | LaneDecoration.Pavement);
 			var elevation = ThumbnailMakerUtil.GetLaneVerticalOffset(lane, roadInfo);
@@ -59,7 +59,14 @@ public static class MarkingsUtil
 			}
 		}
 
-        foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.Ghost, LaneTag.StackedLane)))
+		if (currentFiller != null)
+		{
+			markingInfo.Fillers.Add(currentFiller);
+			currentFiller = null;
+			currentLane = null;
+		}
+
+		foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.StackedLane)))
         {
             var currentCategory = lane.GetVehicleCategory();
 
