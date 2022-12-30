@@ -13,7 +13,7 @@ internal class IMTOptions : OptionsPanelBase
 {
 	public override string TabName { get; } = "IMT Markings";
 
-	public IMTOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex)
+	public IMTOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex, 0)
 	{
 		var _tabStrip = AutoTabstrip.AddTabstrip(_panel, 0f, 0f, _panel.width, _panel.height - 15F, out _, tabHeight: 32f);
 
@@ -29,7 +29,7 @@ internal class ANOptions : OptionsPanelBase
 {
 	public override string TabName { get; } = "AN Markings";
 
-	public ANOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex)
+	public ANOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex, 0)
 	{
 		var _tabStrip = AutoTabstrip.AddTabstrip(_panel, 0f, 0f, _panel.width, _panel.height - 15F, out _, tabHeight: 32f);
 

@@ -56,27 +56,20 @@ public class MeshUtil
 		var data = netInfo.GetMetaData();
 		var tracks = new List<Track>();
 
-		if (!(ModOptions.MarkingsGenerated == MarkingsSource.IMTOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpers || ModOptions.MarkingsGenerated == MarkingsSource.NoMarkings))
+		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANMarkings, MarkingsSource.HiddenANMarkings, MarkingsSource.ANFillers))
 		{
 			var markings = MarkingsUtil.GenerateMarkings(roadInfo);
 
 			tracks.AddRange(AdaptiveNetworksMarkings.Markings(roadInfo, netInfo, markings));
 
-			if (roadInfo.ContainsWiredLanes)
-			{
-				tracks.AddRange(GenerateTracksAndWires(netInfo, roadInfo));
-			}
+			tracks.AddRange(AdaptiveNetworksMarkings.IMTHelpers(roadInfo, netInfo, markings));
 
 			tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
 		}
-		else if (ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpers)
-			tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
 
-		if (ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpers || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings)
+		if (roadInfo.ContainsWiredLanes)
 		{
-			var markings = MarkingsUtil.GenerateMarkings(roadInfo);
-
-			tracks.AddRange(AdaptiveNetworksMarkings.IMTHelpers(roadInfo, netInfo, markings));
+			tracks.AddRange(GenerateTracksAndWires(netInfo, roadInfo));
 		}
 
 		data.Tracks = tracks.ToArray();
@@ -118,6 +111,7 @@ public class MeshUtil
 
 			yield return new Track(netInfo)
 			{
+				Title = "Clus's Tracks",
 				m_mesh = cllusTrackModel.m_mesh,
 				m_material = cllusTrackModel.m_material,
 				m_lodMesh = cllusTrackModel.m_lodMesh,
@@ -131,6 +125,7 @@ public class MeshUtil
 
 			yield return new Track(netInfo)
 			{
+				Title = "Tram Wire",
 				m_mesh = railModel.m_mesh,
 				m_material = railModel.m_material,
 				m_lodMesh = railModel.m_mesh,
@@ -147,6 +142,7 @@ public class MeshUtil
 
 			yield return new Track(netInfo)
 			{
+				Title = "Trolley Wires",
 				m_mesh = railModel.m_mesh,
 				m_material = railModel.m_material,
 				m_lodMesh = railModel.m_mesh,
@@ -164,6 +160,7 @@ public class MeshUtil
 
 			yield return new Track(netInfo)
 			{
+				Title = "Support Wires",
 				m_mesh = supportModel.m_mesh,
 				m_material = supportModel.m_material,
 				m_lodMesh = supportModel.m_mesh,

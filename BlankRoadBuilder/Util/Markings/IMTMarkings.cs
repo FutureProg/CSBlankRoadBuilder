@@ -1,5 +1,8 @@
 ﻿using BlankRoadBuilder.Domain.Options;
+using BlankRoadBuilder.Patches;
 using BlankRoadBuilder.ThumbnailMaker;
+
+using KianCommons;
 
 using ModsCommon;
 
@@ -16,20 +19,24 @@ public class IMTMarkings
 {
 	public static void ApplyMarkings(ushort segmentId)
 	{
-		if (RoadBuilderUtil.CurrentRoad == null)
+		if (!ModOptions.MarkingsGenerated.HasFlag(Domain.MarkingsSource.IMTMarkings))
 		{
 			return;
 		}
 
-		if (!(ModOptions.MarkingsGenerated == Domain.MarkingsSource.IMTOnly || ModOptions.MarkingsGenerated == Domain.MarkingsSource.IMTWithANHelpers || ModOptions.MarkingsGenerated == Domain.MarkingsSource.IMTWithANHelpersAndHiddenANMarkings))
+		if (!NetUtil.IsSegmentValid(segmentId) || RoadBuilderUtil.CurrentRoad == null)
 		{
 			return;
 		}
 
 		var markings = MarkingsUtil.GenerateMarkings(RoadBuilderUtil.CurrentRoad);
 		var markup = SingletonManager<SegmentMarkupManager>.Instance[segmentId];
-		var pointsA = GetPoints(((Markup)markup).Enters.First());
-		var pointsB = GetPoints(((Markup)markup).Enters.Last());
+
+		markup.Clear();
+		markup.RecalculateDrawData();
+
+		var pointsA = GetPoints(((Markup)markup).Enters.First(x => x.IsStartSide));
+		var pointsB = GetPoints(((Markup)markup).Enters.First(x => !x.IsStartSide));
 
 		AddLines(markings, markup, pointsA, pointsB);
 
@@ -40,6 +47,11 @@ public class IMTMarkings
 	{
 		foreach (var item in markings.Fillers)
 		{
+			if (item.Type != LaneDecoration.Filler && ModOptions.MarkingsGenerated.HasAnyFlag(Domain.MarkingsSource.ANFillers, Domain.MarkingsSource.HiddenANMarkings))
+			{
+				continue;
+			}
+
 			if (!pointsA.ContainsKey(item.LeftPoint.X) || !pointsB.ContainsKey(item.LeftPoint.X))
 			{
 				Debug.LogError("Point Not Found: " + item.LeftPoint.X);
@@ -53,7 +65,7 @@ public class IMTMarkings
 			}
 
 			var elevation = getElevation(item);
-			var curb = item.Type != LaneDecoration.Filler ? PrefabCollection<NetInfo>.FindLoaded("2187355678.R69 Prague Curb Network_Data") : null;
+			//var curb = item.Type != LaneDecoration.Filler ? PrefabCollection<NetInfo>.FindLoaded("2187355678.R69 Prague Curb Network_Data") : null;
 			var vertices = new[]
 			{
 				new EnterFillerVertex(pointsA[item.LeftPoint.X]),
@@ -80,7 +92,7 @@ public class IMTMarkings
 							style = new SolidFillerStyle(info.Color, 0F, 0F);
 							break;
 						case Domain.MarkingFillerType.Dashed:
-							style = new StripeFillerStyle(info.Color, info.DashLength, 0F, 0F, 90F, info.DashSpace, true);
+							style = new StripeFillerStyle(info.Color, info.DashLength, 0F, 0F, 0F, info.DashSpace, true);
 							break;
 						case Domain.MarkingFillerType.Striped:
 							style = new StripeFillerStyle(info.Color, info.DashLength, 0F, 0F, 45F, info.DashSpace, true);
@@ -89,8 +101,10 @@ public class IMTMarkings
 							style = new ChevronFillerStyle(info.Color, info.DashLength, 0F, 0F, 90F, info.DashSpace);
 							break;
 						case Domain.MarkingFillerType.FilledWithArrows:
-							markup.AddFiller(new MarkupFiller(new FillerContour(markup, vertices), new SolidFillerStyle(info.Color, 0F, 0F)));
-							style = new ChevronFillerStyle(info.Color, info.DashLength, 0F, 0F, 90F, info.DashSpace);
+							if (info.MarkingStyle == Domain.MarkingFillerType.FilledWithArrows)
+								markup.AddFiller(new MarkupFiller(new FillerContour(markup, vertices), new SolidFillerStyle(info.Color, 0F, 0F)));
+
+							style = new ChevronFillerStyle(new Color32(180, 180, 180, 140), info.DashLength, 0F, 0F, 90F, info.DashSpace);
 							break;
 						default:
 							continue;
@@ -109,38 +123,74 @@ public class IMTMarkings
 					continue;
 			}
 
+			if (style is RailFillerStyle railFiller)
+			{
+				var rev = item.Lanes.First().Direction == LaneDirection.Forward;
+				railFiller.LeftRailA.Value = rev ? 4 : 2;
+				railFiller.LeftRailB.Value = rev ? 3 : 1;
+				railFiller.RightRailA.Value = rev ? 2 : 4;
+				railFiller.RightRailB.Value = rev ? 1 : 3;
+			}
+
 			if (item.Type != LaneDecoration.Filler)
 			{
-				if (curb == null)
+				var leftPadded = (item.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false);
+				var rightPadded = (item.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false);
+
+				//if (leftPadded)
+				//{
+				//	pointsA[item.LeftPoint.X].Split.Value = true;
+				//	pointsA[item.LeftPoint.X].SplitOffset.Value = 0.2F;
+				//	pointsB[item.LeftPoint.X].Split.Value = true;
+				//	pointsB[item.LeftPoint.X].SplitOffset.Value = 0.2F;
+
+				//	vertices[0] = new EnterFillerVertex(pointsA[item.LeftPoint.X], Alignment.Right);
+				//	vertices[3] = new EnterFillerVertex(pointsB[item.LeftPoint.X], Alignment.Right);
+				//}
+
+				//if (rightPadded)
+				//{
+				//	pointsA[item.RightPoint.X].Split.Value = true;
+				//	pointsA[item.RightPoint.X].SplitOffset.Value = 0.2F;
+				//	pointsB[item.RightPoint.X].Split.Value = true;
+				//	pointsB[item.RightPoint.X].SplitOffset.Value = 0.2F;
+
+				//	vertices[1] = new EnterFillerVertex(pointsA[item.RightPoint.X], Alignment.Left);
+				//	vertices[2] = new EnterFillerVertex(pointsB[item.RightPoint.X], Alignment.Left);
+				//}
+
+				//if (curb == null)
 				{
 					if (style is CurbTriangulationFillerStyle cstyle)
 					{
-						cstyle.CurbSize.Value = 0.2F;
+						cstyle.CurbSize.Value = 0.3F;
 					}
 				}
-				else
-				{
-					var networkLine1 = new NetworkLineStyle(curb, (item.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false) ? 0.15F : 0.3F, elevation + 0.05F, 1F, 0F, 0F, 64, false);
-					var networkLine2 = new NetworkLineStyle(curb, (item.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false) ? 0.15F : 0.3F, elevation + 0.05F, 1F, 0F, 0F, 64, false);
+				//else
+				//{
+				//	var networkLine1 = new NetworkLineStyle(curb, 0, elevation + 0.05F, 1F, 0F, 0F, 64, false);
+				//	var networkLine2 = new NetworkLineStyle(curb, 0, elevation + 0.05F, 1F, 0F, 0F, 64, false);
 
-					if (pointsA[item.LeftPoint.X].Lines.FirstOrDefault() is MarkupRegularLine line1)
-					{
-						line1.AddRule(networkLine1, false);
-					}
-					else
-					{
-						markup.AddRegularLine(new MarkupPointPair(pointsA[item.LeftPoint.X], pointsB[item.LeftPoint.X]), networkLine1);
-					}
+				//	if (leftPadded)
 
-					if (pointsA[item.RightPoint.X].Lines.FirstOrDefault() is MarkupRegularLine line2)
-					{
-						line2.AddRule(networkLine2, false);
-					}
-					else
-					{
-						markup.AddRegularLine(new MarkupPointPair(pointsA[item.RightPoint.X], pointsB[item.RightPoint.X]), networkLine2);
-					}
-				}
+				//	if (pointsA[item.LeftPoint.X].Lines.FirstOrDefault() is MarkupRegularLine line1)
+				//	{
+				//		line1.AddRule(networkLine1, false);
+				//	}
+				//	else
+				//	{
+				//		markup.AddRegularLine(new MarkupPointPair(pointsA[item.LeftPoint.X], pointsB[item.LeftPoint.X]), networkLine1);
+				//	}
+
+				//	if (pointsA[item.RightPoint.X].Lines.FirstOrDefault() is MarkupRegularLine line2)
+				//	{
+				//		line2.AddRule(networkLine2, false);
+				//	}
+				//	else
+				//	{
+				//		markup.AddRegularLine(new MarkupPointPair(pointsA[item.RightPoint.X], pointsB[item.RightPoint.X]), networkLine2);
+				//	}
+				//}
 			}
 
 			markup.AddFiller(new MarkupFiller(new FillerContour(markup, vertices), style));
@@ -158,7 +208,7 @@ public class IMTMarkings
 		if (lanes.Last()?.RightLane != null)
 			lanes.Add(lanes.Last().RightLane);
 
-		return elevation - lanes.Select(x => ThumbnailMakerUtil.GetLaneVerticalOffset(x, RoadBuilderUtil.CurrentRoad)).Average();
+		return elevation - lanes.Select(x => x.LaneElevation).Average();
 	}
 
 	private static void AddLines(MarkingsInfo markings, SegmentMarkup markup, Dictionary<float, MarkupEnterPoint> pointsA, Dictionary<float, MarkupEnterPoint> pointsB)

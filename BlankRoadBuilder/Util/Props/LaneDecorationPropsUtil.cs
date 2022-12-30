@@ -149,7 +149,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetStreetLights(LaneInfo lane, RoadInfo road, LaneDecoration decoration)
 	{
-		var lightProp = GetProp(decoration == LaneDecoration.DoubleStreetLight ? Prop.DoubleStreetLight:Prop.SingleStreetLight );
+		var lightProp = GetProp(decoration == LaneDecoration.DoubleStreetLight ? Prop.DoubleStreetLight : Prop.SingleStreetLight);
 		var xPos = decoration == LaneDecoration.DoubleStreetLight ? 0 : (-lane.LaneWidth / 2) + 0.5F;
 
 		yield return getLight(road.ContainsWiredLanes ? 2F : 0F);
@@ -158,7 +158,7 @@ public static partial class LanePropsUtil
 		{
 			yield break;
 		}
-		
+
 		for (var i = 24; i <= 24 * 4; i += 24)
 		{
 			yield return getLight(i);
@@ -204,7 +204,7 @@ public static partial class LanePropsUtil
 		if (lane.Decorations != LaneDecoration.Hedge)
 		{
 			var hasOtherDecos = lane.Decorations.HasFlag(LaneDecoration.Bollard) && lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots, LaneDecoration.StreetAds, LaneDecoration.BikeParking);
-			
+
 			position = propAngle(lane) * ((-lane.LaneWidth / 2) + (hasOtherDecos ? 0.75F : 0.55F));
 		}
 
@@ -311,8 +311,8 @@ public static partial class LanePropsUtil
 				},
 				SegmentFlags = new SegmentInfoFlags
 				{
-					Required = (ModOptions.MarkingsGenerated == MarkingsSource.HiddenANMarkingsOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
-					Forbidden = !(ModOptions.MarkingsGenerated == MarkingsSource.HiddenANMarkingsOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Required = (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Forbidden = !(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
 				}
 			});
 		}
@@ -327,8 +327,10 @@ public static partial class LanePropsUtil
 		if (ModOptions.VanillaTreePlacement)
 		{
 			yield return getTree(2);
+
 			if (planter != null && !lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel))
-			yield return getPlanter(2);
+				yield return getPlanter(2);
+
 			yield break;
 		}
 

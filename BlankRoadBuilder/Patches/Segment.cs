@@ -25,9 +25,6 @@ internal class Segment
 	{
 		public static void Postfix(ushort segment)
 		{
-			if (!NetUtil.IsSegmentValid(segment) || SavePanelPatch.LastLoadedRoad == null)
-				return;
-
 			IMTMarkings.ApplyMarkings(segment);
 		}
 	}

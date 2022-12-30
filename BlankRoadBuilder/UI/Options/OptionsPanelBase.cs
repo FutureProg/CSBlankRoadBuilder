@@ -24,7 +24,7 @@ public abstract class OptionsPanelBase
 
     public abstract string TabName { get; }
 
-    public OptionsPanelBase(UITabstrip tabStrip, int tabIndex)
+    public OptionsPanelBase(UITabstrip tabStrip, int tabIndex, float? margin = null)
     {
         var panel = UITabstrips.AddTextTab(tabStrip, TabName, tabIndex, out var _, autoLayout: false);
 
@@ -32,15 +32,15 @@ public abstract class OptionsPanelBase
 		_panel.relativePosition = new Vector2(0, Margin);
 		_panel.autoSize = false;
 		_panel.autoLayout = false;
-		_panel.width = panel.width - 30F;
+		_panel.width = panel.width - (margin ?? 30F);
         _panel.height = panel.height - Margin;
-		_panel.clipChildren = true;
+		_panel.clipChildren = false;
 		_panel.builtinKeyNavigation = true;
 		_panel.scrollWheelDirection = UIOrientation.Vertical;
 
 		scrollbar = UIScrollbars.AddScrollbar(panel, _panel);
 
-		panel.eventVisibilityChanged += (s,e)=>scrollbar.value = 0;
+        panel.eventVisibilityChanged += (s, e) => scrollbar.value = 0;
 	}
 
 	protected virtual UIDropDown AddDropdown(string labelKey, string[] items, int selectedIndex)

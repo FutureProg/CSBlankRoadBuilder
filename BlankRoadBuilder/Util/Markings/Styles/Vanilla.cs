@@ -1,20 +1,18 @@
 ﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.ThumbnailMaker;
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using UnityEngine;
 
 using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
 
 namespace BlankRoadBuilder.Util.Markings;
+
 public partial class MarkingStylesTemplates
 {
-	private static Color32 _vanillaWhiteIMTLineColor = new Color32(180, 180, 180, 120);
-	private static Color32 _vanillaYellowIMTLineColor = new Color32(161, 136, 88, 135);
+	private static Color32 _vanillaWhiteIMTLineColor = new(180, 180, 180, 120);
+	private static Color32 _vanillaYellowIMTLineColor = new(161, 136, 88, 135);
 
 	public static Dictionary<GenericMarkingType, LineInfo> Vanilla(MarkingType type)
 	{
@@ -40,8 +38,8 @@ public partial class MarkingStylesTemplates
 				{
 					MarkingStyle = MarkingLineType.Dashed,
 					Color = type == MarkingType.IMT ? _vanillaWhiteIMTLineColor : _whiteLineColor,
-					DashLength = 0.3F,
-					DashSpace = 0.6F,
+					DashLength = 0.7F,
+					DashSpace = 1F,
 					LineWidth = 0.3F
 				}
 			},
@@ -78,9 +76,9 @@ public partial class MarkingStylesTemplates
 		};
 	}
 
-	private static readonly Color32 _vanillaIMTBikeFillerColor = new(85,165,135,105);
-	private static readonly Color32 _vanillaIMTTramFillerColor = new(85,155,115,70);
-	private static readonly Color32 _vanillaIMTBusFillerColor = new(132,94,88,134);
+	private static readonly Color32 _vanillaIMTBikeFillerColor = new(85, 165, 135, 105);
+	private static readonly Color32 _vanillaIMTTramFillerColor = new(85, 155, 115, 70);
+	private static readonly Color32 _vanillaIMTBusFillerColor = new(132, 94, 88, 134);
 
 	public static Dictionary<LaneType, FillerInfo> Vanilla_Fillers(MarkingType type)
 	{
@@ -112,8 +110,8 @@ public partial class MarkingStylesTemplates
 			},
 			{ LaneType.Filler, new FillerInfo
 				{
-					MarkingStyle = MarkingFillerType.Striped,
-					Color = _vanillaWhiteIMTLineColor,
+					MarkingStyle = type == MarkingType.IMT ?MarkingFillerType.Striped: MarkingFillerType.Filled,
+					Color =type == MarkingType.IMT ? _vanillaWhiteIMTLineColor:new Color32(100, 100, 100, 30),
 					DashLength = 0.25F,
 					DashSpace = 6F
 				}
@@ -126,8 +124,10 @@ public partial class MarkingStylesTemplates
 			},
 			{ LaneType.Car, new FillerInfo
 				{
-					MarkingStyle = MarkingFillerType.Arrows,
-					Color = _vanillaWhiteIMTLineColor
+					MarkingStyle = type == MarkingType.IMT ?MarkingFillerType.Arrows: MarkingFillerType.Filled,
+					DashLength = 1,
+					DashSpace = 5,
+					Color = type == MarkingType.IMT ?_vanillaWhiteIMTLineColor:new Color32(100, 100, 100, 30)
 				}
 			},
 			{ LaneType.Emergency, new FillerInfo
@@ -138,8 +138,8 @@ public partial class MarkingStylesTemplates
 			},
 			{ LaneType.Pedestrian, new FillerInfo
 				{
-					MarkingStyle = MarkingFillerType.Striped,
-					Color = _vanillaWhiteIMTLineColor,
+					MarkingStyle = type == MarkingType.IMT ?MarkingFillerType.Striped: MarkingFillerType.Filled,
+					Color =type == MarkingType.IMT ? _vanillaWhiteIMTLineColor:new Color32(100, 100, 100, 30),
 					DashLength = 0.25F,
 					DashSpace = 6F
 				}

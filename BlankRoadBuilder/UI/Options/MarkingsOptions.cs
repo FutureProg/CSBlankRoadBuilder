@@ -86,7 +86,7 @@ internal class MarkingsOptions : OptionsPanelBase
 	{
 		var button = _panel.AddUIComponent<SlickButton>();
 		button.size = new Vector2(36, 36);
-		button.relativePosition = new Vector2(_panel.width - 42, yPos);
+		button.relativePosition = new Vector2(_panel.width - 30, yPos);
 		button.text = "Reset";
 		button.tooltip = "Resets this line to the vanilla setting";
 		button.SetIcon("I_Undo.png");
@@ -207,7 +207,7 @@ internal class MarkingsOptions : OptionsPanelBase
 	{
 		var button = _panel.AddUIComponent<SlickButton>();
 		button.size = new Vector2(36, 36);
-		button.relativePosition = new Vector2(_panel.width - 42, yPos);
+		button.relativePosition = new Vector2(_panel.width - 30, yPos);
 		button.text = "Reset";
 		button.tooltip = "Resets this filler to the vanilla setting";
 		button.SetIcon("I_Undo.png");
@@ -310,9 +310,9 @@ internal class MarkingsOptions : OptionsPanelBase
 
 		void SetVisibility()
 		{
-			dashSlider.parent.isVisible = value.MarkingType != MarkingFillerType.Dashed;
-			dashSpace.parent.isVisible = value.MarkingType != MarkingFillerType.Dashed;
-			color.isVisible = r.isVisible = rl.isVisible = g.isVisible = gl.isVisible = b.isVisible = bl.isVisible = a.isVisible = al.isVisible = true;
+			dashSlider.parent.isVisible = value.MarkingType != MarkingFillerType.Filled;
+			dashSpace.parent.isVisible = value.MarkingType != MarkingFillerType.Filled;
+			//color.isVisible = r.isVisible = rl.isVisible = g.isVisible = gl.isVisible = b.isVisible = bl.isVisible = a.isVisible = al.isVisible = true;
 		}
 	}
 

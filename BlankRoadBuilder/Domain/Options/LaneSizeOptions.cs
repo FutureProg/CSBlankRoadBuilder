@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 namespace BlankRoadBuilder.Domain.Options;
 public class LaneSizeOptions
 {
-    private readonly Dictionary<LaneType, float> _sizes;
+    private Dictionary<LaneType, float> _sizes;
     private float _diagonalParkingSize;
     private float _horizontalParkingSize;
 
@@ -43,7 +43,9 @@ public class LaneSizeOptions
         }
     }
 
-    public LaneSizeOptions()
+    public LaneSizeOptions() { Update(); }
+
+    public void Update()
     {
         try
         {

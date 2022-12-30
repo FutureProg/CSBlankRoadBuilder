@@ -15,6 +15,8 @@ public partial class LaneInfo
 	[XmlIgnore] public LaneInfo? RightLane { get; set; }
 	[XmlIgnore] public TrafficLight TrafficLight { get; set; }
 	[XmlIgnore] public List<NetInfo.Lane> NetLanes { get; set; } = new();
+	[XmlIgnore] public float LaneElevation { get; set; }
+	[XmlIgnore] public float SurfaceElevation { get; set; }
 
 	public LaneVehicleCategory GetVehicleCategory()
 	{

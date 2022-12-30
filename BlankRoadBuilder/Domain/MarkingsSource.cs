@@ -1,11 +1,17 @@
-﻿namespace BlankRoadBuilder.Domain;
+﻿using System;
+using System.ComponentModel;
 
+namespace BlankRoadBuilder.Domain;
+
+[Flags]
 public enum MarkingsSource
 {
-	IMTWithANHelpers,
-	IMTWithANHelpersAndHiddenANMarkings,
-	IMTOnly,
-	HiddenANMarkingsOnly,
-	ANMarkingsOnly,
-	NoMarkings
+	IMTWithANFillers = IMTMarkings | ANFillers,
+	IMTWithHiddenANMarkings = IMTMarkings | HiddenANMarkings,
+
+	IMTMarkings = 8,
+	ANMarkings = 4,
+	HiddenANMarkings = 2,
+	ANFillers = 1,
+	NoMarkings = 0
 }

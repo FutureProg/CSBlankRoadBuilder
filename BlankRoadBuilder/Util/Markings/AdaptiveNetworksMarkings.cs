@@ -6,6 +6,7 @@ using ColossalFramework.Importers;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -18,33 +19,24 @@ public static class AdaptiveNetworksMarkings
 {
 	public static List<Track> Markings(RoadInfo roadInfo, NetInfo netInfo, MarkingsInfo markings)
 	{
+		var fillers = new List<Track>();
 		var tracks = new List<Track>();
 
 		foreach (var item in markings.Fillers)
 		{
 			if (item.Type == LaneDecoration.Filler)
 			{
-				var filler = GetLaneFiller(roadInfo, netInfo, item);
+				if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANMarkings, MarkingsSource.HiddenANMarkings))
+				{
+					var filler = GetLaneFiller(roadInfo, netInfo, item);
 
-				if (filler != null)
-					tracks.Add(filler);
+					if (filler != null)
+						tracks.Add(filler); 
+				}
 			}
 			else
 			{
 				var filler = GetFiller(roadInfo, netInfo, item);
-
-				//if (item.Type == LaneDecoration.Grass || item.Lanes.All(x => x.Decorations.HasAnyFlag(LaneDecoration.Tree)))
-				//{
-				//	var props = new List<NetLaneProps.Prop>();
-
-				//	if (item.Lanes.All(x => x.Decorations.HasAnyFlag(LaneDecoration.Tree)))
-				//		props.AddRange(LanePropsUtil.GetTrees(item.Lanes.First()));
-
-				//	if (item.Type == LaneDecoration.Grass)
-				//		props.AddRange(LanePropsUtil.GetGrassProps(item.Lanes.First()));
-
-				//	filler.Props = props.Select(PropToTransitionProp).ToArray();
-				//}
 
 				if (item.Type != LaneDecoration.Pavement && item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop)))
 				{
@@ -61,25 +53,43 @@ public static class AdaptiveNetworksMarkings
 					filler.VanillaSegmentFlags.Forbidden |= NetSegment.Flags.StopAll;
 					pavementFiller.SegmentFlags.Required |= RoadUtils.S_AnyStop;
 
-					tracks.Add(pavementFiller);
+					fillers.Add(pavementFiller);
 				}
 
 				if (filler != null)
-					tracks.Add(filler);
+					fillers.Add(filler);
 			}
 		}
 
-		foreach (var item in markings.Lines.Values)
+		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANMarkings, MarkingsSource.HiddenANMarkings))
 		{
-			var track = GetMarking(roadInfo, netInfo, item);
+			foreach (var item in markings.Lines.Values)
+			{
+				var track = GetMarking(roadInfo, netInfo, item);
 
-			if (track != null)
-				tracks.Add(track);
+				if (track != null)
+					tracks.Add(track);
+			}
+		}
+
+		if (!ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANFillers, MarkingsSource.IMTMarkings))
+		{
+			foreach (var track in fillers)
+			{
+				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings))
+				{
+					track.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
+				}
+				else
+				{
+					track.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
+				}
+			}
 		}
 
 		foreach (var track in tracks)
 		{
-			if (ModOptions.MarkingsGenerated == MarkingsSource.HiddenANMarkingsOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings)
+			if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings))
 			{
 				track.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
 			}
@@ -88,37 +98,54 @@ public static class AdaptiveNetworksMarkings
 				track.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
 			}
 		}
+		
+		tracks.AddRange(fillers);
 
 		return tracks;
 	}
 
-	private static TransitionProp PropToTransitionProp(NetLaneProps.Prop arg)
+	public static IEnumerable<Track> IMTHelpers(RoadInfo roadInfo, NetInfo netInfo, MarkingsInfo markings)
 	{
-		var prop = Activator.CreateInstance<TransitionProp>();
+		foreach (var lane in roadInfo.Lanes)
+		{
+			if (lane.Elevation == null || lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel, LaneDecoration.Pavement))
+				continue;
 
-		prop.SegmentUserData = new AdaptiveRoads.Data.UserDataInfo();
-		prop.Curve = new Range();
-		prop.m_angle = arg.m_angle;
-		prop.m_cornerAngle = arg.m_cornerAngle;
-		prop.m_finalProp = arg.m_finalProp;
-		prop.m_finalTree = arg.m_finalTree;
-		prop.m_minLength = arg.m_minLength;
-		prop.m_position = arg.m_position;
-		prop.m_prop = arg.m_prop;
-		prop.m_probability = arg.m_probability;
-		prop.m_repeatDistance = arg.m_repeatDistance;
-		prop.m_segmentOffset = arg.m_segmentOffset;
-		prop.m_tree = arg.m_tree;
-		prop.m_upgradable = arg.m_upgradable;
+			var track = GetLaneFiller(roadInfo, netInfo, new FillerMarking
+			{
+				LeftPoint = new MarkingPoint(lane.LeftLane, lane),
+				RightPoint = new MarkingPoint(lane, lane.RightLane),
+				Elevation = lane.LaneElevation,
+				Helper = true,
+				Type = LaneDecoration.None
+			});
 
-		return prop;
+			if (track == null)
+				continue;
+
+			if (lane.Decorations.HasFlag(LaneDecoration.Filler))
+			{
+				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings))
+				{
+					track.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
+				}
+				else if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.ANMarkings))
+				{
+					track.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
+				}
+			}
+
+			yield return track;
+		}
 	}
 
 	private static Track GetFiller(RoadInfo roadInfo, NetInfo netInfo, FillerMarking fillerMarking)
 	{
+		var nlane = roadInfo.Lanes.First(x => x.Tags.HasFlag(LaneTag.Damage)).NetLanes[0];
+
 		var mesh = GenerateMesh(fillerMarking, null, $"{fillerMarking.Type} Median");
 
-		GenerateTexture(true, mesh, fillerMarking.Type);
+		GenerateTexture(null, true, mesh, fillerMarking.Type);
 
 		var shader = ShaderType.Basic;
 
@@ -136,8 +163,6 @@ public static class AdaptiveNetworksMarkings
 		}
 
 		var model = AssetUtil.ImportAsset(shader, MeshType.Filler, mesh + ".obj", filesReady: true);
-
-		var nlane = roadInfo.Lanes.First(x => x.Tags.HasFlag(LaneTag.Damage)).NetLanes[0];
 
 		return new Track(netInfo)
 		{
@@ -164,7 +189,7 @@ public static class AdaptiveNetworksMarkings
 
 		var mesh = GenerateMesh(fillerMarking, null, $"{fillerMarking.Type} Filler");
 
-		GenerateTexture(false, mesh, default, filler.Color, filler.MarkingStyle == MarkingFillerType.Dashed ? MarkingLineType.Dashed : MarkingLineType.Solid, filler.DashLength, filler.DashSpace);
+		GenerateTexture(fillerMarking.Lanes.First(), false, mesh, default, filler.Color, filler.MarkingStyle == MarkingFillerType.Dashed ? MarkingLineType.Dashed : MarkingLineType.Solid, filler.DashLength, filler.DashSpace);
 
 		var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
 
@@ -197,7 +222,7 @@ public static class AdaptiveNetworksMarkings
 
 		var mesh = GenerateMesh(null, marking, $"{marking.Marking} Line");
 
-		GenerateTexture(false, mesh, default, lineInfo.Color, lineInfo.MarkingStyle, lineInfo.DashLength, lineInfo.DashSpace);
+		GenerateTexture(null, false, mesh, default, lineInfo.Color, lineInfo.MarkingStyle, lineInfo.DashLength, lineInfo.DashSpace);
 
 		var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
 
@@ -219,7 +244,7 @@ public static class AdaptiveNetworksMarkings
 		};
 	}
 
-	private static void GenerateTexture(bool filler, string name, LaneDecoration decoration, Color32 color = default, MarkingLineType style = default, float dashLength = 0F, float dashSpace = 0F)
+	private static void GenerateTexture(LaneInfo? lane, bool filler, string name, LaneDecoration decoration, Color32 color = default, MarkingLineType style = default, float dashLength = 0F, float dashSpace = 0F)
 	{
 		var baseName = !filler ? "Marking" : decoration == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
 
@@ -235,7 +260,11 @@ public static class AdaptiveNetworksMarkings
 			}
 			else if (file.EndsWith("_r.png"))
 			{
-				generateRoad(file);
+				generateRoad(file, !(lane?.Tags.HasFlag(LaneTag.Asphalt) ?? true));
+			}
+			else if (file.EndsWith("_p.png"))
+			{
+				generateRoad(file, !(lane?.Tags.HasFlag(LaneTag.Sidewalk) ?? true));
 			}
 			else if (file.EndsWith("_a.png"))
 			{
@@ -254,9 +283,9 @@ public static class AdaptiveNetworksMarkings
 			File.WriteAllBytes(Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file).Replace(baseName, name)), diffuseTexture.EncodeToPNG());
 		}
 
-		void generateRoad(string file)
+		void generateRoad(string file, bool black)
 		{
-			var roadTexture = new Image(file).CreateTexture().Color(new Color32((byte)(255 - color.a), (byte)(255 - color.a), (byte)(255 - color.a), 255), false);
+			var roadTexture = new Image(file).CreateTexture().Color(black ? Color.black : new Color32((byte)(255 - color.a), (byte)(255 - color.a), (byte)(255 - color.a), 255), false);
 
 			File.WriteAllBytes(Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file).Replace(baseName, name)), roadTexture.EncodeToPNG());
 		}
@@ -367,15 +396,23 @@ public static class AdaptiveNetworksMarkings
 							{
 								xPos = -fillerMarking.RightPoint.X + xPos + 0.5F;
 
-								if (fillerMarking.Type != LaneDecoration.Filler && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
+								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
 									xPos += 0.2F;
 							}
 							else if (xPos >= 0.05)
 							{
 								xPos = -fillerMarking.LeftPoint.X + xPos - 0.5F;
 
-								if (fillerMarking.Type != LaneDecoration.Filler && !(fillerMarking.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
+								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
 									xPos -= 0.2F;
+							}
+
+							if (fillerMarking.Type != LaneDecoration.Filler)
+							{
+								var yPos = float.Parse(data[2]);
+
+								if (yPos == -0.3F)
+									data[2] = (-fillerMarking.Elevation - 0.01F + fillerMarking.Lanes.Min(x => x.SurfaceElevation)).ToString("0.00000000");
 							}
 						}
 						else if (lineMarking != null)
@@ -405,10 +442,5 @@ public static class AdaptiveNetworksMarkings
 		}
 
 		return guid;
-	}
-
-	internal static IEnumerable<Track> IMTHelpers(RoadInfo roadInfo, NetInfo netInfo, MarkingsInfo markings)
-	{
-		throw new NotImplementedException();
 	}
 }

@@ -1,7 +1,6 @@
 ﻿namespace BlankRoadBuilder.Util;
 
 using AdaptiveRoads.CustomScript;
-using AdaptiveRoads.DTO;
 using AdaptiveRoads.Manager;
 
 using BlankRoadBuilder.Domain;
@@ -14,11 +13,9 @@ using ColossalFramework.IO;
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml.Linq;
 
 using UnityEngine;
 
@@ -99,7 +96,7 @@ public static class RoadBuilderUtil
 			}
 			catch (Exception ex)
 			{
-				exception = ex; 
+				exception = ex;
 			}
 		}
 
@@ -122,7 +119,7 @@ public static class RoadBuilderUtil
 		netInfo.m_createPavement = elevation.Key == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
 		netInfo.m_createGravel = elevation.Key == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
 		netInfo.m_createRuining = elevation.Key == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
-		
+
 		var itemClass = ScriptableObject.CreateInstance<ItemClass>();
 		itemClass.m_layer = ItemClass.Layer.Default;
 		itemClass.m_service = ItemClass.Service.Road;
@@ -161,7 +158,7 @@ public static class RoadBuilderUtil
 		metadata.RenameCustomFlag(RoadUtils.S_AddRoadDamage, "Add road damage");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveRoadClutter, "Remove road clutter");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, (ModOptions.MarkingsGenerated == MarkingsSource.HiddenANMarkingsOnly || ModOptions.MarkingsGenerated == MarkingsSource.IMTWithANHelpersAndHiddenANMarkings) ? "Show markings & fillers" : "Remove markings & fillers");
+		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
 
 		metadata.RenameCustomFlag(RoadUtils.N_FullLowCurb, "Full low curb");
 		metadata.RenameCustomFlag(RoadUtils.N_ForceHighCurb, "Force high curb");
@@ -227,7 +224,7 @@ public static class RoadBuilderUtil
 		var pavementCost = 6 * (maintenance ? ThumbnailMakerUtil.GetLaneMaintenanceCost(LaneType.Filler) : ThumbnailMakerUtil.GetLaneCost(LaneType.Filler));
 		var asphaltCost = roadInfo.Lanes.Sum(x => LaneInfo.GetLaneTypes(x.Type).Max(x => maintenance ? ThumbnailMakerUtil.GetLaneMaintenanceCost(x) : ThumbnailMakerUtil.GetLaneCost(x)));
 
-		return maintenance 
+		return maintenance
 			? (int)Math.Ceiling((pavementCost + asphaltCost * elevationCost) * 625)
 			: (int)Math.Ceiling(pavementCost + asphaltCost * elevationCost) * 100;
 	}
@@ -240,6 +237,7 @@ public static class RoadBuilderUtil
 			{
 				Type = LaneType.Empty,
 				CustomWidth = 0.1F,
+				Elevation = 0F,
 				Decorations = LaneDecoration.Barrier,
 				Position = -(roadInfo.TotalWidth / 2) + 0.45F,
 				Tags = LaneTag.StackedLane
@@ -252,6 +250,7 @@ public static class RoadBuilderUtil
 			{
 				Type = LaneType.Empty,
 				CustomWidth = 0.1F,
+				Elevation = 0F,
 				Decorations = LaneDecoration.Barrier,
 				Position = (roadInfo.TotalWidth / 2) - 0.45F,
 				Tags = LaneTag.StackedLane
@@ -290,6 +289,8 @@ public static class RoadBuilderUtil
 
 	private static void GenerateLaneWidthsAndPositions(RoadInfo roadInfo)
 	{
+		ModOptions.LaneSizes.Update();
+
 		var sizeLanes = roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.StackedLane));
 		var leftCurb = roadInfo.Lanes.FirstOrDefault(x => x.Type == LaneType.Curb);
 		var rightCurb = roadInfo.Lanes.LastOrDefault(x => x.Type == LaneType.Curb);
