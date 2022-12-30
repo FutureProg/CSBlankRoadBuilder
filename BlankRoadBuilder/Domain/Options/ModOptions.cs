@@ -9,11 +9,13 @@ public static class ModOptions
     private static readonly SavedBool _vanillaTreePlacement = new(nameof(_vanillaTreePlacement), nameof(BlankRoadBuilder), false);
     private static readonly SavedBool _vanillaStreetLightPlacement = new(nameof(_vanillaStreetLightPlacement), nameof(BlankRoadBuilder), false);
     private static readonly SavedBool _flipTrafficLights = new(nameof(_flipTrafficLights), nameof(BlankRoadBuilder), false);
+    private static readonly SavedBool _addLaneDecals = new(nameof(_addLaneDecals), nameof(BlankRoadBuilder), false);
+    private static readonly SavedBool _addLaneArrows = new(nameof(_addLaneArrows), nameof(BlankRoadBuilder), false);
     private static readonly SavedInt _markingsStyle = new(nameof(_markingsStyle), nameof(BlankRoadBuilder), (int)MarkingStyle.Vanilla);
     private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);
     private static readonly SavedInt _markings = new(nameof(_markings), nameof(BlankRoadBuilder), (int)MarkingsSource.IMTWithANHelpers);
 
-    [ModOptions("Keep markings hidden by default", "Sets the default state of automatically generated markings OFF by default, they can still be toggled ON with Adaptive Networks")]
+    [ModOptions("Automatic Markings", "Changes what kind of markings are generated with the road")]
     public static MarkingsSource MarkingsGenerated { get => (MarkingsSource)_markings.value; set => _markings.value = (int)value; }
 
 	[ModOptions("Global Markings Style", "Changes the style of lane markings used when generating a road")]
@@ -22,7 +24,13 @@ public static class ModOptions
 	[ModOptions("Place traffic lights on the opposite side of the junction", "Traffic lights' positions will be at the start of the lanes instead of at the end")]
     public static bool FlipTrafficLights { get => _flipTrafficLights; set => _flipTrafficLights.value = value; }
 
-    [ModOptions("Add grass props to grass lanes", "Enabling this adds repeating grass props to any lane with grass decorations on top of the generated filler")]
+	[ModOptions("Add lane arrows", "Generates lane arrow decals with the road")]
+	public static bool AddLaneArrows { get => _addLaneArrows; set => _addLaneArrows.value = value; }
+
+	[ModOptions("Add lane decals", "Generates lane decals like bus & bike decals with the road")]
+	public static bool AddLaneDecals { get => _addLaneDecals; set => _addLaneDecals.value = value; }
+
+	[ModOptions("Add grass props to grass lanes", "Enabling this adds repeating grass props to any lane with grass decorations on top of the generated filler")]
     public static bool AddGrassPropsToGrassLanes { get => _addGrassPropsToGrassLanes; set => _addGrassPropsToGrassLanes.value = value; }
 
     [ModOptions("Use vanilla tree placement", "Generates the trees with a standard repeat distance")]
