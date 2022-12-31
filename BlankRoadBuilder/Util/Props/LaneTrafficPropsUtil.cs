@@ -30,10 +30,10 @@ public static partial class LanePropsUtil
 			yield return prop;
 		}
 
-		yield return TrafficLight(road, lane.TrafficLight.LeftForward, propPosition, true && lane.TrafficLight.RightForward == Prop.TrafficLightPedestrian);
+		yield return TrafficLight(road, lane.TrafficLight.LeftForward, propPosition, true && lane.TrafficLight.LeftForward == Prop.TrafficLightPedestrian);
 		yield return TrafficLight(road, lane.TrafficLight.RightForward, -propPosition, ModOptions.FlipTrafficLights && lane.TrafficLight.RightForward != Prop.TrafficLightPedestrian);
-		yield return TrafficLight(road, lane.TrafficLight.LeftBackward, -propPosition).ToggleForwardBackward(true, ModOptions.FlipTrafficLights && lane.TrafficLight.RightForward != Prop.TrafficLightPedestrian);
-		yield return TrafficLight(road, lane.TrafficLight.RightBackward, propPosition, true && lane.TrafficLight.RightForward == Prop.TrafficLightPedestrian).ToggleForwardBackward(true, false);
+		yield return TrafficLight(road, lane.TrafficLight.LeftBackward, -propPosition).ToggleForwardBackward(true, ModOptions.FlipTrafficLights && lane.TrafficLight.LeftBackward != Prop.TrafficLightPedestrian);
+		yield return TrafficLight(road, lane.TrafficLight.RightBackward, propPosition, true && lane.TrafficLight.RightBackward == Prop.TrafficLightPedestrian).ToggleForwardBackward(true, false);
 	}
 
 	private static IEnumerable<NetLaneProps.Prop> GetTrafficSigns(RoadInfo road, LaneInfo lane, float propPosition)
