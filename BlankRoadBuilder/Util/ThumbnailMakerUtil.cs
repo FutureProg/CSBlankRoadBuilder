@@ -356,7 +356,7 @@ public static class ThumbnailMakerUtil
 
 	public static float GetLaneVerticalOffset(LaneInfo lane, RoadInfo road)
 	{
-		lane.SurfaceElevation = !lane.Tags.HasFlag(LaneTag.Sidewalk) && road.RoadType == RoadType.Road ? -0.3F : 0F;
+		lane.SurfaceElevation = (!lane.Tags.HasFlag(LaneTag.Sidewalk) || lane.Type == LaneType.Curb) && road.RoadType == RoadType.Road ? -0.3F : 0F;
 
 		if (lane.Elevation != null)
 		{

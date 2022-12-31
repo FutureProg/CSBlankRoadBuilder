@@ -19,14 +19,17 @@ public class FillerMarking
 		{
 			var lane = LeftPoint.RightLane;
 
-			while (lane != null)
+			if (lane != null && lane == RightPoint.LeftLane)
+			{
+				yield return lane;
+				yield break;
+			}
+
+			while (lane != null && lane != RightPoint.LeftLane)
 			{
 				yield return lane;
 
 				lane = lane.RightLane;
-
-				if (lane == RightPoint.LeftLane)
-					yield break;
 			}
 		}
 	}

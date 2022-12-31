@@ -30,7 +30,7 @@ public class EditorPanel : UIPanel
 		atlas = UITextures.InGameAtlas;
 		backgroundSprite = "UnlockingPanel2";
 		color = new Color32(210, 229, 247, 255);
-		size = new Vector2(475, 155);
+		size = new Vector2(425, 155);
 
 		var uIDragHandle = AddUIComponent<UIDragHandle>();
 		uIDragHandle.width = width;
@@ -47,24 +47,24 @@ public class EditorPanel : UIPanel
 		icon.SendToBack();
 
 		BuildButton = AddUIComponent<SlickButton>();
-		BuildButton.size = new Vector2(250, 36);
+		BuildButton.size = new Vector2(200, 36);
 		BuildButton.relativePosition = new Vector2(145, 30);
-		BuildButton.text = "Build Blank Road";
+		BuildButton.text = "Build Road";
 		BuildButton.tooltip = "Import a road you've created in Thumbnail Maker";
 		BuildButton.SetIcon("I_Tools.png");
 		BuildButton.eventClick += BuildButton_Click;
 
 		TMButton = AddUIComponent<SlickButton>();
-		TMButton.size = new Vector2(250, 36);
+		TMButton.size = new Vector2(200, 36);
 		TMButton.relativePosition = new Vector2(145, 90);
-		TMButton.text = "Open Thumbnail Maker";
+		TMButton.text = "Thumbnail Maker";
 		TMButton.tooltip = "Opens the Thumbnail Maker tool used to create road configurations";
 		TMButton.SetIcon("I_Brush.png");
 		TMButton.eventClick += TMButton_Click;
 
 		RoadFolderButton = AddUIComponent<SlickButton>();
 		RoadFolderButton.size = new Vector2(36, 36);
-		RoadFolderButton.relativePosition = new Vector2(415, 30);
+		RoadFolderButton.relativePosition = new Vector2(365, 30);
 		RoadFolderButton.text = "RoadFolderButton";
 		RoadFolderButton.tooltip = "Open the folder where road configurations are stored";
 		RoadFolderButton.SetIcon("I_Folder.png");
@@ -72,7 +72,7 @@ public class EditorPanel : UIPanel
 
 		TMFolderButton = AddUIComponent<SlickButton>();
 		TMFolderButton.size = new Vector2(36, 36);
-		TMFolderButton.relativePosition = new Vector2(415, 90);
+		TMFolderButton.relativePosition = new Vector2(365, 90);
 		TMFolderButton.text = "TMFolderButton";
 		TMFolderButton.tooltip = "Open the folder where Thumbnail Maker is stored";
 		TMFolderButton.SetIcon("I_Folder.png");

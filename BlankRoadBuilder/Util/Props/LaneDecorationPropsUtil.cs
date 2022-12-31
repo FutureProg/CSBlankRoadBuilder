@@ -284,7 +284,7 @@ public static partial class LanePropsUtil
 		var prop = GetProp(Prop.Grass);
 		var odd = (int)lane.LaneWidth % 2 == 1;
 		var numLines = Math.Max((int)Math.Ceiling(lane.LaneWidth) - 1, 1);
-		var pos = numLines == 1 ? (lane.LaneWidth / 2) : (1 - (lane.LaneWidth / 2));
+		var pos = numLines == 1 ? (0) : (1 - (lane.LaneWidth / 2));
 
 		for (var i = 0; i < numLines; i++)
 		{
@@ -311,8 +311,8 @@ public static partial class LanePropsUtil
 				},
 				SegmentFlags = new SegmentInfoFlags
 				{
-					Required = (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
-					Forbidden = !(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Required = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANFillers, MarkingsSource.IMTMarkings) &&(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Forbidden = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANFillers, MarkingsSource.IMTMarkings) && !(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
 				}
 			});
 		}

@@ -20,7 +20,7 @@ public partial class LaneInfo
 
 	public LaneVehicleCategory GetVehicleCategory()
 	{
-		if (Type == LaneType.Filler)
+		if (Type == LaneType.Filler || Type == LaneType.Curb)
 			return LaneVehicleCategory.Filler;
 
 		if (Type == LaneType.Bike)

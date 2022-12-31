@@ -8,6 +8,7 @@ public enum MarkingsSource
 {
 	IMTWithANFillers = IMTMarkings | ANFillers,
 	IMTWithHiddenANMarkings = IMTMarkings | HiddenANMarkings,
+	ANFillersAndHiddenANMarkings = HiddenANMarkings | ANFillers,
 
 	IMTMarkings = 8,
 	ANMarkings = 4,

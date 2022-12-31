@@ -96,7 +96,7 @@ public static class MarkingsUtil
         var leftCategory = leftLane?.GetVehicleCategory() ?? LaneVehicleCategory.Unknown;
         var rightCategory = rightLane?.GetVehicleCategory() ?? LaneVehicleCategory.Unknown;
 
-        if ((currentCategory & (LaneVehicleCategory.Vehicle | LaneVehicleCategory.Bike | LaneVehicleCategory.Tram)) != 0)
+        if (currentCategory.HasAnyFlag(LaneVehicleCategory.Vehicle, LaneVehicleCategory.Bike, LaneVehicleCategory.Tram))
         {
             if (rightCategory != currentCategory && (rightCategory <= LaneVehicleCategory.Pedestrian || rightLane?.Direction != leftLane?.Direction))
             {

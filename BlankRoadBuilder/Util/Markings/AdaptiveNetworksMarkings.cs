@@ -397,14 +397,14 @@ public static class AdaptiveNetworksMarkings
 								xPos = -fillerMarking.RightPoint.X + xPos + 0.5F;
 
 								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
-									xPos += 0.2F;
+									xPos += fillerMarking.LeftPoint.RightLane?.Type == LaneType.Curb ? 0.26F : 0.2F;
 							}
 							else if (xPos >= 0.05)
 							{
 								xPos = -fillerMarking.LeftPoint.X + xPos - 0.5F;
 
 								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
-									xPos -= 0.2F;
+									xPos -= fillerMarking.RightPoint.LeftLane?.Type == LaneType.Curb ? 0.26F: 0.2F;
 							}
 
 							if (fillerMarking.Type != LaneDecoration.Filler)
