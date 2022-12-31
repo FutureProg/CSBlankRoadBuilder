@@ -4,6 +4,7 @@ using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 
@@ -160,6 +161,9 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetLights(LaneInfo lane, RoadInfo road)
 	{
+		if (road.Lanes.Any(x => x.Decorations.HasAnyFlag(LaneDecoration.StreetLight, LaneDecoration.StreetLight)))
+			return new NetLaneProps.Prop[0];
+
 		if (lane.Tags.HasFlag(LaneTag.CenterMedian))
 		{
 			if (!lane.Decorations.HasFlag(LaneDecoration.DoubleStreetLight))

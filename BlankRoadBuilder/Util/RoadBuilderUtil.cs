@@ -1,5 +1,4 @@
-﻿namespace BlankRoadBuilder.Util;
-
+﻿
 using AdaptiveRoads.CustomScript;
 using AdaptiveRoads.Manager;
 
@@ -15,19 +14,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 using UnityEngine;
 
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
+namespace BlankRoadBuilder.Util;
 public static class RoadBuilderUtil
 {
 	public static RoadInfo? CurrentRoad { get; private set; }
 
 	public static IEnumerable<StateInfo> Build(RoadInfo? roadInfo)
 	{
-		ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
+		_ = ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
 
 		if (roadInfo == null)
 		{
@@ -49,9 +48,13 @@ public static class RoadBuilderUtil
 		var netElelvations = info.GetElevations();
 
 		try
-		{ GenerateLaneWidthsAndPositions(roadInfo); }
+		{
+			GenerateLaneWidthsAndPositions(roadInfo);
+		}
 		catch (Exception ex)
-		{ exception = ex; }
+		{
+			exception = ex;
+		}
 
 		var lanes = roadInfo.Lanes;
 
@@ -71,7 +74,7 @@ public static class RoadBuilderUtil
 
 				roadInfo.Lanes = new List<LaneInfo>(lanes);
 
-				if (elevation.Key == ElevationType.Elevated || elevation.Key == ElevationType.Bridge)
+				if (elevation.Key is ElevationType.Elevated or ElevationType.Bridge)
 				{
 					AddBridgeBarriersAndPillar(netInfo, roadInfo);
 				}
@@ -197,25 +200,32 @@ public static class RoadBuilderUtil
 		}
 	}
 
+	private static readonly Dictionary<string, byte[]> _loadedAssemblies = new();
+
 	private static byte[] GetExpression(string name)
 	{
-		Assembly assembly = typeof(BlankRoadBuilderMod).Assembly;
+		if (_loadedAssemblies.ContainsKey(name))
+		{
+			return _loadedAssemblies[name];
+		}
+
+		var assembly = typeof(BlankRoadBuilderMod).Assembly;
 
 		// Get the name of the embedded resource
-		string resourceName = $"{nameof(BlankRoadBuilder)}.ModContents.{name}.dll";
+		var resourceName = $"{nameof(BlankRoadBuilder)}.ModContents.{name}.dll";
 
 		// Load the embedded resource as a stream
-		Stream stream = assembly.GetManifestResourceStream(resourceName);
+		var stream = assembly.GetManifestResourceStream(resourceName);
 
 		// Convert the stream to a byte array
 		byte[] bytes;
-		using (MemoryStream ms = new MemoryStream())
+		using (var ms = new MemoryStream())
 		{
 			stream.CopyTo(ms);
 			bytes = ms.ToArray();
 		}
 
-		return bytes;
+		return _loadedAssemblies[name] = bytes;
 	}
 
 	private static int GetCost(RoadInfo roadInfo, ElevationType elevation, bool maintenance)
@@ -225,8 +235,8 @@ public static class RoadBuilderUtil
 		var asphaltCost = roadInfo.Lanes.Sum(x => LaneInfo.GetLaneTypes(x.Type).Max(x => maintenance ? ThumbnailMakerUtil.GetLaneMaintenanceCost(x) : ThumbnailMakerUtil.GetLaneCost(x)));
 
 		return maintenance
-			? (int)Math.Ceiling((pavementCost + asphaltCost * elevationCost) * 625)
-			: (int)Math.Ceiling(pavementCost + asphaltCost * elevationCost) * 100;
+			? (int)Math.Ceiling((pavementCost + (asphaltCost * elevationCost)) * 625)
+			: (int)Math.Ceiling(pavementCost + (asphaltCost * elevationCost)) * 100;
 	}
 
 	private static void AddBridgeBarriersAndPillar(NetInfo netInfo, RoadInfo roadInfo)
@@ -258,12 +268,16 @@ public static class RoadBuilderUtil
 		}
 
 		if (netInfo.m_netAI is not RoadBridgeAI bridgeAI)
+		{
 			return;
+		}
 
 		foreach (var p in _pillars)
 		{
 			if (roadInfo.AsphaltWidth + 1.5F < p.Key)
+			{
 				continue;
+			}
 
 			var pillar = PrefabCollection<BuildingInfo>.FindLoaded(p.Value);
 
@@ -299,19 +313,13 @@ public static class RoadBuilderUtil
 
 		roadInfo.PavementWidth = Math.Max(1.5F, Math.Max(leftPavementWidth, rightPavementWidth));
 		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
-		roadInfo.TotalWidth = 2 * roadInfo.PavementWidth + roadInfo.AsphaltWidth;
+		roadInfo.TotalWidth = (2 * roadInfo.PavementWidth) + roadInfo.AsphaltWidth;
 
-		if (roadInfo.VanillaWidth)
-			roadInfo.TotalWidth = (float)(16 * Math.Ceiling(roadInfo.TotalWidth / 16D));
+		var index = (-roadInfo.AsphaltWidth / 2) - leftPavementWidth;
 
-		var index = -roadInfo.AsphaltWidth / 2 - leftPavementWidth;
-
-		foreach (var lane in roadInfo.Lanes)
+		foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasFlag(LaneTag.StackedLane)))
 		{
-			if (lane.Tags.HasFlag(LaneTag.StackedLane))
-				continue;
-
-			lane.Position = r(index + lane.LaneWidth / 2F);
+			lane.Position = r(index + (lane.LaneWidth / 2F));
 			index = r(index + lane.LaneWidth);
 		}
 
@@ -319,16 +327,14 @@ public static class RoadBuilderUtil
 		{
 			var newWidth = (float)(16 * Math.Ceiling((roadInfo.TotalWidth - 1F) / 16D));
 
-			roadInfo.PavementWidth += (newWidth - roadInfo.TotalWidth) / 2;
-
 			roadInfo.TotalWidth = newWidth;
+			roadInfo.PavementWidth = (roadInfo.TotalWidth - roadInfo.AsphaltWidth) / 2;
 		}
 
 		if (roadInfo.RoadWidth > roadInfo.TotalWidth)
 		{
-			roadInfo.PavementWidth += (roadInfo.RoadWidth - roadInfo.TotalWidth) / 2;
-
 			roadInfo.TotalWidth = roadInfo.RoadWidth;
+			roadInfo.PavementWidth = (roadInfo.TotalWidth - roadInfo.AsphaltWidth) / 2;
 		}
 
 		TrafficLightsUtil.GetTrafficLights(roadInfo);
@@ -342,7 +348,9 @@ public static class RoadBuilderUtil
 				.OrderBy(x => Math.Abs(x.Position)))
 			{
 				if (!first || Math.Abs(item.Position) > 3F)
+				{
 					item.Tags &= ~LaneTag.CenterMedian;
+				}
 
 				first = false;
 			}
@@ -353,7 +361,7 @@ public static class RoadBuilderUtil
 			var leftPole = roadInfo.Lanes.FirstOrDefault(x => x.Tags.HasFlag(LaneTag.WirePoleLane));
 			var rightPole = roadInfo.Lanes.LastOrDefault(x => x.Tags.HasFlag(LaneTag.WirePoleLane));
 
-			roadInfo.Lanes[0].Position = r(leftPole.Position + (rightPole.Position - leftPole.Position) / 2F);
+			roadInfo.Lanes[0].Position = r(leftPole.Position + ((rightPole.Position - leftPole.Position) / 2F));
 			roadInfo.Lanes[0].CustomWidth = r(rightPole.Position - leftPole.Position);
 		}
 
@@ -365,7 +373,9 @@ public static class RoadBuilderUtil
 		var index = 0;
 
 		foreach (var laneType in LaneInfo.GetLaneTypes(lane.Type))
+		{
 			yield return getLane(index++, laneType, lane, road, elevation);
+		}
 
 		if (lane.Type != LaneType.Pedestrian && lane.Decorations.HasFlag(LaneDecoration.TransitStop))
 		{
@@ -381,10 +391,14 @@ public static class RoadBuilderUtil
 			rightPed.LeftLane = null;
 
 			if (leftPed.Tags.HasFlag(LaneTag.StoppableVehicleOnLeft))
+			{
 				yield return getLane(index++, LaneType.Pedestrian, leftPed, road, elevation);
+			}
 
 			if (rightPed.Tags.HasFlag(LaneTag.StoppableVehicleOnRight))
+			{
 				yield return getLane(index++, LaneType.Pedestrian, rightPed, road, elevation);
+			}
 
 			lane.Elevation = null;
 		}

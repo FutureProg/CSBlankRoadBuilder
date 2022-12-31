@@ -19,7 +19,7 @@ public class TrafficLightsUtil
 			if (lane.Type != LaneType.Curb && !lane.Tags.HasFlag(LaneTag.Asphalt))
 				continue;
 
-			var minimumSpace = lane.Type == LaneType.Curb ? 1F : 3F;
+			var minimumSpace = lane.Type == LaneType.Curb ? 0.24F : 3F;
 			var tl = new TrafficLight
 			{
 				LeftForwardSpace = GetDrivableArea(lane, true, true),
@@ -136,6 +136,9 @@ public class TrafficLightsUtil
 
 			if (lane == null || lane.Direction == (forward ? LaneDirection.Backwards : LaneDirection.Forward))
 				break;
+
+			if (lane.Type == LaneType.Empty)
+				continue;
 
 			if (!lane.Tags.HasFlag(LaneTag.Asphalt))
 				break;

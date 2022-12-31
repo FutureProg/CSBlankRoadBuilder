@@ -23,7 +23,7 @@ public class BlankRoadBuilderMod : IUserMod
 	public string Name => "Road Builder v" + VersionString;
 	public string Description => "Tool that allows you to create roads without dealing with the tedious asset editor";
 	public static Version ModVersion => typeof(BlankRoadBuilderMod).Assembly.GetName().Version;
-	public static string VersionString => ModVersion.ToString(2);
+	public static string VersionString => ModVersion.ToString(3);
 
 	public static string BuilderFolder => Path.Combine(DataLocation.localApplicationData, "RoadBuilder");
 	public static string ImportFolder => Path.Combine(BuilderFolder, "Import");

@@ -1,6 +1,7 @@
 ﻿using AdaptiveRoads.DTO;
 
 using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
@@ -74,7 +75,7 @@ public static class AssetUtil
 			{
 				var ashpalt = elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : elevationType <= ElevationType.Bridge ? (road.BridgeSideTexture == BridgeTextureType.Asphalt) : false;
 				var noashpalt = !ashpalt && road.AsphaltStyle == AsphaltStyle.None;
-				var noCurb = road.RoadType == RoadType.Highway && curb != CurbType.TR;
+				var noCurb = (road.RoadType == RoadType.Highway || (road.RoadType == RoadType.Flat && ModOptions.RemoveCurbOnFlatRoads)) && curb != CurbType.TR;
 
 				var requiredType = (ashpalt ? "asphalt" : noashpalt ? "noasphalt" : "") + (noCurb ? "nocurb" : "");
 

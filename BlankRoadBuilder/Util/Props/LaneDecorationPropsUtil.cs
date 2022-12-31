@@ -22,14 +22,12 @@ public static partial class LanePropsUtil
 			switch (deco)
 			{
 				case LaneDecoration.Grass:
-					if (lane.LaneWidth < 2 || !ModOptions.AddGrassPropsToGrassLanes)
+					if (lane.LaneWidth >= 2 && ModOptions.AddGrassPropsToGrassLanes)
 					{
-						yield break;
-					}
-
-					foreach (var prop in GetGrassProps(lane))
-					{
-						yield return prop;
+						foreach (var prop in GetGrassProps(lane))
+						{
+							yield return prop;
+						}
 					}
 
 					break;

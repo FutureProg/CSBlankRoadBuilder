@@ -7,6 +7,7 @@ public static class ModOptions
     private static readonly SavedBool _vanillaTreePlacement = new(nameof(_vanillaTreePlacement), nameof(BlankRoadBuilder), false);
     private static readonly SavedBool _vanillaStreetLightPlacement = new(nameof(_vanillaStreetLightPlacement), nameof(BlankRoadBuilder), false);
     private static readonly SavedBool _flipTrafficLights = new(nameof(_flipTrafficLights), nameof(BlankRoadBuilder), false);
+    private static readonly SavedBool _flatRoadsHaveNoCurb = new(nameof(_flatRoadsHaveNoCurb), nameof(BlankRoadBuilder), false);
 
     private static readonly SavedBool _addLaneDecals = new(nameof(_addLaneDecals), nameof(BlankRoadBuilder), true);
     private static readonly SavedBool _addLaneArrows = new(nameof(_addLaneArrows), nameof(BlankRoadBuilder), true);
@@ -37,13 +38,16 @@ public static class ModOptions
     [ModOptions("Use vanilla tree placement", "Generates the trees with a standard repeat distance")]
     public static bool VanillaTreePlacement { get => _vanillaTreePlacement; set => _vanillaTreePlacement.value = value; }
 
-    [ModOptions("Use vanilla streetlight placement", "Generates the lights with a standard repeat distance")]
-    public static bool VanillaStreetLightPlacement { get => _vanillaStreetLightPlacement; set => _vanillaStreetLightPlacement.value = value; }
+	[ModOptions("Use vanilla streetlight placement", "Generates the lights with a standard repeat distance")]
+	public static bool VanillaStreetLightPlacement { get => _vanillaStreetLightPlacement; set => _vanillaStreetLightPlacement.value = value; }
 
-    [ModOptions("Disable the auto-fill of information and thumbnails in the save panel")]
-    public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }
+	[ModOptions("Remove curb on Flat Roads", "Removes the curb texture on the edge of the asphalt of flat roads")]
+	public static bool RemoveCurbOnFlatRoads { get => _flatRoadsHaveNoCurb; set => _flatRoadsHaveNoCurb.value = value; }
 
-    [ModOptions("Default Tram Tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
+	[ModOptions("Disable the auto-fill of information and thumbnails in the save panel")]
+	public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }
+
+	[ModOptions("Default Tram Tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
     public static TramTracks TramTracks { get => (TramTracks)_tramTracks.value; set => _tramTracks.value = (int)value; }
 
     public static LaneSizeOptions LaneSizes { get; } = new LaneSizeOptions();
