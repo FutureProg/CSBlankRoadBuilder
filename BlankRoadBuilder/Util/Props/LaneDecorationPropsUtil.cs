@@ -362,7 +362,7 @@ public static partial class LanePropsUtil
 			LaneFlags = new LaneInfoFlags
 			{ Forbidden = RoadUtils.L_RemoveTrees },
 			VanillaSegmentFlags = new VanillaSegmentInfoFlags
-			{ Forbidden = Math.Abs(position) <= 18 && !ModOptions.VanillaTreePlacement ? NetSegment.Flags.StopAll : NetSegment.Flags.None }
+			{ Forbidden = lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None }
 		});
 
 		NetLaneProps.Prop getPlanter(float position) => new NetLaneProps.Prop
@@ -383,7 +383,7 @@ public static partial class LanePropsUtil
 			LaneFlags = new LaneInfoFlags
 			{ Forbidden = RoadUtils.L_RemoveTrees },
 			VanillaSegmentFlags = new VanillaSegmentInfoFlags
-			{ Forbidden = Math.Abs(position) <= 18 && !ModOptions.VanillaTreePlacement ? NetSegment.Flags.StopAll : NetSegment.Flags.None }
+			{ Forbidden = lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None }
 		});
 	}
 
