@@ -13,26 +13,26 @@ public class FillerMarking
     public LaneDecoration Type { get; set; }
 	public float Elevation { get; set; }
 	public bool Helper { get; set; }
-	public List<LaneInfo> Lanes { get; } = new List<LaneInfo>();
-	//{
-	//	get
-	//	{
-	//		var lane = LeftPoint.RightLane;
+	public IEnumerable<LaneInfo> Lanes
+	{
+		get
+		{
+			var lane = LeftPoint.RightLane;
 
-	//		if (lane != null && lane == RightPoint.LeftLane)
-	//		{
-	//			yield return lane;
-	//			yield break;
-	//		}
+			if (lane != null && lane == RightPoint.LeftLane)
+			{
+				yield return lane;
+				yield break;
+			}
 
-	//		while (lane != null && lane != RightPoint.LeftLane)
-	//		{
-	//			yield return lane;
+			while (lane != null && lane != RightPoint.LeftLane)
+			{
+				yield return lane;
 
-	//			lane = lane.RightLane;
-	//		}
-	//	}
-	//}
+				lane = lane.RightLane;
+			}
+		}
+	}
 
 	private MarkingStyleUtil.FillerInfo? GetHelperInfo()
 	{
