@@ -45,7 +45,6 @@ public static class MarkingsUtil
                     };
                 }
 
-                currentFiller.Lanes.Add(lane);
                 currentFiller.RightPoint = new MarkingPoint(lane, lane.RightLane);
 
                 continue;
