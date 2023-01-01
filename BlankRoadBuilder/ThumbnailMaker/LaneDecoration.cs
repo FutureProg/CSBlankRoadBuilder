@@ -55,4 +55,7 @@ public enum LaneDecoration
 
 	[StyleIdentity(18, 128, 147, 156)]
 	Barrier = 32768,
+
+	[StyleIdentity(19, 200, 50, 60)]
+	FireHydrant = 65536,
 }

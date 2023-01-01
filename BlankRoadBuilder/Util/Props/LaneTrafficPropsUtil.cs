@@ -267,7 +267,7 @@ public static partial class LanePropsUtil
 	{
 		PropInfo? sign = null;
 
-		switch ((int)Math.Round(road.SpeedLimit / 10D) * 10)
+		switch ((int)Math.Round(road.SpeedLimit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10)
 		{
 			case 10: sign = GetProp(Prop.SpeedSign10); break;
 			case 20: sign = GetProp(Prop.SpeedSign20); break;

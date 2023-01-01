@@ -326,12 +326,12 @@ public static class ThumbnailMakerUtil
 	{
 		if (lane.SpeedLimit is not null and > 0F)
 		{
-			return (float)lane.SpeedLimit / 50F;
+			return (float)lane.SpeedLimit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 50F;
 		}
 
 		return type switch
 		{
-			LaneType.Car or LaneType.Tram or LaneType.Bus or LaneType.Trolley => road.SpeedLimit / 50F,
+			LaneType.Car or LaneType.Tram or LaneType.Bus or LaneType.Trolley => road.SpeedLimit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 50F,
 			LaneType.Pedestrian => 0.25F,
 			LaneType.Bike => lane.Type == LaneType.Bike ? 2F : 1.2F,
 			LaneType.Emergency => 2F,
