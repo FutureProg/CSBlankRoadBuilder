@@ -111,6 +111,9 @@ public static class AdaptiveNetworksMarkings
 			if (lane.Elevation == null || lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel, LaneDecoration.Pavement))
 				continue;
 
+			if (lane.Elevation == (!lane.Tags.HasFlag(LaneTag.Sidewalk) && roadInfo.RoadType == RoadType.Road ? -0.3F : 0F))
+				continue;
+
 			var track = GetLaneFiller(roadInfo, netInfo, new FillerMarking
 			{
 				LeftPoint = new MarkingPoint(lane.LeftLane, lane),

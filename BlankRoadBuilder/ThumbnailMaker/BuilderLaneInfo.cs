@@ -71,4 +71,19 @@ public partial class LaneInfo
 		Tags = Tags | LaneTag.StackedLane,
 		Position = (float)Math.Round(Position + positionDifference, 3),
 	};
+
+	public override string ToString()
+	{
+		var name = string.Empty;
+		var types = Type.GetValues().Select(x => x.ToString());
+
+		if (Type > LaneType.Pedestrian && Type != LaneType.Parking)
+			name += Direction switch { LaneDirection.Forward => "1WF ", LaneDirection.Backwards => "1WB ", _ => "2W " };
+
+		name += types.Count() > 1 ? $"Shared {string.Join(" & ", types.ToArray())}" : types.First();
+
+		name += $" at ({Position})";
+
+		return name;
+	}
 }

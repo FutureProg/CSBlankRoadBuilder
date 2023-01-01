@@ -11,14 +11,14 @@ namespace BlankRoadBuilder.Util.Props;
 
 public static partial class LanePropsUtil
 {
-	private static IEnumerable<NetLaneProps.Prop> GetBikeLaneProps()
+	private static IEnumerable<NetLaneProps.Prop> GetBikeLaneProps(LaneInfo lane)
 	{
 		if (!ModOptions.AddLaneDecals)
 		{
 			yield break;
 		}
 
-		var bikeLane = GetProp(Prop.BicycleLaneDecal);
+		var bikeLane = GetProp(lane.LaneWidth < 2F ? Prop.BicycleLaneDecalSmall : Prop.BicycleLaneDecal);
 		var prop = new NetLaneProps.Prop()
 		{
 			m_prop = bikeLane,

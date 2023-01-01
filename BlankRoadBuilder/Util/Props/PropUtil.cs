@@ -24,6 +24,8 @@ public class PropUtil
 			Prop.RailwayCrossingMedium => new PropTemplate("Railway Crossing Medium"),
 			Prop.RailwayCrossingShort => new PropTemplate("Railway Crossing Short"),
 			Prop.BicycleLaneDecal => new PropTemplate("Bike Lane"),
+			Prop.BicycleLaneDecalSmall => new PropTemplate("Bike Lane Narrow"),
+			Prop.FireHydrant => new PropTemplate("Fire Hydrant"),
 			Prop.BusLaneDecal => new PropTemplate("Bus Lane"),
 			Prop.ArrowForward => new PropTemplate("Road Arrow F"),
 			Prop.ArrowLeft => new PropTemplate("Road Arrow L"),

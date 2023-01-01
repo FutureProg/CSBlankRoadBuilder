@@ -69,7 +69,7 @@ public static partial class LanePropsUtil
 
 					break;
 				case LaneType.Bike:
-					foreach (var prop in GetBikeLaneProps())
+					foreach (var prop in GetBikeLaneProps(lane))
 						yield return prop;
 
 					break;

@@ -95,7 +95,7 @@ public class IMTMarkings
 				switch (info.MarkingStyle)
 				{
 					case Domain.MarkingFillerType.Filled:
-						style = new SolidFillerStyle(info.Color, 0F, 0F);
+						style = new SolidFillerStyle(info.Color, 0F, 0F, true);
 						break;
 					case Domain.MarkingFillerType.Dashed:
 						style = new StripeFillerStyle(info.Color, info.DashLength, 0F, 0F, 0F, info.DashSpace, true);
@@ -117,13 +117,13 @@ public class IMTMarkings
 				}
 				break;
 			case LaneDecoration.Grass:
-				style = new GrassFillerStyle(Color.white, 1F, 0.2F, 0F, elevation + 0.01F, 0F, 0F, 0F, 0F);
+				style = new GrassFillerStyle(Color.white, 1F, 0F, 0F, elevation + 0.01F, 0F, 0F, 0F, 0F);
 				break;
 			case LaneDecoration.Pavement:
-				style = new PavementFillerStyle(Color.white, 1F, 0.2F, 0F, elevation + 0.01F, 0F, 0F);
+				style = new PavementFillerStyle(Color.white, 1F, 0F, 0F, elevation + 0.01F, 0F, 0F);
 				break;
 			case LaneDecoration.Gravel:
-				style = new GravelFillerStyle(Color.white, 1F, 0.2F, 0F, elevation + 0.01F, 0F, 0F, 0F, 0F);
+				style = new GravelFillerStyle(Color.white, 1F, 0F, 0F, elevation + 0.01F, 0F, 0F, 0F, 0F);
 				break;
 			default:
 				return;
@@ -142,6 +142,8 @@ public class IMTMarkings
 		{
 			var leftPadded = (item.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false);
 			var rightPadded = (item.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false);
+
+			style.LineOffset.Value = leftPadded || rightPadded ? 0F : 0.2F;
 
 			//if (leftPadded)
 			//{
@@ -207,14 +209,15 @@ public class IMTMarkings
 	{
 		var elevation = item.Elevation;
 		var lanes = new List<LaneInfo>(item.Lanes);
+		var left = lanes[0]?.LeftLane;
+		var right = lanes[lanes.Count - 1]?.RightLane;
 
-		if (lanes[0].LeftLane != null)
-			lanes.Add(lanes.First().LeftLane);
+		if (left != null)
+			lanes.Add(left);
+		if (right != null)
+			lanes.Add(right);
 
-		if (lanes.Last()?.RightLane != null)
-			lanes.Add(lanes.Last().RightLane);
-
-		return elevation - lanes.Select(x => x.LaneElevation).Average();
+		return Math.Max(0, elevation - lanes.Select(x => x.LaneElevation).Average());
 	}
 
 	private static void AddLines(LineMarking item, SegmentMarkup markup, Dictionary<float, MarkupEnterPoint> pointsA, Dictionary<float, MarkupEnterPoint> pointsB)

@@ -36,6 +36,7 @@ public class RoadBuilderPanel : StandalonePanel
 	private List<ListData>? listData;
 
 	private static string? lastLoadedRoad;
+	private static bool hideBuilt;
 
 	public RoadBuilderPanel()
 	{
@@ -64,6 +65,7 @@ public class RoadBuilderPanel : StandalonePanel
 		_refreshButton.eventClick += _refreshButton_eventClick;
 
 		_hideBuiltCheckBox = UICheckBoxes.AddLabelledCheckBox(this, 0, 0, "Hide generated roads", tooltip: "Only shows road configs that you haven't generated & saved yet");
+		_hideBuiltCheckBox.isChecked = hideBuilt;
 		_hideBuiltCheckBox.relativePosition = new Vector3(width - _hideBuiltCheckBox.width - 2 * Margin, 52F, 0);
 		_hideBuiltCheckBox.eventCheckChanged += _hideBuiltCheckBox_eventCheckChanged;
 
@@ -75,6 +77,7 @@ public class RoadBuilderPanel : StandalonePanel
 
 	private void _hideBuiltCheckBox_eventCheckChanged(UIComponent component, bool value)
 	{
+		hideBuilt = _hideBuiltCheckBox.isChecked;
 		RefreshList(false);
 	}
 

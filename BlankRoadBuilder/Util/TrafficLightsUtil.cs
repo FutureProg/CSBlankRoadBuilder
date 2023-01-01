@@ -42,7 +42,7 @@ public class TrafficLightsUtil
 		{
 			tl.LeftForward = tl.LeftForwardSpace >= 6F ? Props.Prop.TrafficLight02 : Props.Prop.TrafficLight01Mirror;
 		}
-		else if (tl.LeftForwardSpace > minimumSpace || tl.LeftBackwardSpace > minimumSpace)
+		else if (tl.LeftForwardSpace + tl.LeftBackwardSpace > minimumSpace)
 		{
 			tl.LeftForward = Props.Prop.TrafficLightPedestrian;
 		}
@@ -51,7 +51,7 @@ public class TrafficLightsUtil
 		{
 			tl.LeftBackward = tl.LeftBackwardSpace >= 12F ? Props.Prop.TrafficLight02Mirror : Props.Prop.TrafficLight01;
 		}
-		else if (tl.LeftForwardSpace > minimumSpace || tl.LeftBackwardSpace > minimumSpace)
+		else if (tl.LeftForwardSpace + tl.LeftBackwardSpace > minimumSpace)
 		{
 			tl.LeftBackward = Props.Prop.TrafficLightPedestrian;
 		}
@@ -60,7 +60,7 @@ public class TrafficLightsUtil
 		{
 			tl.RightForward = tl.RightForwardSpace >= 12F ? Props.Prop.TrafficLight02Mirror : Props.Prop.TrafficLight01;
 		}
-		else if (tl.RightBackwardSpace > minimumSpace || tl.RightForwardSpace > minimumSpace)
+		else if (tl.RightBackwardSpace + tl.RightForwardSpace > minimumSpace)
 		{
 			tl.RightForward = Props.Prop.TrafficLightPedestrian;
 		}
@@ -69,7 +69,7 @@ public class TrafficLightsUtil
 		{
 			tl.RightBackward = tl.RightBackwardSpace >= 6F ? Props.Prop.TrafficLight02 : Props.Prop.TrafficLight01Mirror;
 		}
-		else if (tl.RightBackwardSpace > minimumSpace || tl.RightForwardSpace > minimumSpace)
+		else if (tl.RightBackwardSpace + tl.RightForwardSpace > minimumSpace)
 		{
 			tl.RightBackward = Props.Prop.TrafficLightPedestrian;
 		}
@@ -83,7 +83,7 @@ public class TrafficLightsUtil
 		{
 			tl.LeftForward = Props.Prop.TrafficLight01Mirror;
 		}
-		else if (tl.LeftForwardSpace > minimumSpace || tl.LeftBackwardSpace > minimumSpace)
+		else if (tl.LeftForwardSpace + tl.LeftBackwardSpace > minimumSpace)
 		{
 			tl.LeftForward = Props.Prop.TrafficLightPedestrian;
 		}
@@ -118,7 +118,7 @@ public class TrafficLightsUtil
 		{
 			tl.RightBackward = Props.Prop.TrafficLight01Mirror;
 		}
-		else if (tl.RightBackwardSpace > minimumSpace || tl.RightForwardSpace > minimumSpace)
+		else if (tl.RightBackwardSpace + tl.RightForwardSpace > minimumSpace)
 		{
 			tl.RightBackward = Props.Prop.TrafficLightPedestrian;
 		}

@@ -71,12 +71,11 @@ public static partial class LanePropsUtil
 
 				if (nextNextLane?.Type.HasAnyFlag(LaneType.Filler, LaneType.Curb, LaneType.Pedestrian) ?? false)
 					yield break;
-
 			}
 
 			poleProp = GetProp(Prop.TramSidePole);
 			position = nextLane != null && nextLane.Type.HasFlag(LaneType.Tram)
-				? (float)Math.Round(Math.Max(0F, lane.Tags.HasFlag(LaneTag.Sidewalk) ? (0.1 + lane.LaneWidth / 2F + road.BufferWidth) : ((lane.LaneWidth - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
+				? (float)Math.Round(Math.Max(0F, (lane.Type == LaneType.Curb ? 0.1F : 0F) + ((lane.LaneWidth - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
 				: (float)Math.Round(Math.Max(0F, lane.LaneWidth - 4F) / 2F, 3) * (leftTram ? -1F : 1F);
 		}
 		else

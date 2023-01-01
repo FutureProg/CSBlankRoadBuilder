@@ -358,8 +358,8 @@ public static class RoadBuilderUtil
 
 		if (roadInfo.ContainsWiredLanes)
 		{
-			var leftPole = roadInfo.Lanes.FirstOrDefault(x => x.Tags.HasFlag(LaneTag.WirePoleLane));
-			var rightPole = roadInfo.Lanes.LastOrDefault(x => x.Tags.HasFlag(LaneTag.WirePoleLane));
+			var leftPole = roadInfo.Lanes.FirstOrDefault(x => x.Tags.HasFlag(LaneTag.WirePoleLane)) ?? leftCurb;
+			var rightPole = roadInfo.Lanes.LastOrDefault(x => x.Tags.HasFlag(LaneTag.WirePoleLane)) ?? rightCurb;
 
 			roadInfo.Lanes[0].Position = r(leftPole.Position + ((rightPole.Position - leftPole.Position) / 2F));
 			roadInfo.Lanes[0].CustomWidth = r(rightPole.Position - leftPole.Position);

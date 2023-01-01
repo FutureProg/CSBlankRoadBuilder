@@ -95,8 +95,30 @@ public static partial class LanePropsUtil
 					}
 
 					break;
+				case LaneDecoration.FireHydrant:
+					foreach (var prop in GetFireHydrant(lane))
+					{
+						yield return prop;
+					}
+
+					break;
 			}
 		}
+	}
+
+	private static IEnumerable<NetLaneProps.Prop> GetFireHydrant(LaneInfo lane)
+	{
+		var prop = GetProp(Prop.FireHydrant);
+
+		yield return new NetLaneProps.Prop
+		{
+			m_prop = prop,
+			m_finalProp = prop,
+			m_probability = 70,
+			m_angle = propAngle(lane) * 90,
+			m_segmentOffset = 0.60F,
+			m_position = new Vector3(0, 0, -propAngle(lane) * lane.LaneWidth / 2)
+		};
 	}
 
 	private static IEnumerable<NetLaneProps.Prop> GetBikeParking(LaneInfo lane)
