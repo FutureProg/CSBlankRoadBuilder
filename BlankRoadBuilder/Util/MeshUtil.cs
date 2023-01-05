@@ -29,11 +29,13 @@ public class MeshUtil
 
 		ApplyModel(segments[0], model(CurbType.HC, RoadAssetType.Segment));
 
-		if (segments.Length > 1)
+		if (segments.Length > 3)
 		{
 			ApplyModel(segments[1], model(CurbType.LCS, RoadAssetType.Segment));
 			ApplyModel(segments[2], model(CurbType.LCF, RoadAssetType.Segment));
 		}
+
+		ApplyModel(segments[segments.Length - 1], model(CurbType.Curbless, RoadAssetType.Segment));
 
 		ApplyModel(nodes[0], model(CurbType.HC, RoadAssetType.Node));
 
@@ -216,59 +218,43 @@ public class MeshUtil
 
 	private static NetInfo.Segment[] GetSegments(ElevationType elevation, RoadType roadType)
 	{
-		var arr = new NetInfo.Segment[elevation == ElevationType.Basic && roadType == RoadType.Road? 3 : 1];
+		var arr = new NetInfo.Segment[(elevation == ElevationType.Basic && roadType == RoadType.Road ? 4 : 2) + (elevation == ElevationType.Basic ? 0 : 0)];
+		var meta = new Segment[arr.Length];
 
 		for (var i = 0; i < arr.Length; i++)
 		{
 			arr[i] = new NetInfo.Segment().Extend().Base;
+			(arr[i] as IInfoExtended)?.SetMetaData(meta[i] = new Segment(arr[i])
+			{
+				Forward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless },
+				Backward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless }
+			});
 		}
 
-		if (arr.Length == 1)
+		meta[arr.Length - 1].Forward.Required = RoadUtils.S_Curbless;
+		meta[arr.Length - 1].Backward.Required = RoadUtils.S_Curbless;
+		meta[arr.Length - 1].Forward.Forbidden = NetSegmentExt.Flags.None;
+		meta[arr.Length - 1].Backward.Forbidden = NetSegmentExt.Flags.None;
+		
+		if (arr.Length == 2)
 		{
 			return arr;
 		}
-		
-		(arr[0] as IInfoExtended)?.SetMetaData(new Segment(arr[0])
-		{
-			Forward = new SegmentInfoFlags
-			{
-				Forbidden = RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft
-			},
-			Backward = new SegmentInfoFlags
-			{
-				Forbidden = RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft
-			}
-		});
+
+		meta[0].Forward.Forbidden |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
+		meta[0].Backward.Forbidden |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
 
 		arr[1].m_forwardForbidden = NetSegment.Flags.Bend;
 		arr[1].m_backwardForbidden = NetSegment.Flags.Bend;
-		(arr[1] as IInfoExtended)?.SetMetaData(new Segment(arr[1])
-		{
-			Forward = new SegmentInfoFlags
-			{
-				Required = RoadUtils.S_LowCurbOnTheRight,
-				Forbidden = RoadUtils.S_LowCurbOnTheLeft
-			},
-			Backward = new SegmentInfoFlags
-			{
-				Required = RoadUtils.S_LowCurbOnTheLeft,
-				Forbidden = RoadUtils.S_LowCurbOnTheRight
-			}
-		});
+		meta[1].Forward.Required |= RoadUtils.S_LowCurbOnTheRight;
+		meta[1].Backward.Required |= RoadUtils.S_LowCurbOnTheLeft;
+		meta[1].Forward.Forbidden |= RoadUtils.S_LowCurbOnTheLeft;
+		meta[1].Backward.Forbidden |= RoadUtils.S_LowCurbOnTheRight;
 
 		arr[2].m_forwardForbidden = NetSegment.Flags.Bend;
 		arr[2].m_backwardForbidden = NetSegment.Flags.Bend;
-		(arr[2] as IInfoExtended)?.SetMetaData(new Segment(arr[2])
-		{
-			Forward = new SegmentInfoFlags
-			{
-				Required = RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft
-			},
-			Backward = new SegmentInfoFlags
-			{
-				Required = RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft
-			}
-		});
+		meta[2].Forward.Required |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
+		meta[2].Backward.Required |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
 
 		return arr;
 	}
@@ -276,72 +262,40 @@ public class MeshUtil
 	private static NetInfo.Node[] GetNodes(RoadType roadType)
 	{
 		var arr = new NetInfo.Node[roadType == RoadType.Road ? 5 : 2];
+		var meta = new Node[arr.Length];
 
 		for (var i = 0; i < arr.Length; i++)
 		{
 			arr[i] = new NetInfo.Node().Extend().Base;
 			arr[i].m_tagsForbidden = new string[0];
 			arr[i].m_tagsRequired = new string[0];
+
+			(arr[i] as IInfoExtended)?.SetMetaData(meta[i] = new Node(arr[i])
+			{ NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_Nodeless } });
 		}
 
 		if (roadType != RoadType.Road)
 		{
-			arr[0].flagsForbidden = NetNode.FlagsLong.Transition;
-			arr[1].flagsRequired = NetNode.FlagsLong.Transition;
+			meta[0].NodeFlags.Forbidden |= RoadUtils.N_FlatTransition;
+			meta[1].NodeFlags.Required |= RoadUtils.N_FlatTransition;
 
 			return arr;
 		}
 
-		(arr[0] as IInfoExtended)?.SetMetaData(new Node(arr[0])
-		{
-			NodeFlags = new NodeInfoFlags
-			{
-				Forbidden = RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb
-			},
-			SegmentEndFlags = new SegmentEndInfoFlags
-			{
-				Forbidden = NetSegmentEnd.Flags.ZebraCrossing
-			}
-		});
+		meta[0].NodeFlags.Forbidden |= RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb;
+		meta[0].SegmentEndFlags.Forbidden |= NetSegmentEnd.Flags.ZebraCrossing;
 
 		arr[1].flagsRequired = NetNode.FlagsLong.End;
-		(arr[1] as IInfoExtended)?.SetMetaData(new Node(arr[1])
-		{
-			NodeFlags = new NodeInfoFlags
-			{
-				Forbidden = RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb
-			}
-		});
+		meta[1].NodeFlags.Forbidden |= RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb;
 
-		(arr[2] as IInfoExtended)?.SetMetaData(new Node(arr[2])
-		{
-			NodeFlags = new NodeInfoFlags
-			{
-				Required = RoadUtils.N_ForceHighCurb
-			}
-		});
+		meta[2].NodeFlags.Required |= RoadUtils.N_ForceHighCurb;
 
 		arr[3].flagsForbidden = NetNode.FlagsLong.End;
-		(arr[3] as IInfoExtended)?.SetMetaData(new Node(arr[3])
-		{
-			NodeFlags = new NodeInfoFlags
-			{
-				Forbidden = RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb
-			},
-			SegmentEndFlags = new SegmentEndInfoFlags
-			{
-				Required = NetSegmentEnd.Flags.ZebraCrossing
-			}
-		});
+		meta[3].NodeFlags.Forbidden |= RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb;
+		meta[3].SegmentEndFlags.Required |= NetSegmentEnd.Flags.ZebraCrossing;
 
-		(arr[4] as IInfoExtended)?.SetMetaData(new Node(arr[4])
-		{
-			NodeFlags = new NodeInfoFlags
-			{
-				Required = RoadUtils.N_FullLowCurb,
-				Forbidden = RoadUtils.N_ForceHighCurb
-			}
-		});
+		meta[4].NodeFlags.Required |= RoadUtils.N_FullLowCurb;
+		meta[4].NodeFlags.Forbidden |= RoadUtils.N_ForceHighCurb;
 
 		return arr;
 	}

@@ -33,6 +33,7 @@ public class IMTMarkings
 		var markup = SingletonManager<SegmentMarkupManager>.Instance[segmentId];
 
 		markup.Clear();
+		markup.ResetOffsets();
 		markup.RecalculateDrawData();
 
 		var pointsA = GetPoints(((Markup)markup).Enters.First(x => x.IsStartSide));
@@ -129,7 +130,7 @@ public class IMTMarkings
 				return;
 		}
 
-		if (style is RailFillerStyle railFiller)
+		if (style is IRailFiller railFiller)
 		{
 			var rev = item.Lanes.First().Direction == LaneDirection.Forward;
 			railFiller.LeftRailA.Value = rev ? 4 : 2;
@@ -273,15 +274,15 @@ public class IMTMarkings
 
 		foreach (var item in enter.Points)
 		{
-			points[GetSegmentPosition(item)] = item;
+			points[GetSegmentPosition(item, item.Source)] = item;
 		}
 
 		return points;
 	}
 
-	public static float GetSegmentPosition(MarkupEnterPoint point)
+	public static float GetSegmentPosition(MarkupEnterPoint point, IPointSource pointSource)
 	{
-		var source = (NetInfoPointSource)point.Source;
+		var source = (NetInfoPointSource)pointSource;
 
 		if ((source.Location & MarkupPoint.LocationType.Between) != MarkupPoint.LocationType.None)
 		{

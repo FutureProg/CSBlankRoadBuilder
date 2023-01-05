@@ -15,9 +15,7 @@ public static class RoadUtils
 	public const NetSegmentExt.Flags S_RemoveRoadClutter = NetSegmentExt.Flags.Custom3;
 	public const NetSegmentExt.Flags S_RemoveTramSupports = NetSegmentExt.Flags.Custom4;
 	public const NetSegmentExt.Flags S_RemoveMarkings = NetSegmentExt.Flags.Custom5;
-
-	public const NetSegmentExt.Flags S_AnyStop = NetSegmentExt.Flags.Expression0;
-	public const LaneTransition.Flags T_Markings = LaneTransition.Flags.Expression0;
+	public const NetSegmentExt.Flags S_Curbless = NetSegmentExt.Flags.Custom7;
 
 	public const NetNodeExt.Flags N_FullLowCurb = NetNodeExt.Flags.Custom0;
 	public const NetNodeExt.Flags N_ForceHighCurb = NetNodeExt.Flags.Custom1;
@@ -25,6 +23,7 @@ public static class RoadUtils
 	public const NetNodeExt.Flags N_RemoveTramWires = NetNodeExt.Flags.Custom3;
 	public const NetNodeExt.Flags N_RemoveTramTracks = NetNodeExt.Flags.Custom4;
 	public const NetNodeExt.Flags N_HideTreesCloseToIntersection = NetNodeExt.Flags.Custom5;
+	public const NetNodeExt.Flags N_Nodeless = NetNodeExt.Flags.Custom7;
 
 	public const NetLaneExt.Flags L_RemoveTrees = NetLaneExt.Flags.Custom1;
 	public const NetLaneExt.Flags L_RemoveStreetLights = NetLaneExt.Flags.Custom2;
@@ -38,6 +37,10 @@ public static class RoadUtils
 	public const NetLaneExt.Flags L_Barrier_2 = NetLaneExt.Flags.Custom5;
 	public const NetLaneExt.Flags L_Barrier_3 = NetLaneExt.Flags.Custom6;
 	public const NetLaneExt.Flags L_Barrier_4 = NetLaneExt.Flags.Custom7;
+
+	public const NetSegmentExt.Flags S_AnyStop = NetSegmentExt.Flags.Expression0;
+	public const LaneTransition.Flags T_Markings = LaneTransition.Flags.Expression0;
+	public const NetNodeExt.Flags N_FlatTransition = NetNodeExt.Flags.Expression0;
 
 	public static IEnumerable<KeyValuePair<ElevationType, NetInfo>> GetElevations(this NetInfo ground)
 	{

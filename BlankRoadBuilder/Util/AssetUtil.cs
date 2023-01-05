@@ -1,6 +1,4 @@
-﻿using AdaptiveRoads.DTO;
-
-using BlankRoadBuilder.Domain;
+﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
@@ -8,17 +6,22 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
-using UnityEngine;
-
 namespace BlankRoadBuilder.Util;
 
 public static class AssetUtil
 {
 	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb)
 	{
+		var curbless = curb == CurbType.Curbless;
+
+		if (curbless)
+		{
+			curb = CurbType.HC;
+		}
+
 		var fileName = $"{elevationType.ToString().ToLower()}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 
-		PrepareMeshFiles(road, meshType, elevationType, curb, fileName);
+		PrepareMeshFiles(road, meshType, elevationType, curb, curbless, fileName);
 
 		return ImportAsset(
 			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
@@ -30,7 +33,9 @@ public static class AssetUtil
 	public static AssetModel ImportAsset(ShaderType shaderType, MeshType meshType, string fileName, bool filesReady = false, float? scale = null)
 	{
 		if (!filesReady)
+		{
 			PrepareFiles(meshType, fileName);
+		}
 
 		var assetModel = new AssetModelUtil(shaderType, scale: scale);
 
@@ -54,13 +59,13 @@ public static class AssetUtil
 		}
 	}
 
-	private static void PrepareMeshFiles(RoadInfo road, MeshType meshType, ElevationType elevationType, CurbType curb, string fileName)
+	private static void PrepareMeshFiles(RoadInfo road, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, string fileName)
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
-		
+
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			Resize(file, road, curb);
+			_ = Resize(file, road, curb, curbless);
 		}
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{elevationType}*"))
@@ -71,9 +76,9 @@ public static class AssetUtil
 			var type = regex.Groups[1].Value.ToLower().TrimStart('_');
 			var newName = $"{baseName}{(lod ? "_lod" : "")}_{mesh}.png";
 
-			if (mesh == "p" || mesh == "r")
+			if (mesh is "p" or "r")
 			{
-				var ashpalt = elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : elevationType <= ElevationType.Bridge ? (road.BridgeSideTexture == BridgeTextureType.Asphalt) : false;
+				var ashpalt = elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : elevationType <= ElevationType.Bridge && (road.BridgeSideTexture == BridgeTextureType.Asphalt);
 				var noashpalt = !ashpalt && road.AsphaltStyle == AsphaltStyle.None;
 				var noCurb = (road.RoadType == RoadType.Highway || (road.RoadType == RoadType.Flat && ModOptions.RemoveCurbOnFlatRoads)) && curb != CurbType.TR;
 
@@ -91,18 +96,20 @@ public static class AssetUtil
 		}
 	}
 
-	public static string Resize(string file, RoadInfo road, CurbType curb)
+	public static string Resize(string file, RoadInfo road, CurbType curb, bool curbless)
 	{
 		var baseWidth = 8F;
 		var newWidth = road.TotalWidth;
-		var diff = newWidth / 2F - baseWidth / 2F;
+		var diff = (newWidth / 2F) - (baseWidth / 2F);
 
 		var lines = File.ReadAllLines(file);
 
 		for (var i = 0; i < lines.Length; i++)
 		{
 			if (lines[i].Length == 0)
+			{
 				continue;
+			}
 
 			var data = lines[i].Split(' ');
 
@@ -120,19 +127,34 @@ public static class AssetUtil
 					var aPos = Math.Abs(xPos);
 					var xDiff = diff;
 
+					if (curbless && (aPos >= 1 || yPos < -0.3))
+					{
+						if (aPos >= 1)
+						{
+							xPos = xPos > 0 ? 1 : -1;
+							aPos = 1;
+						}
+
+						yPos = -0.3;
+					}
+
 					if (aPos < 4F && yPos >= -0.3)
+					{
 						xDiff -= road.PavementWidth - 3;
+					}
 
 					if (aPos > 0.1F)
+					{
 						xPos += xPos < 0 ? -xDiff : xDiff;
+					}
+
+					if (yPos == 0D || (road.RoadType != RoadType.Road && curb != CurbType.TR && Math.Round(yPos, 2) == -0.3D))
+					{
+						yPos = 0.0005;
+					}
 
 					data[1] = xPos.ToString("0.00000000");
-
-					if (road.RoadType != RoadType.Road && curb != CurbType.TR && Math.Round(yPos, 2) == -0.3D)
-						data[2] ="0.00050000";
-
-					if (yPos == 0D)
-						data[2] = "0.00050000";
+					data[2] = yPos.ToString("0.00000000");
 
 					lines[i] = string.Join(" ", data);
 					break;

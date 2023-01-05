@@ -1,4 +1,6 @@
 ﻿
+using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
@@ -181,14 +183,16 @@ public static class ThumbnailMakerUtil
 			return VehicleInfo.VehicleType.None;
 		}
 
-		return laneType switch
-		{
-			LaneType.Pedestrian => VehicleInfo.VehicleType.None,
-			LaneType.Bike => VehicleInfo.VehicleType.Bicycle,
-			LaneType.Tram => VehicleInfo.VehicleType.Tram,
-			LaneType.Trolley => VehicleInfo.VehicleType.Trolleybus,
-			_ => VehicleInfo.VehicleType.Car,
-		};
+		return laneType == LaneType.Curb && !(ModOptions.AlwaysAddGhostLanes || ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.IMTMarkings))
+			? VehicleInfo.VehicleType.None
+			: laneType switch
+			{
+				LaneType.Pedestrian => VehicleInfo.VehicleType.None,
+				LaneType.Bike => VehicleInfo.VehicleType.Bicycle,
+				LaneType.Tram => VehicleInfo.VehicleType.Tram,
+				LaneType.Trolley => VehicleInfo.VehicleType.Trolleybus,
+				_ => VehicleInfo.VehicleType.Car,
+			};
 	}
 
 	public static VehicleInfo.VehicleType GetStopType(LaneType type, LaneInfo lane, RoadInfo road, out bool? forward)
@@ -329,9 +333,11 @@ public static class ThumbnailMakerUtil
 			return (float)lane.SpeedLimit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 50F;
 		}
 
+		var limit = road.SpeedLimit == 0 ? DefaultSpeedSign(road.RoadType, road.RegionType == RegionType.USA) : road.SpeedLimit;
+
 		return type switch
 		{
-			LaneType.Car or LaneType.Tram or LaneType.Bus or LaneType.Trolley => road.SpeedLimit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 50F,
+			LaneType.Car or LaneType.Tram or LaneType.Bus or LaneType.Trolley => limit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 50F,
 			LaneType.Pedestrian => 0.25F,
 			LaneType.Bike => lane.Type == LaneType.Bike ? 2F : 1.2F,
 			LaneType.Emergency => 2F,
@@ -339,19 +345,28 @@ public static class ThumbnailMakerUtil
 		};
 	}
 
+	private static int DefaultSpeedSign(RoadType type, bool mph)
+	{
+		return type switch
+		{
+			RoadType.Road => mph ? 25 : 40,
+			RoadType.Highway => mph ? 55 : 80,
+			RoadType.Pedestrian => mph ? 10 : 20,
+			RoadType.Flat => mph ? 15 : 30,
+			_ => 0,
+		};
+	}
+
 	public static NetInfo.Direction GetLaneDirection(LaneInfo lane)
 	{
-		if (lane.Type <= LaneType.Pedestrian)
-		{
-			return NetInfo.Direction.Both;
-		}
-
-		return lane.Direction switch
-		{
-			LaneDirection.Backwards => NetInfo.Direction.Backward,
-			LaneDirection.Forward => NetInfo.Direction.Forward,
-			_ => NetInfo.Direction.Both,
-		};
+		return lane.Type <= LaneType.Pedestrian
+			? NetInfo.Direction.Both
+			: lane.Direction switch
+			{
+				LaneDirection.Backwards => NetInfo.Direction.Backward,
+				LaneDirection.Forward => NetInfo.Direction.Forward,
+				_ => NetInfo.Direction.Both,
+			};
 	}
 
 	public static float GetLaneVerticalOffset(LaneInfo lane, RoadInfo road)
@@ -380,22 +395,16 @@ public static class ThumbnailMakerUtil
 
 	public static VehicleInfo.VehicleCategoryPart1 GetVehicleCategory1(LaneType laneType)
 	{
-		if (laneType == LaneType.Bus)
-		{
-			return VehicleInfo.VehicleCategoryPart1.Bus;
-		}
-
-		return laneType == LaneType.Emergency ? VehicleInfo.VehicleCategoryPart1.None : VehicleInfo.VehicleCategoryPart1.All;
+		return laneType == LaneType.Bus
+			? VehicleInfo.VehicleCategoryPart1.Bus
+			: laneType == LaneType.Emergency ? VehicleInfo.VehicleCategoryPart1.None : VehicleInfo.VehicleCategoryPart1.All;
 	}
 
 	public static VehicleInfo.VehicleCategoryPart2 GetVehicleCategory2(LaneType laneType)
 	{
-		if (laneType == LaneType.Emergency)
-		{
-			return VehicleInfo.VehicleCategoryPart2.Ambulance | VehicleInfo.VehicleCategoryPart2.Police | VehicleInfo.VehicleCategoryPart2.FireTruck;
-		}
-
-		return laneType == LaneType.Bus ? VehicleInfo.VehicleCategoryPart2.None : VehicleInfo.VehicleCategoryPart2.All;
+		return laneType == LaneType.Emergency
+			? VehicleInfo.VehicleCategoryPart2.Ambulance | VehicleInfo.VehicleCategoryPart2.Police | VehicleInfo.VehicleCategoryPart2.FireTruck
+			: laneType == LaneType.Bus ? VehicleInfo.VehicleCategoryPart2.None : VehicleInfo.VehicleCategoryPart2.All;
 	}
 
 	public static float GetLaneCost(LaneType laneType)
