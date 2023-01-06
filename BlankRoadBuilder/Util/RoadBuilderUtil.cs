@@ -127,8 +127,8 @@ public static class RoadBuilderUtil
 		itemClass.m_layer = ItemClass.Layer.Default;
 		itemClass.m_service = ItemClass.Service.Road;
 		itemClass.m_subService = ItemClass.SubService.None;
-		itemClass.m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(4, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5;
-		itemClass.name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(4, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway";
+		itemClass.m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5;
+		itemClass.name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway";
 		netInfo.m_class = itemClass;
 
 		RoadUtils.SetNetAi(netInfo, "m_outsideConnection", null);
@@ -155,6 +155,7 @@ public static class RoadBuilderUtil
 
 		metadata.ScriptedFlags[RoadUtils.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
 		metadata.ScriptedFlags[RoadUtils.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
+		metadata.ScriptedFlags[RoadUtils.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
 
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");
@@ -162,6 +163,7 @@ public static class RoadBuilderUtil
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveRoadClutter, "Remove road clutter");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
+		metadata.RenameCustomFlag(RoadUtils.S_Curbless, "Make curb-less");
 
 		metadata.RenameCustomFlag(RoadUtils.N_FullLowCurb, "Full low curb");
 		metadata.RenameCustomFlag(RoadUtils.N_ForceHighCurb, "Force high curb");
@@ -169,6 +171,7 @@ public static class RoadBuilderUtil
 		metadata.RenameCustomFlag(RoadUtils.N_RemoveTramWires, "Remove tram/trolley wires");
 		metadata.RenameCustomFlag(RoadUtils.N_RemoveTramTracks, "Remove tram tracks");
 		metadata.RenameCustomFlag(RoadUtils.N_HideTreesCloseToIntersection, "Hide trees that are close to the intersection");
+		metadata.RenameCustomFlag(RoadUtils.N_Nodeless, "Remove node mesh");
 
 		var netLanes = netInfo.m_lanes.ToList();
 
@@ -403,7 +406,7 @@ public static class RoadBuilderUtil
 			lane.Elevation = null;
 		}
 
-		if (lane.Type == LaneType.Pedestrian)
+		if (lane.Type == LaneType.Pedestrian && (ModOptions.AlwaysAddGhostLanes || ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.IMTMarkings)))
 		{
 			var fillerLane = lane.Duplicate(LaneType.Empty);
 

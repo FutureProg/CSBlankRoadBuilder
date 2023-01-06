@@ -73,8 +73,8 @@ public class LaneSizeOptions
         catch { }
 
         _sizes = Enum.GetValues(typeof(LaneType)).Cast<LaneType>().ToDictionary(x => x, GetDefaultLaneWidth);
-        _diagonalParkingSize = 4F;
-        _horizontalParkingSize = 5.5F;
+        _diagonalParkingSize = 5F;
+        _horizontalParkingSize = 6F;
     }
 
     public void Save()
