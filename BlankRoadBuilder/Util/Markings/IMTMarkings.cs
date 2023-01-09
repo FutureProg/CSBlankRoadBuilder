@@ -5,6 +5,7 @@ using BlankRoadBuilder.ThumbnailMaker;
 using KianCommons;
 
 using ModsCommon;
+using ModsCommon.Utilities;
 
 using NodeMarkup.Manager;
 
@@ -24,7 +25,7 @@ public class IMTMarkings
 			return;
 		}
 
-		if (!NetUtil.IsSegmentValid(segmentId) || RoadBuilderUtil.CurrentRoad == null)
+		if (!NetUtil.IsSegmentValid(segmentId) || RoadBuilderUtil.CurrentRoad == null || !(ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo net && net.GetElevations().Any(x => x.Value == segmentId.GetSegment().Info)))
 		{
 			return;
 		}

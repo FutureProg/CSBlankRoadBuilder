@@ -8,12 +8,19 @@ using BlankRoadBuilder.Patches;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Props;
 
+using ColossalFramework;
 using ColossalFramework.IO;
+using ColossalFramework.Math;
+
+using KianCommons;
+
+using ModsCommon.Utilities;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 using UnityEngine;
 
@@ -26,7 +33,7 @@ public static class RoadBuilderUtil
 
 	public static IEnumerable<StateInfo> Build(RoadInfo? roadInfo)
 	{
-		_ = ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
+		ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
 
 		if (roadInfo == null)
 		{
@@ -41,6 +48,10 @@ public static class RoadBuilderUtil
 		{
 			yield break;
 		}
+
+		SegmentUtil.ClearNodes();
+
+		yield return new StateInfo($"Preparing the road..");
 
 		Exception? exception = null;
 
@@ -110,6 +121,8 @@ public static class RoadBuilderUtil
 
 		ToolsModifierControl.toolController.m_editPrefabInfo = info;
 		AdaptiveNetworksUtil.Refresh();
+
+		SegmentUtil.GenerateTemplateSegments(info);
 	}
 
 	private static void FillNetInfo(RoadInfo roadInfo, KeyValuePair<ElevationType, NetInfo> elevation, NetInfo netInfo)
@@ -277,12 +290,14 @@ public static class RoadBuilderUtil
 
 		foreach (var p in _pillars)
 		{
-			if (roadInfo.AsphaltWidth + 1.5F < p.Key)
+			if (roadInfo.TotalWidth - 4.5F < p.Key)
 			{
 				continue;
 			}
 
-			var pillar = PrefabCollection<BuildingInfo>.FindLoaded(p.Value);
+			var pillar = PropUtil.GetProp(p.Value);
+
+			Debug.LogError(pillar.PropName);
 
 			if (pillar != null)
 			{
@@ -295,13 +310,13 @@ public static class RoadBuilderUtil
 		}
 	}
 
-	private static readonly Dictionary<float, string> _pillars = new()
+	private static readonly Dictionary<float, Prop> _pillars = new()
 	{
-		{ 38F, "760278365.R69 Over 4c_Data"   },
-		{ 30F, "760277420.R69 Over 3c_Data"   },
-		{ 24F, "760276468.R69 Middle 3c_Data" },
-		{ 16F, "760276148.R69 Middle 2c_Data" },
-		{  0F, "760289402.R69 Middle 1c_Data" },
+		{ 38F, Prop.Pillar38   },
+		{ 30F, Prop.Pillar30   },
+		{ 24F, Prop.Pillar24   },
+		{ 16F, Prop.Pillar16   },
+		{  0F, Prop.PillarBase },
 	};
 
 	private static void GenerateLaneWidthsAndPositions(RoadInfo roadInfo)
@@ -314,7 +329,7 @@ public static class RoadBuilderUtil
 		var leftPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) <= roadInfo.Lanes.IndexOf(leftCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
 		var rightPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) >= roadInfo.Lanes.IndexOf(rightCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
 
-		roadInfo.PavementWidth = Math.Max(1.5F, Math.Max(leftPavementWidth, rightPavementWidth));
+		roadInfo.PavementWidth = Math.Max(0F, Math.Max(leftPavementWidth, rightPavementWidth));
 		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
 		roadInfo.TotalWidth = (2 * roadInfo.PavementWidth) + roadInfo.AsphaltWidth;
 
@@ -446,7 +461,7 @@ public static class RoadBuilderUtil
 			m_vehicleType = ThumbnailMakerUtil.GetVehicleType(type, lane),
 			m_vehicleCategoryPart1 = ThumbnailMakerUtil.GetVehicleCategory1(type),
 			m_vehicleCategoryPart2 = ThumbnailMakerUtil.GetVehicleCategory2(type),
-			m_stopType = ThumbnailMakerUtil.GetStopType(type, lane, road, out var stopForward),
+			m_stopType = ThumbnailMakerUtil.GetStopType(type, lane, road, out _),
 			m_direction = ThumbnailMakerUtil.GetLaneDirection(lane),
 			m_finalDirection = ThumbnailMakerUtil.GetLaneDirection(lane),
 			m_laneProps = GetLaneProps(index, type, lane, road),

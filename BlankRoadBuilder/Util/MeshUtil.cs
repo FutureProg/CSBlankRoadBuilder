@@ -29,17 +29,17 @@ public class MeshUtil
 
 		ApplyModel(segments[0], model(CurbType.HC, RoadAssetType.Segment));
 
-		if (segments.Length > 3)
+		if (segments.Count > 3)
 		{
 			ApplyModel(segments[1], model(CurbType.LCS, RoadAssetType.Segment));
 			ApplyModel(segments[2], model(CurbType.LCF, RoadAssetType.Segment));
 		}
 
-		ApplyModel(segments[segments.Length - 1], model(CurbType.Curbless, RoadAssetType.Segment));
+		ApplyModel(segments[segments.Count - 1], model(CurbType.Curbless, RoadAssetType.Segment));
 
 		ApplyModel(nodes[0], model(CurbType.HC, RoadAssetType.Node));
 
-		if (nodes.Length > 1)
+		if (nodes.Count > 1)
 		{
 			if (roadInfo.RoadType == RoadType.Road)
 			{
@@ -52,22 +52,24 @@ public class MeshUtil
 				ApplyModel(nodes[1], model(CurbType.TR, RoadAssetType.Node));
 		}
 
-		netInfo.m_segments = segments;
-		netInfo.m_nodes = nodes;
-
-		var data = netInfo.GetMetaData();
-		var tracks = new List<Track>();
-
 		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANMarkings, MarkingsSource.HiddenANMarkings, MarkingsSource.ANFillers))
 		{
 			var markings = MarkingsUtil.GenerateMarkings(roadInfo);
 
-			tracks.AddRange(AdaptiveNetworksMarkings.Markings(roadInfo, netInfo, markings));
+			segments.AddRange(AdaptiveNetworksMarkings.Markings(roadInfo, netInfo, markings));
 
-			tracks.AddRange(AdaptiveNetworksMarkings.IMTHelpers(roadInfo, netInfo, markings));
+			segments.AddRange(AdaptiveNetworksMarkings.IMTHelpers(roadInfo, netInfo, markings));
 
-			tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
+			nodes.AddRange(AdaptiveNetworksMarkings.IMTNodeHelpers(roadInfo, netInfo, markings));
 		}
+
+		netInfo.m_segments = segments.ToArray();
+		netInfo.m_nodes = nodes.ToArray();
+
+		var data = netInfo.GetMetaData();
+		var tracks = new List<Track>();
+
+		tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
 
 		if (roadInfo.ContainsWiredLanes)
 		{
@@ -216,27 +218,29 @@ public class MeshUtil
 		}
 	}
 
-	private static NetInfo.Segment[] GetSegments(ElevationType elevation, RoadType roadType)
+	private static List<NetInfo.Segment> GetSegments(ElevationType elevation, RoadType roadType)
 	{
-		var arr = new NetInfo.Segment[(elevation == ElevationType.Basic && roadType == RoadType.Road ? 4 : 2) + (elevation == ElevationType.Basic ? 0 : 0)];
-		var meta = new Segment[arr.Length];
+		var arr = new List<NetInfo.Segment>();
+		var meta = new List<Segment>();
 
-		for (var i = 0; i < arr.Length; i++)
+		for (var i = 0; i < (elevation == ElevationType.Basic && roadType == RoadType.Road ? 4 : 2) + (elevation == ElevationType.Basic ? 0 : 0); i++)
 		{
-			arr[i] = new NetInfo.Segment().Extend().Base;
-			(arr[i] as IInfoExtended)?.SetMetaData(meta[i] = new Segment(arr[i])
+			arr.Add(new NetInfo.Segment().Extend().Base);
+			meta.Add(new Segment(arr[i])
 			{
 				Forward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless },
 				Backward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless }
 			});
+
+			(arr[i] as IInfoExtended)?.SetMetaData(meta[i]);				
 		}
 
-		meta[arr.Length - 1].Forward.Required = RoadUtils.S_Curbless;
-		meta[arr.Length - 1].Backward.Required = RoadUtils.S_Curbless;
-		meta[arr.Length - 1].Forward.Forbidden = NetSegmentExt.Flags.None;
-		meta[arr.Length - 1].Backward.Forbidden = NetSegmentExt.Flags.None;
+		meta[arr.Count - 1].Forward.Required = RoadUtils.S_Curbless;
+		meta[arr.Count - 1].Backward.Required = RoadUtils.S_Curbless;
+		meta[arr.Count - 1].Forward.Forbidden = NetSegmentExt.Flags.None;
+		meta[arr.Count - 1].Backward.Forbidden = NetSegmentExt.Flags.None;
 		
-		if (arr.Length == 2)
+		if (arr.Count == 2)
 		{
 			return arr;
 		}
@@ -259,19 +263,20 @@ public class MeshUtil
 		return arr;
 	}
 
-	private static NetInfo.Node[] GetNodes(RoadType roadType)
+	private static List<NetInfo.Node> GetNodes(RoadType roadType)
 	{
-		var arr = new NetInfo.Node[roadType == RoadType.Road ? 5 : 2];
-		var meta = new Node[arr.Length];
+		var arr = new List<NetInfo.Node>();
+		var meta = new List<Node>();
 
-		for (var i = 0; i < arr.Length; i++)
+		for (var i = 0; i < (roadType == RoadType.Road ? 5 : 2); i++)
 		{
-			arr[i] = new NetInfo.Node().Extend().Base;
+			arr.Add(new NetInfo.Node().Extend().Base);
 			arr[i].m_tagsForbidden = new string[0];
 			arr[i].m_tagsRequired = new string[0];
 
-			(arr[i] as IInfoExtended)?.SetMetaData(meta[i] = new Node(arr[i])
-			{ NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_Nodeless } });
+			meta.Add(new Node(arr[i]) { NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_Nodeless } });
+
+			(arr[i] as IInfoExtended)?.SetMetaData(meta[i]);
 		}
 
 		if (roadType != RoadType.Road)

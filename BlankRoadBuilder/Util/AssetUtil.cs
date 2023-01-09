@@ -65,10 +65,10 @@ public static class AssetUtil
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			_ = Resize(file, road, curb, curbless);
+			Resize(file, road, curb, curbless);
 		}
 
-		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{elevationType}*"))
+		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{elevationType}*".ToLower()))
 		{
 			var regex = Regex.Match(Path.GetFileName(file), @"(_[^l][A-z]+)?_(\w)\.png", RegexOptions.IgnoreCase);
 			var lod = file.Contains("_lod");

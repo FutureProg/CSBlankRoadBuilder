@@ -44,7 +44,7 @@ public class PropUtil
 			Prop.FlowerPot => new PropTemplate("Flowerpot 04"),
 			Prop.Bollard => new PropTemplate("1650964670.Bollard A 05_Data"),
 			Prop.Grass => new PropTemplate("Roof Vegetation 01"),
-			Prop.Tree => new PropTemplate("mp9-YoungLinden", true),
+			Prop.Tree => new PropTemplate("mp9-YoungLinden", isTree: true),
 			Prop.TreePlanter => new PropTemplate("2086553476.Tree Planter 03 1m_Data"),
 			Prop.TramPole => new PropTemplate("Tram Pole Side"),
 			Prop.TramSidePole => new PropTemplate("Tram Pole Wide Side"),
@@ -70,6 +70,11 @@ public class PropUtil
 			Prop.SpeedSign120 => new PropTemplate($"100 Speed Limit"),
 			Prop.SpeedSign130 => new PropTemplate($"100 Speed Limit"),
 			Prop.SpeedSign140 => new PropTemplate($"100 Speed Limit"),
+			Prop.PillarBase => new PropTemplate($"760289402.R69 Middle 1c_Data", isBuilding: true),
+			Prop.Pillar16 => new PropTemplate($"760276148.R69 Middle 2c_Data", isBuilding: true),
+			Prop.Pillar24 => new PropTemplate($"760276468.R69 Middle 3c_Data", isBuilding: true),
+			Prop.Pillar30 => new PropTemplate($"760277420.R69 Over 3c_Data", isBuilding: true),
+			Prop.Pillar38 => new PropTemplate($"760278365.R69 Over 4c_Data", isBuilding: true),
 			_ => new PropTemplate(string.Empty),
 		};
 	}

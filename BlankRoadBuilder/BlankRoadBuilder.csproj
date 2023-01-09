@@ -74,6 +74,11 @@
       <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2140418403\NodeMarkup.dll</HintPath>
       <Private>False</Private>
     </Reference>
+	<Reference Include="NodeControllerRenewal">
+		<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2472062376\NodeControllerRenewal.dll</HintPath>
+		<Private>False</Private>
+		<Aliases>NC</Aliases>
+	</Reference>
     <Reference Include="AdaptiveRoads">
       <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\AdaptiveRoads.dll</HintPath>
       <Private>False</Private>

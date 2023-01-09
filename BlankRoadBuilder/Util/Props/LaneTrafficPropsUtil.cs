@@ -101,7 +101,10 @@ public static partial class LanePropsUtil
 			m_colorMode = NetLaneProps.ColorMode.EndState,
 			m_probability = 100,
 			m_position = new Vector3(propPosition, 0, road.ContainsWiredLanes ? -1.5F : -0.75F),
-		};//.ToggleForwardBackward(ModOptions.FlipTrafficLights, true);
+		}.Extend(p => new NetInfoExtionsion.LaneProp(p)
+		{
+			SegmentEndFlags = new NetInfoExtionsion.SegmentEndInfoFlags { Required = prop == Prop.TrafficLightPedestrian ? NetSegmentEnd.Flags.ZebraCrossing : NetSegmentEnd.Flags.None }
+		});
 	}
 
 	private static IEnumerable<LaneInfo> GetSideLanes(LaneInfo? lane, bool left, bool forward)

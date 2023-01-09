@@ -61,5 +61,10 @@ public enum Prop
 	SpeedSign110 = 57,
 	SpeedSign120 = 58,
 	SpeedSign130 = 59,
-	SpeedSign140 = 60
+	SpeedSign140 = 60,
+	PillarBase = 61,
+	Pillar16 = 62,
+	Pillar24 = 63,
+	Pillar30 = 64,
+	Pillar38 = 65,
 }
