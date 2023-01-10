@@ -10,7 +10,7 @@ namespace BlankRoadBuilder.Util;
 
 public static class AssetUtil
 {
-	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb)
+	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb, string name, bool inverted, bool sidewalkTransition)
 	{
 		var curbless = curb == CurbType.Curbless;
 
@@ -21,7 +21,7 @@ public static class AssetUtil
 
 		var fileName = $"{elevationType.ToString().ToLower()}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 
-		PrepareMeshFiles(road, meshType, elevationType, curb, curbless, fileName);
+		PrepareMeshFiles(road, name, meshType, elevationType, curb, curbless, inverted, sidewalkTransition, fileName);
 
 		return ImportAsset(
 			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
@@ -59,13 +59,13 @@ public static class AssetUtil
 		}
 	}
 
-	private static void PrepareMeshFiles(RoadInfo road, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, string fileName)
+	private static void PrepareMeshFiles(RoadInfo road, string name, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, bool inverted, bool sidewalkTransition, string fileName)
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			Resize(file, road, curb, curbless);
+			Resize(file, name, road, curb, curbless, inverted, sidewalkTransition);
 		}
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{elevationType}*".ToLower()))
@@ -96,7 +96,7 @@ public static class AssetUtil
 		}
 	}
 
-	public static string Resize(string file, RoadInfo road, CurbType curb, bool curbless)
+	public static string Resize(string file, string name, RoadInfo road, CurbType curb, bool curbless, bool inverted, bool sidewalkTransition)
 	{
 		var baseWidth = 8F;
 		var newWidth = road.TotalWidth;
@@ -117,7 +117,7 @@ public static class AssetUtil
 			{
 				case "g":
 				case "G":
-					lines[i] = Path.GetFileNameWithoutExtension(file).FormatWords();
+					lines[i] = "g " + name;
 					break;
 
 				case "v":
@@ -140,7 +140,20 @@ public static class AssetUtil
 
 					if (aPos < 4F && yPos >= -0.3)
 					{
-						xDiff -= road.PavementWidth - 3;
+						if (sidewalkTransition)
+						{
+							var start = xPos < 0 == inverted ? road.LeftPavementWidth : road.RightPavementWidth;
+							var end = xPos < 0 == inverted ? road.RightPavementWidth : road.LeftPavementWidth;
+							var step = (float.Parse(data[3]) + 32) / 64;
+
+							UnityEngine.Debug.LogError($"{start} {end} {step} {start * step + end * (1 - step)}");
+
+							xDiff -= start * step + end * (1 - step) - 3;
+						}
+						else
+						{ 
+							xDiff -= (xPos < 0 == inverted ? road.LeftPavementWidth : road.RightPavementWidth) - 3; 
+						}
 					}
 
 					if (aPos > 0.1F)

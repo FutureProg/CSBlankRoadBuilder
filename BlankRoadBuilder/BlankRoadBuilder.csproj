@@ -9,9 +9,9 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<Version>1.0.4</Version>
-	<FileVersion>1.0.4</FileVersion>
-	<AssemblyVersion>1.0.4</AssemblyVersion>
+	<Version>1.1.0</Version>
+	<FileVersion>1.1.0</FileVersion>
+	<AssemblyVersion>1.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -39,12 +39,14 @@
 
   <ItemGroup>
     <None Remove="ModContents\AnyStopFlag.dll" />
+    <None Remove="ModContents\HighCurbFlag.dll" />
     <None Remove="ModContents\MarkingTransitionFlag.dll" />
     <None Remove="ModContents\TransitionFlag.dll" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="ModContents\AnyStopFlag.dll" />
+    <EmbeddedResource Include="ModContents\HighCurbFlag.dll" />
     <EmbeddedResource Include="ModContents\MarkingTransitionFlag.dll" />
     <EmbeddedResource Include="ModContents\TransitionFlag.dll" />
   </ItemGroup>

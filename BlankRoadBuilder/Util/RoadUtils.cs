@@ -41,39 +41,44 @@ public static class RoadUtils
 	public const NetSegmentExt.Flags S_AnyStop = NetSegmentExt.Flags.Expression0;
 	public const LaneTransition.Flags T_Markings = LaneTransition.Flags.Expression0;
 	public const NetNodeExt.Flags N_FlatTransition = NetNodeExt.Flags.Expression0;
+	public const NetNodeExt.Flags N_HighCurb = NetNodeExt.Flags.Expression1;
 
-	public static IEnumerable<KeyValuePair<ElevationType, NetInfo>> GetElevations(this NetInfo ground)
+	public static Dictionary<ElevationType, NetInfo> GetElevations(this NetInfo ground)
 	{
+		var dic = new Dictionary<ElevationType, NetInfo>();
+
 		if (ground == null)
 		{
-			yield break;
+			return dic;
 		}
 
-		yield return new KeyValuePair<ElevationType, NetInfo>(ElevationType.Basic, ground);
+		dic.Add(ElevationType.Basic, ground);
 
 		var elevated = AssetEditorRoadUtils.TryGetElevated(ground);
 		if (elevated != null)
 		{
-			yield return new KeyValuePair<ElevationType, NetInfo>(ElevationType.Elevated, elevated);
+			dic.Add(ElevationType.Elevated, elevated);
 		}
 
 		var bridge = AssetEditorRoadUtils.TryGetBridge(ground);
 		if (bridge != null)
 		{
-			yield return new KeyValuePair<ElevationType, NetInfo>(ElevationType.Bridge, bridge);
+			dic.Add(ElevationType.Bridge, bridge);
 		}
 
 		var slope = AssetEditorRoadUtils.TryGetSlope(ground);
 		if (slope != null)
 		{
-			yield return new KeyValuePair<ElevationType, NetInfo>(ElevationType.Slope, slope);
+			dic.Add(ElevationType.Slope, slope);
 		}
 
 		var tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
 		if (tunnel != null)
 		{
-			yield return new KeyValuePair<ElevationType, NetInfo>(ElevationType.Tunnel, tunnel);
+			dic.Add(ElevationType.Tunnel, tunnel);
 		}
+
+		return dic;
 	}
 
 	public static void SetNetAi(NetInfo info, string fieldName, object? value)

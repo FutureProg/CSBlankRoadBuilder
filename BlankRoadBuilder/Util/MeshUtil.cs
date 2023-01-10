@@ -4,11 +4,15 @@ using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Markings;
+
 using PrefabMetadata.API;
 using PrefabMetadata.Helpers;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using UnityEngine;
 
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
@@ -24,33 +28,8 @@ public class MeshUtil
 		if (elevation > ElevationType.Elevated)
 			return;
 
-		var segments = GetSegments(elevation, roadInfo.RoadType);
-		var nodes = GetNodes(roadInfo.RoadType);
-
-		ApplyModel(segments[0], model(CurbType.HC, RoadAssetType.Segment));
-
-		if (segments.Count > 3)
-		{
-			ApplyModel(segments[1], model(CurbType.LCS, RoadAssetType.Segment));
-			ApplyModel(segments[2], model(CurbType.LCF, RoadAssetType.Segment));
-		}
-
-		ApplyModel(segments[segments.Count - 1], model(CurbType.Curbless, RoadAssetType.Segment));
-
-		ApplyModel(nodes[0], model(CurbType.HC, RoadAssetType.Node));
-
-		if (nodes.Count > 1)
-		{
-			if (roadInfo.RoadType == RoadType.Road)
-			{
-				ApplyModel(nodes[1], model(CurbType.HC, RoadAssetType.Node));
-				ApplyModel(nodes[2], model(CurbType.HC, RoadAssetType.Node));
-				ApplyModel(nodes[3], model(CurbType.LCS, RoadAssetType.Node));
-				ApplyModel(nodes[4], model(CurbType.LCF, RoadAssetType.Node));
-			}
-			else
-				ApplyModel(nodes[1], model(CurbType.TR, RoadAssetType.Node));
-		}
+		var segments = GetSegments(elevation, roadInfo);
+		var nodes = GetNodes(elevation, roadInfo);
 
 		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANMarkings, MarkingsSource.HiddenANMarkings, MarkingsSource.ANFillers))
 		{
@@ -79,9 +58,10 @@ public class MeshUtil
 		data.Tracks = tracks.ToArray();
 		data.TrackLaneCount = tracks.Count;
 
-		AssetModel model(CurbType id, RoadAssetType type)
-			=> AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id);
 	}
+
+	private static AssetModel GetModel(CurbType id, RoadAssetType type, RoadInfo roadInfo, ElevationType elevation, string name, bool inverted = false, bool sidewalkTransition = false)
+		=> AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, name + (inverted ? " Inverted" : ""), inverted, sidewalkTransition);
 
 	private static IEnumerable<Track> GenerateTracksAndWires(NetInfo netInfo, RoadInfo road)
 	{
@@ -218,91 +198,124 @@ public class MeshUtil
 		}
 	}
 
-	private static List<NetInfo.Segment> GetSegments(ElevationType elevation, RoadType roadType)
+	private static List<NetInfo.Segment> GetSegments(ElevationType elevation, RoadInfo roadInfo)
 	{
-		var arr = new List<NetInfo.Segment>();
-		var meta = new List<Segment>();
+		var list = new List<NetInfo.Segment>();
 
-		for (var i = 0; i < (elevation == ElevationType.Basic && roadType == RoadType.Road ? 4 : 2) + (elevation == ElevationType.Basic ? 0 : 0); i++)
+		MeshInfo<NetInfo.Segment, Segment> highCurb, lowCurb, fullLowCurb, curbless, asymBendForward, asymBendBackward;
+
+		highCurb = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "High Curb"));
+		curbless = new(GetModel(CurbType.Curbless, RoadAssetType.Segment, roadInfo, elevation, "Curbless"));
+
+		curbless.MetaData.Forward.Required |= RoadUtils.S_Curbless;
+		curbless.MetaData.Backward.Required |= RoadUtils.S_Curbless;
+		curbless.MetaData.Forward.Forbidden = NetSegmentExt.Flags.None;
+		curbless.MetaData.Backward.Forbidden = NetSegmentExt.Flags.None;
+		curbless.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
+		curbless.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
+
+		list.Add(highCurb);
+		list.Add(curbless);
+
+		if (elevation == ElevationType.Basic && roadInfo.RoadType == RoadType.Road)
 		{
-			arr.Add(new NetInfo.Segment().Extend().Base);
-			meta.Add(new Segment(arr[i])
-			{
-				Forward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless },
-				Backward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless }
-			});
+			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Segment, roadInfo, elevation, "Low Curb"));
+			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Segment, roadInfo, elevation, "Low Curb"));
 
-			(arr[i] as IInfoExtended)?.SetMetaData(meta[i]);				
+			highCurb.MetaData.Forward.Forbidden |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
+			highCurb.MetaData.Backward.Forbidden |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
+
+			lowCurb.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
+			lowCurb.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
+			lowCurb.MetaData.Forward.Required |= RoadUtils.S_LowCurbOnTheRight;
+			lowCurb.MetaData.Backward.Required |= RoadUtils.S_LowCurbOnTheLeft;
+			lowCurb.MetaData.Forward.Forbidden |= RoadUtils.S_LowCurbOnTheLeft;
+			lowCurb.MetaData.Backward.Forbidden |= RoadUtils.S_LowCurbOnTheRight;
+
+			fullLowCurb.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
+			fullLowCurb.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
+			fullLowCurb.MetaData.Forward.Required |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
+			fullLowCurb.MetaData.Backward.Required |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
+
+			list.Add(lowCurb);
+			list.Add(fullLowCurb);
 		}
 
-		meta[arr.Count - 1].Forward.Required = RoadUtils.S_Curbless;
-		meta[arr.Count - 1].Backward.Required = RoadUtils.S_Curbless;
-		meta[arr.Count - 1].Forward.Forbidden = NetSegmentExt.Flags.None;
-		meta[arr.Count - 1].Backward.Forbidden = NetSegmentExt.Flags.None;
-		
-		if (arr.Count == 2)
+		if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
 		{
-			return arr;
+			asymBendForward = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "Pavement Transition", false, true));
+			asymBendBackward = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "Pavement Transition", true, true));
+
+			highCurb.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			highCurb.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
+			highCurb.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+
+			asymBendForward.Mesh.m_forwardRequired |= NetSegment.Flags.Bend | NetSegment.Flags.AsymForward;
+			asymBendForward.Mesh.m_backwardRequired |= NetSegment.Flags.Bend | NetSegment.Flags.AsymForward;
+			asymBendBackward.Mesh.m_forwardRequired |= NetSegment.Flags.Bend | NetSegment.Flags.AsymBackward;
+			asymBendBackward.Mesh.m_backwardRequired |= NetSegment.Flags.Bend | NetSegment.Flags.AsymBackward;
+
+			list.Add(asymBendForward);
+			list.Add(asymBendBackward);
 		}
 
-		meta[0].Forward.Forbidden |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
-		meta[0].Backward.Forbidden |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
-
-		arr[1].m_forwardForbidden = NetSegment.Flags.Bend;
-		arr[1].m_backwardForbidden = NetSegment.Flags.Bend;
-		meta[1].Forward.Required |= RoadUtils.S_LowCurbOnTheRight;
-		meta[1].Backward.Required |= RoadUtils.S_LowCurbOnTheLeft;
-		meta[1].Forward.Forbidden |= RoadUtils.S_LowCurbOnTheLeft;
-		meta[1].Backward.Forbidden |= RoadUtils.S_LowCurbOnTheRight;
-
-		arr[2].m_forwardForbidden = NetSegment.Flags.Bend;
-		arr[2].m_backwardForbidden = NetSegment.Flags.Bend;
-		meta[2].Forward.Required |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
-		meta[2].Backward.Required |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
-
-		return arr;
+		return list;
 	}
 
-	private static List<NetInfo.Node> GetNodes(RoadType roadType)
+	private static List<NetInfo.Node> GetNodes(ElevationType elevation, RoadInfo roadInfo)
 	{
-		var arr = new List<NetInfo.Node>();
-		var meta = new List<Node>();
+		var list = new List<NetInfo.Node>();
 
-		for (var i = 0; i < (roadType == RoadType.Road ? 5 : 2); i++)
+		generateNodes(false);
+
+		if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
 		{
-			arr.Add(new NetInfo.Node().Extend().Base);
-			arr[i].m_tagsForbidden = new string[0];
-			arr[i].m_tagsRequired = new string[0];
+			generateNodes(true);
 
-			meta.Add(new Node(arr[i]) { NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_Nodeless } });
-
-			(arr[i] as IInfoExtended)?.SetMetaData(meta[i]);
+			for (var i = 0; i < list.Count / 2; i++)
+			{
+				list[i].GetMetaData().SegmentEndFlags.Forbidden |= NetSegmentEnd.Flags.IsTailNode;
+				list[i + list.Count / 2].GetMetaData().SegmentEndFlags.Required |= NetSegmentEnd.Flags.IsTailNode;
+			}
 		}
 
-		if (roadType != RoadType.Road)
+		void generateNodes(bool inverted)
 		{
-			meta[0].NodeFlags.Forbidden |= RoadUtils.N_FlatTransition;
-			meta[1].NodeFlags.Required |= RoadUtils.N_FlatTransition;
+			MeshInfo<NetInfo.Node, Node> highCurb, lowCurb, fullLowCurb, transition;
 
-			return arr;
+			highCurb = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "High Curb", inverted));
+
+			list.Add(highCurb);
+
+			if (roadInfo.RoadType != RoadType.Road)
+			{
+				transition = new(GetModel(CurbType.TR, RoadAssetType.Node, roadInfo, elevation, "Transition", inverted));
+
+				highCurb.MetaData.NodeFlags.Forbidden |= RoadUtils.N_FlatTransition;
+				transition.MetaData.NodeFlags.Required |= RoadUtils.N_FlatTransition;
+
+				list.Add(transition);
+
+				return;
+			}
+
+			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Node, roadInfo, elevation, "Low Curb", inverted));
+			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Node, roadInfo, elevation, "Full Low Curb", inverted));
+
+			highCurb.MetaData.NodeFlags.Required |= RoadUtils.N_HighCurb;
+
+			lowCurb.Mesh.flagsForbidden = NetNode.FlagsLong.End;
+			lowCurb.MetaData.NodeFlags.Forbidden |= RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb;
+			lowCurb.MetaData.SegmentEndFlags.Required |= NetSegmentEnd.Flags.ZebraCrossing;
+
+			fullLowCurb.MetaData.NodeFlags.Required |= RoadUtils.N_FullLowCurb;
+			fullLowCurb.MetaData.NodeFlags.Forbidden |= RoadUtils.N_ForceHighCurb;
+
+			list.Add(lowCurb);
+			list.Add(fullLowCurb);
 		}
 
-		meta[0].NodeFlags.Forbidden |= RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb;
-		meta[0].SegmentEndFlags.Forbidden |= NetSegmentEnd.Flags.ZebraCrossing;
-
-		arr[1].flagsRequired = NetNode.FlagsLong.End;
-		meta[1].NodeFlags.Forbidden |= RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb;
-
-		meta[2].NodeFlags.Required |= RoadUtils.N_ForceHighCurb;
-
-		arr[3].flagsForbidden = NetNode.FlagsLong.End;
-		meta[3].NodeFlags.Forbidden |= RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb;
-		meta[3].SegmentEndFlags.Required |= NetSegmentEnd.Flags.ZebraCrossing;
-
-		meta[4].NodeFlags.Required |= RoadUtils.N_FullLowCurb;
-		meta[4].NodeFlags.Forbidden |= RoadUtils.N_ForceHighCurb;
-
-		return arr;
+		return list;
 	}
 
 	private static void ApplyModel(NetInfo.Segment segment, AssetModel model)
@@ -319,5 +332,43 @@ public class MeshUtil
 		node.m_material = model.m_material;
 		node.m_lodMesh = model.m_lodMesh;
 		node.m_lodMaterial = model.m_lodMaterial;
+	}
+
+	private struct MeshInfo<MeshType, MetaDataType>
+	{
+		public MeshType Mesh { get; set; }
+		public MetaDataType MetaData { get; set; }
+
+		public MeshInfo(AssetModel model)
+		{
+			if (typeof(MeshType) == typeof(NetInfo.Segment))
+			{
+				var mesh = new NetInfo.Segment().Extend().Base;
+				var data = new Segment(mesh)
+				{
+					Forward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless },
+					Backward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless }
+				};
+
+				(mesh as IInfoExtended)?.SetMetaData(data);
+				ApplyModel(mesh, model);
+
+				Mesh = (MeshType)(object)mesh;
+				MetaData = (MetaDataType)(object)data;
+			}
+			else
+			{
+				var mesh = new NetInfo.Node().Extend().Base;
+				var data = new Node(mesh) { NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_Nodeless } };
+
+				(mesh as IInfoExtended)?.SetMetaData(data);
+				ApplyModel(mesh, model);
+
+				Mesh = (MeshType)(object)mesh;
+				MetaData = (MetaDataType)(object)data;
+			}
+		}
+
+		public static implicit operator MeshType(MeshInfo<MeshType, MetaDataType> mesh) => mesh.Mesh;
 	}
 }

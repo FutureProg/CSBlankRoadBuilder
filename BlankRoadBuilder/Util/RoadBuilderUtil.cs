@@ -55,8 +55,8 @@ public static class RoadBuilderUtil
 
 		Exception? exception = null;
 
-		var info = (NetInfo)ToolsModifierControl.toolController.m_editPrefabInfo;
-		var netElelvations = info.GetElevations();
+		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
+		var info = (NetInfo)(ToolsModifierControl.toolController.m_editPrefabInfo) ;//= AssetEditorRoadUtils.InstantiatePrefab(template));
 
 		try
 		{
@@ -67,9 +67,10 @@ public static class RoadBuilderUtil
 			exception = ex;
 		}
 
+		var netElelvations = info.GetElevations();
 		var lanes = roadInfo.Lanes;
 
-		foreach (var elevation in netElelvations)
+		foreach (var elevation in netElelvations.Keys)
 		{
 			if (exception != null)
 			{
@@ -77,35 +78,61 @@ public static class RoadBuilderUtil
 				yield break;
 			}
 
-			yield return new StateInfo($"Generating the {elevation.Key} elevation..");
+			yield return new StateInfo($"Generating the {elevation} elevation..");
 
 			try
 			{
-				var netInfo = elevation.Value;
+				var netInfo = netElelvations[elevation];
 
-				roadInfo.Lanes = new List<LaneInfo>(lanes);
-
-				if (elevation.Key is ElevationType.Elevated or ElevationType.Bridge)
+				if (elevation > ElevationType.Bridge)
+				{ 
+					netInfo = null;
+				}
+				else
 				{
-					AddBridgeBarriersAndPillar(netInfo, roadInfo);
+					roadInfo.Lanes = new List<LaneInfo>(lanes);
+
+					if (elevation is ElevationType.Elevated or ElevationType.Bridge)
+					{
+						AddBridgeBarriersAndPillar(netInfo, roadInfo);
+					}
+
+					netInfo.m_lanes = roadInfo.Lanes.SelectMany(x =>
+					{
+						x.NetLanes = GenerateLanes(x, roadInfo, elevation).ToList();
+
+						return x.NetLanes;
+					}).ToArray();
+
+					FillNetInfo(roadInfo, elevation, netInfo);
+
+					try
+					{
+						MeshUtil.UpdateMeshes(roadInfo, netInfo, elevation);
+					}
+					catch (Exception ex)
+					{
+						Debug.LogError($"Failed to update mesh for {elevation} elevation: \r\n{ex}");
+					}
 				}
 
-				netInfo.m_lanes = roadInfo.Lanes.SelectMany(x =>
+				if (info.m_netAI is RoadAI ai)
 				{
-					x.NetLanes = GenerateLanes(x, roadInfo, elevation.Key).ToList();
-
-					return x.NetLanes;
-				}).ToArray();
-
-				FillNetInfo(roadInfo, elevation, netInfo);
-
-				try
-				{
-					MeshUtil.UpdateMeshes(roadInfo, elevation.Value, elevation.Key);
-				}
-				catch (Exception ex)
-				{
-					Debug.LogError($"Failed to update mesh for {elevation.Key} elevation: \r\n{ex}");
+					switch (elevation)
+					{
+						case ElevationType.Elevated:
+							ai.m_elevatedInfo = netInfo;
+							break;
+						case ElevationType.Bridge:
+							ai.m_bridgeInfo = netInfo;
+							break;
+						case ElevationType.Slope:
+							ai.m_slopeInfo = null;
+							break;
+						case ElevationType.Tunnel:
+							ai.m_tunnelInfo = null;
+							break;
+					}
 				}
 			}
 			catch (Exception ex)
@@ -125,16 +152,36 @@ public static class RoadBuilderUtil
 		SegmentUtil.GenerateTemplateSegments(info);
 	}
 
-	private static void FillNetInfo(RoadInfo roadInfo, KeyValuePair<ElevationType, NetInfo> elevation, NetInfo netInfo)
+	private static void CopyProperties(object target, object origin)
+	{
+		FieldInfo[] fields = target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
+		FieldInfo[] array = fields;
+		foreach (FieldInfo fieldInfo in array)
+		{
+			if (fieldInfo.FieldType.IsArray)
+			{
+				Array array2 = (Array)fieldInfo.GetValue(origin);
+				Array array3 = Array.CreateInstance(array2.GetType().GetElementType(), array2.Length);
+				Array.Copy(array2, array3, array2.Length);
+				fieldInfo.SetValue(target, array3);
+			}
+			else
+			{
+				fieldInfo.SetValue(target, fieldInfo.GetValue(origin));
+			}
+		}
+	}
+
+	private static void FillNetInfo(RoadInfo roadInfo, ElevationType elevation, NetInfo netInfo)
 	{
 		netInfo.m_surfaceLevel = roadInfo.RoadType == RoadType.Road ? -0.3F : 0F;
 		netInfo.m_clipTerrain = true;
-		netInfo.m_pavementWidth = roadInfo.PavementWidth;
+		netInfo.m_pavementWidth = roadInfo.LeftPavementWidth;
 		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 2);
 		netInfo.m_maxBuildAngle = roadInfo.RoadType == RoadType.Highway ? 60F : 90F;
-		netInfo.m_createPavement = elevation.Key == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
-		netInfo.m_createGravel = elevation.Key == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
-		netInfo.m_createRuining = elevation.Key == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
+		netInfo.m_createPavement = elevation == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
+		netInfo.m_createGravel = elevation == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
+		netInfo.m_createRuining = elevation == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
 
 		var itemClass = ScriptableObject.CreateInstance<ItemClass>();
 		itemClass.m_layer = ItemClass.Layer.Default;
@@ -145,17 +192,17 @@ public static class RoadBuilderUtil
 		netInfo.m_class = itemClass;
 
 		RoadUtils.SetNetAi(netInfo, "m_outsideConnection", null);
-		RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation.Key, false));
-		RoadUtils.SetNetAi(netInfo, "m_maintenanceCost", GetCost(roadInfo, elevation.Key, true));
+		RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation, false));
+		RoadUtils.SetNetAi(netInfo, "m_maintenanceCost", GetCost(roadInfo, elevation, true));
 		RoadUtils.SetNetAi(netInfo, "m_noiseAccumulation", (int)(netInfo.m_halfWidth / 3));
 		RoadUtils.SetNetAi(netInfo, "m_noiseRadius", (int)(netInfo.m_halfWidth * 2.5F));
 		RoadUtils.SetNetAi(netInfo, "m_trafficLights", netInfo.m_halfWidth >= 12F);
 		RoadUtils.SetNetAi(netInfo, "m_highwayRules", roadInfo.RoadType == RoadType.Highway);
-		RoadUtils.SetNetAi(netInfo, "m_enableZoning", roadInfo.RoadType != RoadType.Highway && elevation.Key == ElevationType.Basic);
+		RoadUtils.SetNetAi(netInfo, "m_enableZoning", roadInfo.RoadType != RoadType.Highway && elevation == ElevationType.Basic);
 
 		var metadata = netInfo.GetOrCreateMetaData();
 
-		metadata.PavementWidthRight = roadInfo.PavementWidth;
+		metadata.PavementWidthRight = roadInfo.RightPavementWidth;
 		metadata.ParkingAngleDegrees = roadInfo.ParkingAngle switch { ParkingAngle.Horizontal => 90F, ParkingAngle.Diagonal => 60F, ParkingAngle.InvertedDiagonal => -60F, _ => 0F };
 
 		foreach (var item in roadInfo.Lanes.Where(x => x.Tags.HasFlag(LaneTag.Damage) || x.Decorations.HasFlag(LaneDecoration.Barrier)))
@@ -169,6 +216,7 @@ public static class RoadBuilderUtil
 		metadata.ScriptedFlags[RoadUtils.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
 		metadata.ScriptedFlags[RoadUtils.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
 		metadata.ScriptedFlags[RoadUtils.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
+		metadata.ScriptedFlags[RoadUtils.N_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
 
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");
@@ -329,11 +377,12 @@ public static class RoadBuilderUtil
 		var leftPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) <= roadInfo.Lanes.IndexOf(leftCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
 		var rightPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) >= roadInfo.Lanes.IndexOf(rightCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
 
-		roadInfo.PavementWidth = Math.Max(0F, Math.Max(leftPavementWidth, rightPavementWidth));
+		roadInfo.LeftPavementWidth = Math.Max(1.5F, leftPavementWidth);
+		roadInfo.RightPavementWidth = Math.Max(1.5F, rightPavementWidth);
 		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
-		roadInfo.TotalWidth = (2 * roadInfo.PavementWidth) + roadInfo.AsphaltWidth;
+		roadInfo.TotalWidth = roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth + roadInfo.AsphaltWidth;
 
-		var index = (-roadInfo.AsphaltWidth / 2) - leftPavementWidth;
+		var index = (roadInfo.AsphaltWidth + leftPavementWidth + rightPavementWidth + leftPavementWidth + rightPavementWidth - roadInfo.LeftPavementWidth - roadInfo.RightPavementWidth) / -2;
 
 		foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasFlag(LaneTag.StackedLane)))
 		{
@@ -344,15 +393,20 @@ public static class RoadBuilderUtil
 		if (roadInfo.VanillaWidth)
 		{
 			var newWidth = (float)(16 * Math.Ceiling((roadInfo.TotalWidth - 1F) / 16D));
+			var diff = newWidth - roadInfo.TotalWidth;
 
 			roadInfo.TotalWidth = newWidth;
-			roadInfo.PavementWidth = (roadInfo.TotalWidth - roadInfo.AsphaltWidth) / 2;
+			roadInfo.LeftPavementWidth += diff / 2;
+			roadInfo.RightPavementWidth += diff / 2;
 		}
 
 		if (roadInfo.RoadWidth > roadInfo.TotalWidth)
 		{
+			var diff = roadInfo.RoadWidth - roadInfo.TotalWidth;
+
 			roadInfo.TotalWidth = roadInfo.RoadWidth;
-			roadInfo.PavementWidth = (roadInfo.TotalWidth - roadInfo.AsphaltWidth) / 2;
+			roadInfo.LeftPavementWidth += diff / 2;
+			roadInfo.RightPavementWidth += diff / 2;
 		}
 
 		TrafficLightsUtil.GetTrafficLights(roadInfo);

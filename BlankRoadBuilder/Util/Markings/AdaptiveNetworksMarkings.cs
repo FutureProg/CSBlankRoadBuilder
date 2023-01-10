@@ -164,6 +164,10 @@ public static class AdaptiveNetworksMarkings
 				}
 			}
 
+			track.Base.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			track.Base.m_backwardRequired |= NetSegment.Flags.Invert;
+			track.Base.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+
 			yield return track.Base;
 		}
 	}
@@ -196,7 +200,7 @@ public static class AdaptiveNetworksMarkings
 			yield return generateNode(lane, fillerMarking, filler, true).Base;
 		}
 
-		static IInfoExtended<NetInfo.Node> generateNode(LaneInfo lane, FillerMarking? fillerMarking, MarkingStyleUtil.FillerInfo? filler, bool inverted)
+		static IInfoExtended<NetInfo.Node> generateNode(LaneInfo lane, FillerMarking fillerMarking, MarkingStyleUtil.FillerInfo filler, bool inverted)
 		{
 			var mesh = GenerateMesh(fillerMarking, null, $"{fillerMarking.Type} Filler", true, inverted);
 
@@ -474,34 +478,33 @@ public static class AdaptiveNetworksMarkings
 
 						if (fillerMarking != null)
 						{
-							if (inverted ? xPos >= 0.05 : xPos <= -0.05)
+							if (xPos <= -0.05)
 							{
-								xPos = -fillerMarking.RightPoint.X + xPos + (inverted ? - 0.5F:0.5F);
+								xPos = inverted ? fillerMarking.LeftPoint.X  :
+									(-fillerMarking.RightPoint.X + (fillerMarking.Helper ? 0 : (xPos + 0.5F)));
 
 								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
 									xPos += fillerMarking.LeftPoint.RightLane?.Type == LaneType.Curb ? 0.26F : 0.2F;
 							}
-							else if (inverted ? xPos <= -0.05 : xPos >= 0.05)
+							else if (xPos >= 0.05)
 							{
-								xPos = -fillerMarking.LeftPoint.X + xPos + (inverted ? 0.5F : -0.5F);
+								xPos = inverted ? fillerMarking.RightPoint.X :
+									(-fillerMarking.LeftPoint.X + (fillerMarking.Helper ? 0 : (xPos - 0.5F)));
 
 								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
 									xPos -= fillerMarking.RightPoint.LeftLane?.Type == LaneType.Curb ? 0.26F : 0.2F;
 							}
 
-							if (inverted)
-								xPos *= -1;
-
 							if (fillerMarking.Type != LaneDecoration.Filler && yPos == -0.3F)
 								yPos = -0.01F + fillerMarking.Lanes.Min(x => x.SurfaceElevation);
 							else if (!transition)
-								yPos = fillerMarking.Elevation + (fillerMarking.Type == LaneDecoration.Filler ? 0.0025F : 0.01F);
+								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.0025F : 0.01F);
 							else
 							{
-								var start = fillerMarking.Elevation + 0.1F;
+								var start = fillerMarking.Elevation;
 								var end = fillerMarking.Lanes.Min(x => x.SurfaceElevation);
 
-								yPos = Math.Max(end - 0.25F, start + (end - start) / 0.35F + (float.Parse(data[3]) * (end - start) / 32F / 0.35F));
+								yPos = Math.Max(end - 0.1F, Math.Abs(float.Parse(data[1])) == 0.5 ? -1 : (start + (end - start) / 0.32F + (float.Parse(data[3]) * (end - start) / 32F / 0.32F)));
 							}
 						}
 						else if (lineMarking != null)

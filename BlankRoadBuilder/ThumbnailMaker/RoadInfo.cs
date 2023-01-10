@@ -34,7 +34,8 @@ public class RoadInfo
 
 	[XmlIgnore] public float TotalWidth { get; set; }
 	[XmlIgnore] public float AsphaltWidth { get; set; }
-	[XmlIgnore] public float PavementWidth { get; set; }
+	[XmlIgnore] public float LeftPavementWidth { get; set; }
+	[XmlIgnore] public float RightPavementWidth { get; set; }
 	[XmlIgnore] public bool ContainsWiredLanes { get; set; }
 	[XmlIgnore] public bool WiredLanesAreNextToMedians { get; set; }
 	[XmlIgnore] public bool ContainsCenterMedian => Lanes.Any(x => x.Tags.HasFlag(LaneTag.CenterMedian));
