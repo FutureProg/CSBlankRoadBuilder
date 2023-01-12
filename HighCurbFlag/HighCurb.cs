@@ -1,11 +1,12 @@
 ﻿using AdaptiveRoads.CustomScript;
 using AdaptiveRoads.Manager;
 
+using System.Linq;
 using KianCommons;
 
 using System.Globalization;
 
-namespace MarkingTransitionFlag
+namespace HighCurbFlag
 {
 	public class HighCurb : PredicateBase
 	{

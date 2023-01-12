@@ -1,5 +1,4 @@
 ﻿using BlankRoadBuilder.Domain.Options;
-using BlankRoadBuilder.Patches;
 using BlankRoadBuilder.ThumbnailMaker;
 
 using KianCommons;
@@ -37,18 +36,20 @@ public class IMTMarkings
 		markup.ResetOffsets();
 		markup.RecalculateDrawData();
 
-		var pointsA = GetPoints(((Markup)markup).Enters.First(x => x.IsStartSide));
-		var pointsB = GetPoints(((Markup)markup).Enters.First(x => !x.IsStartSide));
+		var pointsA = GetPoints(markup.Enters.First(x => x.IsStartSide));
+		var pointsB = GetPoints(markup.Enters.First(x => !x.IsStartSide));
 
 		foreach (var item in markings.Lines.Values)
 		{
-			try { AddLines(item, markup, pointsA, pointsB); }
+			try
+			{ AddLines(item, markup, pointsA, pointsB); }
 			catch (Exception ex) { Debug.LogException(ex); }
 		}
 
 		foreach (var item in markings.Fillers)
 		{
-			try { AddFillers(item, markup, pointsA, pointsB); }
+			try
+			{ AddFillers(item, markup, pointsA, pointsB); }
 			catch (Exception ex) { Debug.LogException(ex); }
 		}
 	}

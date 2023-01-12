@@ -246,14 +246,17 @@ public class MeshUtil
 			asymBendForward = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "Pavement Transition", false, true));
 			asymBendBackward = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "Pavement Transition", true, true));
 
-			highCurb.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
-			highCurb.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
-			highCurb.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			//highCurb.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			//highCurb.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
+			//highCurb.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
 
-			asymBendForward.Mesh.m_forwardRequired |= NetSegment.Flags.Bend | NetSegment.Flags.AsymForward;
-			asymBendForward.Mesh.m_backwardRequired |= NetSegment.Flags.Bend | NetSegment.Flags.AsymForward;
-			asymBendBackward.Mesh.m_forwardRequired |= NetSegment.Flags.Bend | NetSegment.Flags.AsymBackward;
-			asymBendBackward.Mesh.m_backwardRequired |= NetSegment.Flags.Bend | NetSegment.Flags.AsymBackward;
+			highCurb.MetaData.Forward.Forbidden |= RoadUtils.S_Asym | RoadUtils.S_AsymInverted;
+			highCurb.MetaData.Backward.Forbidden |= RoadUtils.S_Asym | RoadUtils.S_AsymInverted;
+
+			asymBendForward.MetaData.Forward.Required |= RoadUtils.S_Asym;
+			asymBendForward.MetaData.Backward.Required |= RoadUtils.S_Asym;
+			asymBendBackward.MetaData.Forward.Required |= RoadUtils.S_AsymInverted;
+			asymBendBackward.MetaData.Backward.Required |= RoadUtils.S_AsymInverted;
 
 			list.Add(asymBendForward);
 			list.Add(asymBendBackward);

@@ -55,7 +55,7 @@ public static class RoadBuilderUtil
 
 		Exception? exception = null;
 
-		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
+		//var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
 		var info = (NetInfo)(ToolsModifierControl.toolController.m_editPrefabInfo) ;//= AssetEditorRoadUtils.InstantiatePrefab(template));
 
 		try
@@ -116,24 +116,24 @@ public static class RoadBuilderUtil
 					}
 				}
 
-				if (info.m_netAI is RoadAI ai)
-				{
-					switch (elevation)
-					{
-						case ElevationType.Elevated:
-							ai.m_elevatedInfo = netInfo;
-							break;
-						case ElevationType.Bridge:
-							ai.m_bridgeInfo = netInfo;
-							break;
-						case ElevationType.Slope:
-							ai.m_slopeInfo = null;
-							break;
-						case ElevationType.Tunnel:
-							ai.m_tunnelInfo = null;
-							break;
-					}
-				}
+				//if (info.m_netAI is RoadAI ai)
+				//{
+				//	switch (elevation)
+				//	{
+				//		case ElevationType.Elevated:
+				//			ai.m_elevatedInfo = netInfo;
+				//			break;
+				//		case ElevationType.Bridge:
+				//			ai.m_bridgeInfo = netInfo;
+				//			break;
+				//		case ElevationType.Slope:
+				//			ai.m_slopeInfo = null;
+				//			break;
+				//		case ElevationType.Tunnel:
+				//			ai.m_tunnelInfo = null;
+				//			break;
+				//	}
+				//}
 			}
 			catch (Exception ex)
 			{
@@ -217,6 +217,8 @@ public static class RoadBuilderUtil
 		metadata.ScriptedFlags[RoadUtils.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
 		metadata.ScriptedFlags[RoadUtils.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
 		metadata.ScriptedFlags[RoadUtils.N_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
+		metadata.ScriptedFlags[RoadUtils.S_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
+		metadata.ScriptedFlags[RoadUtils.S_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
 
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");
@@ -344,8 +346,6 @@ public static class RoadBuilderUtil
 			}
 
 			var pillar = PropUtil.GetProp(p.Value);
-
-			Debug.LogError(pillar.PropName);
 
 			if (pillar != null)
 			{

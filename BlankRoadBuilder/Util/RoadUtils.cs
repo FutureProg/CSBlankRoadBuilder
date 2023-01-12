@@ -39,6 +39,8 @@ public static class RoadUtils
 	public const NetLaneExt.Flags L_Barrier_4 = NetLaneExt.Flags.Custom7;
 
 	public const NetSegmentExt.Flags S_AnyStop = NetSegmentExt.Flags.Expression0;
+	public const NetSegmentExt.Flags S_Asym = NetSegmentExt.Flags.Expression1;
+	public const NetSegmentExt.Flags S_AsymInverted = NetSegmentExt.Flags.Expression2;
 	public const LaneTransition.Flags T_Markings = LaneTransition.Flags.Expression0;
 	public const NetNodeExt.Flags N_FlatTransition = NetNodeExt.Flags.Expression0;
 	public const NetNodeExt.Flags N_HighCurb = NetNodeExt.Flags.Expression1;

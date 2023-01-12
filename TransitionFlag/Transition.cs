@@ -5,7 +5,7 @@ using KianCommons;
 
 using System.Globalization;
 
-namespace MarkingTransitionFlag
+namespace TransitionFlag
 {
 	public class Transition : PredicateBase
 	{

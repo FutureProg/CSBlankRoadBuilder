@@ -39,6 +39,8 @@
 
   <ItemGroup>
     <None Remove="ModContents\AnyStopFlag.dll" />
+    <None Remove="ModContents\AsymFlag.dll" />
+    <None Remove="ModContents\AsymInvertedFlag.dll" />
     <None Remove="ModContents\HighCurbFlag.dll" />
     <None Remove="ModContents\MarkingTransitionFlag.dll" />
     <None Remove="ModContents\TransitionFlag.dll" />
@@ -46,6 +48,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="ModContents\AnyStopFlag.dll" />
+    <EmbeddedResource Include="ModContents\AsymFlag.dll" />
+    <EmbeddedResource Include="ModContents\AsymInvertedFlag.dll" />
     <EmbeddedResource Include="ModContents\HighCurbFlag.dll" />
     <EmbeddedResource Include="ModContents\MarkingTransitionFlag.dll" />
     <EmbeddedResource Include="ModContents\TransitionFlag.dll" />
