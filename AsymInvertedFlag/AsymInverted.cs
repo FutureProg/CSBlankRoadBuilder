@@ -18,7 +18,6 @@ namespace AsymInvertedFlag
 				var SegmentA = segments[0].ToSegment();
 				var SegmentD = segments[1].ToSegment();
 
-				UnityEngine.Debug.LogError($"ASI: {SegmentA.GetID()} {SegmentD.GetID()} {SegmentA.GetTailNode()} {SegmentA.GetTailNode()}");
 				return SegmentA.GetTailNode() == SegmentD.GetTailNode();
 			}
 

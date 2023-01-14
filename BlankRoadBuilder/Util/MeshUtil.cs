@@ -57,7 +57,6 @@ public class MeshUtil
 
 		data.Tracks = tracks.ToArray();
 		data.TrackLaneCount = tracks.Count;
-
 	}
 
 	private static AssetModel GetModel(CurbType id, RoadAssetType type, RoadInfo roadInfo, ElevationType elevation, string name, bool inverted = false, bool sidewalkTransition = false)
@@ -207,12 +206,16 @@ public class MeshUtil
 		highCurb = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "High Curb"));
 		curbless = new(GetModel(CurbType.Curbless, RoadAssetType.Segment, roadInfo, elevation, "Curbless"));
 
+		highCurb.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert;
+		highCurb.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
+
 		curbless.MetaData.Forward.Required |= RoadUtils.S_Curbless;
 		curbless.MetaData.Backward.Required |= RoadUtils.S_Curbless;
 		curbless.MetaData.Forward.Forbidden = NetSegmentExt.Flags.None;
 		curbless.MetaData.Backward.Forbidden = NetSegmentExt.Flags.None;
-		curbless.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
+		curbless.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend | NetSegment.Flags.Invert;
 		curbless.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
+		highCurb.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
 
 		list.Add(highCurb);
 		list.Add(curbless);
@@ -220,7 +223,7 @@ public class MeshUtil
 		if (elevation == ElevationType.Basic && roadInfo.RoadType == RoadType.Road)
 		{
 			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Segment, roadInfo, elevation, "Low Curb"));
-			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Segment, roadInfo, elevation, "Low Curb"));
+			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Segment, roadInfo, elevation, "Full Low Curb"));
 
 			highCurb.MetaData.Forward.Forbidden |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
 			highCurb.MetaData.Backward.Forbidden |= RoadUtils.S_LowCurbOnTheRight | RoadUtils.S_LowCurbOnTheLeft;
@@ -241,26 +244,26 @@ public class MeshUtil
 			list.Add(fullLowCurb);
 		}
 
-		if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
-		{
-			asymBendForward = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "Pavement Transition", false, true));
-			asymBendBackward = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "Pavement Transition", true, true));
+		//if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
+		//{
+		//	asymBendForward = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "Pavement Transition", false, true));
+		//	asymBendBackward = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "Pavement Transition", true, true));
 
-			//highCurb.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
-			//highCurb.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
-			//highCurb.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+		//	//highCurb.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+		//	//highCurb.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
+		//	//highCurb.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
 
-			highCurb.MetaData.Forward.Forbidden |= RoadUtils.S_Asym | RoadUtils.S_AsymInverted;
-			highCurb.MetaData.Backward.Forbidden |= RoadUtils.S_Asym | RoadUtils.S_AsymInverted;
+		//	highCurb.MetaData.Forward.Forbidden |= RoadUtils.N_Asym | RoadUtils.N_AsymInverted;
+		//	highCurb.MetaData.Backward.Forbidden |= RoadUtils.N_Asym | RoadUtils.N_AsymInverted;
 
-			asymBendForward.MetaData.Forward.Required |= RoadUtils.S_Asym;
-			asymBendForward.MetaData.Backward.Required |= RoadUtils.S_Asym;
-			asymBendBackward.MetaData.Forward.Required |= RoadUtils.S_AsymInverted;
-			asymBendBackward.MetaData.Backward.Required |= RoadUtils.S_AsymInverted;
+		//	asymBendForward.MetaData.Forward.Required |= RoadUtils.N_Asym;
+		//	asymBendForward.MetaData.Backward.Required |= RoadUtils.N_Asym;
+		//	asymBendBackward.MetaData.Forward.Required |= RoadUtils.N_AsymInverted;
+		//	asymBendBackward.MetaData.Backward.Required |= RoadUtils.N_AsymInverted;
 
-			list.Add(asymBendForward);
-			list.Add(asymBendBackward);
-		}
+		//	list.Add(asymBendForward);
+		//	list.Add(asymBendBackward);
+		//}
 
 		return list;
 	}
@@ -305,7 +308,7 @@ public class MeshUtil
 			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Node, roadInfo, elevation, "Low Curb", inverted));
 			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Node, roadInfo, elevation, "Full Low Curb", inverted));
 
-			highCurb.MetaData.NodeFlags.Required |= RoadUtils.N_HighCurb;
+			highCurb.MetaData.SegmentEndFlags.Required |= RoadUtils.S_HighCurb;
 
 			lowCurb.Mesh.flagsForbidden = NetNode.FlagsLong.End;
 			lowCurb.MetaData.NodeFlags.Forbidden |= RoadUtils.N_FullLowCurb | RoadUtils.N_ForceHighCurb;
@@ -354,6 +357,7 @@ public class MeshUtil
 				};
 
 				(mesh as IInfoExtended)?.SetMetaData(data);
+
 				ApplyModel(mesh, model);
 
 				Mesh = (MeshType)(object)mesh;
@@ -364,7 +368,11 @@ public class MeshUtil
 				var mesh = new NetInfo.Node().Extend().Base;
 				var data = new Node(mesh) { NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_Nodeless } };
 
+				mesh.m_tagsForbidden = new string[0];
+				mesh.m_tagsRequired = new string[0];
+
 				(mesh as IInfoExtended)?.SetMetaData(data);
+
 				ApplyModel(mesh, model);
 
 				Mesh = (MeshType)(object)mesh;

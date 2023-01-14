@@ -55,8 +55,12 @@ public static class RoadBuilderUtil
 
 		Exception? exception = null;
 
-		//var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
-		var info = (NetInfo)(ToolsModifierControl.toolController.m_editPrefabInfo) ;//= AssetEditorRoadUtils.InstantiatePrefab(template));
+		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
+
+		(template.m_netAI as RoadAI).m_slopeInfo = null;
+		(template.m_netAI as RoadAI).m_tunnelInfo = null;
+
+		var info = (NetInfo)(ToolsModifierControl.toolController.m_editPrefabInfo = AssetEditorRoadUtils.InstantiatePrefab(template));
 
 		try
 		{
@@ -84,56 +88,30 @@ public static class RoadBuilderUtil
 			{
 				var netInfo = netElelvations[elevation];
 
-				if (elevation > ElevationType.Bridge)
-				{ 
-					netInfo = null;
-				}
-				else
+				roadInfo.Lanes = new List<LaneInfo>(lanes);
+
+				if (elevation is ElevationType.Elevated or ElevationType.Bridge)
 				{
-					roadInfo.Lanes = new List<LaneInfo>(lanes);
-
-					if (elevation is ElevationType.Elevated or ElevationType.Bridge)
-					{
-						AddBridgeBarriersAndPillar(netInfo, roadInfo);
-					}
-
-					netInfo.m_lanes = roadInfo.Lanes.SelectMany(x =>
-					{
-						x.NetLanes = GenerateLanes(x, roadInfo, elevation).ToList();
-
-						return x.NetLanes;
-					}).ToArray();
-
-					FillNetInfo(roadInfo, elevation, netInfo);
-
-					try
-					{
-						MeshUtil.UpdateMeshes(roadInfo, netInfo, elevation);
-					}
-					catch (Exception ex)
-					{
-						Debug.LogError($"Failed to update mesh for {elevation} elevation: \r\n{ex}");
-					}
+					AddBridgeBarriersAndPillar(netInfo, roadInfo);
 				}
 
-				//if (info.m_netAI is RoadAI ai)
-				//{
-				//	switch (elevation)
-				//	{
-				//		case ElevationType.Elevated:
-				//			ai.m_elevatedInfo = netInfo;
-				//			break;
-				//		case ElevationType.Bridge:
-				//			ai.m_bridgeInfo = netInfo;
-				//			break;
-				//		case ElevationType.Slope:
-				//			ai.m_slopeInfo = null;
-				//			break;
-				//		case ElevationType.Tunnel:
-				//			ai.m_tunnelInfo = null;
-				//			break;
-				//	}
-				//}
+				netInfo.m_lanes = roadInfo.Lanes.SelectMany(x =>
+				{
+					x.NetLanes = GenerateLanes(x, roadInfo, elevation).ToList();
+
+					return x.NetLanes;
+				}).ToArray();
+
+				FillNetInfo(roadInfo, elevation, netInfo);
+
+				try
+				{
+					MeshUtil.UpdateMeshes(roadInfo, netInfo, elevation);
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError($"Failed to update mesh for {elevation} elevation: \r\n{ex}");
+				}
 			}
 			catch (Exception ex)
 			{
@@ -216,9 +194,9 @@ public static class RoadBuilderUtil
 		metadata.ScriptedFlags[RoadUtils.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
 		metadata.ScriptedFlags[RoadUtils.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
 		metadata.ScriptedFlags[RoadUtils.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
-		metadata.ScriptedFlags[RoadUtils.N_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
-		metadata.ScriptedFlags[RoadUtils.S_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
-		metadata.ScriptedFlags[RoadUtils.S_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
+		metadata.ScriptedFlags[RoadUtils.S_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
+		metadata.ScriptedFlags[RoadUtils.N_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
+		metadata.ScriptedFlags[RoadUtils.N_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
 
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");

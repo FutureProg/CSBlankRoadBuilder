@@ -196,13 +196,15 @@ public static class AdaptiveNetworksMarkings
 			if (fillerMarking == null || filler == null)
 				continue;
 
-			yield return generateNode(lane, fillerMarking, filler, false).Base;
-			yield return generateNode(lane, fillerMarking, filler, true).Base;
+			yield return generateNode(lane, fillerMarking, filler, false, false).Base;
+			yield return generateNode(lane, fillerMarking, filler, true, false).Base;
+			yield return generateNode(lane, fillerMarking, filler, false, true).Base;
+			yield return generateNode(lane, fillerMarking, filler, true, true).Base;
 		}
 
-		static IInfoExtended<NetInfo.Node> generateNode(LaneInfo lane, FillerMarking fillerMarking, MarkingStyleUtil.FillerInfo filler, bool inverted)
+		static IInfoExtended<NetInfo.Node> generateNode(LaneInfo lane, FillerMarking fillerMarking, MarkingStyleUtil.FillerInfo filler, bool flipped, bool inverted)
 		{
-			var mesh = GenerateMesh(fillerMarking, null, $"{fillerMarking.Type} Filler", true, inverted);
+			var mesh = GenerateMesh(fillerMarking, null, $"{fillerMarking.Type} Step" + (flipped ? " Flipped" : ""), true, flipped != inverted);
 
 			GenerateTexture(fillerMarking.Lanes.First(), false, mesh, default, filler.Color, filler.MarkingStyle == MarkingFillerType.Dashed ? MarkingLineType.Dashed : MarkingLineType.Solid, filler.DashLength, filler.DashSpace);
 
@@ -219,10 +221,11 @@ public static class AdaptiveNetworksMarkings
 			node.SetMetaData(new Node(node.Base)
 			{
 				Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F,
+				VanillaSegmentFlags = new VanillaSegmentInfoFlags { Required = inverted ? NetSegment.Flags.Invert : NetSegment.Flags.None },
 				SegmentEndFlags = new SegmentEndInfoFlags 
 				{
-					Required = inverted ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode : AdaptiveRoads.Manager.NetSegmentEnd.Flags.None,
-					Forbidden = inverted ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.None : AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode
+					Required = flipped ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode : AdaptiveRoads.Manager.NetSegmentEnd.Flags.None,
+					Forbidden = flipped ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.None : AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode
 				}
 			});
 
