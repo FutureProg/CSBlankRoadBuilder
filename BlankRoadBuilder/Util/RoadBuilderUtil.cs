@@ -203,7 +203,7 @@ public static class RoadBuilderUtil
 		metadata.RenameCustomFlag(RoadUtils.S_AddRoadDamage, "Add road damage");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveRoadClutter, "Remove road clutter");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
+		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
 		metadata.RenameCustomFlag(RoadUtils.S_Curbless, "Make curb-less");
 
 		metadata.RenameCustomFlag(RoadUtils.N_FullLowCurb, "Full low curb");

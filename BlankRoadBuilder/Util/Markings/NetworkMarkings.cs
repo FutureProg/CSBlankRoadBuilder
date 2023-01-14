@@ -18,23 +18,21 @@ using UnityEngine;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
 namespace BlankRoadBuilder.Util.Markings;
-public static class AdaptiveNetworksMarkings
+public static class NetworkMarkings
 {
-	public static IEnumerable<NetInfo.Segment> Markings(RoadInfo roadInfo, NetInfo netInfo, MarkingsInfo markings)
+	public static IEnumerable<NetInfo.Segment> Markings(RoadInfo roadInfo, NetInfo netInfo, MarkingsInfo markingInfo)
 	{
-		var fillers = new List<IInfoExtended<NetInfo.Segment>>();
-		var tracks = new List<IInfoExtended<NetInfo.Segment>>();
+		var fillers = new List<MeshInfo<NetInfo.Segment, Segment>>();
+		var markings = new List<MeshInfo<NetInfo.Segment, Segment>>();
 
-		foreach (var item in markings.Fillers)
+		foreach (var item in markingInfo.Fillers)
 		{
 			if (item.Type == LaneDecoration.Filler)
 			{
-				if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANMarkings, MarkingsSource.HiddenANMarkings))
+				if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.VanillaMarkings, MarkingsSource.HiddenVanillaMarkings))
 				{
-					var filler = GetLaneFiller(roadInfo, netInfo, item);
-
-					if (filler != null)
-						tracks.Add(filler);
+					if (GetLaneFiller(roadInfo, netInfo, item) is MeshInfo<NetInfo.Segment, Segment> filler)
+						markings.Add(filler);
 				}
 			}
 			else
@@ -53,77 +51,68 @@ public static class AdaptiveNetworksMarkings
 						RightPoint = item.RightPoint
 					});
 
-					filler.Base.m_forwardForbidden |= NetSegment.Flags.StopAll;
-					filler.Base.m_backwardForbidden |= NetSegment.Flags.StopAll;
+					filler.Mesh.m_forwardForbidden |= NetSegment.Flags.StopAll;
+					filler.Mesh.m_backwardForbidden |= NetSegment.Flags.StopAll;
 
-					var pavementMeta = pavementFiller.GetMetaData<Segment>();
-
-					pavementMeta.Forward.Required |= RoadUtils.S_AnyStop;
-					pavementMeta.Backward.Required |= RoadUtils.S_AnyStop;
+					pavementFiller.MetaData.Forward.Required |= RoadUtils.S_AnyStop;
+					pavementFiller.MetaData.Backward.Required |= RoadUtils.S_AnyStop;
 
 					fillers.Add(pavementFiller);
 				}
 
-				if (filler != null)
-					fillers.Add(filler);
+				fillers.Add(filler);
 			}
 		}
 
-		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANMarkings, MarkingsSource.HiddenANMarkings))
+		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.VanillaMarkings, MarkingsSource.HiddenVanillaMarkings))
 		{
-			foreach (var item in markings.Lines.Values)
+			foreach (var item in markingInfo.Lines.Values)
 			{
-				var track = GetMarking(roadInfo, netInfo, item);
-
-				if (track != null)
-					tracks.Add(track);
+				if (GetMarking(roadInfo, netInfo, item) is MeshInfo<NetInfo.Segment, Segment> line)
+					markings.Add(line);
 			}
 		}
 
-		if (!ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANFillers, MarkingsSource.IMTMarkings))
+		if (!ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings))
 		{
 			foreach (var filler in fillers)
 			{
-				var track = filler.GetMetaData<Segment>();
-
-				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings))
+				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings))
 				{
-					track.Forward.Required |= RoadUtils.S_RemoveMarkings;
-					track.Backward.Required |= RoadUtils.S_RemoveMarkings;
+					filler.MetaData.Forward.Required |= RoadUtils.S_RemoveMarkings;
+					filler.MetaData.Backward.Required |= RoadUtils.S_RemoveMarkings;
 				}
 				else
 				{
-					track.Forward.Forbidden |= RoadUtils.S_RemoveMarkings;
-					track.Backward.Forbidden |= RoadUtils.S_RemoveMarkings;
+					filler.MetaData.Forward.Forbidden |= RoadUtils.S_RemoveMarkings;
+					filler.MetaData.Backward.Forbidden |= RoadUtils.S_RemoveMarkings;
 				}
 			}
 		}
 
-		foreach (var filler in tracks)
+		foreach (var filler in markings)
 		{
-			var track = filler.GetMetaData<Segment>();
-
-			if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings))
+			if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings))
 			{
-				track.Forward.Required |= RoadUtils.S_RemoveMarkings;
-				track.Backward.Required |= RoadUtils.S_RemoveMarkings;
+				filler.MetaData.Forward.Required |= RoadUtils.S_RemoveMarkings;
+				filler.MetaData.Backward.Required |= RoadUtils.S_RemoveMarkings;
 			}
 			else
 			{
-				track.Forward.Forbidden |= RoadUtils.S_RemoveMarkings;
-				track.Backward.Forbidden |= RoadUtils.S_RemoveMarkings;
+				filler.MetaData.Forward.Forbidden |= RoadUtils.S_RemoveMarkings;
+				filler.MetaData.Backward.Forbidden |= RoadUtils.S_RemoveMarkings;
 			}
 		}
 
-		tracks.AddRange(fillers);
+		markings.AddRange(fillers);
 
-		foreach (var item in tracks)
+		foreach (var item in markings)
 		{
-			item.Base.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
-			item.Base.m_backwardRequired |= NetSegment.Flags.Invert;
-			item.Base.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			item.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			item.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
+			item.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
 
-			yield return item.Base;
+			yield return item;
 		}
 	}
 
@@ -137,7 +126,7 @@ public static class AdaptiveNetworksMarkings
 			if (lane.Elevation == (!lane.Tags.HasFlag(LaneTag.Sidewalk) && roadInfo.RoadType == RoadType.Road ? -0.3F : 0F))
 				continue;
 
-			var track = GetLaneFiller(roadInfo, netInfo, new FillerMarking
+			var filler = GetLaneFiller(roadInfo, netInfo, new FillerMarking
 			{
 				LeftPoint = new MarkingPoint(lane.LeftLane, lane),
 				RightPoint = new MarkingPoint(lane, lane.RightLane),
@@ -146,29 +135,28 @@ public static class AdaptiveNetworksMarkings
 				Type = LaneDecoration.None
 			});
 
-			if (track == null)
+			if (filler == null)
 				continue;
 
 			if (lane.Decorations.HasFlag(LaneDecoration.Filler))
 			{
-				var meta = track.GetMetaData<Segment>();
-				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings))
+				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings))
 				{
-					meta.Forward.Forbidden |= RoadUtils.S_RemoveMarkings;
-					meta.Backward.Forbidden |= RoadUtils.S_RemoveMarkings;
+					filler.Value.MetaData.Forward.Forbidden |= RoadUtils.S_RemoveMarkings;
+					filler.Value.MetaData.Backward.Forbidden |= RoadUtils.S_RemoveMarkings;
 				}
-				else if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.ANMarkings))
+				else if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.VanillaMarkings))
 				{
-					meta.Forward.Required |= RoadUtils.S_RemoveMarkings;
-					meta.Backward.Required |= RoadUtils.S_RemoveMarkings;
+					filler.Value.MetaData.Forward.Required |= RoadUtils.S_RemoveMarkings;
+					filler.Value.MetaData.Backward.Required |= RoadUtils.S_RemoveMarkings;
 				}
 			}
 
-			track.Base.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
-			track.Base.m_backwardRequired |= NetSegment.Flags.Invert;
-			track.Base.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			filler.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			filler.Value.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
+			filler.Value.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
 
-			yield return track.Base;
+			yield return filler;
 		}
 	}
 
@@ -196,13 +184,13 @@ public static class AdaptiveNetworksMarkings
 			if (fillerMarking == null || filler == null)
 				continue;
 
-			yield return generateNode(lane, fillerMarking, filler, false, false).Base;
-			yield return generateNode(lane, fillerMarking, filler, true, false).Base;
-			yield return generateNode(lane, fillerMarking, filler, false, true).Base;
-			yield return generateNode(lane, fillerMarking, filler, true, true).Base;
+			yield return generateNode(lane, fillerMarking, filler, false, false);
+			yield return generateNode(lane, fillerMarking, filler, true, false);
+			yield return generateNode(lane, fillerMarking, filler, false, true);
+			yield return generateNode(lane, fillerMarking, filler, true, true);
 		}
 
-		static IInfoExtended<NetInfo.Node> generateNode(LaneInfo lane, FillerMarking fillerMarking, MarkingStyleUtil.FillerInfo filler, bool flipped, bool inverted)
+		static NetInfo.Node generateNode(LaneInfo lane, FillerMarking fillerMarking, MarkingStyleUtil.FillerInfo filler, bool flipped, bool inverted)
 		{
 			var mesh = GenerateMesh(fillerMarking, null, $"{fillerMarking.Type} Step" + (flipped ? " Flipped" : ""), true, flipped != inverted);
 
@@ -210,38 +198,24 @@ public static class AdaptiveNetworksMarkings
 
 			var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
 
-			var node = new NetInfo.Node
-			{
-				m_mesh = model.m_mesh,
-				m_material = model.m_material,
-				m_lodMesh = model.m_lodMesh,
-				m_lodMaterial = model.m_lodMaterial,
-			}.Extend();
+			var node = new MeshInfo<NetInfo.Node, Node>(model);
 
-			node.SetMetaData(new Node(node.Base)
-			{
-				Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F,
-				VanillaSegmentFlags = new VanillaSegmentInfoFlags { Required = inverted ? NetSegment.Flags.Invert : NetSegment.Flags.None },
-				SegmentEndFlags = new SegmentEndInfoFlags 
-				{
-					Required = flipped ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode : AdaptiveRoads.Manager.NetSegmentEnd.Flags.None,
-					Forbidden = flipped ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.None : AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode
-				}
-			});
+			node.MetaData.Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F;
+			node.MetaData.VanillaSegmentFlags.Required = inverted ? NetSegment.Flags.Invert : NetSegment.Flags.None;
+			node.MetaData.SegmentEndFlags.Required = flipped ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode : AdaptiveRoads.Manager.NetSegmentEnd.Flags.None;
+			node.MetaData.SegmentEndFlags.Forbidden = flipped ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.None : AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode;
 
 			if (lane.Decorations.HasFlag(LaneDecoration.Filler))
 			{
-				var meta = node.GetMetaData<Node>();
-
-				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings))
+				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings))
 				{
-					meta.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
-					meta.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
+					node.MetaData.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
+					node.MetaData.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
 				}
-				else if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.ANMarkings))
+				else if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.VanillaMarkings))
 				{
-					meta.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
-					meta.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
+					node.MetaData.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
+					node.MetaData.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
 				}
 			}
 
@@ -249,7 +223,7 @@ public static class AdaptiveNetworksMarkings
 		}
 	}
 
-	private static IInfoExtended<NetInfo.Segment> GetFiller(RoadInfo roadInfo, NetInfo netInfo, FillerMarking fillerMarking)
+	private static MeshInfo<NetInfo.Segment, Segment> GetFiller(RoadInfo roadInfo, NetInfo netInfo, FillerMarking fillerMarking)
 	{
 		var nlane = roadInfo.Lanes.First(x => x.Tags.HasFlag(LaneTag.Damage)).NetLanes[0];
 
@@ -274,17 +248,14 @@ public static class AdaptiveNetworksMarkings
 
 		var model = AssetUtil.ImportAsset(shader, MeshType.Filler, mesh + ".obj", filesReady: true);
 
-		var segment = Segment(model);
+		var segment = new MeshInfo<NetInfo.Segment, Segment>(model);
 
-		segment.SetMetaData(new Segment(segment.Base)
-		{
-			Tiling = 2F,
-		});
+		segment.MetaData.Tiling = 2F;
 
 		return segment;
 	}
 
-	private static IInfoExtended<NetInfo.Segment>? GetLaneFiller(RoadInfo roadInfo, NetInfo netInfo, FillerMarking fillerMarking)
+	private static MeshInfo<NetInfo.Segment, Segment>? GetLaneFiller(RoadInfo roadInfo, NetInfo netInfo, FillerMarking fillerMarking)
 	{
 		var filler = fillerMarking?.AN_Info;
 
@@ -297,17 +268,14 @@ public static class AdaptiveNetworksMarkings
 
 		var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
 
-		var segment = Segment(model);
+		var segment = new MeshInfo<NetInfo.Segment, Segment>(model);
 
-		segment.SetMetaData(new Segment(segment.Base)
-		{
-			Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F,
-		});
-
+		segment.MetaData.Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F;
+		
 		return segment;
 	}
 
-	private static IInfoExtended<NetInfo.Segment>? GetMarking(RoadInfo roadInfo, NetInfo netInfo, LineMarking marking)
+	private static MeshInfo<NetInfo.Segment, Segment>? GetMarking(RoadInfo roadInfo, NetInfo netInfo, LineMarking marking)
 	{
 		var lineInfo = marking.AN_Info;
 
@@ -322,12 +290,9 @@ public static class AdaptiveNetworksMarkings
 
 		var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
 	
-		var segment = Segment(model);
+		var segment = new MeshInfo<NetInfo.Segment, Segment>(model);
 
-		segment.SetMetaData(new Segment(segment.Base)
-		{
-			Tiling = lineInfo.MarkingStyle == MarkingLineType.Solid ? 10F : 20F / (lineInfo.DashLength + lineInfo.DashSpace),
-		});
+		segment.MetaData.Tiling = lineInfo.MarkingStyle == MarkingLineType.Solid ? 10F : 20F / (lineInfo.DashLength + lineInfo.DashSpace);
 
 		return segment;
 	}
@@ -540,16 +505,5 @@ public static class AdaptiveNetworksMarkings
 		}
 
 		return guid;
-	}
-
-	private static IInfoExtended<NetInfo.Segment> Segment(AssetModel model)
-	{
-		return new NetInfo.Segment
-		{
-			m_mesh = model.m_mesh,
-			m_material = model.m_material,
-			m_lodMesh = model.m_lodMesh,
-			m_lodMaterial = model.m_lodMaterial
-		}.Extend();
 	}
 }

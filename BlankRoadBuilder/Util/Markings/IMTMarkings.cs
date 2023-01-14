@@ -56,7 +56,7 @@ public class IMTMarkings
 
 	private static void AddFillers(FillerMarking item, SegmentMarkup markup, Dictionary<float, MarkupEnterPoint> pointsA, Dictionary<float, MarkupEnterPoint> pointsB)
 	{
-		if (item.Type != LaneDecoration.Filler && ModOptions.MarkingsGenerated.HasAnyFlag(Domain.MarkingsSource.ANFillers, Domain.MarkingsSource.HiddenANMarkings))
+		if (item.Type != LaneDecoration.Filler && ModOptions.MarkingsGenerated.HasAnyFlag(Domain.MarkingsSource.MeshFillers, Domain.MarkingsSource.HiddenVanillaMarkings))
 		{
 			return;
 		}

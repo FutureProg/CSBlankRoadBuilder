@@ -331,8 +331,8 @@ public static partial class LanePropsUtil
 				},
 				SegmentFlags = new SegmentInfoFlags
 				{
-					Required = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANFillers, MarkingsSource.IMTMarkings) &&(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
-					Forbidden = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANFillers, MarkingsSource.IMTMarkings) && !(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Required = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) &&(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Forbidden = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) && !(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
 				}
 			});
 		}
