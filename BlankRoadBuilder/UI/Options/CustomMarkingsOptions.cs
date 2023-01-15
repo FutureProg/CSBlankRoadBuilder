@@ -1,19 +1,13 @@
 ﻿using AlgernonCommons.UI;
 
-using BlankRoadBuilder.Domain.Options;
-using BlankRoadBuilder.ThumbnailMaker;
-
 using ColossalFramework.UI;
 
-using System;
-using System.Reflection;
-
 namespace BlankRoadBuilder.UI.Options;
-internal class IMTOptions : OptionsPanelBase
+internal class IMTOptionsPanel : OptionsPanelBase
 {
 	public override string TabName { get; } = "IMT Markings";
 
-	public IMTOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex, 0)
+	public IMTOptionsPanel(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex, 0)
 	{
 		var _tabStrip = AutoTabstrip.AddTabstrip(_panel, 0f, 0f, _panel.width, _panel.height - 15F, out _, tabHeight: 32f);
 
@@ -25,11 +19,11 @@ internal class IMTOptions : OptionsPanelBase
 	}
 }
 
-internal class ANOptions : OptionsPanelBase
+internal class VanillaOptionsPanel : OptionsPanelBase
 {
-	public override string TabName { get; } = "AN Markings";
+	public override string TabName { get; } = "Vanilla Markings";
 
-	public ANOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex, 0)
+	public VanillaOptionsPanel(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex, 0)
 	{
 		var _tabStrip = AutoTabstrip.AddTabstrip(_panel, 0f, 0f, _panel.width, _panel.height - 15F, out _, tabHeight: 32f);
 

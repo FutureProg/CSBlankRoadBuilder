@@ -88,8 +88,8 @@ public class BlankRoadBuilderMod : IUserMod
 
 		new GeneralOptions(tabStrip, 0);
 		new LaneSizeOptions(tabStrip, 1);
-		new IMTOptions(tabStrip, 2);
-		new ANOptions(tabStrip, 3);
+		new IMTOptionsPanel(tabStrip, 2);
+		new VanillaOptionsPanel(tabStrip, 3);
 
 		tabStrip.selectedIndex = -1;
 		tabStrip.selectedIndex = 0;

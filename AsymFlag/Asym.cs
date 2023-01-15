@@ -18,7 +18,7 @@ namespace AsymFlag
 				var SegmentA = segments[0].ToSegment();
 				var SegmentD = segments[1].ToSegment();
 
-				return SegmentA.GetTailNode() == SegmentD.GetTailNode();
+				return SegmentA.GetTailNode() == NodeID && SegmentD.GetTailNode() == NodeID;
 			}
 
 			return false;

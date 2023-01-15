@@ -146,9 +146,13 @@ public static class AssetUtil
 							var end = xPos < 0 == inverted ? road.RightPavementWidth : road.LeftPavementWidth;
 							var step = (float.Parse(data[3]) + 32) / 64;
 
-							UnityEngine.Debug.LogError($"{start} {end} {step} {start * step + end * (1 - step)}");
+							xDiff -= fn(2 * step - 1, Math.Min(start, end), Math.Max(start, end)) - 3;
 
-							xDiff -= start * step + end * (1 - step) - 3;
+							//https://www.desmos.com/calculator/5rulizhfsh
+							static float fn(float x, float s, float e)
+							{
+								return (float)(-x + Math.Pow(-x, 3)) / (4 / (e - s)) + e / 2 + 1;
+							}
 						}
 						else
 						{ 

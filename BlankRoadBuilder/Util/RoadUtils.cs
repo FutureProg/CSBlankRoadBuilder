@@ -39,11 +39,16 @@ public static class RoadUtils
 	public const NetLaneExt.Flags L_Barrier_4 = NetLaneExt.Flags.Custom7;
 
 	public const NetSegmentExt.Flags S_AnyStop = NetSegmentExt.Flags.Expression0;
-	public const NetSegmentEnd.Flags S_HighCurb = NetSegmentEnd.Flags.Expression1;
+	public const NetSegmentExt.Flags S_Asym = NetSegmentExt.Flags.Expression1;
+	public const NetSegmentExt.Flags S_AsymInverted = NetSegmentExt.Flags.Expression2;
+
+	public const NetSegmentEnd.Flags S_HighCurb = NetSegmentEnd.Flags.Expression0;
+	public const NetSegmentEnd.Flags N_Asym = NetSegmentEnd.Flags.Expression1;
+	public const NetSegmentEnd.Flags N_AsymInverted = NetSegmentEnd.Flags.Expression2;
+
 	public const LaneTransition.Flags T_Markings = LaneTransition.Flags.Expression0;
+
 	public const NetNodeExt.Flags N_FlatTransition = NetNodeExt.Flags.Expression0;
-	public const NetNodeExt.Flags N_Asym = NetNodeExt.Flags.Expression2;
-	public const NetNodeExt.Flags N_AsymInverted = NetNodeExt.Flags.Expression3;
 
 	public static Dictionary<ElevationType, NetInfo> GetElevations(this NetInfo ground)
 	{

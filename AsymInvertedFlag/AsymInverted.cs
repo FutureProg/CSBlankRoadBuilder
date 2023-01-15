@@ -18,7 +18,7 @@ namespace AsymInvertedFlag
 				var SegmentA = segments[0].ToSegment();
 				var SegmentD = segments[1].ToSegment();
 
-				return SegmentA.GetTailNode() == SegmentD.GetTailNode();
+				return SegmentA.GetHeadNode() == NodeID && SegmentD.GetHeadNode() == NodeID;
 			}
 
 			return false;

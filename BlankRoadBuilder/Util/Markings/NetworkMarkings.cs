@@ -401,7 +401,7 @@ public static class NetworkMarkings
 		if (type != null && (type.MarkingStyle == MarkingLineType.SolidDouble || type.MarkingStyle == MarkingLineType.SolidDashed || type.MarkingStyle == MarkingLineType.DashedDouble || type.MarkingStyle == MarkingLineType.DashedSolid))
 			lineWidth *= 3;
 
-		var file = fillerMarking == null || fillerMarking.Type == LaneDecoration.Filler ? "Marking" : fillerMarking.Type == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
+		var file = fillerMarking == null || fillerMarking.Type == LaneDecoration.Filler ? "Marking" : (fillerMarking.Helper || fillerMarking.Elevation == fillerMarking.Lanes.Min(x => x.SurfaceElevation)) ? "Platform" : fillerMarking.Type == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
 
 		var guid = Guid.NewGuid().ToString();
 
@@ -474,6 +474,9 @@ public static class NetworkMarkings
 
 								yPos = Math.Max(end - 0.1F, Math.Abs(float.Parse(data[1])) == 0.5 ? -1 : (start + (end - start) / 0.32F + (float.Parse(data[3]) * (end - start) / 32F / 0.32F)));
 							}
+
+							if (fillerMarking.Type == LaneDecoration.Filler && originalFile.Contains("_lod.obj"))
+								yPos = Math.Max(0.0025F, yPos);
 						}
 						else if (lineMarking != null)
 						{
@@ -487,6 +490,9 @@ public static class NetworkMarkings
 							}
 
 							yPos = 0.0075F + lineMarking.Elevation;
+
+							if (originalFile.Contains("_lod.obj"))
+								yPos = Math.Max(0.0075F, yPos);
 						}
 
 						data[1] = xPos.ToString("0.00000000");
