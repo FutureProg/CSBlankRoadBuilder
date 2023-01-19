@@ -13,6 +13,7 @@ public class FillerMarking
     public LaneDecoration Type { get; set; }
 	public float Elevation { get; set; }
 	public bool Helper { get; set; }
+	public bool Transition { get; set; }
 	public IEnumerable<LaneInfo> Lanes
 	{
 		get
