@@ -1,13 +1,15 @@
 ﻿using AdaptiveRoads.LifeCycle;
-using AdaptiveRoads.Manager;
+
 using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.UI;
 using BlankRoadBuilder.Util;
+
 using ColossalFramework.IO;
 using ColossalFramework.Packaging;
 using ColossalFramework.UI;
+
 using HarmonyLib;
 
 using System;
@@ -32,7 +34,7 @@ public class SavePanelPatch
 
 		if (AssetDataExtension.WasLastLoaded == false)
 		{
-			AdaptiveNetworksUtil.RenameEditNet(LastLoadedRoad.Name, false);
+			_ = AdaptiveNetworksUtil.RenameEditNet(LastLoadedRoad.Name, false);
 
 			SaveAssetPanel.lastLoadedName = LastLoadedRoad.Name;
 		}
@@ -90,7 +92,7 @@ public class SavePanelPatch_FetchSnapshots
 
 		var snapShotPath = ToolsModifierControl.GetTool<SnapshotTool>().snapShotPath;
 
-		SavePanelPatch.PatchThumbnails(snapShotPath);
+		_ = SavePanelPatch.PatchThumbnails(snapShotPath);
 	}
 }
 
@@ -111,14 +113,17 @@ public class SavePanelPatch_InitializeThumbnails
 			.GetValue(__instance) as string;
 
 		if (!string.IsNullOrEmpty(m_ThumbPath))
-			SavePanelPatch.PatchThumbnails(Directory.GetParent(m_ThumbPath).FullName);
+			_ = SavePanelPatch.PatchThumbnails(Directory.GetParent(m_ThumbPath).FullName);
 	}
 }
 
 [HarmonyPatch(typeof(SaveAssetPanel), "CheckCompulsoryShots", new Type[] { })]
 public class SavePanelPatch_CheckCompulsoryShots
 {
-	public static bool Prefix() => SavePanelPatch.LastLoadedRoad != null;
+	public static bool Prefix()
+	{
+		return SavePanelPatch.LastLoadedRoad != null;
+	}
 }
 
 [HarmonyPatch]
@@ -128,22 +133,22 @@ public class SavePanelPatch_SaveRoutine
 	public static MethodBase TargetMethod()
 	{
 		var type = typeof(SaveAssetPanel);
-        return AccessTools.FirstMethod(type, method => method.Name == "SaveRoutine");
+		return AccessTools.FirstMethod(type, method => method.Name == "SaveRoutine");
 	}
 
 	public static bool Prefix(SaveAssetPanel __instance)
 	{
-		UnityEngine.Debug.Log("SavePanelPatch_OnSave");        
-        if (RoadBuilderPanel.LastLoadedRoadFileName != null)
+		UnityEngine.Debug.Log("SavePanelPatch_OnSave");
+		if (RoadBuilderPanel.LastLoadedRoadFileName != null)
 		{
-            UITextField saveNameField = (UITextField)typeof(SaveAssetPanel)
+			var saveNameField = (UITextField)typeof(SaveAssetPanel)
 				.GetField("m_SaveName", BindingFlags.Instance | BindingFlags.NonPublic)
 				.GetValue(__instance);
-            string saveFile = PathEscaper.Escape(saveNameField.text) + PackageManager.packageExtension;            
+			var saveFile = PathEscaper.Escape(saveNameField.text) + PackageManager.packageExtension;
 			var roadConfigFileName = RoadBuilderPanel.LastLoadedRoadFileName;
 			var lastRoadOptions = RoadOptions.LastSelected;
-			AssetMatchingUtil.SetMatch(saveFile, roadConfigFileName, lastRoadOptions);
-        }
+			_ = AssetMatchingUtil.SetMatch(saveFile, roadConfigFileName, lastRoadOptions);
+		}
 		return true;
-    }
+	}
 }

@@ -1,23 +1,16 @@
-﻿namespace BlankRoadBuilder.UI;
-
-using AlgernonCommons.UI;
-using BlankRoadBuilder.ThumbnailMaker;
-using BlankRoadBuilder.Util;
-using ColossalFramework.Importers;
-using ColossalFramework.UI;
-
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using ColossalFramework.UI;
 
 using UnityEngine;
 
+namespace BlankRoadBuilder.UI;
 public class UIManager : MonoBehaviour
 {
 	private static EditorPanel? currentPanel;
 
-	public void Awake() => Init();
+	public void Awake()
+	{
+		Init();
+	}
 
 	public void Init()
 	{

@@ -8,13 +8,7 @@ using BlankRoadBuilder.Patches;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Props;
 
-using ColossalFramework;
 using ColossalFramework.IO;
-using ColossalFramework.Math;
-
-using KianCommons;
-
-using ModsCommon.Utilities;
 
 using System;
 using System.Collections.Generic;
@@ -25,7 +19,6 @@ using System.Reflection;
 using UnityEngine;
 
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
-using static VehicleInfo;
 
 namespace BlankRoadBuilder.Util;
 public static class RoadBuilderUtil
@@ -34,7 +27,7 @@ public static class RoadBuilderUtil
 
 	public static IEnumerable<StateInfo> Build(RoadInfo? roadInfo)
 	{
-		ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
+		_ = ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
 
 		if (roadInfo == null)
 		{
@@ -133,14 +126,14 @@ public static class RoadBuilderUtil
 
 	private static void CopyProperties(object target, object origin)
 	{
-		FieldInfo[] fields = target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
-		FieldInfo[] array = fields;
-		foreach (FieldInfo fieldInfo in array)
+		var fields = target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
+		var array = fields;
+		foreach (var fieldInfo in array)
 		{
 			if (fieldInfo.FieldType.IsArray)
 			{
-				Array array2 = (Array)fieldInfo.GetValue(origin);
-				Array array3 = Array.CreateInstance(array2.GetType().GetElementType(), array2.Length);
+				var array2 = (Array)fieldInfo.GetValue(origin);
+				var array3 = Array.CreateInstance(array2.GetType().GetElementType(), array2.Length);
 				Array.Copy(array2, array3, array2.Length);
 				fieldInfo.SetValue(target, array3);
 			}
@@ -194,12 +187,12 @@ public static class RoadBuilderUtil
 					LaneTags = new LaneTagsT(new[] { "RoadBuilderBarrierLane" }) { Selected = new[] { "RoadBuilderBarrierLane" } }
 				});
 			}
-			
+
 			if (item.Type.HasFlag(LaneType.Trolley))
 			{
 				var left = item.NetLanes.FirstOrDefault(x => x.m_vehicleType == VehicleInfo.VehicleType.TrolleybusLeftPole);
 				var right = item.NetLanes.FirstOrDefault(x => x.m_vehicleType == VehicleInfo.VehicleType.TrolleybusRightPole);
-			
+
 				metadata.Lanes.Add(left, new Lane(left)
 				{
 					LaneTags = new LaneTagsT(new[] { "RoadBuilderLeftTrolleyWire" }) { Selected = new[] { "RoadBuilderLeftTrolleyWire" } }

@@ -1,9 +1,4 @@
-﻿using AdaptiveRoads.Manager;
-using BlankRoadBuilder.Domain.Options;
-using BlankRoadBuilder.ThumbnailMaker;
-
-using PrefabMetadata.API;
-using PrefabMetadata.Helpers;
+﻿using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
 using System.Collections.Generic;
@@ -25,7 +20,7 @@ public static partial class LanePropsUtil
 		{
 			if (type == LaneType.Curb)
 			{
-				prop.m_position.x += road.BufferWidth / (lane.Direction == LaneDirection.Forward ? 2 : -2); 
+				prop.m_position.x += road.BufferWidth / (lane.Direction == LaneDirection.Forward ? 2 : -2);
 			}
 
 			result.Add(prop);
@@ -33,7 +28,7 @@ public static partial class LanePropsUtil
 			if (prop.m_flagsForbidden.HasFlag(NetLane.Flags.Inverted) && prop is not RhtProp)
 			{
 				var lhtProp = prop.Clone()
-					.ToggleRHT_LHT(lane.Direction == LaneDirection.Forward || lane.Direction == LaneDirection.Backwards);
+					.ToggleRHT_LHT(lane.Direction is LaneDirection.Forward or LaneDirection.Backwards);
 
 				result.Add(lhtProp);
 			}
@@ -98,7 +93,7 @@ public static partial class LanePropsUtil
 
 					foreach (var prop in GetMedianProps(lane, road))
 						yield return prop;
-					
+
 					break;
 			}
 		}
@@ -145,7 +140,7 @@ public static partial class LanePropsUtil
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Car))
 		{
 			var busStopLarge = GetProp(lane.Tags.HasFlag(LaneTag.Sidewalk) ? Prop.BusStopLarge : Prop.BusStopSmall);
-			var stopDiff = lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F 
+			var stopDiff = lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F
 				: (float)Math.Round(Math.Abs(lane.Position - ThumbnailMakerUtil.GetLanePosition(lane.Type, lane, road)) - 0.2F, 3);
 
 			yield return new NetLaneProps.Prop
@@ -202,5 +197,8 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static PropTemplate GetProp(Prop prop) => PropUtil.GetProp(prop);
-}	
+	private static PropTemplate GetProp(Prop prop)
+	{
+		return PropUtil.GetProp(prop);
+	}
+}

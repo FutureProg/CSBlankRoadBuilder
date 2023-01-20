@@ -87,25 +87,22 @@ public static partial class LanePropsUtil
 		yield return pole(0F);
 		yield return pole(1F, true);
 
-		NetLaneProps.Prop pole(float segment, bool end = false)
+		NetLaneProps.Prop pole(float segment, bool end = false) => new NetLaneProps.Prop
 		{
-			return new NetLaneProps.Prop
-			{
-				m_prop = poleProp,
-				m_finalProp = poleProp,
-				m_endFlagsForbidden = end ? NetNode.Flags.Middle : NetNode.Flags.None,
-				m_cornerAngle = 0.75F,
-				m_minLength = segment != 0 || verticalOffset == -0.2F ? 0F : 22F,
-				m_repeatDistance = 0F,
-				m_segmentOffset = segment,
-				m_angle = angle,
-				m_probability = 100,
-				m_position = new Vector3(position, verticalOffset, 0)
-			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
-			{
-				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags { Forbidden = RoadUtils.S_RemoveTramSupports }
-			});
-		}
+			m_prop = poleProp,
+			m_finalProp = poleProp,
+			m_endFlagsForbidden = end ? NetNode.Flags.Middle : NetNode.Flags.None,
+			m_cornerAngle = 0.75F,
+			m_minLength = segment != 0 || verticalOffset == -0.2F ? 0F : 22F,
+			m_repeatDistance = 0F,
+			m_segmentOffset = segment,
+			m_angle = angle,
+			m_probability = 100,
+			m_position = new Vector3(position, verticalOffset, 0)
+		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
+		{
+			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags { Forbidden = RoadUtils.S_RemoveTramSupports }
+		});
 
 		static void getLaneTramInfo(LaneInfo lane, RoadInfo road, out bool tramLanesAreNextToMedians, out bool leftTram, out bool rightTram)
 		{

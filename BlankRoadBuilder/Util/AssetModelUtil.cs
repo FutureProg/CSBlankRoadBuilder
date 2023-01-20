@@ -1,14 +1,9 @@
 ﻿using BlankRoadBuilder.Domain;
 
-using ColossalFramework;
 using ColossalFramework.Importers;
-using ColossalFramework.Threading;
 
 using System;
-using System.ComponentModel;
 using System.IO;
-using System.Threading;
-using System.Xml.Linq;
 
 using UnityEngine;
 
@@ -27,7 +22,7 @@ public class AssetModelUtil : ImportAssetLodded
 		m_LodTriangleTarget = 50;
 
 		_templateShader = shaderType switch
-		{	
+		{
 			ShaderType.Bridge => Shader.Find("Custom/Net/RoadBridge"),
 			ShaderType.Rail => Shader.Find("Custom/Net/TrainBridge"),
 			ShaderType.Wire => Shader.Find("Custom/Net/Electricity"),
@@ -124,7 +119,7 @@ public class AssetModelUtil : ImportAssetLodded
 
 		if (!_importLOD)
 			return;
-		
+
 		meshFiler = m_LODObject?.GetComponent<MeshFilter>();
 
 		if ((meshFiler?.sharedMesh) != null)
@@ -181,10 +176,10 @@ public class AssetModelUtil : ImportAssetLodded
 
 		if (!textureName.Equals("_XYCAMap"))
 		{
-			image.Convert(TextureFormat.RGB24);
+			_ = image.Convert(TextureFormat.RGB24);
 		}
 
-		image.Compress();
+		_ = image.Compress();
 
 		var texture2 = image.CreateTexture(linear);
 

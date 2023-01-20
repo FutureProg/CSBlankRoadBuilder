@@ -143,8 +143,8 @@ public class IMTMarkings
 
 		if (item.Type != LaneDecoration.Filler)
 		{
-			var leftPadded = (item.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false);
-			var rightPadded = (item.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false);
+			var leftPadded = item.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false;
+			var rightPadded = item.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false;
 
 			style.LineOffset.Value = leftPadded || rightPadded ? 0F : 0.2F;
 
@@ -267,7 +267,7 @@ public class IMTMarkings
 				return;
 		}
 
-		markup.AddRegularLine(pair, style);
+		_ = markup.AddRegularLine(pair, style);
 	}
 
 	private static Dictionary<float, MarkupEnterPoint> GetPoints(Enter enter)

@@ -1,15 +1,9 @@
 ﻿using AlgernonCommons.UI;
 
-using BlankRoadBuilder.ThumbnailMaker;
-
 using ColossalFramework.Importers;
 using ColossalFramework.UI;
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 using UnityEngine;
 
@@ -115,6 +109,6 @@ public class SlickButton : UIButton
 			region = new Rect(0f, 0.5f, 1f, .5f)
 		});
 
-		return newAtlas; 
+		return newAtlas;
 	}
 }

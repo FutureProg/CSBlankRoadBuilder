@@ -31,7 +31,7 @@ public partial class LaneInfo
 			if (ParkingAngle == ParkingAngle.Horizontal)
 				return ModOptions.LaneSizes.HorizontalParkingSize;
 
-			if (ParkingAngle == ParkingAngle.Diagonal || ParkingAngle == ParkingAngle.InvertedDiagonal)
+			if (ParkingAngle is ParkingAngle.Diagonal or ParkingAngle.InvertedDiagonal)
 				return ModOptions.LaneSizes.DiagonalParkingSize;
 		}
 

@@ -1,7 +1,5 @@
 ﻿using AlgernonCommons.UI;
 
-using BlankRoadBuilder.Domain;
-
 using ColossalFramework;
 using ColossalFramework.UI;
 
@@ -15,10 +13,10 @@ namespace BlankRoadBuilder.UI;
 
 public class EditorPanel : UIPanel
 {
-	private SlickButton BuildButton;
-	private SlickButton TMButton;
-	private SlickButton TMFolderButton;
-	private SlickButton RoadFolderButton;
+	private readonly SlickButton BuildButton;
+	private readonly SlickButton TMButton;
+	private readonly SlickButton TMFolderButton;
+	private readonly SlickButton RoadFolderButton;
 
 	public bool Destroyed { get; private set; }
 
@@ -88,7 +86,7 @@ public class EditorPanel : UIPanel
 
 	private void RoadFolderButton_Click(UIComponent component, UIMouseEventParameter eventParam)
 	{
-		Directory.CreateDirectory(Path.Combine(BlankRoadBuilderMod.BuilderFolder, "Roads"));
+		_ = Directory.CreateDirectory(Path.Combine(BlankRoadBuilderMod.BuilderFolder, "Roads"));
 
 		Utils.OpenInFileBrowser(Path.Combine(BlankRoadBuilderMod.BuilderFolder, "Roads"));
 	}
@@ -109,7 +107,7 @@ public class EditorPanel : UIPanel
 			if (openTMs)
 				File.WriteAllText(Path.Combine(BlankRoadBuilderMod.ThumbnailMakerFolder, "Wake"), "It's time to wake up");
 			else if (File.Exists(tm))
-				Process.Start(tm);
+				_ = Process.Start(tm);
 			else
 			{
 				var panel = UIView.library.ShowModal<ExceptionPanel>("ThumbnailMakerMissing");

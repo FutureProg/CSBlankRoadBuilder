@@ -7,11 +7,8 @@ using BlankRoadBuilder.Util.Markings;
 
 using PrefabMetadata.Helpers;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using UnityEngine;
 
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
@@ -20,13 +17,17 @@ namespace BlankRoadBuilder.Util;
 public static class MeshUtil
 {
 	private static AssetModel GetModel(CurbType id, RoadAssetType type, RoadInfo roadInfo, ElevationType elevation, string name, bool inverted = false, bool sidewalkTransition = false)
-		=> AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, name + (inverted ? " Inverted" : ""), inverted, sidewalkTransition);
+	{
+		return AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, name + (inverted ? " Inverted" : ""), inverted, sidewalkTransition);
+	}
 
 	public static void UpdateMeshes(RoadInfo roadInfo, NetInfo netInfo, ElevationType elevation)
 	{
-		if (elevation == ElevationType.Bridge) elevation = ElevationType.Elevated;
+		if (elevation == ElevationType.Bridge)
+			elevation = ElevationType.Elevated;
 
-		if (elevation > ElevationType.Elevated) return;
+		if (elevation > ElevationType.Elevated)
+			return;
 
 		var segments = GetSegments(elevation, roadInfo);
 		var nodes = GetNodes(elevation, roadInfo);
@@ -128,13 +129,13 @@ public static class MeshUtil
 			for (var i = 0; i < list.Count / 2; i++)
 			{
 				list[i].GetMetaData().SegmentEndFlags.Forbidden |= NetSegmentEnd.Flags.IsTailNode;
-				list[i + list.Count / 2].GetMetaData().SegmentEndFlags.Required |= NetSegmentEnd.Flags.IsTailNode;
+				list[i + (list.Count / 2)].GetMetaData().SegmentEndFlags.Required |= NetSegmentEnd.Flags.IsTailNode;
 			}
 		}
 
 		void generateNodes(bool inverted)
 		{
-			MeshInfo<NetInfo.Node, Node> highCurb, lowCurb, fullLowCurb, transition, asymBendForward, asymBendBackward;
+			MeshInfo<NetInfo.Node, Node> highCurb, lowCurb, fullLowCurb, transition;
 
 			highCurb = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "High Curb", inverted));
 

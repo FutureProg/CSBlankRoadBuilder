@@ -2,8 +2,6 @@
 
 using BlankRoadBuilder.ThumbnailMaker;
 
-using PrefabMetadata.Helpers;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,7 +48,7 @@ public static partial class LanePropsUtil
 		{
 			var prop = validProps[_random.Next(0, validProps.Count)];
 			var propTemplate = new PropTemplate(prop.Value);
-			var halfSize = (int)(prop.Key / 2F + 1F);
+			var halfSize = (int)((prop.Key / 2F) + 1F);
 			var x = halfWidth < halfSize ? 0 : _random.Next(-halfWidth + halfSize, halfWidth - halfSize);
 
 			yield return new NetLaneProps.Prop

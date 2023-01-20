@@ -26,60 +26,38 @@ internal class MarkingsOptions : OptionsPanelBase
 
 	private string GetTitle(GenericMarkingType key)
 	{
-		switch (key)
+		return key switch
 		{
-			case GenericMarkingType.End:
-				return "Border";
-			case GenericMarkingType.Parking:
-				return "Parking";
-			case GenericMarkingType.Normal | GenericMarkingType.Soft:
-				return "Separator";
-			case GenericMarkingType.Normal | GenericMarkingType.Hard:
-				return "Strict Separator";
-			case GenericMarkingType.Flipped | GenericMarkingType.Hard:
-				return "Divider";
-			case GenericMarkingType.Flipped | GenericMarkingType.End:
-				return "Center";
-			case GenericMarkingType.Normal | GenericMarkingType.Bike:
-				return "Bike Separator";
-			case GenericMarkingType.Flipped | GenericMarkingType.Bike:
-				return "Bike Divider";
-			case GenericMarkingType.Normal | GenericMarkingType.Tram:
-				return "Tram Separator";
-			case GenericMarkingType.Flipped | GenericMarkingType.Tram:
-				return "Tram Divider";
-		}
-
-		return key.ToString();
+			GenericMarkingType.End => "Border",
+			GenericMarkingType.Parking => "Parking",
+			GenericMarkingType.Normal | GenericMarkingType.Soft => "Separator",
+			GenericMarkingType.Normal | GenericMarkingType.Hard => "Strict Separator",
+			GenericMarkingType.Flipped | GenericMarkingType.Hard => "Divider",
+			GenericMarkingType.Flipped | GenericMarkingType.End => "Center",
+			GenericMarkingType.Normal | GenericMarkingType.Bike => "Bike Separator",
+			GenericMarkingType.Flipped | GenericMarkingType.Bike => "Bike Divider",
+			GenericMarkingType.Normal | GenericMarkingType.Tram => "Tram Separator",
+			GenericMarkingType.Flipped | GenericMarkingType.Tram => "Tram Divider",
+			_ => key.ToString(),
+		};
 	}
 
 	private string GetDescription(GenericMarkingType key)
 	{
-		switch (key)
+		return key switch
 		{
-			case GenericMarkingType.End:
-				return "used between two different lane types";
-			case GenericMarkingType.Parking:
-				return "used between a parking and vehicle lane";
-			case GenericMarkingType.Normal | GenericMarkingType.Soft:
-				return "used between two vehicle lanes going in the same direction";
-			case GenericMarkingType.Normal | GenericMarkingType.Hard:
-				return "used between two different vehicle lanes types going in the same direction";
-			case GenericMarkingType.Flipped | GenericMarkingType.Hard:
-				return "used between two vehicle lanes going in the opposite direction";
-			case GenericMarkingType.Flipped | GenericMarkingType.End:
-				return "used between a vehicle lane and a filler on its left";
-			case GenericMarkingType.Normal | GenericMarkingType.Bike:
-				return "used between two bike lanes going in the same direction";
-			case GenericMarkingType.Flipped | GenericMarkingType.Bike:
-				return "used between two bike lanes going in the opposite direction";
-			case GenericMarkingType.Normal | GenericMarkingType.Tram:
-				return "used between two tram lanes going in the same direction";
-			case GenericMarkingType.Flipped | GenericMarkingType.Tram:
-				return "used between two tram lanes going in the opposite direction";
-		}
-
-		return string.Empty;
+			GenericMarkingType.End => "used between two different lane types",
+			GenericMarkingType.Parking => "used between a parking and vehicle lane",
+			GenericMarkingType.Normal | GenericMarkingType.Soft => "used between two vehicle lanes going in the same direction",
+			GenericMarkingType.Normal | GenericMarkingType.Hard => "used between two different vehicle lanes types going in the same direction",
+			GenericMarkingType.Flipped | GenericMarkingType.Hard => "used between two vehicle lanes going in the opposite direction",
+			GenericMarkingType.Flipped | GenericMarkingType.End => "used between a vehicle lane and a filler on its left",
+			GenericMarkingType.Normal | GenericMarkingType.Bike => "used between two bike lanes going in the same direction",
+			GenericMarkingType.Flipped | GenericMarkingType.Bike => "used between two bike lanes going in the opposite direction",
+			GenericMarkingType.Normal | GenericMarkingType.Tram => "used between two tram lanes going in the same direction",
+			GenericMarkingType.Flipped | GenericMarkingType.Tram => "used between two tram lanes going in the opposite direction",
+			_ => string.Empty,
+		};
 	}
 
 	protected void AddLineOption(GenericMarkingType key, SavedLineOption value)
@@ -105,15 +83,15 @@ internal class MarkingsOptions : OptionsPanelBase
 		var dropDown = UIDropDowns.AddDropDown(_panel, xPos, yPos, 150);
 		dropDown.items = enumVales.Values.ToArray();
 		dropDown.selectedIndex = enumVales.Keys.ToList().IndexOf((int)value.MarkingType);
-		xPos += 150 + 2 * Margin;
+		xPos += 150 + (2 * Margin);
 
 		var lineWidth = AddSlider("Line Width", xPos, 0.01F, 0.75F, 0.01F, value.LineWidth, "m");
 		lineWidth.eventValueChanged += (s, v) => value.LineWidth = v;
-		xPos += 160 + 2 * Margin;
+		xPos += 160 + (2 * Margin);
 
 		var dashSlider = AddSlider("Dash Length", xPos, 0.1F, 10F, 0.1F, value.DashLength, "m");
 		dashSlider.eventValueChanged += (s, v) => value.DashLength = v;
-		xPos += 160 + 2 * Margin;
+		xPos += 160 + (2 * Margin);
 
 		var dashSpace = AddSlider("Dash Space", xPos, 0.1F, 10F, 0.1F, value.DashSpace, "m");
 		dashSpace.eventValueChanged += (s, v) => value.DashSpace = v;
@@ -174,7 +152,7 @@ internal class MarkingsOptions : OptionsPanelBase
 		dropDown.eventSelectedIndexChanged += (s, v) => { value.MarkingType = (MarkingLineType)v; SetVisibility(); };
 
 		Dictionary<int, string> getEnumValues() => Enum.GetValues(typeof(MarkingLineType)).Cast<MarkingLineType>().Where(CheckCompatibility).ToDictionary(x => (int)x, x => x.ToString().FormatWords());
-		
+
 		void ResetLine()
 		{
 			var vanilla = MarkingStyleUtil._markings(ModOptions.MarkingsStyle == MarkingStyle.Custom ? MarkingStyle.Vanilla : ModOptions.MarkingsStyle, MarkingType);
@@ -198,8 +176,8 @@ internal class MarkingsOptions : OptionsPanelBase
 		{
 			color.isVisible = r.isVisible = rl.isVisible = g.isVisible = gl.isVisible = b.isVisible = bl.isVisible = a.isVisible = al.isVisible = value.MarkingType != MarkingLineType.None;
 			lineWidth.parent.isVisible = value.MarkingType != MarkingLineType.None;
-			dashSlider.parent.isVisible = value.MarkingType == MarkingLineType.ZigZag || value.MarkingType == MarkingLineType.Dashed || value.MarkingType == MarkingLineType.DashedDouble || value.MarkingType == MarkingLineType.DashedSolid || value.MarkingType == MarkingLineType.SolidDashed;
-			dashSpace.parent.isVisible = value.MarkingType == MarkingLineType.Dashed || value.MarkingType == MarkingLineType.DashedDouble || value.MarkingType == MarkingLineType.DashedSolid || value.MarkingType == MarkingLineType.SolidDashed;
+			dashSlider.parent.isVisible = value.MarkingType is MarkingLineType.ZigZag or MarkingLineType.Dashed or MarkingLineType.DashedDouble or MarkingLineType.DashedSolid or MarkingLineType.SolidDashed;
+			dashSpace.parent.isVisible = value.MarkingType is MarkingLineType.Dashed or MarkingLineType.DashedDouble or MarkingLineType.DashedSolid or MarkingLineType.SolidDashed;
 		}
 	}
 
@@ -224,11 +202,11 @@ internal class MarkingsOptions : OptionsPanelBase
 		var dropDown = UIDropDowns.AddDropDown(_panel, xPos, yPos, 150);
 		dropDown.items = enumVales.Values.ToArray();
 		dropDown.selectedIndex = enumVales.Keys.ToList().IndexOf((int)value.MarkingType);
-		xPos += 150 + 2 * Margin;
+		xPos += 150 + (2 * Margin);
 
 		var dashSlider = AddSlider("Dash Length", xPos, 0.1F, 10F, 0.1F, value.DashLength, "m");
 		dashSlider.eventValueChanged += (s, v) => value.DashLength = v;
-		xPos += 160 + 2 * Margin;
+		xPos += 160 + (2 * Margin);
 
 		var dashSpace = AddSlider("Dash Space", xPos, 0.1F, 10F, 0.1F, value.DashSpace, "m");
 		dashSpace.eventValueChanged += (s, v) => value.DashSpace = v;
@@ -348,7 +326,10 @@ internal class MarkingsOptions : OptionsPanelBase
 		color.spriteName = "normal";
 	}
 
-	private int Byte(int i) => Math.Max(0, Math.Min(255, i));
+	private int Byte(int i)
+	{
+		return Math.Max(0, Math.Min(255, i));
+	}
 
 	private void ChangeColor(UISprite color, SavedLineOption value)
 	{

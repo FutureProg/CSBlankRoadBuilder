@@ -46,7 +46,7 @@ public static class AssetUtil
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
 
-		Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
+		_ = Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
@@ -65,7 +65,7 @@ public static class AssetUtil
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			Resize(file, name, road, curb, curbless, inverted, sidewalkTransition);
+			_ = Resize(file, name, road, curb, curbless, inverted, sidewalkTransition);
 		}
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{elevationType}*".ToLower()))
@@ -142,21 +142,18 @@ public static class AssetUtil
 					{
 						if (sidewalkTransition)
 						{
-							var start = xPos < 0 == inverted ? road.LeftPavementWidth : road.RightPavementWidth;
-							var end = xPos < 0 == inverted ? road.RightPavementWidth : road.LeftPavementWidth;
+							var start = (xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth;
+							var end = (xPos < 0) == inverted ? road.RightPavementWidth : road.LeftPavementWidth;
 							var step = (float.Parse(data[3]) + 32) / 64;
 
-							xDiff -= fn(2 * step - 1, Math.Min(start, end), Math.Max(start, end)) - 3;
+							xDiff -= fn((2 * step) - 1, Math.Min(start, end), Math.Max(start, end)) - 3;
 
 							//https://www.desmos.com/calculator/5rulizhfsh
-							static float fn(float x, float s, float e)
-							{
-								return (float)(-x + Math.Pow(-x, 3)) / (4 / (e - s)) + e / 2 + 1;
-							}
+							static float fn(float x, float s, float e) => ((float)(-x + Math.Pow(-x, 3)) / (4 / (e - s))) + (e / 2) + 1;
 						}
 						else
-						{ 
-							xDiff -= (xPos < 0 == inverted ? road.LeftPavementWidth : road.RightPavementWidth) - 3; 
+						{
+							xDiff -= ((xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth) - 3;
 						}
 					}
 
@@ -180,7 +177,7 @@ public static class AssetUtil
 
 		var exportedFile = Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file));
 
-		Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
+		_ = Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
 		File.WriteAllLines(exportedFile, lines);
 

@@ -2,13 +2,6 @@
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using UnityEngine;
-
 namespace BlankRoadBuilder.Util;
 public class TrafficLightsUtil
 {
@@ -28,7 +21,7 @@ public class TrafficLightsUtil
 				RightBackwardSpace = GetDrivableArea(lane, false, false),
 			};
 
-			tl = ModOptions.FlipTrafficLights 
+			tl = ModOptions.FlipTrafficLights
 				? GenerateTrafficLightsFlipped(minimumSpace, tl)
 				: GenerateTrafficLights(minimumSpace, tl);
 

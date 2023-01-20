@@ -1,17 +1,6 @@
-﻿using AlgernonCommons.UI;
+﻿using BlankRoadBuilder.Util.Markings;
 
-using BlankRoadBuilder.Domain;
-using BlankRoadBuilder.Domain.Options;
-using BlankRoadBuilder.ThumbnailMaker;
-using BlankRoadBuilder.Util.Markings;
 using ColossalFramework.UI;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-using UnityEngine;
 
 namespace BlankRoadBuilder.UI.Options;
 internal partial class FillerOptions : MarkingsOptions

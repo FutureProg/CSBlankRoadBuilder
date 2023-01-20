@@ -1,6 +1,5 @@
 ﻿using BlankRoadBuilder.ThumbnailMaker;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,7 +9,7 @@ public class FillerMarking
 {
 	public MarkingPoint LeftPoint { get; set; }
 	public MarkingPoint RightPoint { get; set; }
-    public LaneDecoration Type { get; set; }
+	public LaneDecoration Type { get; set; }
 	public float Elevation { get; set; }
 	public bool Helper { get; set; }
 	public bool TransitionForward { get; set; }

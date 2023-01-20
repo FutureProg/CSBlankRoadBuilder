@@ -53,5 +53,8 @@ public struct MeshInfo<MeshType, MetaDataType>
 		}
 	}
 
-	public static implicit operator MeshType(MeshInfo<MeshType, MetaDataType> mesh) => mesh.Mesh;
+	public static implicit operator MeshType(MeshInfo<MeshType, MetaDataType> mesh)
+	{
+		return mesh.Mesh;
+	}
 }

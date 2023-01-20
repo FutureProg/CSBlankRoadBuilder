@@ -1,5 +1,4 @@
-﻿namespace BlankRoadBuilder;
-
+﻿
 using AlgernonCommons.UI;
 
 using BlankRoadBuilder.UI.Options;
@@ -18,6 +17,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
+namespace BlankRoadBuilder;
 public class BlankRoadBuilderMod : IUserMod
 {
 	public string Name => "Road Builder v" + VersionString;
@@ -34,7 +34,7 @@ public class BlankRoadBuilderMod : IUserMod
 
 	public void OnEnabled()
 	{
-		Directory.CreateDirectory(BuilderFolder);
+		_ = Directory.CreateDirectory(BuilderFolder);
 
 		ModFolder = PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly())?.modPath;
 
@@ -46,18 +46,18 @@ public class BlankRoadBuilderMod : IUserMod
 		{
 			DeleteAll(ImportFolder);
 
-            var assetsMatcherXML = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "SavedAssets.xml");
-            if (File.Exists(assetsMatcherXML))
-            {
-                File.Move(assetsMatcherXML, Path.Combine(BuilderFolder, "SavedAssets.xml"));
-            }
+			var assetsMatcherXML = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "SavedAssets.xml");
+			if (File.Exists(assetsMatcherXML))
+			{
+				File.Move(assetsMatcherXML, Path.Combine(BuilderFolder, "SavedAssets.xml"));
+			}
 
 			if (Directory.Exists(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder")))
 			{
 				var roads = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "Roads");
 
 				if (Directory.Exists(roads) && Directory.GetFiles(roads, "*.xml", SearchOption.AllDirectories).Length > 0)
-					Process.Start(Path.Combine(ThumbnailMakerFolder, "ThumbnailMaker.exe"), "update");
+					_ = Process.Start(Path.Combine(ThumbnailMakerFolder, "ThumbnailMaker.exe"), "update");
 				else
 					DeleteAll(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"));
 			}
@@ -86,10 +86,10 @@ public class BlankRoadBuilderMod : IUserMod
 
 		var tabStrip = AutoTabstrip.AddTabstrip(s_optionsParentPanel, 0f, 0f, s_optionsParentPanel.width, s_optionsParentPanel.height - 15F, out _, tabHeight: 32f);
 
-		new GeneralOptions(tabStrip, 0);
-		new LaneSizeOptions(tabStrip, 1);
-		new IMTOptionsPanel(tabStrip, 2);
-		new VanillaOptionsPanel(tabStrip, 3);
+		_ = new GeneralOptions(tabStrip, 0);
+		_ = new LaneSizeOptions(tabStrip, 1);
+		_ = new IMTOptionsPanel(tabStrip, 2);
+		_ = new VanillaOptionsPanel(tabStrip, 3);
 
 		tabStrip.selectedIndex = -1;
 		tabStrip.selectedIndex = 0;
@@ -100,8 +100,8 @@ public class BlankRoadBuilderMod : IUserMod
 		var currentMakerFolde = Path.Combine(ModFolder, "Thumbnail Maker");
 		var thumbnailMakerFolder = ThumbnailMakerFolder;
 
-		Directory.CreateDirectory(thumbnailMakerFolder);
-		Directory.CreateDirectory(Path.Combine(thumbnailMakerFolder, "Resources"));
+		_ = Directory.CreateDirectory(thumbnailMakerFolder);
+		_ = Directory.CreateDirectory(Path.Combine(thumbnailMakerFolder, "Resources"));
 
 		foreach (var item in Directory.GetFiles(currentMakerFolde))
 		{

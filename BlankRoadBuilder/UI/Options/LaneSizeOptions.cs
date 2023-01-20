@@ -4,12 +4,11 @@ using BlankRoadBuilder.ThumbnailMaker;
 using ColossalFramework.UI;
 
 using System;
-using System.Reflection;
 
 namespace BlankRoadBuilder.UI.Options;
 internal class LaneSizeOptions : OptionsPanelBase
 {
-    public override string TabName { get; } = "Lane Sizes";
+	public override string TabName { get; } = "Lane Sizes";
 
 	public LaneSizeOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex)
 	{
@@ -19,7 +18,7 @@ internal class LaneSizeOptions : OptionsPanelBase
 		foreach (LaneType laneType in Enum.GetValues(typeof(LaneType)))
 		{
 			y = yPos;
-			var slider = AddSlider(laneType.ToString(), 0.1F, 10F, 0.1F, ModOptions.LaneSizes[laneType], "m", 350, i % 2 == 0 ? LeftMargin : (350 + LeftMargin * 2));
+			var slider = AddSlider(laneType.ToString(), 0.1F, 10F, 0.1F, ModOptions.LaneSizes[laneType], "m", 350, i % 2 == 0 ? LeftMargin : (350 + (LeftMargin * 2)));
 
 			if (i++ % 2 == 0)
 				yPos = y;
@@ -33,7 +32,7 @@ internal class LaneSizeOptions : OptionsPanelBase
 		}
 
 		y = yPos;
-		var diagonalParking = AddSlider("Diagonal Parking", 0.1F, 10F, 0.1F, ModOptions.LaneSizes.DiagonalParkingSize, "m", 350, i % 2 == 0 ? LeftMargin : (350 + LeftMargin * 2));
+		var diagonalParking = AddSlider("Diagonal Parking", 0.1F, 10F, 0.1F, ModOptions.LaneSizes.DiagonalParkingSize, "m", 350, i % 2 == 0 ? LeftMargin : (350 + (LeftMargin * 2)));
 
 		if (i++ % 2 == 0)
 			yPos = y;
@@ -46,7 +45,7 @@ internal class LaneSizeOptions : OptionsPanelBase
 		};
 
 		y = yPos;
-		var horizontalParking = AddSlider("Horizontal Parking", 0.1F, 10F, 0.1F, ModOptions.LaneSizes.HorizontalParkingSize, "m", 350, i % 2 == 0 ? LeftMargin : (350 + LeftMargin * 2));
+		var horizontalParking = AddSlider("Horizontal Parking", 0.1F, 10F, 0.1F, ModOptions.LaneSizes.HorizontalParkingSize, "m", 350, i % 2 == 0 ? LeftMargin : (350 + (LeftMargin * 2)));
 
 		if (i++ % 2 == 0)
 			yPos = y;

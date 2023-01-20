@@ -272,20 +272,48 @@ public static partial class LanePropsUtil
 
 		switch ((int)Math.Round(road.SpeedLimit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10)
 		{
-			case 10: sign = GetProp(Prop.SpeedSign10); break;
-			case 20: sign = GetProp(Prop.SpeedSign20); break;
-			case 30: sign = GetProp(Prop.SpeedSign30); break;
-			case 40: sign = GetProp(Prop.SpeedSign40); break;
-			case 50: sign = GetProp(Prop.SpeedSign50); break;
-			case 60: sign = GetProp(Prop.SpeedSign60); break;
-			case 70: sign = GetProp(Prop.SpeedSign70); break;
-			case 80: sign = GetProp(Prop.SpeedSign80); break;
-			case 90: sign = GetProp(Prop.SpeedSign90); break;
-			case 100: sign = GetProp(Prop.SpeedSign100); break;
-			case 110: sign = GetProp(Prop.SpeedSign110); break;
-			case 120: sign = GetProp(Prop.SpeedSign120); break;
-			case 130: sign = GetProp(Prop.SpeedSign130); break;
-			case 140: sign = GetProp(Prop.SpeedSign140); break;
+			case 10:
+				sign = GetProp(Prop.SpeedSign10);
+				break;
+			case 20:
+				sign = GetProp(Prop.SpeedSign20);
+				break;
+			case 30:
+				sign = GetProp(Prop.SpeedSign30);
+				break;
+			case 40:
+				sign = GetProp(Prop.SpeedSign40);
+				break;
+			case 50:
+				sign = GetProp(Prop.SpeedSign50);
+				break;
+			case 60:
+				sign = GetProp(Prop.SpeedSign60);
+				break;
+			case 70:
+				sign = GetProp(Prop.SpeedSign70);
+				break;
+			case 80:
+				sign = GetProp(Prop.SpeedSign80);
+				break;
+			case 90:
+				sign = GetProp(Prop.SpeedSign90);
+				break;
+			case 100:
+				sign = GetProp(Prop.SpeedSign100);
+				break;
+			case 110:
+				sign = GetProp(Prop.SpeedSign110);
+				break;
+			case 120:
+				sign = GetProp(Prop.SpeedSign120);
+				break;
+			case 130:
+				sign = GetProp(Prop.SpeedSign130);
+				break;
+			case 140:
+				sign = GetProp(Prop.SpeedSign140);
+				break;
 		}
 
 		return new NetLaneProps.Prop

@@ -4,12 +4,8 @@ using BlankRoadBuilder.ThumbnailMaker;
 
 using ColossalFramework.Importers;
 
-using PrefabMetadata.API;
-using PrefabMetadata.Helpers;
-
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -308,7 +304,7 @@ public static class NetworkMarkings
 		var segment = new MeshInfo<NetInfo.Segment, Segment>(model);
 
 		segment.MetaData.Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F;
-		
+
 		return segment;
 	}
 
@@ -326,7 +322,7 @@ public static class NetworkMarkings
 		GenerateTexture(null, false, mesh, default, lineInfo.Color, lineInfo.MarkingStyle, lineInfo.DashLength, lineInfo.DashSpace);
 
 		var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
-	
+
 		var segment = new MeshInfo<NetInfo.Segment, Segment>(model);
 
 		segment.MetaData.Tiling = lineInfo.MarkingStyle == MarkingLineType.Solid ? 10F : 20F / (lineInfo.DashLength + lineInfo.DashSpace);
@@ -404,10 +400,10 @@ public static class NetworkMarkings
 						pixels[i] = i / width < ratio && (i % width < width / 3 || i % width > width * 2 / 3) ? Color.white : Color.black;
 						break;
 					case MarkingLineType.SolidDashed:
-						pixels[i] = i % width < width / 3 || i / width < ratio && i % width > width * 2 / 3 ? Color.white : Color.black;
+						pixels[i] = i % width < width / 3 || (i / width < ratio && i % width > width * 2 / 3) ? Color.white : Color.black;
 						break;
 					case MarkingLineType.DashedSolid:
-						pixels[i] = i / width < ratio && i % width < width / 3 || i % width > width * 2 / 3 ? Color.white : Color.black;
+						pixels[i] = (i / width < ratio && i % width < width / 3) || i % width > width * 2 / 3 ? Color.white : Color.black;
 						break;
 					case MarkingLineType.ZigZag:
 						var y = i / width;
@@ -497,7 +493,7 @@ public static class NetworkMarkings
 						{
 							if (xPos <= -0.05)
 							{
-								xPos = inverted ? fillerMarking.LeftPoint.X  :
+								xPos = inverted ? fillerMarking.LeftPoint.X :
 									(-fillerMarking.RightPoint.X + (fillerMarking.Helper ? 0 : (xPos + 0.5F)));
 
 								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
@@ -530,10 +526,10 @@ public static class NetworkMarkings
 											yPos = surface;
 											break;
 										case StepSteepness.ModerateSlope:
-											yPos = Math.Abs(float.Parse(data[3])) == 32 ? surface : (surface + (elevation - surface) * 0.5F);
+											yPos = Math.Abs(float.Parse(data[3])) == 32 ? surface : (surface + ((elevation - surface) * 0.5F));
 											break;
 										case StepSteepness.GentleSlope:
-											yPos = Math.Abs(float.Parse(data[3])) == 32 ? surface : (surface + (elevation - surface) * (Math.Abs(float.Parse(data[3])) < 28 ? 0.66F : 0.33F));
+											yPos = Math.Abs(float.Parse(data[3])) == 32 ? surface : (surface + ((elevation - surface) * (Math.Abs(float.Parse(data[3])) < 28 ? 0.66F : 0.33F)));
 											break;
 									}
 								}
@@ -547,7 +543,7 @@ public static class NetworkMarkings
 								var start = fillerMarking.Elevation;
 								var end = fillerMarking.Lanes.Min(x => x.SurfaceElevation);
 
-								yPos = Math.Max(end - 0.1F, Math.Abs(float.Parse(data[1])) == 0.5 ? -1 : (start + (end - start) / 0.32F + (float.Parse(data[3]) * (end - start) / 32F / 0.32F)));
+								yPos = Math.Max(end - 0.1F, Math.Abs(float.Parse(data[1])) == 0.5 ? -1 : (start + ((end - start) / 0.32F) + (float.Parse(data[3]) * (end - start) / 32F / 0.32F)));
 							}
 
 							if (fillerMarking.Type == LaneDecoration.Filler && originalFile.Contains("_lod.obj"))
@@ -557,11 +553,11 @@ public static class NetworkMarkings
 						{
 							if (xPos <= -0.05)
 							{
-								xPos = -lineMarking.Point.X - lineWidth / 2F;
+								xPos = -lineMarking.Point.X - (lineWidth / 2F);
 							}
 							else if (xPos >= 0.05)
 							{
-								xPos = -lineMarking.Point.X + lineWidth / 2F;
+								xPos = -lineMarking.Point.X + (lineWidth / 2F);
 							}
 
 							yPos = 0.0075F + lineMarking.Elevation;
@@ -580,7 +576,7 @@ public static class NetworkMarkings
 
 			var exportedFile = Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(originalFile).Replace(file, guid));
 
-			Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
+			_ = Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
 			File.WriteAllLines(exportedFile, lines);
 		}
