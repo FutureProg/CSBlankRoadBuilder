@@ -106,11 +106,11 @@ public static class MeshUtil
 			list.Add(fullLowCurb);
 		}
 
-		if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
-		{
-			highCurb.MetaData.Forward.Forbidden |= RoadUtils.S_Asym | RoadUtils.S_AsymInverted;
-			highCurb.MetaData.Forward.Forbidden |= RoadUtils.S_Asym | RoadUtils.S_AsymInverted;
-		}
+		//if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
+		//{
+		//	highCurb.MetaData.Forward.Forbidden |= RoadUtils.S_Asym | RoadUtils.S_AsymInverted;
+		//	highCurb.MetaData.Forward.Forbidden |= RoadUtils.S_Asym | RoadUtils.S_AsymInverted;
+		//}
 
 		return list;
 	}
@@ -167,20 +167,20 @@ public static class MeshUtil
 			list.Add(lowCurb);
 			list.Add(fullLowCurb);
 
-			if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
-			{
-				asymBendForward = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "Pavement Transition", false, true));
-				asymBendBackward = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "Pavement Transition", true, true));
+			//if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
+			//{
+			//	asymBendForward = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "Pavement Transition", false, true));
+			//	asymBendBackward = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "Pavement Transition", true, true));
 
-				asymBendForward.Mesh.m_directConnect = true;
-				asymBendBackward.Mesh.m_directConnect = true;
+			//	asymBendForward.Mesh.m_directConnect = true;
+			//	asymBendBackward.Mesh.m_directConnect = true;
 
-				asymBendForward.MetaData.SegmentEndFlags.Required |= RoadUtils.N_Asym;
-				asymBendBackward.MetaData.SegmentEndFlags.Required |= RoadUtils.N_AsymInverted;
+			//	asymBendForward.MetaData.SegmentEndFlags.Required |= RoadUtils.N_Asym;
+			//	asymBendBackward.MetaData.SegmentEndFlags.Required |= RoadUtils.N_AsymInverted;
 
-				list.Add(asymBendForward);
-				list.Add(asymBendBackward);
-			}
+			//	list.Add(asymBendForward);
+			//	list.Add(asymBendBackward);
+			//}
 		}
 
 		return list;

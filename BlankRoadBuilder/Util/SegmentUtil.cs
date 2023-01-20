@@ -68,7 +68,9 @@ public static class SegmentUtil
 				netManager.CreateSegment(out _, ref randomizer, item.Value, node2, node3, new Vector3(0, 0, -1), new Vector3(0, 0, 1), 2, 2, false);
 
 				if (NC::ModsCommon.SingletonManager<NC::NodeController.Manager>.Instance.GetOrCreateNodeData(node3) is NC::NodeController.NodeData data)
+				{
 					data.Type = NC::NodeController.NodeStyleType.Custom;
+				}
 			}
 
 			i += info.m_halfWidth * 2 + 15;

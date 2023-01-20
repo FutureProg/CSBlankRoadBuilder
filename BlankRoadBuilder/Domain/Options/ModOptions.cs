@@ -17,6 +17,7 @@ public static class ModOptions
     private static readonly SavedInt _markingsStyle = new(nameof(_markingsStyle), nameof(BlankRoadBuilder), (int)MarkingStyle.Vanilla);
     private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);
     private static readonly SavedInt _markings = new(nameof(_markings), nameof(BlankRoadBuilder), (int)MarkingsSource.IMTWithMeshFillers);
+    private static readonly SavedInt _stepTransition = new(nameof(_stepTransition), nameof(BlankRoadBuilder), (int)StepSteepness.ModerateSlope);
 
     [ModOptions("Automatic Markings", "Changes what kind of markings are generated with the road")]
     public static MarkingsSource MarkingsGenerated { get => (MarkingsSource)_markings.value; set => _markings.value = (int)value; }
@@ -51,8 +52,11 @@ public static class ModOptions
 	[ModOptions("Disable the auto-fill of information and thumbnails in the save panel")]
 	public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }
 
-	[ModOptions("Default Tram Tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
-    public static TramTracks TramTracks { get => (TramTracks)_tramTracks.value; set => _tramTracks.value = (int)value; }
+	[ModOptions("Default Tram tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
+	public static TramTracks TramTracks { get => (TramTracks)_tramTracks.value; set => _tramTracks.value = (int)value; }
 
-    public static LaneSizeOptions LaneSizes { get; } = new LaneSizeOptions();
+	[ModOptions("Elevated step slope", "Changes the steepness of elevated step transitions at intersections")]
+	public static StepSteepness StepTransition { get => (StepSteepness)_stepTransition.value; set => _stepTransition.value = (int)value; }
+
+	public static LaneSizeOptions LaneSizes { get; } = new LaneSizeOptions();
 }

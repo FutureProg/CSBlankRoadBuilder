@@ -56,7 +56,7 @@ public static class RoadBuilderUtil
 
 		Exception? exception = null;
 
-		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
+		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway or RoadType.Flat => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
 
 		(template.m_netAI as RoadAI).m_slopeInfo = null;
 		(template.m_netAI as RoadAI).m_tunnelInfo = null;
@@ -161,14 +161,15 @@ public static class RoadBuilderUtil
 		netInfo.m_createPavement = elevation == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
 		netInfo.m_createGravel = elevation == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
 		netInfo.m_createRuining = elevation == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
+		netInfo.m_enableBendingNodes = roadInfo.LeftPavementWidth == roadInfo.RightPavementWidth;
 
-		var itemClass = ScriptableObject.CreateInstance<ItemClass>();
-		itemClass.m_layer = ItemClass.Layer.Default;
-		itemClass.m_service = ItemClass.Service.Road;
-		itemClass.m_subService = ItemClass.SubService.None;
-		itemClass.m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5;
-		itemClass.name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway";
-		netInfo.m_class = itemClass;
+		//var itemClass = ScriptableObject.CreateInstance<ItemClass>();
+		//itemClass.m_layer = ItemClass.Layer.Default;
+		//itemClass.m_service = ItemClass.Service.Road;
+		//itemClass.m_subService = ItemClass.SubService.None;
+		//itemClass.m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5;
+		//itemClass.name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway";
+		//netInfo.m_class = itemClass;
 
 		RoadUtils.SetNetAi(netInfo, "m_outsideConnection", null);
 		RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation, false));
@@ -215,10 +216,12 @@ public static class RoadBuilderUtil
 		metadata.ScriptedFlags[RoadUtils.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
 		metadata.ScriptedFlags[RoadUtils.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
 		metadata.ScriptedFlags[RoadUtils.S_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
-		metadata.ScriptedFlags[RoadUtils.N_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
-		metadata.ScriptedFlags[RoadUtils.N_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
-		metadata.ScriptedFlags[RoadUtils.S_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
-		metadata.ScriptedFlags[RoadUtils.S_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
+		//metadata.ScriptedFlags[RoadUtils.N_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
+		//metadata.ScriptedFlags[RoadUtils.N_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
+		//metadata.ScriptedFlags[RoadUtils.S_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
+		//metadata.ScriptedFlags[RoadUtils.S_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
+		metadata.ScriptedFlags[RoadUtils.S_StepBackward] = new ExpressionWrapper(GetExpression("StepBackwardFlag"), "StepBackwardFlag");
+		metadata.ScriptedFlags[RoadUtils.S_StepForward] = new ExpressionWrapper(GetExpression("StepForwardFlag"), "StepForwardFlag");
 
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");

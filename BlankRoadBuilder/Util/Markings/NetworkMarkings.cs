@@ -126,19 +126,38 @@ public static class NetworkMarkings
 			if (lane.Elevation == (!lane.Tags.HasFlag(LaneTag.Sidewalk) && roadInfo.RoadType == RoadType.Road ? -0.3F : 0F))
 				continue;
 
-			var filler = getFiller(false);
-			var transitionFiller = getFiller(true);
+			var filler = getFiller(false, false);
+			var transitionFillerForward = getFiller(true, false);
+			var transitionFillerBackward = getFiller(false, true);
+			var transitionBothFiller = getFiller(true, true);
 
-			if (filler != null&& transitionFiller != null)
+			if (filler != null && transitionFillerForward != null && transitionFillerBackward != null && transitionBothFiller != null)
 			{
-				filler.Value.MetaData.HeadNode.Required |= AdaptiveRoads.Manager.NetNodeExt.Flags.TwoSegments;
-				transitionFiller.Value.MetaData.Head.Forbidden |= AdaptiveRoads.Manager.NetSegmentEnd.Flags.TwoSegments;
+				filler.Value.MetaData.Forward.Forbidden |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
+				filler.Value.MetaData.Backward.Forbidden |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
+
+				transitionFillerForward.Value.MetaData.Forward.Required |= RoadUtils.S_StepForward;
+				transitionFillerForward.Value.MetaData.Forward.Forbidden |= RoadUtils.S_StepBackward;
+				transitionFillerForward.Value.MetaData.Backward.Required |= RoadUtils.S_StepBackward;
+				transitionFillerForward.Value.MetaData.Backward.Forbidden |= RoadUtils.S_StepForward;
+
+				transitionFillerBackward.Value.MetaData.Forward.Required |= RoadUtils.S_StepBackward;
+				transitionFillerBackward.Value.MetaData.Forward.Forbidden |= RoadUtils.S_StepForward;
+				transitionFillerBackward.Value.MetaData.Backward.Required |= RoadUtils.S_StepForward;
+				transitionFillerBackward.Value.MetaData.Backward.Forbidden |= RoadUtils.S_StepBackward;
+
+				transitionBothFiller.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert;
+				transitionBothFiller.Value.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
+				transitionBothFiller.Value.MetaData.Forward.Required |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
+				transitionBothFiller.Value.MetaData.Backward.Required |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
 
 				yield return filler;
-				yield return transitionFiller;
+				yield return transitionFillerForward;
+				yield return transitionFillerBackward;
+				yield return transitionBothFiller;
 			}
 
-			MeshInfo<NetInfo.Segment, Segment>? getFiller(bool transition)
+			MeshInfo<NetInfo.Segment, Segment>? getFiller(bool transition, bool both)
 			{
 				var filler = GetLaneFiller(roadInfo, netInfo, new FillerMarking
 				{
@@ -146,7 +165,8 @@ public static class NetworkMarkings
 					RightPoint = new MarkingPoint(lane, lane.RightLane),
 					Elevation = lane.LaneElevation,
 					Helper = true,
-					Transition = transition,
+					TransitionForward = transition,
+					TransitionBackward = both,
 					Type = LaneDecoration.None
 				});
 
@@ -279,7 +299,7 @@ public static class NetworkMarkings
 		if (fillerMarking == null || filler == null)
 			return null;
 
-		var mesh = GenerateMesh(fillerMarking, null, $"{fillerMarking.Type} Filler");
+		var mesh = GenerateMesh(fillerMarking, null, fillerMarking.Helper ? "Elevated Step" : $"{fillerMarking.Type} Filler");
 
 		GenerateTexture(fillerMarking.Lanes.First(), false, mesh, default, filler.Color, filler.MarkingStyle == MarkingFillerType.Dashed ? MarkingLineType.Dashed : MarkingLineType.Solid, filler.DashLength, filler.DashSpace);
 
@@ -451,6 +471,18 @@ public static class NetworkMarkings
 					case "G":
 						if (!string.IsNullOrEmpty(name))
 						{
+							if (fillerMarking?.TransitionForward == true)
+							{
+								if (fillerMarking?.TransitionBackward == true)
+									name += " Double Slope";
+								else
+									name += " Forward Slope";
+							}
+							else if (fillerMarking?.TransitionBackward == true)
+							{
+								name += " Backward Slope";
+							}
+
 							lines[i] = lines[i].Substring(0, 2) + name.Replace(",", "");
 						}
 
@@ -480,7 +512,33 @@ public static class NetworkMarkings
 									xPos -= fillerMarking.RightPoint.LeftLane?.Type == LaneType.Curb ? 0.26F : 0.2F;
 							}
 
-							if (fillerMarking.Type != LaneDecoration.Filler && yPos == -0.3F)
+							if ((fillerMarking.TransitionForward && (int)float.Parse(data[3]) >= (int)ModOptions.StepTransition)
+								|| (fillerMarking.TransitionBackward && -(int)float.Parse(data[3]) >= (int)ModOptions.StepTransition))
+							{
+								var surface = fillerMarking.Lanes.Min(x => x.SurfaceElevation);
+								var elevation = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.0025F : 0.01F);
+
+								if (yPos == -0.3F)
+								{
+									yPos = surface;
+								}
+								else
+								{
+									switch (ModOptions.StepTransition)
+									{
+										case StepSteepness.SteepSlope:
+											yPos = surface;
+											break;
+										case StepSteepness.ModerateSlope:
+											yPos = Math.Abs(float.Parse(data[3])) == 32 ? surface : (surface + (elevation - surface) * 0.5F);
+											break;
+										case StepSteepness.GentleSlope:
+											yPos = Math.Abs(float.Parse(data[3])) == 32 ? surface : (surface + (elevation - surface) * (Math.Abs(float.Parse(data[3])) < 28 ? 0.66F : 0.33F));
+											break;
+									}
+								}
+							}
+							else if (fillerMarking.Type != LaneDecoration.Filler && yPos == -0.3F)
 								yPos = -0.01F + fillerMarking.Lanes.Min(x => x.SurfaceElevation);
 							else if (!transition)
 								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.0025F : 0.01F);
@@ -491,9 +549,6 @@ public static class NetworkMarkings
 
 								yPos = Math.Max(end - 0.1F, Math.Abs(float.Parse(data[1])) == 0.5 ? -1 : (start + (end - start) / 0.32F + (float.Parse(data[3]) * (end - start) / 32F / 0.32F)));
 							}
-
-							if (fillerMarking.Transition && Math.Abs(xPos) == 32)
-								yPos = fillerMarking.Lanes.Min(x => x.SurfaceElevation);
 
 							if (fillerMarking.Type == LaneDecoration.Filler && originalFile.Contains("_lod.obj"))
 								yPos = Math.Max(0.0025F, yPos);
