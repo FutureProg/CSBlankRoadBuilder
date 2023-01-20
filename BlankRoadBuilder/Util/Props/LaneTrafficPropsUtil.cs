@@ -42,7 +42,7 @@ public static partial class LanePropsUtil
 		{
 			yield return RailwayCrossing(road, lane.TrafficLight.LeftForwardSpace, propPosition);
 
-			if (GetSideLanes(lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
+			if (!GetSideLanes(lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
 			{
 				yield return StopSign(propPosition);
 
@@ -52,7 +52,7 @@ public static partial class LanePropsUtil
 				}
 			}
 
-			if (GetSideLanes(lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
+			if (!GetSideLanes(lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
 				yield return SpeedSign(road, lane);
 			}
@@ -62,7 +62,7 @@ public static partial class LanePropsUtil
 		{
 			yield return RailwayCrossing(road, lane.TrafficLight.LeftForwardSpace, propPosition).ToggleForwardBackward();
 
-			if (GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
+			if (!GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
 			{
 				yield return StopSign(propPosition).ToggleForwardBackward();
 
@@ -72,7 +72,7 @@ public static partial class LanePropsUtil
 				}
 			}
 
-			if (GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
+			if (!GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
 				yield return SpeedSign(road, lane).ToggleForwardBackward();
 			}

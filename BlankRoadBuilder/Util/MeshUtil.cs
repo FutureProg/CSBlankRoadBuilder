@@ -212,7 +212,7 @@ public static class MeshUtil
 			RenderNode = true,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lanes),
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.L_RemoveBarrier },
-			LaneTags = new LaneTagsT(new[] { "RoadBuilderLane" }),
+			LaneTags = new LaneTagsT(new[] { "RoadBuilderBarrierLane" }),
 			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = RoadUtils.T_Markings }
 		}).ToList();
 
@@ -283,19 +283,35 @@ public static class MeshUtil
 
 		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Trolley)))
 		{
-			var railModel = AssetUtil.ImportAsset(ShaderType.Wire, MeshType.Tram, "TramRail.fbx");
+			var railModelLeft = AssetUtil.ImportAsset(ShaderType.Wire, MeshType.Tram, "TramRail.fbx");
+			var railModelRight = AssetUtil.ImportAsset(ShaderType.Wire, MeshType.Tram, "TramRail.fbx");
 
 			yield return new Track(netInfo)
 			{
-				Title = "Trolley Wires",
-				m_mesh = railModel.m_mesh,
-				m_material = railModel.m_material,
-				m_lodMesh = railModel.m_mesh,
-				m_lodMaterial = railModel.m_material,
+				Title = "Trolley Left Wire",
+				m_mesh = railModelLeft.m_mesh,
+				m_material = railModelLeft.m_material,
+				m_lodMesh = railModelLeft.m_mesh,
+				m_lodMaterial = railModelLeft.m_material,
 				NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_RemoveTramWires },
 				SegmentFlags = new SegmentInfoFlags { Forbidden = RoadUtils.S_RemoveTramSupports },
 				VerticalOffset = -4.55F,
-				LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, VehicleInfo.VehicleType.TrolleybusLeftPole | VehicleInfo.VehicleType.TrolleybusRightPole)
+				LaneTags = new LaneTagsT(new[] { "RoadBuilderLeftTrolleyWire" }),
+				LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, VehicleInfo.VehicleType.TrolleybusLeftPole)
+			};
+
+			yield return new Track(netInfo)
+			{
+				Title = "Trolley Right Wire",
+				m_mesh = railModelRight.m_mesh,
+				m_material = railModelRight.m_material,
+				m_lodMesh = railModelRight.m_mesh,
+				m_lodMaterial = railModelRight.m_material,
+				NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_RemoveTramWires },
+				SegmentFlags = new SegmentInfoFlags { Forbidden = RoadUtils.S_RemoveTramSupports },
+				VerticalOffset = -4.55F,
+				LaneTags = new LaneTagsT(new[] { "RoadBuilderRightTrolleyWire" }),
+				LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, VehicleInfo.VehicleType.TrolleybusRightPole)
 			};
 		}
 

@@ -25,6 +25,7 @@ using System.Reflection;
 using UnityEngine;
 
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
+using static VehicleInfo;
 
 namespace BlankRoadBuilder.Util;
 public static class RoadBuilderUtil
@@ -185,10 +186,29 @@ public static class RoadBuilderUtil
 
 		foreach (var item in roadInfo.Lanes.Where(x => x.Tags.HasFlag(LaneTag.Damage) || x.Decorations.HasFlag(LaneDecoration.Barrier)))
 		{
-			metadata.Lanes.Add(item.NetLanes[0], new Lane(item.NetLanes[0])
+			if (item.Decorations.HasFlag(LaneDecoration.Barrier))
 			{
-				LaneTags = new LaneTagsT(new[] { "RoadBuilderLane" }) { Selected = new[] { "RoadBuilderLane" } }
-			});
+				metadata.Lanes.Add(item.NetLanes[0], new Lane(item.NetLanes[0])
+				{
+					LaneTags = new LaneTagsT(new[] { "RoadBuilderBarrierLane" }) { Selected = new[] { "RoadBuilderBarrierLane" } }
+				});
+			}
+			
+			if (item.Type.HasFlag(LaneType.Trolley))
+			{
+				var left = item.NetLanes.FirstOrDefault(x => x.m_vehicleType == VehicleInfo.VehicleType.TrolleybusLeftPole);
+				var right = item.NetLanes.FirstOrDefault(x => x.m_vehicleType == VehicleInfo.VehicleType.TrolleybusRightPole);
+			
+				metadata.Lanes.Add(left, new Lane(left)
+				{
+					LaneTags = new LaneTagsT(new[] { "RoadBuilderLeftTrolleyWire" }) { Selected = new[] { "RoadBuilderLeftTrolleyWire" } }
+				});
+
+				metadata.Lanes.Add(right, new Lane(right)
+				{
+					LaneTags = new LaneTagsT(new[] { "RoadBuilderRightTrolleyWire" }) { Selected = new[] { "RoadBuilderRightTrolleyWire" } }
+				});
+			}
 		}
 
 		metadata.ScriptedFlags[RoadUtils.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
