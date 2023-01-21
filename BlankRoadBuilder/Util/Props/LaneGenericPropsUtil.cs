@@ -1,5 +1,6 @@
 ﻿using AdaptiveRoads.Manager;
 
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
@@ -130,7 +131,7 @@ public static partial class LanePropsUtil
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
-				{ Forbidden = RoadUtils.S_RemoveRoadClutter }
+				{ Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter, Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None }
 			});
 		}
 
@@ -150,7 +151,7 @@ public static partial class LanePropsUtil
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
-				{ Forbidden = RoadUtils.S_RemoveRoadClutter }
+				{ Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter, Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None }
 			});
 		}
 	}

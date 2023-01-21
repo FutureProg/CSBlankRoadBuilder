@@ -114,7 +114,7 @@ public class RoadBuilderPanel : StandalonePanel
 
 		height = 200;
 
-		_ = StartCoroutine(LoadRoad());
+		StartCoroutine(LoadRoad());
 	}
 
 	public System.Collections.IEnumerator LoadRoad()

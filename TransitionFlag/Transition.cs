@@ -4,6 +4,7 @@ using AdaptiveRoads.Manager;
 using KianCommons;
 
 using System.Globalization;
+using System.Linq;
 
 namespace TransitionFlag
 {
@@ -11,11 +12,6 @@ namespace TransitionFlag
 	{
 		public override bool Condition()
 		{
-			//Segment.NetInfoExt.UserDataNamesSet.Node[].GetMetaData()
-
-			//Node.se.sele.CheckFlags()
-			//Segment.Has(NetSegment.Flags.Invert) == SegmentEnd.Has(NetSegmentEnd.Flags.IsStartNode);
-
 			foreach (var segmentId in Node.SegmentIDs)
 			{
 				var segment = segmentId.ToSegment();

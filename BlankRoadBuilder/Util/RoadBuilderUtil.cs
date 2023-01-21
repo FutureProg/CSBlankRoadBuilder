@@ -10,8 +10,6 @@ using BlankRoadBuilder.Util.Props;
 
 using ColossalFramework.IO;
 
-using ICities;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,7 +30,7 @@ public static class RoadBuilderUtil
 	{
 		IsBuilding = true;
 
-		_ = ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
+		ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
 
 		if (roadInfo == null)
 		{
@@ -229,7 +227,7 @@ public static class RoadBuilderUtil
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
 		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");
 		metadata.RenameCustomFlag(RoadUtils.S_AddRoadDamage, "Add road damage");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveRoadClutter, "Remove road clutter");
+		metadata.RenameCustomFlag(RoadUtils.S_RemoveRoadClutter, (ModOptions.HideRoadClutter ? "Show" : "Remove") + " road clutter");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
 		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
 		metadata.RenameCustomFlag(RoadUtils.S_Curbless, "Make curb-less");

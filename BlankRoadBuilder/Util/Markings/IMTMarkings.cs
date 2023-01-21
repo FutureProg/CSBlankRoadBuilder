@@ -267,7 +267,7 @@ public class IMTMarkings
 				return;
 		}
 
-		_ = markup.AddRegularLine(pair, style);
+		markup.AddRegularLine(pair, style);
 	}
 
 	private static Dictionary<float, MarkupEnterPoint> GetPoints(Enter enter)

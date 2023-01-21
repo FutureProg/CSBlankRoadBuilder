@@ -34,7 +34,7 @@ public class SavePanelPatch
 
 		if (AssetDataExtension.WasLastLoaded == false)
 		{
-			_ = AdaptiveNetworksUtil.RenameEditNet(LastLoadedRoad.Name, false);
+			AdaptiveNetworksUtil.RenameEditNet(LastLoadedRoad.Name, false);
 
 			SaveAssetPanel.lastLoadedName = LastLoadedRoad.Name;
 		}
@@ -92,7 +92,7 @@ public class SavePanelPatch_FetchSnapshots
 
 		var snapShotPath = ToolsModifierControl.GetTool<SnapshotTool>().snapShotPath;
 
-		_ = SavePanelPatch.PatchThumbnails(snapShotPath);
+		SavePanelPatch.PatchThumbnails(snapShotPath);
 	}
 }
 
@@ -113,7 +113,7 @@ public class SavePanelPatch_InitializeThumbnails
 			.GetValue(__instance) as string;
 
 		if (!string.IsNullOrEmpty(m_ThumbPath))
-			_ = SavePanelPatch.PatchThumbnails(Directory.GetParent(m_ThumbPath).FullName);
+			SavePanelPatch.PatchThumbnails(Directory.GetParent(m_ThumbPath).FullName);
 	}
 }
 
@@ -147,7 +147,7 @@ public class SavePanelPatch_SaveRoutine
 			var saveFile = PathEscaper.Escape(saveNameField.text) + PackageManager.packageExtension;
 			var roadConfigFileName = RoadBuilderPanel.LastLoadedRoadFileName;
 			var lastRoadOptions = RoadOptions.LastSelected;
-			_ = AssetMatchingUtil.SetMatch(saveFile, roadConfigFileName, lastRoadOptions);
+			AssetMatchingUtil.SetMatch(saveFile, roadConfigFileName, lastRoadOptions);
 		}
 		return true;
 	}

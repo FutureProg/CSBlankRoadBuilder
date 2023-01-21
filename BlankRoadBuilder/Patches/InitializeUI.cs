@@ -17,7 +17,7 @@ public class InitializeUI
 
 		var gameObject = new GameObject("Blank Road Builder UI Manager");
 
-		_ = gameObject.AddComponent<UIManager>();
+		gameObject.AddComponent<UIManager>();
 	}
 }
 

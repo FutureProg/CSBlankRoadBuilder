@@ -86,7 +86,7 @@ public class EditorPanel : UIPanel
 
 	private void RoadFolderButton_Click(UIComponent component, UIMouseEventParameter eventParam)
 	{
-		_ = Directory.CreateDirectory(Path.Combine(BlankRoadBuilderMod.BuilderFolder, "Roads"));
+		Directory.CreateDirectory(Path.Combine(BlankRoadBuilderMod.BuilderFolder, "Roads"));
 
 		Utils.OpenInFileBrowser(Path.Combine(BlankRoadBuilderMod.BuilderFolder, "Roads"));
 	}
@@ -107,7 +107,7 @@ public class EditorPanel : UIPanel
 			if (openTMs)
 				File.WriteAllText(Path.Combine(BlankRoadBuilderMod.ThumbnailMakerFolder, "Wake"), "It's time to wake up");
 			else if (File.Exists(tm))
-				_ = Process.Start(tm);
+				Process.Start(tm);
 			else
 			{
 				var panel = UIView.library.ShowModal<ExceptionPanel>("ThumbnailMakerMissing");

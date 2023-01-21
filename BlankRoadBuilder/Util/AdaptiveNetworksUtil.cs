@@ -29,9 +29,9 @@ public static class AdaptiveNetworksUtil
 			var mainPanel = UnityEngine.Object.FindObjectOfType<RoadEditorMainPanel>();
 			if (mainPanel)
 			{
-				_ = InvokeMethod(mainPanel, "Clear");
-				_ = InvokeMethod(mainPanel, "Initialize");
-				_ = InvokeMethod(mainPanel, "OnObjectModified");
+				InvokeMethod(mainPanel, "Clear");
+				InvokeMethod(mainPanel, "Initialize");
+				InvokeMethod(mainPanel, "OnObjectModified");
 			}
 			MenuPanelBase.CloseAll();
 			MiniPanel.CloseAll();

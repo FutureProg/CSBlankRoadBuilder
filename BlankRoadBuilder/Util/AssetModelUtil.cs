@@ -176,10 +176,10 @@ public class AssetModelUtil : ImportAssetLodded
 
 		if (!textureName.Equals("_XYCAMap"))
 		{
-			_ = image.Convert(TextureFormat.RGB24);
+			image.Convert(TextureFormat.RGB24);
 		}
 
-		_ = image.Compress();
+		image.Compress();
 
 		var texture2 = image.CreateTexture(linear);
 

@@ -11,8 +11,8 @@ internal class IMTOptionsPanel : OptionsPanelBase
 	{
 		var _tabStrip = AutoTabstrip.AddTabstrip(_panel, 0f, 0f, _panel.width, _panel.height - 15F, out _, tabHeight: 32f);
 
-		_ = new LineOptions(Util.Markings.MarkingType.IMT, _tabStrip, 0);
-		_ = new FillerOptions(Util.Markings.MarkingType.IMT, _tabStrip, 1);
+		new LineOptions(Util.Markings.MarkingType.IMT, _tabStrip, 0);
+		new FillerOptions(Util.Markings.MarkingType.IMT, _tabStrip, 1);
 
 		_tabStrip.selectedIndex = -1;
 		_tabStrip.selectedIndex = 0;
@@ -27,8 +27,8 @@ internal class VanillaOptionsPanel : OptionsPanelBase
 	{
 		var _tabStrip = AutoTabstrip.AddTabstrip(_panel, 0f, 0f, _panel.width, _panel.height - 15F, out _, tabHeight: 32f);
 
-		_ = new LineOptions(Util.Markings.MarkingType.AN, _tabStrip, 0);
-		_ = new FillerOptions(Util.Markings.MarkingType.AN, _tabStrip, 1);
+		new LineOptions(Util.Markings.MarkingType.AN, _tabStrip, 0);
+		new FillerOptions(Util.Markings.MarkingType.AN, _tabStrip, 1);
 
 		_tabStrip.selectedIndex = -1;
 		_tabStrip.selectedIndex = 0;

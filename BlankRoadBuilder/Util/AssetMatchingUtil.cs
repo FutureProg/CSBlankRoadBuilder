@@ -27,7 +27,7 @@ public static class AssetMatchingUtil
 				if (!File.Exists(matchingFile))
 				{
 					_matchingFileData = new MatchingFile();
-					_ = UpdateMatchingFile();
+					UpdateMatchingFile();
 					return _matchingFileData;
 				}
 
@@ -109,7 +109,7 @@ public static class AssetMatchingUtil
 		}
 		var toRemove = matchingData.Assets[roadConfigFile];
 		var re = new Asset { CrpFile = toRemove, RoadConfigFile = roadConfigFile };
-		_ = matchingData.Assets.Remove(roadConfigFile);
+		matchingData.Assets.Remove(roadConfigFile);
 		return re;
 	}
 

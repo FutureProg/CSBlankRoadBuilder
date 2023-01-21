@@ -518,7 +518,7 @@ public static class NetworkMarkings
 
 			var exportedFile = Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(originalFile).Replace(file, guid));
 
-			_ = Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
+			Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
 			File.WriteAllLines(exportedFile, lines);
 		}

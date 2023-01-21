@@ -6,8 +6,6 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
-using UnityEngine;
-
 namespace BlankRoadBuilder.Util;
 
 public static class AssetUtil
@@ -49,7 +47,7 @@ public static class AssetUtil
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
 
-		_ = Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
+		Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{

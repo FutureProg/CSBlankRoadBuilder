@@ -25,7 +25,7 @@ public static class Patcher
 				var harmony = new Harmony(HarmonyID);
 				harmony.PatchAll(typeof(Patcher).Assembly);
 
-				_ = harmony.Patch(typeof(NetManager).GetMethod(nameof(NetManager.CreateSegment), new Type[] { typeof(ushort).MakeByRefType(), typeof(Randomizer).MakeByRefType(), typeof(NetInfo), typeof(TreeInfo), typeof(ushort), typeof(ushort), typeof(Vector3), typeof(Vector3), typeof(uint), typeof(uint), typeof(bool) })
+				harmony.Patch(typeof(NetManager).GetMethod(nameof(NetManager.CreateSegment), new Type[] { typeof(ushort).MakeByRefType(), typeof(Randomizer).MakeByRefType(), typeof(NetInfo), typeof(TreeInfo), typeof(ushort), typeof(ushort), typeof(Vector3), typeof(Vector3), typeof(uint), typeof(uint), typeof(bool) })
 					, postfix: new HarmonyMethod(typeof(Segment.UpdateEndSegments).GetMethod(nameof(Segment.UpdateEndSegments.Postfix), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)));
 
 				Patched = true;
