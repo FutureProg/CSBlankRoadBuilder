@@ -75,7 +75,7 @@
 
 	<PropertyGroup>
 		<PostBuildEvent>
-			copy /y "../Build/MarkingTransitionFlag.dll" "../../BlankRoadBuilder/ModContents/MarkingTransitionFlag.dll"
+			copy /y "../Build/MarkingTransitionFlag.dll" "../../BlankRoadBuilder/Expressions/MarkingTransitionFlag.dll"
 		</PostBuildEvent>
 		<BaseOutputPath>Output</BaseOutputPath>
 	</PropertyGroup>

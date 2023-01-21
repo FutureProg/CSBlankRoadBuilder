@@ -284,7 +284,7 @@ public static class RoadBuilderUtil
 		var assembly = typeof(BlankRoadBuilderMod).Assembly;
 
 		// Get the name of the embedded resource
-		var resourceName = $"{nameof(BlankRoadBuilder)}.ModContents.{name}.dll";
+		var resourceName = $"{nameof(BlankRoadBuilder)}.Expressions.{name}.dll";
 
 		// Load the embedded resource as a stream
 		var stream = assembly.GetManifestResourceStream(resourceName);

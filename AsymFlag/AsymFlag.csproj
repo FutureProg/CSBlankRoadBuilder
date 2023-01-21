@@ -75,7 +75,7 @@
 
 	<PropertyGroup>
 		<PostBuildEvent>
-			copy /y "../Build/AsymFlag.dll" "../../BlankRoadBuilder/ModContents/AsymFlag.dll"
+			copy /y "../Build/AsymFlag.dll" "../../BlankRoadBuilder/Expressions/AsymFlag.dll"
 		</PostBuildEvent>
 		<BaseOutputPath>Output</BaseOutputPath>
 	</PropertyGroup>

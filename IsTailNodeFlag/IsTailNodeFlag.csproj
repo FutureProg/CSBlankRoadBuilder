@@ -75,7 +75,7 @@
 
 	<PropertyGroup>
 		<PostBuildEvent>
-			copy /y "../Build/IsTailNodeFlag.dll" "../../BlankRoadBuilder/ModContents/IsTailNodeFlag.dll"
+			copy /y "../Build/IsTailNodeFlag.dll" "../../BlankRoadBuilder/Expressions/IsTailNodeFlag.dll"
 		</PostBuildEvent>
 		<BaseOutputPath>Output</BaseOutputPath>
 	</PropertyGroup>

@@ -75,7 +75,7 @@
 
 	<PropertyGroup>
 		<PostBuildEvent>
-			copy /y "../Build/HighCurbFlag.dll" "../../BlankRoadBuilder/ModContents/HighCurbFlag.dll"
+			copy /y "../Build/HighCurbFlag.dll" "../../BlankRoadBuilder/Expressions/HighCurbFlag.dll"
 		</PostBuildEvent>
 		<BaseOutputPath>Output</BaseOutputPath>
 	</PropertyGroup>

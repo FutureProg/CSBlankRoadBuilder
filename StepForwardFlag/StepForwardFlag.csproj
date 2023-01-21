@@ -75,7 +75,7 @@
 
 	<PropertyGroup>
 		<PostBuildEvent>
-			copy /y "../Build/StepForwardFlag.dll" "../../BlankRoadBuilder/ModContents/StepForwardFlag.dll"
+			copy /y "../Build/StepForwardFlag.dll" "../../BlankRoadBuilder/Expressions/StepForwardFlag.dll"
 		</PostBuildEvent>
 		<BaseOutputPath>Output</BaseOutputPath>
 	</PropertyGroup>

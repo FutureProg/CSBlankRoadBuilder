@@ -75,7 +75,7 @@
 
 	<PropertyGroup>
 		<PostBuildEvent>
-			copy /y "../Build/TrolleyWiresFlag.dll" "../../BlankRoadBuilder/ModContents/TrolleyWiresFlag.dll"
+			copy /y "../Build/TrolleyWiresFlag.dll" "../../BlankRoadBuilder/Expressions/TrolleyWiresFlag.dll"
 		</PostBuildEvent>
 		<BaseOutputPath>Output</BaseOutputPath>
 	</PropertyGroup>
