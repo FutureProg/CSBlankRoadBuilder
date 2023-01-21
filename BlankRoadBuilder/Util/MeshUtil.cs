@@ -23,10 +23,7 @@ public static class MeshUtil
 
 	public static void UpdateMeshes(RoadInfo roadInfo, NetInfo netInfo, ElevationType elevation)
 	{
-		if (elevation == ElevationType.Bridge)
-			elevation = ElevationType.Elevated;
-
-		if (elevation > ElevationType.Elevated)
+		if (elevation > ElevationType.Bridge)
 			return;
 
 		var segments = GetSegments(elevation, roadInfo);

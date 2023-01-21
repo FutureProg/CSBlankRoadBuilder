@@ -6,6 +6,8 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
+using UnityEngine;
+
 namespace BlankRoadBuilder.Util;
 
 public static class AssetUtil
@@ -19,9 +21,10 @@ public static class AssetUtil
 			curb = CurbType.HC;
 		}
 
-		var fileName = $"{elevationType.ToString().ToLower()}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
+		var fileName = $"{MeshName(elevationType)}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
+		var exportName = $"{elevationType}_{(inverted ? "inverted_" : "")}{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 
-		PrepareMeshFiles(road, name, meshType, elevationType, curb, curbless, inverted, sidewalkTransition, fileName);
+		PrepareMeshFiles(road, name, meshType, elevationType, curb, curbless, inverted, sidewalkTransition, fileName, exportName);
 
 		return ImportAsset(
 			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
@@ -59,22 +62,28 @@ public static class AssetUtil
 		}
 	}
 
-	private static void PrepareMeshFiles(RoadInfo road, string name, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, bool inverted, bool sidewalkTransition, string fileName)
+	private static void PrepareMeshFiles(RoadInfo road, string name, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, bool inverted, bool sidewalkTransition, string fileName, string exportFile)
 	{
+		Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
+
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
+		var exportName = Path.GetFileNameWithoutExtension(exportFile);
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			_ = Resize(file, name, road, curb, curbless, inverted, sidewalkTransition);
+			var lines = Resize(file, name, road, curb, curbless, inverted, sidewalkTransition);
+			var exportedFile = Path.Combine(BlankRoadBuilderMod.ImportFolder, $"{exportName}{(file.Contains("_lod") ? "_lod" : "")}.obj");
+
+			File.WriteAllLines(exportedFile, lines);
 		}
 
-		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{elevationType}*".ToLower()))
+		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{MeshName(elevationType)}*".ToLower()))
 		{
 			var regex = Regex.Match(Path.GetFileName(file), @"(_[^l][A-z]+)?_(\w)\.png", RegexOptions.IgnoreCase);
 			var lod = file.Contains("_lod");
 			var mesh = regex.Groups[2].Value.ToLower();
 			var type = regex.Groups[1].Value.ToLower().TrimStart('_');
-			var newName = $"{baseName}{(lod ? "_lod" : "")}_{mesh}.png";
+			var newName = $"{exportName}{(lod ? "_lod" : "")}_{mesh}.png";
 
 			if (mesh is "p" or "r")
 			{
@@ -96,7 +105,7 @@ public static class AssetUtil
 		}
 	}
 
-	public static string Resize(string file, string name, RoadInfo road, CurbType curb, bool curbless, bool inverted, bool sidewalkTransition)
+	public static string[] Resize(string file, string name, RoadInfo road, CurbType curb, bool curbless, bool inverted, bool sidewalkTransition)
 	{
 		var baseWidth = 8F;
 		var newWidth = road.TotalWidth;
@@ -175,12 +184,15 @@ public static class AssetUtil
 			}
 		}
 
-		var exportedFile = Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file));
+		return lines;
+	}
 
-		_ = Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
-
-		File.WriteAllLines(exportedFile, lines);
-
-		return exportedFile;
+	private static string MeshName(ElevationType elevationType)
+	{
+		return elevationType switch
+		{
+			ElevationType.Bridge or ElevationType.Elevated => "elevated",
+			_ => "basic",
+		};
 	}
 }
