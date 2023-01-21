@@ -38,8 +38,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<None Remove="Expressions\**" />
-	<EmbeddedResource Include="Expressions\**" />
+    <None Remove="Expressions\**" />
+    <EmbeddedResource Include="Expressions\**" />
   </ItemGroup>
 
   <ItemGroup>

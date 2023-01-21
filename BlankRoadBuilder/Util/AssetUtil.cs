@@ -29,7 +29,7 @@ public static class AssetUtil
 		return ImportAsset(
 			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
 			meshType,
-			fileName,
+			exportName,
 			filesReady: true);
 	}
 

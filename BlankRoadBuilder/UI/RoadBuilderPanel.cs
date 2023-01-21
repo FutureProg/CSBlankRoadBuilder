@@ -128,6 +128,8 @@ public class RoadBuilderPanel : StandalonePanel
 		{
 			if (stateInfo.Exception != null)
 			{
+				Debug.LogException(stateInfo.Exception);
+
 				var panel = UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel");
 
 				panel.SetMessage("Failed to generate this road", $"{stateInfo.Exception.Message}\r\n\r\n{stateInfo.Exception}", true);

@@ -289,6 +289,9 @@ public static class RoadBuilderUtil
 		// Load the embedded resource as a stream
 		var stream = assembly.GetManifestResourceStream(resourceName);
 
+		if (stream == null)
+		{ throw new Exception("Could not load the expression: " + name); }
+
 		// Convert the stream to a byte array
 		byte[] bytes;
 		using (var ms = new MemoryStream())

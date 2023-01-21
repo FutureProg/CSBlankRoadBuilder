@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net3.5</TargetFramework>
-	<Version>1.1.0</Version>
-	<FileVersion>1.1.0</FileVersion>
-	<AssemblyVersion>1.1.0</AssemblyVersion>  
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net3.5</TargetFramework>
+		<Version>1.1.0</Version>
+		<FileVersion>1.1.0</FileVersion>
+		<AssemblyVersion>1.1.0</AssemblyVersion>
+	</PropertyGroup>
 
 	<PropertyGroup>
 		<ManagedDLLPath>../dependencies</ManagedDLLPath>
@@ -31,9 +31,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="ModContents\**" />
-	  <EmbeddedResource Remove="ModContents\**" />
-	  <None Remove="ModContents\**" />
+		<Compile Remove="ModContents\**" />
+		<EmbeddedResource Remove="ModContents\**" />
+		<None Remove="ModContents\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -75,7 +75,7 @@
 
 	<PropertyGroup>
 		<PostBuildEvent>
-			copy /y "../Build/AnyStopFlag.dll" "../../BlankRoadBuilder/ModContents/AnyStopFlag.dll"
+			copy /y "../Build/AnyStopFlag.dll" "../../BlankRoadBuilder/Expressions/AnyStopFlag.dll"
 		</PostBuildEvent>
 		<BaseOutputPath>Output</BaseOutputPath>
 	</PropertyGroup>
