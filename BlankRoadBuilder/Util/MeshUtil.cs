@@ -39,8 +39,6 @@ public static class MeshUtil
 			segments.AddRange(NetworkMarkings.Markings(roadInfo, netInfo, markings));
 
 			segments.AddRange(NetworkMarkings.IMTHelpers(roadInfo, netInfo, markings));
-
-			nodes.AddRange(NetworkMarkings.IMTNodeHelpers(roadInfo, netInfo, markings));
 		}
 
 		netInfo.m_segments = segments.ToArray();
@@ -128,8 +126,8 @@ public static class MeshUtil
 
 			for (var i = 0; i < list.Count / 2; i++)
 			{
-				list[i].GetMetaData().SegmentEndFlags.Forbidden |= NetSegmentEnd.Flags.IsTailNode;
-				list[i + (list.Count / 2)].GetMetaData().SegmentEndFlags.Required |= NetSegmentEnd.Flags.IsTailNode;
+				list[i].GetMetaData().SegmentEndFlags.Forbidden |= RoadUtils.S_IsTailNode;
+				list[i + (list.Count / 2)].GetMetaData().SegmentEndFlags.Required |= RoadUtils.S_IsTailNode;
 			}
 		}
 
@@ -296,6 +294,7 @@ public static class MeshUtil
 				m_lodMaterial = railModelLeft.m_material,
 				NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_RemoveTramWires },
 				SegmentFlags = new SegmentInfoFlags { Forbidden = RoadUtils.S_RemoveTramSupports },
+				LaneTransitionFlags = new LaneTransitionInfoFlags { Required = RoadUtils.T_TrolleyWires },
 				VerticalOffset = -4.55F,
 				LaneTags = new LaneTagsT(new[] { "RoadBuilderLeftTrolleyWire" }),
 				LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, VehicleInfo.VehicleType.TrolleybusLeftPole)
@@ -310,6 +309,7 @@ public static class MeshUtil
 				m_lodMaterial = railModelRight.m_material,
 				NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_RemoveTramWires },
 				SegmentFlags = new SegmentInfoFlags { Forbidden = RoadUtils.S_RemoveTramSupports },
+				LaneTransitionFlags = new LaneTransitionInfoFlags { Required = RoadUtils.T_TrolleyWires },
 				VerticalOffset = -4.55F,
 				LaneTags = new LaneTagsT(new[] { "RoadBuilderRightTrolleyWire" }),
 				LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, VehicleInfo.VehicleType.TrolleybusRightPole)

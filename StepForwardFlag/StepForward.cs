@@ -12,9 +12,9 @@ namespace StepForwardFlag
 	{
 		public override bool Condition()
 		{
-			var node = (Segment.Has(NetSegment.Flags.Invert) ? Segment.VanillaSegment.GetTailNode() : Segment.VanillaSegment.GetHeadNode()).ToNodeExt();
+			var node = (Segment.Has(NetSegment.Flags.Invert) == !Segment.Has(NetSegmentExt.Flags.LeftHandTraffic) ? Segment.VanillaSegment.GetTailNode() : Segment.VanillaSegment.GetHeadNode()).ToNodeExt();
 
-			if (!node.Has(NetNodeExt.Flags.SamePrefab))
+			if (!SamePrefab(node))
 				return true;
 
 			if (node.Has(NetNode.Flags.Middle))
@@ -36,6 +36,18 @@ namespace StepForwardFlag
 			}
 
 			return true;
+		}
+
+		private bool SamePrefab(NetNodeExt node)
+		{
+			var InfoA = node.SegmentIDs.First().ToSegment().Info;
+			var InfoD = node.SegmentIDs.Last().ToSegment().Info;
+
+			return (InfoA == InfoD // Same road
+				|| (InfoA.m_netAI as RoadAI)?.m_elevatedInfo == InfoD
+				|| (InfoD.m_netAI as RoadAI)?.m_elevatedInfo == InfoA
+				|| (InfoA.m_netAI as RoadAI)?.m_slopeInfo == InfoD
+				|| (InfoD.m_netAI as RoadAI)?.m_slopeInfo == InfoA);
 		}
 	}
 }

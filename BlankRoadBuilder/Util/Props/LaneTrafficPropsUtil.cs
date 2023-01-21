@@ -45,6 +45,7 @@ public static partial class LanePropsUtil
 			if (!GetSideLanes(lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
 			{
 				yield return StopSign(propPosition);
+				yield return YieldSign(propPosition);
 
 				foreach (var prop in GetWarningSigns(lane))
 				{
@@ -65,6 +66,7 @@ public static partial class LanePropsUtil
 			if (!GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
 			{
 				yield return StopSign(propPosition).ToggleForwardBackward();
+				yield return YieldSign(propPosition).ToggleForwardBackward();
 
 				foreach (var prop in GetWarningSigns(lane))
 				{
@@ -75,6 +77,15 @@ public static partial class LanePropsUtil
 			if (!GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
 				yield return SpeedSign(road, lane).ToggleForwardBackward();
+			}
+		}
+
+		if (lane.Type == LaneType.Curb)
+		{
+			if (road.RoadType == RoadType.Highway)
+			{
+				yield return HighwaySign(propPosition).ToggleForwardBackward(lane.Direction == LaneDirection.Backwards);
+				yield return HighwayEndSign(propPosition).ToggleForwardBackward(lane.Direction == LaneDirection.Backwards);
 			}
 		}
 	}
@@ -251,7 +262,6 @@ public static partial class LanePropsUtil
 		{
 			m_prop = stopSign,
 			m_finalProp = stopSign,
-			m_flagsRequired = NetLane.Flags.YieldEnd,
 			m_flagsForbidden = NetLane.Flags.Inverted,
 			m_startFlagsRequired = NetNode.Flags.None,
 			m_startFlagsForbidden = NetNode.Flags.None,
@@ -263,58 +273,111 @@ public static partial class LanePropsUtil
 			m_angle = 0,
 			m_probability = 100,
 			m_position = new Vector3(propPosition, 0, 0),
-		};
+		}.Extend(p => new NetInfoExtionsion.LaneProp(p)
+		{
+			SegmentEndFlags = new NetInfoExtionsion.SegmentEndInfoFlags
+			{
+				Required = NetSegmentEnd.Flags.Stop
+			}
+		});
+	}
+
+	private static NetLaneProps.Prop YieldSign(float propPosition)
+	{
+		var stopSign = GetProp(Prop.YieldSign);
+
+		return new NetLaneProps.Prop
+		{
+			m_prop = stopSign,
+			m_finalProp = stopSign,
+			m_flagsForbidden = NetLane.Flags.Inverted,
+			m_startFlagsRequired = NetNode.Flags.None,
+			m_startFlagsForbidden = NetNode.Flags.None,
+			m_endFlagsRequired = NetNode.Flags.Junction,
+			m_endFlagsForbidden = NetNode.Flags.TrafficLights | NetNode.Flags.OneWayIn,
+			m_minLength = 0,
+			m_repeatDistance = 0,
+			m_segmentOffset = 1,
+			m_angle = 0,
+			m_probability = 100,
+			m_position = new Vector3(propPosition, 0, 0),
+		}.Extend(p => new NetInfoExtionsion.LaneProp(p)
+		{
+			SegmentEndFlags = new NetInfoExtionsion.SegmentEndInfoFlags
+			{
+				Required = NetSegmentEnd.Flags.Yield
+			}
+		});
+	}
+
+	private static NetLaneProps.Prop HighwaySign(float propPosition)
+	{
+		var stopSign = GetProp(Prop.HighwaySign);
+
+		return new NetLaneProps.Prop
+		{
+			m_prop = stopSign,
+			m_finalProp = stopSign,
+			m_flagsForbidden = NetLane.Flags.Inverted,
+			m_startFlagsRequired = NetNode.Flags.Transition,
+			m_startFlagsForbidden = NetNode.Flags.None,
+			m_minLength = 20,
+			m_repeatDistance = 0,
+			m_segmentOffset = -1,
+			m_angle = -20,
+			m_probability = 100,
+			m_position = new Vector3(propPosition, 0, 10),
+		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
+		{
+			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
+			{ Forbidden = RoadUtils.S_RemoveRoadClutter }
+		});
+	}
+
+	private static NetLaneProps.Prop HighwayEndSign(float propPosition)
+	{
+		var stopSign = GetProp(Prop.HighwayEndSign);
+
+		return new NetLaneProps.Prop
+		{
+			m_prop = stopSign,
+			m_finalProp = stopSign,
+			m_flagsForbidden = NetLane.Flags.Inverted,
+			m_endFlagsRequired = NetNode.Flags.Transition,
+			m_startFlagsForbidden = NetNode.Flags.None,
+			m_minLength = 20,
+			m_repeatDistance = 0,
+			m_segmentOffset = 0,
+			m_angle = 70,
+			m_probability = 100,
+			m_position = new Vector3(propPosition, 0, 10),
+		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
+		{
+			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
+			{ Forbidden = RoadUtils.S_RemoveRoadClutter }
+		});
 	}
 
 	private static NetLaneProps.Prop SpeedSign(RoadInfo road, LaneInfo lane)
 	{
-		PropInfo? sign = null;
-
-		switch ((int)Math.Round(road.SpeedLimit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10)
+		PropInfo? sign = ((int)Math.Round(road.SpeedLimit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10) switch
 		{
-			case 10:
-				sign = GetProp(Prop.SpeedSign10);
-				break;
-			case 20:
-				sign = GetProp(Prop.SpeedSign20);
-				break;
-			case 30:
-				sign = GetProp(Prop.SpeedSign30);
-				break;
-			case 40:
-				sign = GetProp(Prop.SpeedSign40);
-				break;
-			case 50:
-				sign = GetProp(Prop.SpeedSign50);
-				break;
-			case 60:
-				sign = GetProp(Prop.SpeedSign60);
-				break;
-			case 70:
-				sign = GetProp(Prop.SpeedSign70);
-				break;
-			case 80:
-				sign = GetProp(Prop.SpeedSign80);
-				break;
-			case 90:
-				sign = GetProp(Prop.SpeedSign90);
-				break;
-			case 100:
-				sign = GetProp(Prop.SpeedSign100);
-				break;
-			case 110:
-				sign = GetProp(Prop.SpeedSign110);
-				break;
-			case 120:
-				sign = GetProp(Prop.SpeedSign120);
-				break;
-			case 130:
-				sign = GetProp(Prop.SpeedSign130);
-				break;
-			case 140:
-				sign = GetProp(Prop.SpeedSign140);
-				break;
-		}
+			10 => GetProp(Prop.SpeedSign10),
+			20 => GetProp(Prop.SpeedSign20),
+			30 => GetProp(Prop.SpeedSign30),
+			40 => GetProp(Prop.SpeedSign40),
+			50 => GetProp(Prop.SpeedSign50),
+			60 => GetProp(Prop.SpeedSign60),
+			70 => GetProp(Prop.SpeedSign70),
+			80 => GetProp(Prop.SpeedSign80),
+			90 => GetProp(Prop.SpeedSign90),
+			100 => GetProp(Prop.SpeedSign100),
+			110 => GetProp(Prop.SpeedSign110),
+			120 => GetProp(Prop.SpeedSign120),
+			130 => GetProp(Prop.SpeedSign130),
+			140 => GetProp(Prop.SpeedSign140),
+			_ => new PropTemplate(string.Empty)
+		};
 
 		return new NetLaneProps.Prop
 		{

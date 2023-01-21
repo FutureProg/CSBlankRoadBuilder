@@ -45,10 +45,12 @@ public static class RoadUtils
 	public const NetSegmentExt.Flags S_AsymInverted = NetSegmentExt.Flags.Expression4;
 
 	public const NetSegmentEnd.Flags S_HighCurb = NetSegmentEnd.Flags.Expression0;
-	public const NetSegmentEnd.Flags N_Asym = NetSegmentEnd.Flags.Expression1;
-	public const NetSegmentEnd.Flags N_AsymInverted = NetSegmentEnd.Flags.Expression2;
+	public const NetSegmentEnd.Flags S_IsTailNode = NetSegmentEnd.Flags.Expression1;
+	public const NetSegmentEnd.Flags N_Asym = NetSegmentEnd.Flags.Expression2;
+	public const NetSegmentEnd.Flags N_AsymInverted = NetSegmentEnd.Flags.Expression3;
 
 	public const LaneTransition.Flags T_Markings = LaneTransition.Flags.Expression0;
+	public const LaneTransition.Flags T_TrolleyWires = LaneTransition.Flags.Expression1;
 
 	public const NetNodeExt.Flags N_FlatTransition = NetNodeExt.Flags.Expression0;
 

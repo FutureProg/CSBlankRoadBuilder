@@ -67,4 +67,7 @@ public enum Prop
 	Pillar24 = 63,
 	Pillar30 = 64,
 	Pillar38 = 65,
+	YieldSign = 66,
+	HighwaySign = 67,
+	HighwayEndSign = 68,
 }

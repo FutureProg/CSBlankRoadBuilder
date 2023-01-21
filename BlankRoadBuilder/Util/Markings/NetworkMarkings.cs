@@ -136,16 +136,22 @@ public static class NetworkMarkings
 				transitionFillerForward.Value.MetaData.Forward.Forbidden |= RoadUtils.S_StepBackward;
 				transitionFillerForward.Value.MetaData.Backward.Required |= RoadUtils.S_StepBackward;
 				transitionFillerForward.Value.MetaData.Backward.Forbidden |= RoadUtils.S_StepForward;
+				transitionFillerForward.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
+				transitionFillerForward.Value.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
 
 				transitionFillerBackward.Value.MetaData.Forward.Required |= RoadUtils.S_StepBackward;
 				transitionFillerBackward.Value.MetaData.Forward.Forbidden |= RoadUtils.S_StepForward;
 				transitionFillerBackward.Value.MetaData.Backward.Required |= RoadUtils.S_StepForward;
 				transitionFillerBackward.Value.MetaData.Backward.Forbidden |= RoadUtils.S_StepBackward;
+				transitionFillerBackward.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
+				transitionFillerBackward.Value.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
 
 				transitionBothFiller.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert;
 				transitionBothFiller.Value.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
 				transitionBothFiller.Value.MetaData.Forward.Required |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
 				transitionBothFiller.Value.MetaData.Backward.Required |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
+				transitionBothFiller.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
+				transitionBothFiller.Value.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
 
 				yield return filler;
 				yield return transitionFillerForward;
@@ -189,70 +195,6 @@ public static class NetworkMarkings
 
 				return filler;
 			}
-		}
-	}
-
-	public static IEnumerable<NetInfo.Node> IMTNodeHelpers(RoadInfo roadInfo, NetInfo netInfo, MarkingsInfo markings)
-	{
-		yield break;
-		foreach (var lane in roadInfo.Lanes)
-		{
-			if (lane.Elevation == null || lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel, LaneDecoration.Pavement))
-				continue;
-
-			if (lane.Elevation == (!lane.Tags.HasFlag(LaneTag.Sidewalk) && roadInfo.RoadType == RoadType.Road ? -0.3F : 0F))
-				continue;
-
-			var fillerMarking = new FillerMarking
-			{
-				LeftPoint = new MarkingPoint(lane.LeftLane, lane),
-				RightPoint = new MarkingPoint(lane, lane.RightLane),
-				Elevation = lane.LaneElevation,
-				Helper = true,
-				Type = LaneDecoration.None
-			};
-
-			var filler = fillerMarking?.AN_Info;
-
-			if (fillerMarking == null || filler == null)
-				continue;
-
-			yield return generateNode(lane, fillerMarking, filler, false, false);
-			yield return generateNode(lane, fillerMarking, filler, true, false);
-			yield return generateNode(lane, fillerMarking, filler, false, true);
-			yield return generateNode(lane, fillerMarking, filler, true, true);
-		}
-
-		static NetInfo.Node generateNode(LaneInfo lane, FillerMarking fillerMarking, MarkingStyleUtil.FillerInfo filler, bool flipped, bool inverted)
-		{
-			var mesh = GenerateMesh(fillerMarking, null, $"{fillerMarking.Type} Step" + (flipped ? " Flipped" : ""), true, flipped != inverted);
-
-			GenerateTexture(fillerMarking.Lanes.First(), false, mesh, default, filler.Color, filler.MarkingStyle == MarkingFillerType.Dashed ? MarkingLineType.Dashed : MarkingLineType.Solid, filler.DashLength, filler.DashSpace);
-
-			var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
-
-			var node = new MeshInfo<NetInfo.Node, Node>(model);
-
-			node.MetaData.Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F;
-			node.MetaData.VanillaSegmentFlags.Required = inverted ? NetSegment.Flags.Invert : NetSegment.Flags.None;
-			node.MetaData.SegmentEndFlags.Required = flipped ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode : AdaptiveRoads.Manager.NetSegmentEnd.Flags.None;
-			node.MetaData.SegmentEndFlags.Forbidden = flipped ? AdaptiveRoads.Manager.NetSegmentEnd.Flags.None : AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode;
-
-			if (lane.Decorations.HasFlag(LaneDecoration.Filler))
-			{
-				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings))
-				{
-					node.MetaData.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
-					node.MetaData.SegmentFlags.Forbidden |= RoadUtils.S_RemoveMarkings;
-				}
-				else if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.VanillaMarkings))
-				{
-					node.MetaData.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
-					node.MetaData.SegmentFlags.Required |= RoadUtils.S_RemoveMarkings;
-				}
-			}
-
-			return node;
 		}
 	}
 
@@ -434,7 +376,7 @@ public static class NetworkMarkings
 		if (type != null && (type.MarkingStyle == MarkingLineType.SolidDouble || type.MarkingStyle == MarkingLineType.SolidDashed || type.MarkingStyle == MarkingLineType.DashedDouble || type.MarkingStyle == MarkingLineType.DashedSolid))
 			lineWidth *= 3;
 
-		var file = fillerMarking == null ? "Marking" : (fillerMarking.Helper || fillerMarking.Type == LaneDecoration.Filler || fillerMarking.Elevation == fillerMarking.Lanes.Min(x => x.SurfaceElevation)) ? "Platform" : fillerMarking.Type == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
+		var file = fillerMarking == null ? "Marking" : (fillerMarking.Helper || fillerMarking.Type == LaneDecoration.Filler || (fillerMarking.Type != LaneDecoration.Grass && fillerMarking.Elevation == fillerMarking.Lanes.Min(x => x.SurfaceElevation))) ? "Platform" : fillerMarking.Type == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
 
 		var guid = Guid.NewGuid().ToString();
 

@@ -28,7 +28,7 @@ public static partial class LanePropsUtil
 			if (prop.m_flagsForbidden.HasFlag(NetLane.Flags.Inverted) && prop is not RhtProp)
 			{
 				var lhtProp = prop.Clone()
-					.ToggleRHT_LHT(lane.Direction is LaneDirection.Forward or LaneDirection.Backwards);
+					.ToggleRHT_LHT(lane.Direction is LaneDirection.Forward or LaneDirection.Backwards && lane.Type is not LaneType.Curb);
 
 				result.Add(lhtProp);
 			}
@@ -69,6 +69,7 @@ public static partial class LanePropsUtil
 
 					break;
 				case LaneType.Bus:
+				case LaneType.Trolley:
 					foreach (var prop in GetBusLaneProps(lane))
 						yield return prop;
 

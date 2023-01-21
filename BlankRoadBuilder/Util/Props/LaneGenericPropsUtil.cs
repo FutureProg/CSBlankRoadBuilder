@@ -157,7 +157,7 @@ public static partial class LanePropsUtil
 
 	private static IEnumerable<NetLaneProps.Prop> GetLights(LaneInfo lane, RoadInfo road)
 	{
-		if (road.Lanes.Any(x => x.Decorations.HasAnyFlag(LaneDecoration.StreetLight, LaneDecoration.StreetLight)))
+		if (road.Lanes.Any(x => x.Decorations.HasAnyFlag(LaneDecoration.StreetLight, LaneDecoration.DoubleStreetLight)))
 			return new NetLaneProps.Prop[0];
 
 		if (lane.Tags.HasFlag(LaneTag.CenterMedian))
