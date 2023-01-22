@@ -151,7 +151,8 @@ public static class RoadBuilderUtil
 	private static void FillNetInfo(RoadInfo roadInfo, ElevationType elevation, NetInfo netInfo)
 	{
 		netInfo.m_surfaceLevel = roadInfo.RoadType == RoadType.Road ? -0.3F : 0F;
-		netInfo.m_clipTerrain = true;
+		netInfo.m_clipTerrain = elevation == ElevationType.Basic;
+		netInfo.m_lowerTerrain = elevation != ElevationType.Basic;
 		netInfo.m_pavementWidth = roadInfo.LeftPavementWidth;
 		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 2);
 		netInfo.m_maxBuildAngle = roadInfo.RoadType == RoadType.Highway ? 60F : 90F;
@@ -352,7 +353,8 @@ public static class RoadBuilderUtil
 				continue;
 			}
 
-			var pillar = PropUtil.GetProp(p.Value);
+			var template = PropUtil.GetProp(p.Value);
+			var pillar = (BuildingInfo)template;
 
 			if (pillar != null)
 			{

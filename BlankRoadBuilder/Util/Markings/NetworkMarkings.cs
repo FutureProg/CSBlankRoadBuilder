@@ -116,7 +116,7 @@ public static class NetworkMarkings
 	{
 		foreach (var lane in roadInfo.Lanes)
 		{
-			if (lane.Elevation == null || lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel, LaneDecoration.Pavement))
+			if (lane.Elevation == null || lane.Tags.HasFlag(LaneTag.StackedLane) || lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel, LaneDecoration.Pavement))
 				continue;
 
 			if (lane.Elevation == (!lane.Tags.HasFlag(LaneTag.Sidewalk) && roadInfo.RoadType == RoadType.Road ? -0.3F : 0F))
@@ -479,7 +479,7 @@ public static class NetworkMarkings
 							else if (fillerMarking.Type != LaneDecoration.Filler && yPos == -0.3F)
 								yPos = -0.01F + fillerMarking.Lanes.Min(x => x.SurfaceElevation);
 							else if (!transition)
-								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.0025F : 0.01F);
+								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.005F : 0.011F);
 							else
 							{
 								var start = fillerMarking.Elevation;
@@ -505,7 +505,7 @@ public static class NetworkMarkings
 							yPos = 0.0075F + lineMarking.Elevation;
 
 							if (originalFile.Contains("_lod.obj"))
-								yPos = Math.Max(0.0075F, yPos);
+								yPos = Math.Max(0.01F, yPos);
 						}
 
 						data[1] = xPos.ToString("0.00000000");
