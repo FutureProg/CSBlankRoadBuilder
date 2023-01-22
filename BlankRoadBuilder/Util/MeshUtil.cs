@@ -140,8 +140,11 @@ public static class MeshUtil
 			{
 				transition = new(GetModel(CurbType.TR, RoadAssetType.Node, roadInfo, elevation, "Transition", inverted));
 
-				highCurb.MetaData.NodeFlags.Forbidden |= RoadUtils.N_FlatTransition;
-				transition.MetaData.NodeFlags.Required |= RoadUtils.N_FlatTransition;
+				highCurb.Mesh.m_flagsForbidden |= NetNode.Flags.Transition;
+				transition.Mesh.m_flagsRequired |= NetNode.Flags.Transition;
+
+				//highCurb.MetaData.NodeFlags.Forbidden |= RoadUtils.N_FlatTransition;
+				//transition.MetaData.NodeFlags.Required |= RoadUtils.N_FlatTransition;
 
 				list.Add(transition);
 

@@ -16,7 +16,16 @@ namespace TrolleyWiresFlag
 			if (indexA == -1 || indexD == -1)
 				return false;
 
-			return InfoA.m_lanes[indexA].m_direction == InfoD.m_lanes[indexD].m_direction;
+			var laneA = InfoA.m_lanes[indexA];
+			var laneD = InfoD.m_lanes[indexD];
+
+			var directionA = SegmentA.GetHeadNode() == NodeID;
+			var directionD = SegmentD.GetHeadNode() == NodeID;
+
+			var inA = laneA.m_direction == NetInfo.Direction.Backward ? !directionA : directionA;
+			var inD = laneD.m_direction == NetInfo.Direction.Backward ? !directionD : directionD;
+
+			return inA != inD;
 		}
 
 		private int GetIndex(NetInfo road, NetInfo.Lane lane)

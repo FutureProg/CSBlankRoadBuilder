@@ -14,3 +14,12 @@ public class RenderGroupPatch_UpdateMeshData
 		return !RoadBuilderUtil.IsBuilding;
 	}
 }
+
+[HarmonyPatch(typeof(NetTool), "SimulationStep", new Type[] { })]
+public class NetToolPatch_SimulationStep
+{
+	public static bool Prefix()
+	{
+		return !RoadBuilderUtil.IsBuilding;
+	}
+}

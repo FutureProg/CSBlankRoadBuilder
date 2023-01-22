@@ -12,6 +12,8 @@ namespace TransitionFlag
 	{
 		public override bool Condition()
 		{
+			return Node.Has(NetNode.Flags.Transition) && (Node.VanillaNode.m_flags2 & NetNode.Flags2.PedestrianStreetTransition) == 0;
+
 			foreach (var segmentId in Node.SegmentIDs)
 			{
 				var segment = segmentId.ToSegment();

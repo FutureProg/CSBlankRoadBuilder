@@ -82,7 +82,7 @@ public static partial class LanePropsUtil
 
 		if (lane.Type == LaneType.Curb)
 		{
-			if (road.RoadType == RoadType.Highway)
+			if (road.RoadType == RoadType.Highway && road.Lanes.Any(x => x != lane && x.Direction == lane.Direction))
 			{
 				yield return HighwaySign(propPosition).ToggleForwardBackward(lane.Direction == LaneDirection.Backwards);
 				yield return HighwayEndSign(propPosition).ToggleForwardBackward(lane.Direction == LaneDirection.Backwards);
