@@ -19,8 +19,8 @@ public struct MeshInfo<MeshType, MetaDataType>
 			var mesh = new NetInfo.Segment().Extend().Base;
 			var data = new Segment(mesh)
 			{
-				Forward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless },
-				Backward = new SegmentInfoFlags { Forbidden = RoadUtils.S_Curbless }
+				Forward = new SegmentInfoFlags { Forbidden = RoadUtils.Flags.S_Curbless },
+				Backward = new SegmentInfoFlags { Forbidden = RoadUtils.Flags.S_Curbless }
 			};
 
 			(mesh as IInfoExtended)?.SetMetaData(data);
@@ -36,7 +36,7 @@ public struct MeshInfo<MeshType, MetaDataType>
 		else
 		{
 			var mesh = new NetInfo.Node().Extend().Base;
-			var data = new Node(mesh) { NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.N_Nodeless } };
+			var data = new Node(mesh) { NodeFlags = new NodeInfoFlags { Forbidden = RoadUtils.Flags.N_Nodeless } };
 
 			mesh.m_tagsForbidden = new string[0];
 			mesh.m_tagsRequired = new string[0];

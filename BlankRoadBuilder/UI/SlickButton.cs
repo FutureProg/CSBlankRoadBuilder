@@ -79,6 +79,9 @@ public class SlickButton : UIButton
 
 	private static UITextureAtlas GetIconAtlas(string? file)
 	{
+		if (string.IsNullOrEmpty(BlankRoadBuilderMod.ModFolder))
+			return new UITextureAtlas();
+
 		var iconTexture = new Image(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), file)).CreateTexture();
 		var texture = new Texture2D(iconTexture.width, 2 * iconTexture.height, TextureFormat.ARGB32, mipmap: false, linear: false);
 		var pixels = iconTexture.GetPixels32();

@@ -1,4 +1,5 @@
-﻿
+﻿extern alias NC;
+
 using AlgernonCommons.UI;
 
 using BlankRoadBuilder.UI.Options;
@@ -12,18 +13,19 @@ using ColossalFramework.UI;
 
 using ICities;
 
+using ModsCommon;
+using ModsCommon.Utilities;
+
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
 namespace BlankRoadBuilder;
-public class BlankRoadBuilderMod : IUserMod
+public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 {
-	public string Name => "Road Builder v" + VersionString;
-	public string Description => "Tool that allows you to create roads without dealing with the tedious asset editor";
 	public static Version ModVersion => typeof(BlankRoadBuilderMod).Assembly.GetName().Version;
-	public static string VersionString => ModVersion.ToString(3);
 
 	public static string BuilderFolder => Path.Combine(DataLocation.localApplicationData, "RoadBuilder");
 	public static string ImportFolder => Path.Combine(BuilderFolder, "Import");
@@ -32,7 +34,40 @@ public class BlankRoadBuilderMod : IUserMod
 	public static string TexturesFolder => Path.Combine(ModFolder, "Textures");
 	public static string? ModFolder { get; private set; }
 
-	public void OnEnabled()
+	protected override Version RequiredGameVersion => new Version(1, 16, 0, 3);
+	public override string NameRaw => "Road Builder";
+	public override string Description => "Tool that allows you to create roads without dealing with the tedious asset editor";
+	protected override ulong StableWorkshopId => 2891132324ul;
+	protected override ulong BetaWorkshopId => 2891132324ul;
+	protected override string IdRaw => nameof(BlankRoadBuilderMod);
+	public override bool IsBeta => false;
+	public override List<ModVersion> Versions { get; } = new List<ModVersion>
+	{
+		new ModVersion(new Version("1.1"), new DateTime(2023, 1, 22)),
+	};
+
+	protected override List<BaseDependencyInfo> DependencyInfos
+	{
+		get
+		{
+			var dependencyInfos = base.DependencyInfos;
+
+			dependencyInfos.Add(get("Intersection Marking Tool", 2140418403ul, 2159934925uL));
+			dependencyInfos.Add(get("Adaptive Networks", 2414618415ul, 2669938594uL));
+			dependencyInfos.Add(get("TM:PE", 1637663252ul, 2489276785uL));
+
+			return dependencyInfos;
+
+			static NeedDependencyInfo get(string name, ulong id, ulong id2)
+			{
+				var allSearcher = IdSearcher.Invalid & new UserModNameSearcher(name, BaseMatchSearcher.Option.AllOptions | BaseMatchSearcher.Option.StartsWidth);
+				var anySearcher = new IdSearcher(id) | new IdSearcher(id2);
+				return new NeedDependencyInfo(DependencyState.Enable, allSearcher | anySearcher, "Intersection Marking Tool", id);
+			}
+		}
+	}
+
+	protected override void Enable()
 	{
 		Directory.CreateDirectory(BuilderFolder);
 
@@ -64,7 +99,12 @@ public class BlankRoadBuilderMod : IUserMod
 		}
 		catch { }
 
-		HarmonyHelper.DoOnHarmonyReady(Patcher.PatchAll);
+		base.Enable();
+	}
+
+	protected override bool PatchProcess()
+	{
+		return Patcher.PatchAll();
 	}
 
 	static BlankRoadBuilderMod()
@@ -75,7 +115,7 @@ public class BlankRoadBuilderMod : IUserMod
 		}
 	}
 
-	public void OnSettingsUI(UIHelperBase helper)
+	protected override void GetSettings(UIHelperBase helper)
 	{
 		var s_optionsParentPanel = ((UIHelper)helper).self as UIScrollablePanel;
 
@@ -129,13 +169,5 @@ public class BlankRoadBuilderMod : IUserMod
 			DeleteAll(file);
 
 		Directory.Delete(directory);
-	}
-
-	public void OnDisabled()
-	{
-		if (HarmonyHelper.IsHarmonyInstalled)
-		{
-			Patcher.UnpatchAll();
-		}
 	}
 }

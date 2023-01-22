@@ -48,6 +48,9 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Reference Include="IntersectionMarkingTool.API">
+	  <HintPath>..\libs\IntersectionMarkingTool.API.dll</HintPath>
+	</Reference>
 	<Reference Include="AlgernonCommons.Patching">
 	  <HintPath>..\libs\AlgernonCommons.Patching.dll</HintPath>
 	</Reference>
@@ -61,10 +64,6 @@
 	</Reference>
 	<Reference Include="ICities">
 	  <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
-	  <Private>False</Private>
-	</Reference>
-	<Reference Include="NodeMarkup">
-	  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2140418403\NodeMarkup.dll</HintPath>
 	  <Private>False</Private>
 	</Reference>
 	<Reference Include="NodeControllerRenewal">
