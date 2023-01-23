@@ -216,7 +216,7 @@ public class IMTMarkings
 		}
 	}
 
-	private static void AddLines(LineMarking item, SegmentMarkup markup, Dictionary<float, MarkupEnterPoint> pointsA, Dictionary<float, MarkupEnterPoint> pointsB)
+	private void AddLines(LineMarking item, ISegmentMarkingData markup, Dictionary<float, IEntrancePointData> pointsA, Dictionary<float, IEntrancePointData> pointsB)
 	{
 		if (!pointsA.ContainsKey(item.Point.X) || !pointsB.ContainsKey(item.Point.X))
 		{
@@ -224,19 +224,17 @@ public class IMTMarkings
 			return;
 		}
 
-		var pair = new MarkupPointPair(pointsA[item.Point.X], pointsB[item.Point.X]);
+		var style = GetLineStyle(item);
 
-		if (info == null)
+		if (style == null)
 		{
 			return;
 		}
 
-		RegularLineStyle style;
-
-		markup.AddRegularLine(pair, style);
+		markup.AddRegularLine(pointsA[item.Point.X], pointsB[item.Point.X], style);
 	}
 
-	private IRegularLineStyleData GetLineStyle(LineMarking item)
+	private IRegularLineStyleData? GetLineStyle(LineMarking item)
 	{
 		var info = item.IMT_Info;
 
@@ -249,7 +247,7 @@ public class IMTMarkings
 				solidline.Width = info.LineWidth;
 
 				return solidline;
-				break;
+
 			case Domain.MarkingLineType.SolidDouble:
 				var doubleSolidLine = Provider.DoubleSolidLineStyle;
 
@@ -258,24 +256,43 @@ public class IMTMarkings
 				doubleSolidLine.Offset = info.LineWidth;
 
 				return doubleSolidLine;
-				break;
+
 			case Domain.MarkingLineType.Dashed:
-				style = new DashedLineStyle(info.Color, info.LineWidth, info.DashLength, info.DashSpace);
-				break;
+				var dashedLine = Provider.DashedLineStyle;
+
+				dashedLine.Color = info.Color;
+				dashedLine.Width = info.LineWidth;
+				dashedLine.DashLength = info.DashLength;
+				dashedLine.SpaceLength = info.DashSpace;
+
+				return dashedLine;
+
 			case Domain.MarkingLineType.DashedDouble:
-				style = new DoubleDashedLineStyle(info.Color, info.Color, false, info.LineWidth, info.DashLength, info.DashSpace, info.LineWidth);
-				break;
+				var doubleDashedLine = Provider.DoubleDashedLineStyle;
+
+				doubleDashedLine.Color = info.Color;
+				doubleDashedLine.Width = info.LineWidth;
+				doubleDashedLine.Offset = info.LineWidth;
+				doubleDashedLine.DashLength = info.DashLength;
+				doubleDashedLine.SpaceLength = info.DashSpace;
+
+				return doubleDashedLine;
+
 			case Domain.MarkingLineType.SolidDashed:
-				style = new SolidAndDashedLineStyle(info.Color, info.Color, false, info.LineWidth, info.DashLength, info.DashSpace, info.LineWidth);
-				break;
 			case Domain.MarkingLineType.DashedSolid:
-				var line = new SolidAndDashedLineStyle(info.Color, info.Color, false, info.LineWidth, info.DashLength, info.DashSpace, info.LineWidth);
-				line.Invert.Value = true;
-				style = line;
-				break;
-			default:
-				return;
+				var solidDashedLine = Provider.SolidAndDashedLineStyle;
+
+				solidDashedLine.Color = info.Color;
+				solidDashedLine.Width = info.LineWidth;
+				solidDashedLine.Offset = info.LineWidth;
+				solidDashedLine.DashLength = info.DashLength;
+				solidDashedLine.SpaceLength = info.DashSpace;
+				solidDashedLine.Invert = info?.MarkingStyle == Domain.MarkingLineType.DashedSolid;
+
+				return solidDashedLine;
 		}
+
+		return null;
 	}
 	private static Dictionary<float, IEntrancePointData> GetPoints(INodeEntranceData enter)
 	{

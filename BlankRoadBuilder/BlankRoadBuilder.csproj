@@ -104,8 +104,6 @@
 	<Import Project="..\ModsCommon\XmlExtension\XmlExtension.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\NetExtension\NetExtension.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\MathExtension\MathExtension.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\LocalizeShared\en-GB\LocalizeShared.en-GB.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\LocalizeShared\zh-CN\LocalizeShared.zh-CN.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\PluginsShared\PluginsShared.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\DependencyShared\DependencyShared.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\LoggerShared\LoggerShared.projitems" Label="Shared" />
@@ -116,10 +114,10 @@
 	<Import Project="..\ModsCommon\NetObjectMapShared\NetObjectMapShared.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\NetAssetDataExtension\NetAssetDataExtension.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\ColorsShared\ColorsShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\UUIRegisterShared\UUIRegisterShared.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\ToolPanelShared\ToolPanelShared.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\TriangulatorShared\Triangulator.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\LocalizeShared\LocalizeShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\LocalizeShared\LocalizeManager\LocalizeManager.projitems" Label="Shared" />
 
   <PropertyGroup>
 	<PostBuildEvent>

@@ -102,9 +102,8 @@ Global
 		ModsCommon\DependencyShared\DependencyShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\HeaderShared\HeaderShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\LoadExtensionShared\LoadExtensionShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
-		ModsCommon\LocalizeShared\en-GB\LocalizeShared.en-GB.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\LocalizeShared\LocalizeManager\LocalizeManager.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\LocalizeShared\LocalizeShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
-		ModsCommon\LocalizeShared\zh-CN\LocalizeShared.zh-CN.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\LoggerShared\LoggerShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\MathExtension\MathExtension.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\MessageBoxShared\MessageBoxShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
@@ -124,7 +123,6 @@ Global
 		ModsCommon\TrajectoryShared\TrajectoryShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\TriangulatorShared\Triangulator.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\UIShared\ModsUIShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
-		ModsCommon\UUIRegisterShared\UUIRegisterShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\WhatsNewMessageBoxShared\WhatsNewMessageBoxShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 		ModsCommon\XmlExtension\XmlExtension.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 	EndGlobalSection
