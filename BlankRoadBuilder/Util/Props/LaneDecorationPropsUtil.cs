@@ -172,14 +172,14 @@ public static partial class LanePropsUtil
 		var lightProp = GetProp(decoration == LaneDecoration.DoubleStreetLight ? Prop.DoubleStreetLight : Prop.SingleStreetLight);
 		var xPos = decoration == LaneDecoration.DoubleStreetLight ? 0 : (-lane.LaneWidth / 2) + 0.5F;
 
-		yield return getLight(road.ContainsWiredLanes ? 2F : 0F);
+		yield return getLight(road.ContainsWiredLanes ? (propAngle(lane) * 2F) : 0F);
 
 		if (ModOptions.VanillaStreetLightPlacement)
 		{
 			yield break;
 		}
 
-		for (var i = 24; i <= 24 * 4; i += 24)
+		for (var i = ModOptions.LightRepeatDistance; i <= 96; i += ModOptions.LightRepeatDistance)
 		{
 			yield return getLight(i);
 			yield return getLight(-i);
@@ -189,8 +189,8 @@ public static partial class LanePropsUtil
 		{
 			m_prop = lightProp,
 			m_finalProp = lightProp,
-			m_minLength = ModOptions.VanillaTreePlacement ? 10 : ((Math.Abs(position) * 2F) + 10F),
-			m_repeatDistance = ModOptions.VanillaTreePlacement ? 24 : 0,
+			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
+			m_repeatDistance = ModOptions.VanillaTreePlacement ? ModOptions.LightRepeatDistance : 0,
 			m_probability = 100,
 			m_position = new Vector3(xPos, 0, position)
 		}.Extend(prop => new LaneProp(prop)
@@ -304,7 +304,7 @@ public static partial class LanePropsUtil
 		var prop = GetProp(Prop.Grass);
 		var odd = (int)lane.LaneWidth % 2 == 1;
 		var numLines = Math.Max((int)Math.Ceiling(lane.LaneWidth) - 1, 1);
-		var pos = numLines == 1 ? (0) : (1 - (lane.LaneWidth / 2));
+		var pos = numLines == 1 ? 0 : (1 - (lane.LaneWidth / 2));
 
 		for (var i = 0; i < numLines; i++)
 		{
@@ -331,8 +331,8 @@ public static partial class LanePropsUtil
 				},
 				SegmentFlags = new SegmentInfoFlags
 				{
-					Required = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANFillers, MarkingsSource.IMTMarkings) &&(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
-					Forbidden = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.ANFillers, MarkingsSource.IMTMarkings) && !(ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenANMarkings)) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Required = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) && ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Forbidden = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) && !ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? RoadUtils.S_RemoveMarkings : NetSegmentExt.Flags.None,
 				}
 			});
 		}
@@ -354,15 +354,18 @@ public static partial class LanePropsUtil
 			yield break;
 		}
 
-		for (var i = 6; i <= 6 + (12 * 7); i += 12)
+		for (var i = ModOptions.TreeRepeatDistance / 2; i <= 96; i += ModOptions.TreeRepeatDistance)
 		{
-			yield return getTree(i);
-			yield return getTree(-i);
+			var pos1 = i + (float)(ModOptions.RandomizeTreeDistance ? (_random.NextDouble() * ModOptions.TreeRepeatDistance / 2 - ModOptions.TreeRepeatDistance / 4) : 0);
+			var pos2 = -i + (float)(ModOptions.RandomizeTreeDistance ? (_random.NextDouble() * ModOptions.TreeRepeatDistance / 2 - ModOptions.TreeRepeatDistance / 4) : 0);
+
+			yield return getTree(pos1);
+			yield return getTree(pos2);
 
 			if (planter != null && !lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel))
 			{
-				yield return getPlanter(i);
-				yield return getPlanter(-i);
+				yield return getPlanter(pos1);
+				yield return getPlanter(pos2);
 			}
 		}
 
@@ -370,10 +373,10 @@ public static partial class LanePropsUtil
 		{
 			m_tree = tree,
 			m_finalTree = tree,
-			m_minLength = ModOptions.VanillaTreePlacement ? 10 : ((Math.Abs(position) * 2F) + 10F),
+			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
 			m_upgradable = true,
 			m_probability = 100,
-			m_repeatDistance = ModOptions.VanillaTreePlacement ? 12 : 0,
+			m_repeatDistance = ModOptions.VanillaTreePlacement ? ModOptions.TreeRepeatDistance : 0,
 			m_position = new Vector3(hasOtherDecos ? propAngle(lane) * -Math.Min(1, lane.LaneWidth / 2) : 0, 0, position)
 		}.Extend(prop => new LaneProp(prop)
 		{
@@ -391,10 +394,10 @@ public static partial class LanePropsUtil
 		{
 			m_prop = planter,
 			m_finalProp = planter,
-			m_minLength = ModOptions.VanillaTreePlacement ? 10 : ((Math.Abs(position) * 2F) + 10F),
+			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
 			m_upgradable = true,
 			m_probability = 100,
-			m_repeatDistance = ModOptions.VanillaTreePlacement ? 12 : 0,
+			m_repeatDistance = ModOptions.VanillaTreePlacement ? ModOptions.TreeRepeatDistance : 0,
 			m_position = new Vector3((hasOtherDecos ? propAngle(lane) * -Math.Min(1, lane.LaneWidth / 2) : 0) + (propAngle(lane) * 0.01F), 0, position)
 		}.Extend(prop => new LaneProp(prop)
 		{

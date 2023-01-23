@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net3.5</TargetFramework>
-	  <Version>1.0.4</Version>
-	  <FileVersion>1.0.4</FileVersion>
-	  <AssemblyVersion>1.0.4</AssemblyVersion>
+	<Version>1.1.1</Version>
+	<FileVersion>1.1.1</FileVersion>
+	<AssemblyVersion>1.1.1</AssemblyVersion>
   </PropertyGroup>
 
 	<PropertyGroup>
@@ -75,7 +75,7 @@
 
 	<PropertyGroup>
 		<PostBuildEvent>
-			copy /y "../Build/MarkingTransitionFlag.dll" "../../BlankRoadBuilder/ModContents/MarkingTransitionFlag.dll"
+			copy /y "../Build/MarkingTransitionFlag.dll" "../../BlankRoadBuilder/Expressions/MarkingTransitionFlag.dll"
 		</PostBuildEvent>
 		<BaseOutputPath>Output</BaseOutputPath>
 	</PropertyGroup>

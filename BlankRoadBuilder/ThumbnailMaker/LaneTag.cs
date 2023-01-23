@@ -6,7 +6,7 @@ namespace BlankRoadBuilder.ThumbnailMaker;
 public enum LaneTag
 {
 	Asphalt = 1, // Used by default to specify the lane is on the asphalt part of the road
-	//Ghost = 2,
+				 //Ghost = 2,
 	Sidewalk = 4,
 	Placeholder = 8,
 	StackedLane = 16,

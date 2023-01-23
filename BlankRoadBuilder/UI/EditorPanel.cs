@@ -1,7 +1,5 @@
 ﻿using AlgernonCommons.UI;
 
-using BlankRoadBuilder.Domain;
-
 using ColossalFramework;
 using ColossalFramework.UI;
 
@@ -15,10 +13,10 @@ namespace BlankRoadBuilder.UI;
 
 public class EditorPanel : UIPanel
 {
-	private SlickButton BuildButton;
-	private SlickButton TMButton;
-	private SlickButton TMFolderButton;
-	private SlickButton RoadFolderButton;
+	private readonly SlickButton BuildButton;
+	private readonly SlickButton TMButton;
+	private readonly SlickButton TMFolderButton;
+	private readonly SlickButton RoadFolderButton;
 
 	public bool Destroyed { get; private set; }
 

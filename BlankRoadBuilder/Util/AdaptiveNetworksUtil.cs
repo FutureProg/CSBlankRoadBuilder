@@ -3,8 +3,6 @@ using AdaptiveRoads.UI.RoadEditor;
 using AdaptiveRoads.UI.RoadEditor.MenuStyle;
 using AdaptiveRoads.Util;
 
-using BlankRoadBuilder.ThumbnailMaker;
-
 using ColossalFramework;
 using ColossalFramework.UI;
 
@@ -346,10 +344,10 @@ public static class AdaptiveNetworksUtil
 			if (ground == null)
 				throw new Exception("m_editPrefabInfo is not netInfo");
 
-			NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(ground);
-			NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(ground);
-			NetInfo slope = AssetEditorRoadUtils.TryGetSlope(ground);
-			NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
+			var elevated = AssetEditorRoadUtils.TryGetElevated(ground);
+			var bridge = AssetEditorRoadUtils.TryGetBridge(ground);
+			var slope = AssetEditorRoadUtils.TryGetSlope(ground);
+			var tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
 
 			var ret = new List<string>();
 			void Rename(NetInfo _info, string _postfix)
@@ -370,7 +368,7 @@ public static class AdaptiveNetworksUtil
 
 			return ret;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			return null;
 		}
@@ -378,11 +376,11 @@ public static class AdaptiveNetworksUtil
 
 	public static string GetUniqueNetInfoName(string name, bool excludeCurrent = false)
 	{
-		string strippedName = PackageHelper.StripName(name);
+		var strippedName = PackageHelper.StripName(name);
 		if (excludeCurrent && strippedName == name)
 			return name;
-		string finalName = strippedName;
-		for (int i = 0; PrefabCollection<NetInfo>.LoadedExists(finalName); i++)
+		var finalName = strippedName;
+		for (var i = 0; PrefabCollection<NetInfo>.LoadedExists(finalName); i++)
 		{
 			finalName = $"instance{i}." + strippedName;
 			if (i > 1000)
@@ -395,12 +393,12 @@ public static class AdaptiveNetworksUtil
 	{
 		var ret = new List<string>();
 		var ai = info.m_netAI;
-		string name = PackageHelper.StripName(infoName);
-		foreach (FieldInfo field in ai.GetType().GetFields())
+		var name = PackageHelper.StripName(infoName);
+		foreach (var field in ai.GetType().GetFields())
 		{
 			if (field.GetValue(ai) is BuildingInfo buildingInfo)
 			{
-				string postfix = field.Name.Remove("m_").Remove("Info");
+				var postfix = field.Name.Remove("m_").Remove("Info");
 				ret.Add(name + "_" + postfix);
 				if (!reportOnly)
 				{
@@ -414,18 +412,18 @@ public static class AdaptiveNetworksUtil
 	public static UITextureAtlas CreateTextureAtlas(string atlasName, Texture2D[] textures)
 	{
 		const int maxSize = 2048;
-		Texture2D texture2D = new Texture2D(maxSize, maxSize, TextureFormat.ARGB32, false);
-		Rect[] regions = texture2D.PackTextures(textures, 2, maxSize);
-		Material material = UnityEngine.Object.Instantiate<Material>(UIView.GetAView().defaultAtlas.material);
+		var texture2D = new Texture2D(maxSize, maxSize, TextureFormat.ARGB32, false);
+		var regions = texture2D.PackTextures(textures, 2, maxSize);
+		var material = UnityEngine.Object.Instantiate<Material>(UIView.GetAView().defaultAtlas.material);
 		material.mainTexture = texture2D;
 
-		UITextureAtlas textureAtlas = ScriptableObject.CreateInstance<UITextureAtlas>();
+		var textureAtlas = ScriptableObject.CreateInstance<UITextureAtlas>();
 		textureAtlas.material = material;
 		textureAtlas.name = atlasName;
 
-		for (int i = 0; i < textures.Length; i++)
+		for (var i = 0; i < textures.Length; i++)
 		{
-			UITextureAtlas.SpriteInfo item = new UITextureAtlas.SpriteInfo
+			var item = new UITextureAtlas.SpriteInfo
 			{
 				name = textures[i].name,
 				texture = textures[i],

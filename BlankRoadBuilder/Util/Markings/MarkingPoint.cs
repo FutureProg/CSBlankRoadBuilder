@@ -7,9 +7,9 @@ public struct MarkingPoint : IEquatable<MarkingPoint>
 {
 	public LaneInfo? LeftLane { get; }
 	public LaneInfo? RightLane { get; }
-	public float X => 
-		LeftLane != null && LeftLane.Type != LaneType.Curb ? (LeftLane.Position + LeftLane.LaneWidth / 2) :
-		RightLane != null && RightLane.Type != LaneType.Curb ? (RightLane.Position - RightLane.LaneWidth / 2) : 0F;
+	public float X =>
+		LeftLane != null && LeftLane.Type != LaneType.Curb ? (LeftLane.Position + (LeftLane.LaneWidth / 2)) :
+		RightLane != null && RightLane.Type != LaneType.Curb ? (RightLane.Position - (RightLane.LaneWidth / 2)) : 0F;
 
 	public MarkingPoint(LaneInfo? leftLane, LaneInfo? rightLane)
 	{
@@ -17,13 +17,28 @@ public struct MarkingPoint : IEquatable<MarkingPoint>
 		RightLane = rightLane;
 	}
 
-	public bool Equals(MarkingPoint other) => other.X == X;
+	public bool Equals(MarkingPoint other)
+	{
+		return other.X == X;
+	}
 
-	public override bool Equals(object obj) => obj is MarkingPoint p && p.X == X;
+	public override bool Equals(object obj)
+	{
+		return obj is MarkingPoint p && p.X == X;
+	}
 
-	public override int GetHashCode() => -1830369473 + X.GetHashCode();
+	public override int GetHashCode()
+	{
+		return -1830369473 + X.GetHashCode();
+	}
 
-	public static bool operator ==(MarkingPoint left, MarkingPoint right) => left.Equals(right);
+	public static bool operator ==(MarkingPoint left, MarkingPoint right)
+	{
+		return left.Equals(right);
+	}
 
-	public static bool operator !=(MarkingPoint left, MarkingPoint right) => !left.Equals(right);
+	public static bool operator !=(MarkingPoint left, MarkingPoint right)
+	{
+		return !left.Equals(right);
+	}
 }

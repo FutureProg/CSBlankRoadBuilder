@@ -1,0 +1,83 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net3.5</TargetFramework>
+	<Version>1.1.1</Version>
+	<FileVersion>1.1.1</FileVersion>
+	<AssemblyVersion>1.1.1</AssemblyVersion>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<ManagedDLLPath>../dependencies</ManagedDLLPath>
+		<SteamPath>~/Library/Application Support/Steam/</SteamPath>
+		<CSPath>/steamapps/common/Cities_Skylines</CSPath>
+
+		<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(ProgramFiles)/Steam</SteamPath>
+		<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(Registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)</SteamPath>
+		<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">E:\SteamLibrary</SteamPath>
+		<ManagedDLLPath Condition="!  Exists ('$(ManagedDLLPath)')">$(SteamPath)$(CSPath)/Cities_Data/Managed</ManagedDLLPath>
+
+		<AssemblySearchPaths>
+			$(AssemblySearchPaths);
+			$(ManagedDLLPath);
+			$(CitiesSkylinesBinaries);
+			../libs/
+		</AssemblySearchPaths>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<OutputPath>Build</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="ModContents\**" />
+	  <EmbeddedResource Remove="ModContents\**" />
+	  <None Remove="ModContents\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CitiesHarmony.API" Version="2.1.0" />
+		<PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>$(MangedDLLPath)\Assembly-CSharp.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="ColossalManaged">
+			<HintPath>$(MangedDLLPath)\ColossalManaged.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="ICities">
+			<HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="AdaptiveRoads">
+			<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\AdaptiveRoads.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="PrefabMetadata">
+			<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\PrefabMetadata.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="PrefabMetadataAPI">
+			<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\PrefabMetadataAPI.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="System.Net" />
+		<Reference Include="UnityEngine">
+			<HintPath>$(MangedDLLPath)\UnityEngine.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<PostBuildEvent>
+			copy /y "../Build/TrolleyWiresFlag.dll" "../../BlankRoadBuilder/Expressions/TrolleyWiresFlag.dll"
+		</PostBuildEvent>
+		<BaseOutputPath>Output</BaseOutputPath>
+	</PropertyGroup>
+
+</Project>

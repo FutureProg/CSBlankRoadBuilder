@@ -1,7 +1,7 @@
 # Blender v2.79 (sub 0) OBJ File: '4.blend'
 # www.blender.org
 mtllib elevated_node-1_HC.mtl
-o br4_elevated_node-1_HC
+g br4_elevated_node-1_HC
 v 0.000000 -0.26250000 24.000000
 v 1.000000 -0.22500000 16.000000
 v 0.000000 -0.22500000 16.000000

@@ -1,7 +1,7 @@
 # Blender v2.79 (sub 0) OBJ File: '4.blend'
 # www.blender.org
 mtllib basic_node-2_LCS.mtl
-o br4_basic_node-2_LCS
+g br4_basic_node-2_LCS
 v -1.00000000 -0.30000000 -22.85714300
 v -1.00000000 -0.29000000 -22.85714300
 v -1.00000000 -0.29000000 -18.28571500

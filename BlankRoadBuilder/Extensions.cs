@@ -64,7 +64,7 @@ public static class Extensions
 		var words = S.GetWords(includeNumbers: true);
 		foreach (var text in words)
 		{
-			_ = stringBuilder.Append(text.All((char x) => char.IsDigit(x)) ? text : text[0].ToString());
+			stringBuilder.Append(text.All((char x) => char.IsDigit(x)) ? text : text[0].ToString());
 		}
 
 		if (Regex.IsMatch(stringBuilder.ToString(), "^[A-z]+[0-9]+$"))
@@ -164,7 +164,7 @@ public static class Extensions
 
 		foreach (var invocationMethod in invocationList)
 		{
-			_ = invocationMethod.DynamicInvoke(new[] { instance, e });
+			invocationMethod.DynamicInvoke(new[] { instance, e });
 		}
 	}
 

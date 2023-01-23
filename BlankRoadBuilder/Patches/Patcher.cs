@@ -1,9 +1,4 @@
-﻿namespace BlankRoadBuilder;
-
-using AlgernonCommons;
-using AlgernonCommons.Patching;
-
-using BlankRoadBuilder.Patches;
+﻿using BlankRoadBuilder.Patches;
 
 using CitiesHarmony.API;
 
@@ -15,6 +10,7 @@ using System;
 
 using UnityEngine;
 
+namespace BlankRoadBuilder;
 public static class Patcher
 {
 	public static string HarmonyID { get; } = "Trejak.BlankRoadBuilder";

@@ -1,111 +1,105 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net3.5</TargetFramework>  
-    <Deterministic>false</Deterministic>
-    <AssemblyTitle>Blank Road Builder</AssemblyTitle>
-    <Product>Blank Road Builder</Product>
+	<TargetFramework>net3.5</TargetFramework>  
+	<Deterministic>false</Deterministic>
+	<AssemblyTitle>Blank Road Builder</AssemblyTitle>
+	<Product>Blank Road Builder</Product>
 	<Description>A Cities: Skylines mod.</Description>
-    <LangVersion>latest</LangVersion>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-	<Version>1.0.4</Version>
-	<FileVersion>1.0.4</FileVersion>
-	<AssemblyVersion>1.0.4</AssemblyVersion>
+	<LangVersion>latest</LangVersion>
+	<ImplicitUsings>disable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	<Version>1.1.1</Version>
+	<FileVersion>1.1.1</FileVersion>
+	<AssemblyVersion>1.1.1</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
-    <ManagedDLLPath>../dependencies</ManagedDLLPath>
-    <SteamPath>~/Library/Application Support/Steam/</SteamPath>
-    <CSPath>/steamapps/common/Cities_Skylines</CSPath>
-    
-    <SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(ProgramFiles)/Steam</SteamPath>
-    <SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(Registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)</SteamPath>
-    <SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">E:\SteamLibrary</SteamPath>
-    <ManagedDLLPath Condition="!  Exists ('$(ManagedDLLPath)')">$(SteamPath)$(CSPath)/Cities_Data/Managed</ManagedDLLPath>
-    
-    <AssemblySearchPaths>
-      $(AssemblySearchPaths);
-      $(ManagedDLLPath);
-      $(CitiesSkylinesBinaries);
-      ../libs/
-    </AssemblySearchPaths>
+	<ManagedDLLPath>../dependencies</ManagedDLLPath>
+	<SteamPath>~/Library/Application Support/Steam/</SteamPath>
+	<CSPath>/steamapps/common/Cities_Skylines</CSPath>
+	
+	<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(ProgramFiles)/Steam</SteamPath>
+	<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(Registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)</SteamPath>
+	<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">E:\SteamLibrary</SteamPath>
+	<ManagedDLLPath Condition="!  Exists ('$(ManagedDLLPath)')">$(SteamPath)$(CSPath)/Cities_Data/Managed</ManagedDLLPath>
+	
+	<AssemblySearchPaths>
+	  $(AssemblySearchPaths);
+	  $(ManagedDLLPath);
+	  $(CitiesSkylinesBinaries);
+	  ../libs/
+	</AssemblySearchPaths>
   </PropertyGroup>
 
   <PropertyGroup>
-    <OutputPath>Build</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<OutputPath>Build</OutputPath>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="ModContents\AnyStopFlag.dll" />
-    <None Remove="ModContents\MarkingTransitionFlag.dll" />
-    <None Remove="ModContents\TransitionFlag.dll" />
+    <None Remove="Expressions\**" />
+    <EmbeddedResource Include="Expressions\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="ModContents\AnyStopFlag.dll" />
-    <EmbeddedResource Include="ModContents\MarkingTransitionFlag.dll" />
-    <EmbeddedResource Include="ModContents\TransitionFlag.dll" />
+	<PackageReference Include="CitiesHarmony.API" Version="2.1.0" />
+	<PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CitiesHarmony.API" Version="2.1.0" />
-    <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="AlgernonCommons.Patching">
-      <HintPath>..\libs\AlgernonCommons.Patching.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(MangedDLLPath)\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ColossalManaged">
-      <HintPath>$(MangedDLLPath)\ColossalManaged.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ICities">
-      <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NodeMarkup">
-      <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2140418403\NodeMarkup.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
+	<Reference Include="AlgernonCommons.Patching">
+	  <HintPath>..\libs\AlgernonCommons.Patching.dll</HintPath>
+	</Reference>
+	<Reference Include="Assembly-CSharp">
+	  <HintPath>$(MangedDLLPath)\Assembly-CSharp.dll</HintPath>
+	  <Private>False</Private>
+	</Reference>
+	<Reference Include="ColossalManaged">
+	  <HintPath>$(MangedDLLPath)\ColossalManaged.dll</HintPath>
+	  <Private>False</Private>
+	</Reference>
+	<Reference Include="ICities">
+	  <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
+	  <Private>False</Private>
+	</Reference>
+	<Reference Include="NodeMarkup">
+	  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2140418403\NodeMarkup.dll</HintPath>
+	  <Private>False</Private>
+	</Reference>
 	<Reference Include="NodeControllerRenewal">
 		<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2472062376\NodeControllerRenewal.dll</HintPath>
 		<Private>False</Private>
 		<Aliases>NC</Aliases>
 	</Reference>
-    <Reference Include="AdaptiveRoads">
-      <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\AdaptiveRoads.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-	  <Reference Include="PrefabMetadata">
-		  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\PrefabMetadata.dll</HintPath>
-		  <Private>False</Private>
-	  </Reference>
-	  <Reference Include="PrefabMetadataAPI">
-		  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\PrefabMetadataAPI.dll</HintPath>
-		  <Private>False</Private>
-	  </Reference>
-    <Reference Include="System.Net" />
-    <Reference Include="UnityEngine">
-      <HintPath>$(MangedDLLPath)\UnityEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
+	<Reference Include="AdaptiveRoads">
+	  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\AdaptiveRoads.dll</HintPath>
+	  <Private>False</Private>
+	</Reference>
+	<Reference Include="PrefabMetadata">
+	  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\PrefabMetadata.dll</HintPath>
+	  <Private>False</Private>
+	</Reference>
+	<Reference Include="PrefabMetadataAPI">
+	  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\PrefabMetadataAPI.dll</HintPath>
+	  <Private>False</Private>
+	</Reference>
+	<Reference Include="System.Net" />
+	<Reference Include="UnityEngine">
+	  <HintPath>$(MangedDLLPath)\UnityEngine.dll</HintPath>
+	  <Private>False</Private>
+	</Reference>
   </ItemGroup>
 
   <PropertyGroup>
-    <PostBuildEvent>
+	<PostBuildEvent>
 	  rmdir /s /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-      mkdir "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-      xcopy /y /e "../$(OutputPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-      xcopy /y /e "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-    </PostBuildEvent>
-    <BaseOutputPath>Output</BaseOutputPath>
+	  mkdir "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
+	  xcopy /y /e "../$(OutputPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
+	  xcopy /y /e "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
+	  del /f /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder\*.pdb"
+	</PostBuildEvent>
+	<BaseOutputPath>Output</BaseOutputPath>
   </PropertyGroup>
   
 </Project>

@@ -1,7 +1,7 @@
 # Blender v2.79 (sub 0) OBJ File: '2.blend'
 # www.blender.org
 mtllib basic_segment-2_LCS.mtl
-o br4_basic_segment-2_LCS
+g br4_basic_segment-2_LCS
 v -1.00000000 -0.30000000 32.00000000
 v 0.00000000 -0.30000000 29.33333496
 v -1.00000000 -0.30000000 29.33333252

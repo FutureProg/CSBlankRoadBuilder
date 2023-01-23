@@ -1,23 +1,19 @@
-﻿extern alias NC; 
+﻿using BlankRoadBuilder.Domain;
 
-using BlankRoadBuilder.Domain;
-using ColossalFramework.Math;
 using ColossalFramework;
+using ColossalFramework.Math;
+using ColossalFramework.Plugins;
 
-using System;
-using System.Collections.Generic;
+using KianCommons;
+
+using ModsCommon.Utilities;
+
 using System.Linq;
-using System.Reflection;
-using System.Text;
 
 using UnityEngine;
-using ModsCommon.Utilities;
-using KianCommons;
-using ModsCommon;
-using UnityEngine.Networking.Types;
 
 namespace BlankRoadBuilder.Util;
-public static class SegmentUtil
+public static partial class SegmentUtil
 {
 	public static void GenerateTemplateSegments(NetInfo info)
 	{
@@ -51,27 +47,38 @@ public static class SegmentUtil
 			}
 			else if (item.Key == ElevationType.Elevated)
 			{
-				netManager.CreateNode(out var node3, ref randomizer, item.Value, new Vector3(i, 60F, 90), 3);
-				netManager.CreateNode(out var node4, ref randomizer, item.Value, new Vector3(i, 60F, 150), 4);
+				netManager.CreateNode(out var node3, ref randomizer, item.Value, new Vector3(i, 64F, 90), 3);
+				netManager.CreateNode(out var node4, ref randomizer, item.Value, new Vector3(i, 64F, 150), 4);
 
 				netManager.CreateSegment(out _, ref randomizer, item.Value, node3, node1, new Vector3(0, 0, -1), new Vector3(0, 0, 1), 2, 2, false);
 				netManager.CreateSegment(out _, ref randomizer, info, node4, node3, new Vector3(0, 0, -1), new Vector3(0, 0, 1), 2, 2, false);
 
-				node3.GetNode().m_flags &= ~NetNode.Flags.Bend;
-				node3.GetNode().m_flags |= NetNode.Flags.Junction;
-				node3.GetNode().UpdateNode(node3);
+				try
+				{
+					if (PluginManager.instance.GetPluginsInfo().Any(x => x.publishedFileID.AsUInt64 is 2472062376 or 2462845270))
+					{
+						NcBend.BendNode(node3);
+					}
+					else
+					{
+						var trNode = node3.GetNode();
+
+						trNode.m_flags &= ~NetNode.Flags.Junction;
+						trNode.m_flags &= ~NetNode.Flags.Middle;
+						trNode.m_flags |= NetNode.Flags.Bend;
+					}
+				}
+				catch
+				{ }
 			}
 			else if (item.Key == ElevationType.Bridge)
 			{
 				netManager.CreateNode(out var node3, ref randomizer, item.Value, new Vector3(i, elevation, -120 - info.m_halfWidth), 3);
 
 				netManager.CreateSegment(out _, ref randomizer, item.Value, node2, node3, new Vector3(0, 0, -1), new Vector3(0, 0, 1), 2, 2, false);
-
-				if (NC::ModsCommon.SingletonManager<NC::NodeController.Manager>.Instance.GetOrCreateNodeData(node3) is NC::NodeController.NodeData data)
-					data.Type = NC::NodeController.NodeStyleType.Custom;
 			}
 
-			i += info.m_halfWidth * 2 + 15;
+			i += (info.m_halfWidth * 2) + 15;
 		}
 	}
 

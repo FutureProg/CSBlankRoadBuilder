@@ -14,12 +14,17 @@ public class PropTemplate
 	}
 
 	public static implicit operator PropInfo(PropTemplate prop)
-		=> string.IsNullOrEmpty(prop.PropName) ? null : prop.IsTree ? null : PrefabCollection<PropInfo>.FindLoaded(prop.PropName);
+	{
+		return string.IsNullOrEmpty(prop.PropName) ? null : prop.IsTree ? null : PrefabCollection<PropInfo>.FindLoaded(prop.PropName);
+	}
 
 	public static implicit operator TreeInfo(PropTemplate prop)
-		=> string.IsNullOrEmpty(prop.PropName) ? null : prop.IsTree ? PrefabCollection<TreeInfo>.FindLoaded(prop.PropName) : null;
+	{
+		return string.IsNullOrEmpty(prop.PropName) ? null : prop.IsTree ? PrefabCollection<TreeInfo>.FindLoaded(prop.PropName) : null;
+	}
 
 	public static implicit operator BuildingInfo(PropTemplate prop)
-		=> string.IsNullOrEmpty(prop.PropName) ? null : prop.IsBuilding ? PrefabCollection<BuildingInfo>.FindLoaded(prop.PropName) : null;
+	{
+		return string.IsNullOrEmpty(prop.PropName) ? null : prop.IsBuilding ? PrefabCollection<BuildingInfo>.FindLoaded(prop.PropName) : null;
+	}
 }
-	

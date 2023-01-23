@@ -1,5 +1,4 @@
 ﻿using BlankRoadBuilder.Domain.Options;
-using BlankRoadBuilder.Patches;
 using BlankRoadBuilder.ThumbnailMaker;
 
 using KianCommons;
@@ -37,25 +36,27 @@ public class IMTMarkings
 		markup.ResetOffsets();
 		markup.RecalculateDrawData();
 
-		var pointsA = GetPoints(((Markup)markup).Enters.First(x => x.IsStartSide));
-		var pointsB = GetPoints(((Markup)markup).Enters.First(x => !x.IsStartSide));
+		var pointsA = GetPoints(markup.Enters.First(x => x.IsStartSide));
+		var pointsB = GetPoints(markup.Enters.First(x => !x.IsStartSide));
 
 		foreach (var item in markings.Lines.Values)
 		{
-			try { AddLines(item, markup, pointsA, pointsB); }
+			try
+			{ AddLines(item, markup, pointsA, pointsB); }
 			catch (Exception ex) { Debug.LogException(ex); }
 		}
 
 		foreach (var item in markings.Fillers)
 		{
-			try { AddFillers(item, markup, pointsA, pointsB); }
+			try
+			{ AddFillers(item, markup, pointsA, pointsB); }
 			catch (Exception ex) { Debug.LogException(ex); }
 		}
 	}
 
 	private static void AddFillers(FillerMarking item, SegmentMarkup markup, Dictionary<float, MarkupEnterPoint> pointsA, Dictionary<float, MarkupEnterPoint> pointsB)
 	{
-		if (item.Type != LaneDecoration.Filler && ModOptions.MarkingsGenerated.HasAnyFlag(Domain.MarkingsSource.ANFillers, Domain.MarkingsSource.HiddenANMarkings))
+		if (item.Type != LaneDecoration.Filler && ModOptions.MarkingsGenerated.HasAnyFlag(Domain.MarkingsSource.MeshFillers, Domain.MarkingsSource.HiddenVanillaMarkings))
 		{
 			return;
 		}
@@ -142,8 +143,8 @@ public class IMTMarkings
 
 		if (item.Type != LaneDecoration.Filler)
 		{
-			var leftPadded = (item.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false);
-			var rightPadded = (item.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false);
+			var leftPadded = item.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false;
+			var rightPadded = item.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false;
 
 			style.LineOffset.Value = leftPadded || rightPadded ? 0F : 0.2F;
 

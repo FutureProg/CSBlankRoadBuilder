@@ -1,5 +1,4 @@
-﻿namespace BlankRoadBuilder;
-
+﻿
 using AlgernonCommons.UI;
 
 using BlankRoadBuilder.UI.Options;
@@ -18,6 +17,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
+namespace BlankRoadBuilder;
 public class BlankRoadBuilderMod : IUserMod
 {
 	public string Name => "Road Builder v" + VersionString;
@@ -46,11 +46,11 @@ public class BlankRoadBuilderMod : IUserMod
 		{
 			DeleteAll(ImportFolder);
 
-            var assetsMatcherXML = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "SavedAssets.xml");
-            if (File.Exists(assetsMatcherXML))
-            {
-                File.Move(assetsMatcherXML, Path.Combine(BuilderFolder, "SavedAssets.xml"));
-            }
+			var assetsMatcherXML = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "SavedAssets.xml");
+			if (File.Exists(assetsMatcherXML))
+			{
+				File.Move(assetsMatcherXML, Path.Combine(BuilderFolder, "SavedAssets.xml"));
+			}
 
 			if (Directory.Exists(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder")))
 			{
@@ -88,8 +88,8 @@ public class BlankRoadBuilderMod : IUserMod
 
 		new GeneralOptions(tabStrip, 0);
 		new LaneSizeOptions(tabStrip, 1);
-		new IMTOptions(tabStrip, 2);
-		new ANOptions(tabStrip, 3);
+		new IMTOptionsPanel(tabStrip, 2);
+		new VanillaOptionsPanel(tabStrip, 3);
 
 		tabStrip.selectedIndex = -1;
 		tabStrip.selectedIndex = 0;

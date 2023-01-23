@@ -2,6 +2,6 @@
 
 public enum AsphaltStyle
 {
-    Asphalt,
-    None
+	Asphalt,
+	None
 }

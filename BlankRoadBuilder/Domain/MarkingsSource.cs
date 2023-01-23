@@ -1,18 +1,17 @@
 ﻿using System;
-using System.ComponentModel;
 
 namespace BlankRoadBuilder.Domain;
 
 [Flags]
 public enum MarkingsSource
 {
-	IMTWithANFillers = IMTMarkings | ANFillers,
-	IMTWithHiddenANMarkings = IMTMarkings | HiddenANMarkings,
-	ANFillersAndHiddenANMarkings = HiddenANMarkings | ANFillers,
+	IMTWithMeshFillers = IMTMarkings | MeshFillers,
+	IMTWithHiddenVanillaMarkings = IMTMarkings | HiddenVanillaMarkings,
+	MeshFillersAndHiddenVanillaMarkings = HiddenVanillaMarkings | MeshFillers,
 
 	IMTMarkings = 8,
-	ANMarkings = 4,
-	HiddenANMarkings = 2,
-	ANFillers = 1,
+	VanillaMarkings = 4,
+	HiddenVanillaMarkings = 2,
+	MeshFillers = 1,
 	NoMarkings = 0
 }

@@ -1,5 +1,5 @@
 ﻿using AlgernonCommons.UI;
-using BlankRoadBuilder.Domain.Options;
+
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util;
 
@@ -19,7 +19,7 @@ public class RoadBuilderPanel : StandalonePanel
 {
 	public override float PanelWidth => 600f;
 	public override float PanelHeight => (ListRow.DefaultRowHeight * 6) + 40F + 42F + 56F;
-	public static string? LastLoadedRoadFileName { get => lastLoadedRoad; }
+	public static string? LastLoadedRoadFileName { get; private set; }
 
 	protected override float TitleXPos => 9999;
 	protected override string PanelTitle => "Road Builder";
@@ -34,8 +34,6 @@ public class RoadBuilderPanel : StandalonePanel
 
 	private ListData? _currentSelection;
 	private List<ListData>? listData;
-
-	private static string? lastLoadedRoad;
 	private static bool hideBuilt;
 
 	public RoadBuilderPanel()
@@ -66,7 +64,7 @@ public class RoadBuilderPanel : StandalonePanel
 
 		_hideBuiltCheckBox = UICheckBoxes.AddLabelledCheckBox(this, 0, 0, "Hide generated roads", tooltip: "Only shows road configs that you haven't generated & saved yet");
 		_hideBuiltCheckBox.isChecked = hideBuilt;
-		_hideBuiltCheckBox.relativePosition = new Vector3(width - _hideBuiltCheckBox.width - 2 * Margin, 52F, 0);
+		_hideBuiltCheckBox.relativePosition = new Vector3(width - _hideBuiltCheckBox.width - (2 * Margin), 52F, 0);
 		_hideBuiltCheckBox.eventCheckChanged += _hideBuiltCheckBox_eventCheckChanged;
 
 		_searchTextBox = UITextFields.AddLabelledTextField(this, 10F + 90F, 46F, "Search:", width - 32F - 90F - _hideBuiltCheckBox.width - Margin, 30F, 1.2F, 6);
@@ -98,8 +96,8 @@ public class RoadBuilderPanel : StandalonePanel
 		if (value is ListData objVal)
 		{
 			_currentSelection = objVal;
-		}     
-    }
+		}
+	}
 
 	private void _continueButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
 	{
@@ -121,7 +119,7 @@ public class RoadBuilderPanel : StandalonePanel
 
 	public System.Collections.IEnumerator LoadRoad()
 	{
-		lastLoadedRoad = _currentSelection?.FileName;
+		LastLoadedRoadFileName = _currentSelection?.FileName;
 
 		var loadingLabel = GenerateLoadingLabel();
 		yield return 0;
@@ -130,6 +128,8 @@ public class RoadBuilderPanel : StandalonePanel
 		{
 			if (stateInfo.Exception != null)
 			{
+				Debug.LogException(stateInfo.Exception);
+
 				var panel = UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel");
 
 				panel.SetMessage("Failed to generate this road", $"{stateInfo.Exception.Message}\r\n\r\n{stateInfo.Exception}", true);
@@ -175,7 +175,7 @@ public class RoadBuilderPanel : StandalonePanel
 
 		if (data.Count > 0)
 		{
-			var loadedData = lastLoadedRoad == null ? null : data.FirstOrDefault(x => x.FileName?.Equals(lastLoadedRoad,StringComparison.CurrentCultureIgnoreCase) ?? false);
+			var loadedData = LastLoadedRoadFileName == null ? null : data.FirstOrDefault(x => x.FileName?.Equals(LastLoadedRoadFileName, StringComparison.CurrentCultureIgnoreCase) ?? false);
 
 			_fileList.SelectedIndex = loadedData == null ? 0 : data.IndexOf(loadedData);
 		}
@@ -234,7 +234,7 @@ public class RoadBuilderPanel : StandalonePanel
 	{
 		var thumbnailTex = new Image(roadInfo.SmallThumbnail).CreateTexture();
 		var newAtlas = ScriptableObject.CreateInstance<UITextureAtlas>();
-		
+
 		newAtlas.name = Path.GetFileName(file);
 		newAtlas.material = Instantiate(UIView.GetAView().defaultAtlas.material);
 		newAtlas.material.mainTexture = thumbnailTex;
@@ -289,11 +289,11 @@ public class RoadBuilderPanel : StandalonePanel
 			_buildTick ??= GetAssetFileStatus();
 
 			_thumbnailImage.atlas = listData.TextureAtlas;
-            _thumbnailImage.spriteName = "normal";
-            _roadNameLabel.text = listData.RoadInfo?.Name.RegexReplace("^BR[B4] ", "");
-            _roadDescriptionLabel.text = listData.RoadInfo?.Description;
-            _roadDateLabel.text = listData.FileInfo?.LastWriteTime.ToRelatedString(true);
-			_roadDateLabel.relativePosition = new Vector2(width - _roadDateLabel.width - Margin * 2 - 5F, height - _roadDateLabel.height - Margin);
+			_thumbnailImage.spriteName = "normal";
+			_roadNameLabel.text = listData.RoadInfo?.Name.RegexReplace("^BR[B4] ", "");
+			_roadDescriptionLabel.text = listData.RoadInfo?.Description;
+			_roadDateLabel.text = listData.FileInfo?.LastWriteTime.ToRelatedString(true);
+			_roadDateLabel.relativePosition = new Vector2(width - _roadDateLabel.width - (Margin * 2) - 5F, height - _roadDateLabel.height - Margin);
 			_buildTick.isVisible = listData.assetMatch != null;
 
 			Deselect(rowIndex);
@@ -313,14 +313,14 @@ public class RoadBuilderPanel : StandalonePanel
 		private UILabel GetRoadDescriptionLabel()
 		{
 			var label = AddUIComponent<UILabel>();
-			
+
 			label.autoSize = false;
 			label.autoHeight = false;
-			label.textScale = 0.8F;			
+			label.textScale = 0.8F;
 			label.clipChildren = true;
 			label.wordWrap = true;
-			label.relativePosition = new Vector2(ThumbnailWidth + Margin * 2, 36F);
-			label.width = width - (ThumbnailWidth + Margin * 3) - 10F;
+			label.relativePosition = new Vector2(ThumbnailWidth + (Margin * 2), 36F);
+			label.width = width - (ThumbnailWidth + (Margin * 3)) - 10F;
 			label.height = DefaultRowHeight - 28F - Margin;
 			label.textColor = new Color32(205, 205, 205, 255);
 
@@ -344,7 +344,7 @@ public class RoadBuilderPanel : StandalonePanel
 
 			label.textScale = 1.2F;
 			label.font = UIFonts.SemiBold;
-			label.relativePosition = new Vector2(ThumbnailWidth + Margin * 2, 8F);
+			label.relativePosition = new Vector2(ThumbnailWidth + (Margin * 2), 8F);
 
 			return label;
 		}
@@ -353,11 +353,11 @@ public class RoadBuilderPanel : StandalonePanel
 		{
 			var sprite = AddUIComponent<UISprite>();
 			sprite.size = new Vector2(16, 16);
-            sprite.relativePosition = new Vector2(width - sprite.width - Margin * 3, Margin);
+			sprite.relativePosition = new Vector2(width - sprite.width - (Margin * 3), Margin);
 			sprite.atlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "I_BuildTick"));
 			sprite.spriteName = "normal";
 
 			return sprite;
-        }		
+		}
 	}
 }

@@ -1,13 +1,15 @@
 ﻿using AdaptiveRoads.LifeCycle;
-using AdaptiveRoads.Manager;
+
 using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.UI;
 using BlankRoadBuilder.Util;
+
 using ColossalFramework.IO;
 using ColossalFramework.Packaging;
 using ColossalFramework.UI;
+
 using HarmonyLib;
 
 using System;
@@ -118,7 +120,10 @@ public class SavePanelPatch_InitializeThumbnails
 [HarmonyPatch(typeof(SaveAssetPanel), "CheckCompulsoryShots", new Type[] { })]
 public class SavePanelPatch_CheckCompulsoryShots
 {
-	public static bool Prefix() => SavePanelPatch.LastLoadedRoad != null;
+	public static bool Prefix()
+	{
+		return SavePanelPatch.LastLoadedRoad != null;
+	}
 }
 
 [HarmonyPatch]
@@ -128,22 +133,22 @@ public class SavePanelPatch_SaveRoutine
 	public static MethodBase TargetMethod()
 	{
 		var type = typeof(SaveAssetPanel);
-        return AccessTools.FirstMethod(type, method => method.Name == "SaveRoutine");
+		return AccessTools.FirstMethod(type, method => method.Name == "SaveRoutine");
 	}
 
 	public static bool Prefix(SaveAssetPanel __instance)
 	{
-		UnityEngine.Debug.Log("SavePanelPatch_OnSave");        
-        if (RoadBuilderPanel.LastLoadedRoadFileName != null)
+		UnityEngine.Debug.Log("SavePanelPatch_OnSave");
+		if (RoadBuilderPanel.LastLoadedRoadFileName != null)
 		{
-            UITextField saveNameField = (UITextField)typeof(SaveAssetPanel)
+			var saveNameField = (UITextField)typeof(SaveAssetPanel)
 				.GetField("m_SaveName", BindingFlags.Instance | BindingFlags.NonPublic)
 				.GetValue(__instance);
-            string saveFile = PathEscaper.Escape(saveNameField.text) + PackageManager.packageExtension;            
+			var saveFile = PathEscaper.Escape(saveNameField.text) + PackageManager.packageExtension;
 			var roadConfigFileName = RoadBuilderPanel.LastLoadedRoadFileName;
 			var lastRoadOptions = RoadOptions.LastSelected;
 			AssetMatchingUtil.SetMatch(saveFile, roadConfigFileName, lastRoadOptions);
-        }
+		}
 		return true;
-    }
+	}
 }
