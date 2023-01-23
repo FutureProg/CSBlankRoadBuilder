@@ -7,7 +7,7 @@ internal class Segment
 	{
 		public static void Postfix(ushort segment)
 		{
-			IMTMarkings.ApplyMarkings(segment);
+			new IMTMarkings().ApplyMarkings(segment);
 		}
 	}
 }
