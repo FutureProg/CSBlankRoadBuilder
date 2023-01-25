@@ -19,7 +19,7 @@ using System.Reflection;
 
 namespace BlankRoadBuilder.Patches;
 
-[HarmonyPatch(typeof(SaveAssetPanel), "Refresh", new Type[] { })]
+[HarmonyPatch(typeof(SaveAssetPanel), "Awake", new Type[] { })]
 public class SavePanelPatch
 {
 	private static RoadInfo? _lastLoadedRoad;
@@ -27,7 +27,7 @@ public class SavePanelPatch
 	public static RoadInfo? LastLoadedRoad { get => ModOptions.DisableAutoFillInTheSavePanel ? null : _lastLoadedRoad; set { _lastLoadedRoad = value; StagingPatched = false; } }
 	public static bool StagingPatched { get; private set; }
 
-	public static void Prefix(SaveAssetPanel __instance)
+	public static void Postfix(SaveAssetPanel __instance)
 	{
 		if (LastLoadedRoad == null || StagingPatched)
 			return;
@@ -41,10 +41,6 @@ public class SavePanelPatch
 
 		SaveAssetPanel.lastLoadedAsset = LastLoadedRoad.Name;
 		SaveAssetPanel.lastAssetDescription = LastLoadedRoad.Description;
-
-		typeof(SaveAssetPanel)
-			.GetField("m_StagingPath", BindingFlags.Instance | BindingFlags.NonPublic)
-			.SetValue(__instance, null);
 
 		StagingPatched = true;
 	}
@@ -99,10 +95,10 @@ public class SavePanelPatch_FetchSnapshots
 [HarmonyPatch(typeof(SaveAssetPanel), "InitializeThumbnails", new Type[] { })]
 public class SavePanelPatch_InitializeThumbnails
 {
-	public static void Postfix(SaveAssetPanel __instance)
+	public static bool Prefix(SaveAssetPanel __instance)
 	{
-		if (SavePanelPatch.LastLoadedRoad == null)
-			return;
+		if (SavePanelPatch.LastLoadedRoad == null || AssetDataExtension.WasLastLoaded == true)
+			return true;
 
 		typeof(SaveAssetPanel)
 			.GetField("m_IgnoreChangesTimeStamp", BindingFlags.Instance | BindingFlags.NonPublic)
@@ -114,6 +110,12 @@ public class SavePanelPatch_InitializeThumbnails
 
 		if (!string.IsNullOrEmpty(m_ThumbPath))
 			SavePanelPatch.PatchThumbnails(Directory.GetParent(m_ThumbPath).FullName);
+
+		typeof(SaveAssetPanel)
+			.GetMethod("PrepareStagingArea", BindingFlags.Instance | BindingFlags.NonPublic)
+			.Invoke(__instance, null);
+
+		return false;
 	}
 }
 
@@ -122,7 +124,7 @@ public class SavePanelPatch_CheckCompulsoryShots
 {
 	public static bool Prefix()
 	{
-		return SavePanelPatch.LastLoadedRoad != null;
+		return SavePanelPatch.LastLoadedRoad == null;
 	}
 }
 
