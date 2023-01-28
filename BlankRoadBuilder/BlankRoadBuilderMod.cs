@@ -55,14 +55,16 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 			dependencyInfos.Add(get("Intersection Marking Tool", 2140418403ul, 2159934925uL));
 			dependencyInfos.Add(get("Adaptive Networks", 2414618415ul, 2669938594uL));
 			dependencyInfos.Add(get("TM:PE", 1637663252ul, 2489276785uL));
+			dependencyInfos.Add(get("Network Anarchy", 2862881785ul, 2917150208uL, DependencyState.Disable));
 
 			return dependencyInfos;
 
-			static NeedDependencyInfo get(string name, ulong id, ulong id2)
+			static NeedDependencyInfo get(string name, ulong id, ulong id2, DependencyState dependency = DependencyState.Enable)
 			{
 				var allSearcher = IdSearcher.Invalid & new UserModNameSearcher(name, BaseMatchSearcher.Option.AllOptions | BaseMatchSearcher.Option.StartsWidth);
 				var anySearcher = new IdSearcher(id) | new IdSearcher(id2);
-				return new NeedDependencyInfo(DependencyState.Enable, allSearcher | anySearcher, "Intersection Marking Tool", id);
+
+				return new NeedDependencyInfo(dependency, allSearcher | anySearcher, name, id);
 			}
 		}
 	}
