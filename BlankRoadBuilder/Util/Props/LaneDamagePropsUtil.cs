@@ -64,7 +64,7 @@ public static partial class LanePropsUtil
 			{
 				SeedIndex = _random.Next(),
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
-				{ Required = RoadUtils.S_AddRoadDamage }
+				{ Required = RoadUtils.Flags.S_AddRoadDamage }
 			});
 
 			propsReturned++;

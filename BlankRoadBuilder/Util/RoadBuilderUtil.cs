@@ -221,36 +221,36 @@ public static class RoadBuilderUtil
 			});
 		}
 
-		metadata.ScriptedFlags[RoadUtils.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
-		metadata.ScriptedFlags[RoadUtils.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
-		//metadata.ScriptedFlags[RoadUtils.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
-		metadata.ScriptedFlags[RoadUtils.S_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
-		//metadata.ScriptedFlags[RoadUtils.N_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
-		//metadata.ScriptedFlags[RoadUtils.N_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
-		//metadata.ScriptedFlags[RoadUtils.S_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
-		//metadata.ScriptedFlags[RoadUtils.S_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
-		metadata.ScriptedFlags[RoadUtils.S_StepBackward] = new ExpressionWrapper(GetExpression("StepBackwardFlag"), "StepBackwardFlag");
-		metadata.ScriptedFlags[RoadUtils.S_StepForward] = new ExpressionWrapper(GetExpression("StepForwardFlag"), "StepForwardFlag");
-		metadata.ScriptedFlags[RoadUtils.S_IsTailNode] = new ExpressionWrapper(GetExpression("IsTailNodeFlag"), "IsTailNodeFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.N_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.N_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.S_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.S_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_StepBackward] = new ExpressionWrapper(GetExpression("StepBackwardFlag"), "StepBackwardFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_StepForward] = new ExpressionWrapper(GetExpression("StepForwardFlag"), "StepForwardFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_IsTailNode] = new ExpressionWrapper(GetExpression("IsTailNodeFlag"), "IsTailNodeFlag");
 
 		if (roadInfo.Lanes.Any(x => x.Type.HasFlag(LaneType.Trolley)))
-			metadata.ScriptedFlags[RoadUtils.T_TrolleyWires] = new ExpressionWrapper(GetExpression("TrolleyWiresFlag"), "TrolleyWiresFlag");
+			metadata.ScriptedFlags[RoadUtils.Flags.T_TrolleyWires] = new ExpressionWrapper(GetExpression("TrolleyWiresFlag"), "TrolleyWiresFlag");
 
-		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
-		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");
-		metadata.RenameCustomFlag(RoadUtils.S_AddRoadDamage, "Add road damage");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveRoadClutter, (ModOptions.HideRoadClutter ? "Show" : "Remove") + " road clutter");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
-		metadata.RenameCustomFlag(RoadUtils.S_Curbless, "Make curb-less");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_LowCurbOnTheRight, "Low curb on the right");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_LowCurbOnTheLeft, "Low curb on the left");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_AddRoadDamage, "Add road damage");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveRoadClutter, (ModOptions.HideRoadClutter ? "Show" : "Remove") + " road clutter");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_Curbless, "Make curb-less");
 
-		metadata.RenameCustomFlag(RoadUtils.N_FullLowCurb, "Full low curb");
-		metadata.RenameCustomFlag(RoadUtils.N_ForceHighCurb, "Force high curb");
-		metadata.RenameCustomFlag(RoadUtils.N_RemoveLaneArrows, "Remove lane arrows");
-		metadata.RenameCustomFlag(RoadUtils.N_RemoveTramWires, "Remove tram/trolley wires");
-		metadata.RenameCustomFlag(RoadUtils.N_RemoveTramTracks, "Remove tram tracks");
-		metadata.RenameCustomFlag(RoadUtils.N_HideTreesCloseToIntersection, "Hide trees that are close to the intersection");
-		metadata.RenameCustomFlag(RoadUtils.N_Nodeless, "Remove node mesh");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_FullLowCurb, "Full low curb");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_ForceHighCurb, "Force high curb");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_RemoveLaneArrows, "Remove lane arrows");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_RemoveTramWires, "Remove tram/trolley wires");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_RemoveTramTracks, "Remove tram tracks");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_HideTreesCloseToIntersection, "Hide trees that are close to the intersection");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_Nodeless, "Remove node mesh");
 
 		var netLanes = netInfo.m_lanes.ToList();
 
@@ -260,23 +260,23 @@ public static class RoadBuilderUtil
 			{
 				var i = netLanes.IndexOf(netLane);
 
-				metadata.RenameCustomFlag(i, RoadUtils.L_RemoveTrees, "Remove trees");
-				metadata.RenameCustomFlag(i, RoadUtils.L_RemoveStreetLights, "Remove street lights");
+				metadata.RenameCustomFlag(i, RoadUtils.Flags.L_RemoveTrees, "Remove trees");
+				metadata.RenameCustomFlag(i, RoadUtils.Flags.L_RemoveStreetLights, "Remove street lights");
 
 				if (netLane.m_vehicleType == VehicleInfo.VehicleType.Tram)
 				{
-					metadata.RenameCustomFlag(i, RoadUtils.L_RemoveTramTracks, "Remove tram tracks");
-					metadata.RenameCustomFlag(i, RoadUtils.L_TramTracks_1, ModOptions.TramTracks != TramTracks.Rev0 ? "Use Rev0's tram tracks" : "Use Vanilla tram tracks");
-					metadata.RenameCustomFlag(i, RoadUtils.L_TramTracks_2, ModOptions.TramTracks == TramTracks.Clus ? "Use Vanilla tram tracks" : "Use Clus's LRT tram tracks");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_RemoveTramTracks, "Remove tram tracks");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_TramTracks_1, ModOptions.TramTracks != TramTracks.Rev0 ? "Use Rev0's tram tracks" : "Use Vanilla tram tracks");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_TramTracks_2, ModOptions.TramTracks == TramTracks.Clus ? "Use Vanilla tram tracks" : "Use Clus's LRT tram tracks");
 				}
 
 				if (lane.Decorations.HasFlag(LaneDecoration.Barrier))
 				{
-					metadata.RenameCustomFlag(i, RoadUtils.L_RemoveBarrier, "Remove barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_1, "Use sound barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_2, "Use left single-sided metal barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_3, "Use right single-sided metal barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_4, "Use double-sided metal barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_RemoveBarrier, "Remove barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_Barrier_1, "Use sound barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_Barrier_2, "Use left single-sided metal barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_Barrier_3, "Use right single-sided metal barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_Barrier_4, "Use double-sided metal barrier");
 				}
 			}
 		}

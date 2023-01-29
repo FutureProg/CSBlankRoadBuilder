@@ -102,7 +102,7 @@ public static partial class LanePropsUtil
 			m_position = new Vector3(position, verticalOffset, 0)
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
-			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags { Forbidden = RoadUtils.S_RemoveTramSupports }
+			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags { Forbidden = RoadUtils.Flags.S_RemoveTramSupports }
 		});
 
 		static void getLaneTramInfo(LaneInfo lane, RoadInfo road, out bool tramLanesAreNextToMedians, out bool leftTram, out bool rightTram)
@@ -131,7 +131,7 @@ public static partial class LanePropsUtil
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
-				{ Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter, Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None }
+				{ Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter, Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None }
 			});
 		}
 
@@ -151,7 +151,7 @@ public static partial class LanePropsUtil
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
-				{ Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter, Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None }
+				{ Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter, Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None }
 			});
 		}
 	}

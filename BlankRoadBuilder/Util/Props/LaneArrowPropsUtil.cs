@@ -109,7 +109,7 @@ public static partial class LanePropsUtil
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			EndNodeFlags = new NetInfoExtionsion.NodeInfoFlags
-			{ Forbidden = flagsRequired == NetLane.Flags.Forward ? (NetNodeExt.Flags.TwoSegments | RoadUtils.N_RemoveLaneArrows) : RoadUtils.N_RemoveLaneArrows }
+			{ Forbidden = flagsRequired == NetLane.Flags.Forward ? (NetNodeExt.Flags.TwoSegments | RoadUtils.Flags.N_RemoveLaneArrows) : RoadUtils.Flags.N_RemoveLaneArrows }
 		});
 	}
 }

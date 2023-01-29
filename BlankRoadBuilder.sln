@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrolleyWiresFlag", "Trolley
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsTailNodeFlag", "IsTailNodeFlag\IsTailNodeFlag.csproj", "{8D6A0F1C-007D-4AA2-BB51-D594AB6B782E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Expressions", "Expressions", "{3A512972-3922-4D74-8C66-E66700A2D496}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,7 +81,49 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{89805810-553B-43F0-AA77-5B61C81DE82A} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{79BD3C30-454C-48BF-9570-EE4CCFAB315E} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{768B1157-17A0-44A3-BC4F-7CA463719D36} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{F9BAD640-3421-4BE6-A596-CC0D0B9B7FD1} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{B8259679-BEC7-4A23-A69F-360FBD00C09F} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{D96AF329-97D6-4228-BBDB-D626F4F0A5A9} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{2CCEB69F-3E8E-498A-99D7-4FF3E462F414} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{DD843485-56BE-4B73-8127-1AF7386A7660} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{A7646C58-4CF8-45C6-9FD7-2F567E306589} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{8D6A0F1C-007D-4AA2-BB51-D594AB6B782E} = {3A512972-3922-4D74-8C66-E66700A2D496}
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83C9E90E-7614-42BE-A1FD-2148BB196CAE}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ModsCommon\AutoLayoutPanelShared\AutoLayoutPanelShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\ColorsShared\ColorsShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\DependencyShared\DependencyShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\HeaderShared\HeaderShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\LoadExtensionShared\LoadExtensionShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\LocalizeShared\LocalizeManager\LocalizeManager.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\LocalizeShared\LocalizeShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\LoggerShared\LoggerShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\MathExtension\MathExtension.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\MessageBoxShared\MessageBoxShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\ModShared\ModsCommonShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\NetAssetDataExtension\NetAssetDataExtension.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\NetExtension\NetExtension.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\NetObjectMapShared\NetObjectMapShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\ObjectMapShared\ObjectMapShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\PluginsShared\PluginsShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\PropertyPanelShared\PropertyPanelShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\PropertyValueShared\PropertyValueShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\RenderExtension\RenderExtension.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\SimpleMessageBoxShared\SimpleMessageBoxShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\SingletonShared\SingletonShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\ToolPanelShared\ToolPanelShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\ToolShared\ModsToolShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\TrajectoryShared\TrajectoryShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\TriangulatorShared\Triangulator.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\UIShared\ModsUIShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\WhatsNewMessageBoxShared\WhatsNewMessageBoxShared.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
+		ModsCommon\XmlExtension\XmlExtension.projitems*{f925132a-26d3-42cc-a0bb-27067938e4de}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

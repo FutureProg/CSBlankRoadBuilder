@@ -50,8 +50,8 @@ public static class NetworkMarkings
 					filler.Mesh.m_forwardForbidden |= NetSegment.Flags.StopAll;
 					filler.Mesh.m_backwardForbidden |= NetSegment.Flags.StopAll;
 
-					pavementFiller.MetaData.Forward.Required |= RoadUtils.S_AnyStop;
-					pavementFiller.MetaData.Backward.Required |= RoadUtils.S_AnyStop;
+					pavementFiller.MetaData.Forward.Required |= RoadUtils.Flags.S_AnyStop;
+					pavementFiller.MetaData.Backward.Required |= RoadUtils.Flags.S_AnyStop;
 
 					fillers.Add(pavementFiller);
 				}
@@ -75,13 +75,13 @@ public static class NetworkMarkings
 			{
 				if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings))
 				{
-					filler.MetaData.Forward.Required |= RoadUtils.S_RemoveMarkings;
-					filler.MetaData.Backward.Required |= RoadUtils.S_RemoveMarkings;
+					filler.MetaData.Forward.Required |= RoadUtils.Flags.S_RemoveMarkings;
+					filler.MetaData.Backward.Required |= RoadUtils.Flags.S_RemoveMarkings;
 				}
 				else
 				{
-					filler.MetaData.Forward.Forbidden |= RoadUtils.S_RemoveMarkings;
-					filler.MetaData.Backward.Forbidden |= RoadUtils.S_RemoveMarkings;
+					filler.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
+					filler.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
 				}
 			}
 		}
@@ -90,13 +90,13 @@ public static class NetworkMarkings
 		{
 			if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings))
 			{
-				filler.MetaData.Forward.Required |= RoadUtils.S_RemoveMarkings;
-				filler.MetaData.Backward.Required |= RoadUtils.S_RemoveMarkings;
+				filler.MetaData.Forward.Required |= RoadUtils.Flags.S_RemoveMarkings;
+				filler.MetaData.Backward.Required |= RoadUtils.Flags.S_RemoveMarkings;
 			}
 			else
 			{
-				filler.MetaData.Forward.Forbidden |= RoadUtils.S_RemoveMarkings;
-				filler.MetaData.Backward.Forbidden |= RoadUtils.S_RemoveMarkings;
+				filler.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
+				filler.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
 			}
 		}
 
@@ -129,27 +129,27 @@ public static class NetworkMarkings
 
 			if (filler != null && transitionFillerForward != null && transitionFillerBackward != null && transitionBothFiller != null)
 			{
-				filler.Value.MetaData.Forward.Forbidden |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
-				filler.Value.MetaData.Backward.Forbidden |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
+				filler.Value.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_StepBackward | RoadUtils.Flags.S_StepForward;
+				filler.Value.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_StepBackward | RoadUtils.Flags.S_StepForward;
 
-				transitionFillerForward.Value.MetaData.Forward.Required |= RoadUtils.S_StepForward;
-				transitionFillerForward.Value.MetaData.Forward.Forbidden |= RoadUtils.S_StepBackward;
-				transitionFillerForward.Value.MetaData.Backward.Required |= RoadUtils.S_StepBackward;
-				transitionFillerForward.Value.MetaData.Backward.Forbidden |= RoadUtils.S_StepForward;
+				transitionFillerForward.Value.MetaData.Forward.Required |= RoadUtils.Flags.S_StepForward;
+				transitionFillerForward.Value.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_StepBackward;
+				transitionFillerForward.Value.MetaData.Backward.Required |= RoadUtils.Flags.S_StepBackward;
+				transitionFillerForward.Value.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_StepForward;
 				transitionFillerForward.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
 				transitionFillerForward.Value.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
 
-				transitionFillerBackward.Value.MetaData.Forward.Required |= RoadUtils.S_StepBackward;
-				transitionFillerBackward.Value.MetaData.Forward.Forbidden |= RoadUtils.S_StepForward;
-				transitionFillerBackward.Value.MetaData.Backward.Required |= RoadUtils.S_StepForward;
-				transitionFillerBackward.Value.MetaData.Backward.Forbidden |= RoadUtils.S_StepBackward;
+				transitionFillerBackward.Value.MetaData.Forward.Required |= RoadUtils.Flags.S_StepBackward;
+				transitionFillerBackward.Value.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_StepForward;
+				transitionFillerBackward.Value.MetaData.Backward.Required |= RoadUtils.Flags.S_StepForward;
+				transitionFillerBackward.Value.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_StepBackward;
 				transitionFillerBackward.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
 				transitionFillerBackward.Value.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
 
 				transitionBothFiller.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert;
 				transitionBothFiller.Value.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
-				transitionBothFiller.Value.MetaData.Forward.Required |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
-				transitionBothFiller.Value.MetaData.Backward.Required |= RoadUtils.S_StepBackward | RoadUtils.S_StepForward;
+				transitionBothFiller.Value.MetaData.Forward.Required |= RoadUtils.Flags.S_StepBackward | RoadUtils.Flags.S_StepForward;
+				transitionBothFiller.Value.MetaData.Backward.Required |= RoadUtils.Flags.S_StepBackward | RoadUtils.Flags.S_StepForward;
 				transitionBothFiller.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
 				transitionBothFiller.Value.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
 
@@ -179,13 +179,13 @@ public static class NetworkMarkings
 				{
 					if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings))
 					{
-						filler.Value.MetaData.Forward.Forbidden |= RoadUtils.S_RemoveMarkings;
-						filler.Value.MetaData.Backward.Forbidden |= RoadUtils.S_RemoveMarkings;
+						filler.Value.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
+						filler.Value.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
 					}
 					else if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.VanillaMarkings))
 					{
-						filler.Value.MetaData.Forward.Required |= RoadUtils.S_RemoveMarkings;
-						filler.Value.MetaData.Backward.Required |= RoadUtils.S_RemoveMarkings;
+						filler.Value.MetaData.Forward.Required |= RoadUtils.Flags.S_RemoveMarkings;
+						filler.Value.MetaData.Backward.Required |= RoadUtils.Flags.S_RemoveMarkings;
 					}
 				}
 

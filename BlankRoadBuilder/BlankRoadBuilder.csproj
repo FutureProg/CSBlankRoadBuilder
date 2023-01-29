@@ -48,6 +48,9 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Reference Include="IntersectionMarkingTool.API">
+	  <HintPath>..\libs\IntersectionMarkingTool.API.dll</HintPath>
+	</Reference>
 	<Reference Include="AlgernonCommons.Patching">
 	  <HintPath>..\libs\AlgernonCommons.Patching.dll</HintPath>
 	</Reference>
@@ -61,10 +64,6 @@
 	</Reference>
 	<Reference Include="ICities">
 	  <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
-	  <Private>False</Private>
-	</Reference>
-	<Reference Include="NodeMarkup">
-	  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2140418403\NodeMarkup.dll</HintPath>
 	  <Private>False</Private>
 	</Reference>
 	<Reference Include="NodeControllerRenewal">
@@ -90,6 +89,35 @@
 	  <Private>False</Private>
 	</Reference>
   </ItemGroup>
+	
+	<Import Project="..\ModsCommon\ModShared\ModsCommonShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\ToolShared\ModsToolShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\UIShared\ModsUIShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\HeaderShared\HeaderShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\LoadExtensionShared\LoadExtensionShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\MessageBoxShared\MessageBoxShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\PropertyPanelShared\PropertyPanelShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\ObjectMapShared\ObjectMapShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\TrajectoryShared\TrajectoryShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\PropertyValueShared\PropertyValueShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\RenderExtension\RenderExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\XmlExtension\XmlExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\NetExtension\NetExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\MathExtension\MathExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\PluginsShared\PluginsShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\DependencyShared\DependencyShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\LoggerShared\LoggerShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\SingletonShared\SingletonShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\AutoLayoutPanelShared\AutoLayoutPanelShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\SimpleMessageBoxShared\SimpleMessageBoxShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\WhatsNewMessageBoxShared\WhatsNewMessageBoxShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\NetObjectMapShared\NetObjectMapShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\NetAssetDataExtension\NetAssetDataExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\ColorsShared\ColorsShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\ToolPanelShared\ToolPanelShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\TriangulatorShared\Triangulator.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\LocalizeShared\LocalizeShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\LocalizeShared\LocalizeManager\LocalizeManager.projitems" Label="Shared" />
 
   <PropertyGroup>
 	<PostBuildEvent>
