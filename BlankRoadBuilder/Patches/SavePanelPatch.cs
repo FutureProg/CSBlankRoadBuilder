@@ -15,34 +15,32 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
+
+using UnityEngine;
+
+using static RenderManager;
 
 namespace BlankRoadBuilder.Patches;
 
 [HarmonyPatch(typeof(SaveAssetPanel), "Awake", new Type[] { })]
 public class SavePanelPatch
 {
-	private static RoadInfo? _lastLoadedRoad;
-
-	public static RoadInfo? LastLoadedRoad { get => ModOptions.DisableAutoFillInTheSavePanel ? null : _lastLoadedRoad; set { _lastLoadedRoad = value; StagingPatched = false; } }
-	public static bool StagingPatched { get; private set; }
+	public static bool IsAssetLoaded => !ModOptions.DisableAutoFillInTheSavePanel && LastLoadedRoad != null;
+	public static bool IsAssetNew => AssetDataExtension.WasLastLoaded == false;
+	public static RoadInfo? LastLoadedRoad => RoadBuilderUtil.CurrentRoad;
 
 	public static void Postfix(SaveAssetPanel __instance)
 	{
-		if (LastLoadedRoad == null || StagingPatched)
-			return;
-
-		if (AssetDataExtension.WasLastLoaded == false)
+		if (typeof(SaveAssetPanel)
+			.GetField("m_SnapShotSprite", BindingFlags.Instance | BindingFlags.NonPublic)
+			.GetValue(__instance) is UITextureSprite m_SnapShotSprite)
 		{
-			AdaptiveNetworksUtil.RenameEditNet(LastLoadedRoad.Name, false);
-
-			SaveAssetPanel.lastLoadedName = LastLoadedRoad.Name;
+			m_SnapShotSprite.relativePosition = new UnityEngine.Vector3(m_SnapShotSprite.relativePosition.x + (m_SnapShotSprite.width - m_SnapShotSprite.height) / 2, m_SnapShotSprite.relativePosition.y, m_SnapShotSprite.relativePosition.z);
+			m_SnapShotSprite.width = m_SnapShotSprite.height;
 		}
-
-		SaveAssetPanel.lastLoadedAsset = LastLoadedRoad.Name;
-		SaveAssetPanel.lastAssetDescription = LastLoadedRoad.Description;
-
-		StagingPatched = true;
 	}
 
 	private static readonly Dictionary<string, Func<byte[]?>> _patchingFiles = new()
@@ -55,39 +53,37 @@ public class SavePanelPatch
 		{ "asset_tooltip.png", () => LastLoadedRoad?.TooltipImage },
 	};
 
-	public static bool PatchThumbnails(string? folder)
+	public static void PatchThumbnails(string? folder)
 	{
 		if (folder == null || !Directory.Exists(folder))
-			return false;
+			return;
 
-		var filesFound = false;
-		foreach (var image in new DirectoryInfo(folder).GetFiles())
+		foreach (var item in _patchingFiles)
 		{
-			var name = image.Name.ToLower();
-
-			if (_patchingFiles.ContainsKey(name))
-			{
-				if (image.Length != _patchingFiles[name].Invoke()?.Length)
-					File.WriteAllBytes(image.FullName, _patchingFiles[name]());
-
-				filesFound = true;
-			}
+			File.WriteAllBytes(Path.Combine(folder, item.Key), item.Value());
 		}
-
-		return filesFound;
 	}
 }
 
 [HarmonyPatch(typeof(SaveAssetPanel), "FetchSnapshots", new Type[] { })]
 public class SavePanelPatch_FetchSnapshots
 {
-	public static void Postfix()
+	public static void Prefix(SaveAssetPanel __instance)
 	{
-		if (SavePanelPatch.LastLoadedRoad == null)
+		if (!SavePanelPatch.IsAssetLoaded)
 			return;
 
-		var snapShotPath = ToolsModifierControl.GetTool<SnapshotTool>().snapShotPath;
+		typeof(SaveAssetPanel)
+			.GetMethod("PrepareStagingArea", BindingFlags.Instance | BindingFlags.NonPublic)
+			.Invoke(__instance, null);
 
+		var m_StagingPath = typeof(SaveAssetPanel)
+			.GetField("m_StagingPath", BindingFlags.Instance | BindingFlags.NonPublic)
+			.GetValue(__instance) as string;
+
+		var snapShotPath = ToolsModifierControl.GetTool<SnapshotTool>()?.snapShotPath;
+
+		SavePanelPatch.PatchThumbnails(m_StagingPath);
 		SavePanelPatch.PatchThumbnails(snapShotPath);
 	}
 }
@@ -95,27 +91,29 @@ public class SavePanelPatch_FetchSnapshots
 [HarmonyPatch(typeof(SaveAssetPanel), "InitializeThumbnails", new Type[] { })]
 public class SavePanelPatch_InitializeThumbnails
 {
-	public static bool Prefix(SaveAssetPanel __instance)
+	public static bool Prefix()
 	{
-		if (SavePanelPatch.LastLoadedRoad == null || AssetDataExtension.WasLastLoaded == true)
-			return true;
+		return !SavePanelPatch.IsAssetLoaded;
+	}
+}
 
-		typeof(SaveAssetPanel)
-			.GetField("m_IgnoreChangesTimeStamp", BindingFlags.Instance | BindingFlags.NonPublic)
-			.SetValue(__instance, 0L);
+[HarmonyPatch(typeof(SaveAssetPanel), "OnVisibilityChanged", new Type[] { typeof(UIComponent), typeof(bool) })]
+public class SavePanelPatch_OnVisibilityChanged
+{
+	public static void Prefix(bool visible)
+	{
+		if (!visible || !SavePanelPatch.IsAssetLoaded)
+			return;
 
-		var m_ThumbPath = typeof(SaveAssetPanel)
-			.GetField("m_ThumbPath", BindingFlags.Instance | BindingFlags.NonPublic)
-			.GetValue(__instance) as string;
+		if (SavePanelPatch.IsAssetNew)
+		{
+			AdaptiveNetworksUtil.RenameEditNet(SavePanelPatch.LastLoadedRoad.Name, false);
 
-		if (!string.IsNullOrEmpty(m_ThumbPath))
-			SavePanelPatch.PatchThumbnails(Directory.GetParent(m_ThumbPath).FullName);
+			SaveAssetPanel.lastLoadedName = SavePanelPatch.LastLoadedRoad.Name;
+		}
 
-		typeof(SaveAssetPanel)
-			.GetMethod("PrepareStagingArea", BindingFlags.Instance | BindingFlags.NonPublic)
-			.Invoke(__instance, null);
-
-		return false;
+		SaveAssetPanel.lastLoadedAsset = SavePanelPatch.LastLoadedRoad.Name;
+		SaveAssetPanel.lastAssetDescription = SavePanelPatch.LastLoadedRoad.Description;
 	}
 }
 
@@ -124,14 +122,22 @@ public class SavePanelPatch_CheckCompulsoryShots
 {
 	public static bool Prefix()
 	{
-		return SavePanelPatch.LastLoadedRoad == null;
+		return !SavePanelPatch.IsAssetLoaded;
+	}
+}
+
+[HarmonyPatch(typeof(SaveAssetPanel), "Refresh", new Type[] { typeof(object), typeof(ReporterEventArgs) })]
+public class SavePanelPatch_Refresh
+{
+	public static bool Prefix()
+	{
+		return !SavePanelPatch.IsAssetLoaded;
 	}
 }
 
 [HarmonyPatch]
 public class SavePanelPatch_SaveRoutine
 {
-
 	public static MethodBase TargetMethod()
 	{
 		var type = typeof(SaveAssetPanel);

@@ -67,6 +67,7 @@ public static class RoadBuilderUtil
 		var netElelvations = info.GetElevations();
 		var lanes = roadInfo.Lanes;
 
+		if(false)
 		foreach (var elevation in netElelvations.Keys)
 		{
 			if (exception != null)
@@ -124,7 +125,6 @@ public static class RoadBuilderUtil
 
 		yield return new StateInfo($"Road generation completed, applying changes..");
 
-		SavePanelPatch.LastLoadedRoad = roadInfo;
 		CurrentRoad = roadInfo;
 
 		ToolsModifierControl.toolController.m_editPrefabInfo = info;
@@ -139,7 +139,7 @@ public static class RoadBuilderUtil
 		if (AssetDataExtension.WasLastLoaded != false)
 			return (NetInfo)ToolsModifierControl.toolController.m_editPrefabInfo;
 
-		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway or RoadType.Flat => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
+		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo?.RoadType switch { RoadType.Highway or RoadType.Flat => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
 
 		if (template.m_netAI is RoadAI roadAI)
 		{
@@ -177,22 +177,13 @@ public static class RoadBuilderUtil
 		netInfo.m_clipTerrain = elevation == ElevationType.Basic;
 		netInfo.m_lowerTerrain = elevation != ElevationType.Basic;
 		netInfo.m_pavementWidth = roadInfo.LeftPavementWidth;
-		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 2);
+		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 4);
 		netInfo.m_maxBuildAngle = roadInfo.RoadType == RoadType.Highway ? 60F : 90F;
 		netInfo.m_createPavement = elevation == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
 		netInfo.m_createGravel = elevation == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
 		netInfo.m_createRuining = elevation == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
 		netInfo.m_enableBendingNodes = roadInfo.LeftPavementWidth == roadInfo.RightPavementWidth;
 
-		//var itemClass = ScriptableObject.CreateInstance<ItemClass>();
-		//itemClass.m_layer = ItemClass.Layer.Default;
-		//itemClass.m_service = ItemClass.Service.Road;
-		//itemClass.m_subService = ItemClass.SubService.None;
-		//itemClass.m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5;
-		//itemClass.name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway";
-		//netInfo.m_class = itemClass;
-
-		RoadUtils.SetNetAi(netInfo, "m_outsideConnection", null);
 		RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation, false));
 		RoadUtils.SetNetAi(netInfo, "m_maintenanceCost", GetCost(roadInfo, elevation, true));
 		RoadUtils.SetNetAi(netInfo, "m_noiseAccumulation", (int)(netInfo.m_halfWidth / 3));
