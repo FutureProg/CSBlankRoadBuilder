@@ -287,13 +287,13 @@ public static class ThumbnailMakerUtil
 			return type == LaneType.Bus ? 0.3F : 0.1F;
 		}
 
-		if (lane.RightLane?.Type == LaneType.Parking)
+		if (lane.RightLane?.Type == LaneType.Parking || lane.RightLane?.Type == LaneType.Empty)
 		{
-			return (type == LaneType.Bus ? 0.5F : 0F) + lane.RightLane.LaneWidth;
+			return lane.RightLane.LaneWidth;
 		}
-		else if (lane.LeftLane?.Type == LaneType.Parking)
+		else if (lane.LeftLane?.Type == LaneType.Parking || lane.LeftLane?.Type == LaneType.Empty)
 		{
-			return -((type == LaneType.Bus ? 0.5F : 0F) + lane.LeftLane.LaneWidth);
+			return -lane.LeftLane.LaneWidth;
 		}
 
 		return 0F;

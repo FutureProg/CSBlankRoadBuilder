@@ -310,7 +310,7 @@ public static partial class LanePropsUtil
 			m_minLength = 0,
 			m_repeatDistance = 0,
 			m_segmentOffset = 1,
-			m_angle = 0,
+			m_angle = 90,
 			m_probability = 100,
 			m_position = new Vector3(propPosition, 0, 0),
 		}.Extend(p => new NetInfoExtionsion.LaneProp(p)

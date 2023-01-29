@@ -11,7 +11,7 @@ public class RenderGroupPatch_UpdateMeshData
 {
 	public static bool Prefix()
 	{
-		return !RoadBuilderUtil.IsBuilding;
+		return ToolsModifierControl.isAssetEditor || !RoadBuilderUtil.IsBuilding;
 	}
 }
 
@@ -20,6 +20,6 @@ public class NetToolPatch_SimulationStep
 {
 	public static bool Prefix()
 	{
-		return !RoadBuilderUtil.IsBuilding;
+		return ToolsModifierControl.isAssetEditor || !RoadBuilderUtil.IsBuilding;
 	}
 }

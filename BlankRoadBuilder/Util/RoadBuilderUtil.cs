@@ -1,5 +1,6 @@
 ﻿
 using AdaptiveRoads.CustomScript;
+using AdaptiveRoads.LifeCycle;
 using AdaptiveRoads.Manager;
 
 using BlankRoadBuilder.Domain;
@@ -52,12 +53,7 @@ public static class RoadBuilderUtil
 
 		Exception? exception = null;
 
-		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway or RoadType.Flat => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
-
-		(template.m_netAI as RoadAI).m_slopeInfo = null;
-		(template.m_netAI as RoadAI).m_tunnelInfo = null;
-
-		var info = (NetInfo)(ToolsModifierControl.toolController.m_editPrefabInfo = AssetEditorRoadUtils.InstantiatePrefab(template));
+		var info = GetNetInfo(roadInfo);
 
 		try
 		{
@@ -75,8 +71,7 @@ public static class RoadBuilderUtil
 		{
 			if (exception != null)
 			{
-				yield return new StateInfo(exception);
-				yield break;
+				break;
 			}
 
 			yield return new StateInfo($"Generating the {elevation} elevation..");
@@ -99,6 +94,11 @@ public static class RoadBuilderUtil
 					return x.NetLanes;
 				}).ToArray();
 
+				if (netInfo.m_lanes.Length > 250)
+				{
+					throw new Exception("This road has too many lanes and will not work in-game, then road generation can not continue.");
+				}
+
 				FillNetInfo(roadInfo, elevation, netInfo);
 
 				try
@@ -116,9 +116,14 @@ public static class RoadBuilderUtil
 			}
 		}
 
+		if (exception != null)
+		{
+			yield return new StateInfo(exception);
+			yield break;
+		}
+
 		yield return new StateInfo($"Road generation completed, applying changes..");
 
-		SavePanelPatch.LastLoadedRoad = roadInfo;
 		CurrentRoad = roadInfo;
 
 		ToolsModifierControl.toolController.m_editPrefabInfo = info;
@@ -126,6 +131,23 @@ public static class RoadBuilderUtil
 		IsBuilding = false;
 
 		SegmentUtil.GenerateTemplateSegments(info);
+	}
+
+	private static NetInfo GetNetInfo(RoadInfo? roadInfo)
+	{
+		if (AssetDataExtension.WasLastLoaded != false)
+			return (NetInfo)ToolsModifierControl.toolController.m_editPrefabInfo;
+
+		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo?.RoadType switch { RoadType.Highway or RoadType.Flat => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
+
+		if (template.m_netAI is RoadAI roadAI)
+		{
+			roadAI.m_slopeInfo = null;
+			roadAI.m_tunnelInfo = null;
+		}
+
+		var info = (NetInfo)(ToolsModifierControl.toolController.m_editPrefabInfo = AssetEditorRoadUtils.InstantiatePrefab(template));
+		return info;
 	}
 
 	private static void CopyProperties(object target, object origin)
@@ -151,25 +173,14 @@ public static class RoadBuilderUtil
 	private static void FillNetInfo(RoadInfo roadInfo, ElevationType elevation, NetInfo netInfo)
 	{
 		netInfo.m_surfaceLevel = roadInfo.RoadType == RoadType.Road ? -0.3F : 0F;
-		netInfo.m_clipTerrain = elevation == ElevationType.Basic;
-		netInfo.m_lowerTerrain = elevation != ElevationType.Basic;
 		netInfo.m_pavementWidth = roadInfo.LeftPavementWidth;
-		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 2);
+		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 4);
 		netInfo.m_maxBuildAngle = roadInfo.RoadType == RoadType.Highway ? 60F : 90F;
 		netInfo.m_createPavement = elevation == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
 		netInfo.m_createGravel = elevation == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
 		netInfo.m_createRuining = elevation == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
 		netInfo.m_enableBendingNodes = roadInfo.LeftPavementWidth == roadInfo.RightPavementWidth;
 
-		//var itemClass = ScriptableObject.CreateInstance<ItemClass>();
-		//itemClass.m_layer = ItemClass.Layer.Default;
-		//itemClass.m_service = ItemClass.Service.Road;
-		//itemClass.m_subService = ItemClass.SubService.None;
-		//itemClass.m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5;
-		//itemClass.name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway";
-		//netInfo.m_class = itemClass;
-
-		RoadUtils.SetNetAi(netInfo, "m_outsideConnection", null);
 		RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation, false));
 		RoadUtils.SetNetAi(netInfo, "m_maintenanceCost", GetCost(roadInfo, elevation, true));
 		RoadUtils.SetNetAi(netInfo, "m_noiseAccumulation", (int)(netInfo.m_halfWidth / 3));
@@ -391,7 +402,7 @@ public static class RoadBuilderUtil
 		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
 		roadInfo.TotalWidth = roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth + roadInfo.AsphaltWidth;
 
-		var index = (roadInfo.AsphaltWidth + leftPavementWidth + rightPavementWidth + leftPavementWidth + rightPavementWidth - roadInfo.LeftPavementWidth - roadInfo.RightPavementWidth) / -2;
+		var index = (roadInfo.AsphaltWidth + roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth) / -2 + (roadInfo.LeftPavementWidth - leftPavementWidth);
 
 		foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasFlag(LaneTag.StackedLane)))
 		{
@@ -497,8 +508,8 @@ public static class RoadBuilderUtil
 
 		if (lane.Type.HasFlag(LaneType.Trolley))
 		{
-			var leftTrolley = lane.Duplicate(LaneType.Empty, -0.6F);
-			var rightTrolley = lane.Duplicate(LaneType.Empty, 0.6F);
+			var leftTrolley = lane.Duplicate(LaneType.Empty, lane.Direction == LaneDirection.Backwards ? 0.6F : -0.6F);
+			var rightTrolley = lane.Duplicate(LaneType.Empty, lane.Direction == LaneDirection.Backwards ? -0.6F : 0.6F);
 
 			var leftTrolleyLane = getLane(index++, LaneType.Empty, leftTrolley, road, elevation);
 			var rightTrolleyLane = getLane(index++, LaneType.Empty, rightTrolley, road, elevation);
