@@ -67,7 +67,6 @@ public static class RoadBuilderUtil
 		var netElelvations = info.GetElevations();
 		var lanes = roadInfo.Lanes;
 
-		if(false)
 		foreach (var elevation in netElelvations.Keys)
 		{
 			if (exception != null)
@@ -174,8 +173,6 @@ public static class RoadBuilderUtil
 	private static void FillNetInfo(RoadInfo roadInfo, ElevationType elevation, NetInfo netInfo)
 	{
 		netInfo.m_surfaceLevel = roadInfo.RoadType == RoadType.Road ? -0.3F : 0F;
-		netInfo.m_clipTerrain = elevation == ElevationType.Basic;
-		netInfo.m_lowerTerrain = elevation != ElevationType.Basic;
 		netInfo.m_pavementWidth = roadInfo.LeftPavementWidth;
 		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 4);
 		netInfo.m_maxBuildAngle = roadInfo.RoadType == RoadType.Highway ? 60F : 90F;
@@ -405,7 +402,7 @@ public static class RoadBuilderUtil
 		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
 		roadInfo.TotalWidth = roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth + roadInfo.AsphaltWidth;
 
-		var index = (roadInfo.AsphaltWidth + leftPavementWidth + rightPavementWidth + leftPavementWidth + rightPavementWidth - roadInfo.LeftPavementWidth - roadInfo.RightPavementWidth) / -2;
+		var index = (roadInfo.AsphaltWidth + roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth) / -2 + (roadInfo.LeftPavementWidth - leftPavementWidth);
 
 		foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasFlag(LaneTag.StackedLane)))
 		{

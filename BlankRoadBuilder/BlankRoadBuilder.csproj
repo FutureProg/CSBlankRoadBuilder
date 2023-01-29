@@ -9,9 +9,9 @@
 	<LangVersion>latest</LangVersion>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>enable</Nullable>
-	<Version>1.1.1</Version>
-	<FileVersion>1.1.1</FileVersion>
-	<AssemblyVersion>1.1.1</AssemblyVersion>
+	<Version>1.1.2</Version>
+	<FileVersion>1.1.2</FileVersion>
+	<AssemblyVersion>1.1.2</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>

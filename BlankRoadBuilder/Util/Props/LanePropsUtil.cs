@@ -89,8 +89,15 @@ public static partial class LanePropsUtil
 					break;
 				case LaneType.Curb:
 				case LaneType.Filler:
-					if (lane.LaneWidth < 0.75F)
+					if (lane.LaneWidth - road.BufferWidth < 0.25F)
+					{
+						foreach (var prop in GetLights(lane, road))
+						{
+							yield return prop;
+						}
+
 						yield break;
+					}
 
 					foreach (var prop in GetMedianProps(lane, road))
 						yield return prop;
