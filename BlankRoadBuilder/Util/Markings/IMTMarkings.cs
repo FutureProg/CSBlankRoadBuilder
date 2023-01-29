@@ -8,15 +8,13 @@ using KianCommons;
 using ModsCommon;
 using ModsCommon.Utilities;
 
-using NodeMarkup.API;
+using IMT.API;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
-
-using static DistrictPolicies;
 
 namespace BlankRoadBuilder.Util.Markings;
 public class IMTMarkings
@@ -88,7 +86,7 @@ public class IMTMarkings
 		if (style == null)
 			return;
 
-		if (style is IGuidedFillerStyleData guidedFiller)
+		if (item.Type == LaneDecoration.Filler && style is IGuidedFillerStyleData guidedFiller)
 		{
 			var rev = item.Lanes.First().Direction == LaneDirection.Forward;
 
@@ -185,13 +183,13 @@ public class IMTMarkings
 				return grass;
 
 			case LaneDecoration.Pavement:
-				var pavement = Provider.GrassFillerStyle;
+				var pavement = Provider.PavementFillerStyle;
 				pavement.Elevation = getElevation() + 0.01F;
 				pavement.LineOffset = leftPadded || rightPadded ? 0F : 0.2F;
 				return pavement;
 
 			case LaneDecoration.Gravel:
-				var gravel = Provider.GrassFillerStyle;
+				var gravel = Provider.GravelFillerStyle;
 				gravel.Elevation = getElevation() + 0.01F;
 				gravel.LineOffset = leftPadded || rightPadded ? 0F : 0.2F;
 				gravel.CurbSize = item.Elevation == item.Lanes.Min(x => x.SurfaceElevation) ? 0F : 0.3F;
