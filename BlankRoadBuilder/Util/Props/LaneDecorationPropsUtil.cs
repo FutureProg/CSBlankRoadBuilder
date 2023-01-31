@@ -46,7 +46,7 @@ public static partial class LanePropsUtil
 
 					break;
 				case LaneDecoration.FlowerPots:
-					foreach (var prop in GetFlowerPots(lane))
+					foreach (var prop in lane.Decorations.HasFlag(LaneDecoration.Grass) ? GetFlowers(lane) : GetFlowerPots(lane))
 					{
 						yield return prop;
 					}
@@ -61,6 +61,13 @@ public static partial class LanePropsUtil
 					break;
 				case LaneDecoration.Hedge:
 					foreach (var prop in GetHedge(lane))
+					{
+						yield return prop;
+					}
+
+					break;
+				case LaneDecoration.LampPost:
+					foreach (var prop in GetLampPost(lane, road))
 					{
 						yield return prop;
 					}
@@ -165,6 +172,39 @@ public static partial class LanePropsUtil
 			m_repeatDistance = 25F,
 			m_position = new Vector3(hasOtherDecos ? propAngle(lane) * lane.LaneWidth / 2 : 0, 0, 0)
 		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 5F });
+	}
+
+	private static IEnumerable<NetLaneProps.Prop> GetLampPost(LaneInfo lane, RoadInfo road)
+	{
+		var lightProp = GetProp(Prop.LampPost);
+		var xPos = (-lane.LaneWidth / 2) + 0.5F;
+
+		yield return getLight(road.ContainsWiredLanes ? (propAngle(lane) * 2F) : 0F);
+
+		if (ModOptions.VanillaStreetLightPlacement)
+		{
+			yield break;
+		}
+
+		for (var i = ModOptions.LightRepeatDistance / 2; i <= 96; i += ModOptions.LightRepeatDistance / 2)
+		{
+			yield return getLight(i);
+			yield return getLight(-i);
+		}
+
+		NetLaneProps.Prop getLight(float position) => new NetLaneProps.Prop
+		{
+			m_prop = lightProp,
+			m_finalProp = lightProp,
+			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
+			m_repeatDistance = ModOptions.VanillaTreePlacement ? (ModOptions.LightRepeatDistance / 2) : 0,
+			m_probability = 100,
+			m_position = new Vector3(xPos, 0, position)
+		}.Extend(prop => new LaneProp(prop)
+		{
+			LaneFlags = new LaneInfoFlags
+			{ Forbidden = RoadUtils.Flags.L_RemoveStreetLights }
+		}).ToggleForwardBackward(propAngle(lane) < 0);
 	}
 
 	private static IEnumerable<NetLaneProps.Prop> GetStreetLights(LaneInfo lane, RoadInfo road, LaneDecoration decoration)
@@ -299,11 +339,50 @@ public static partial class LanePropsUtil
 		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 5F });
 	}
 
+	private static IEnumerable<NetLaneProps.Prop> GetFlowers(LaneInfo lane)
+	{
+		var prop = GetProp(Prop.Flowers);
+		var numLines = Math.Max((int)Math.Ceiling(lane.LaneWidth / 0.75) - 1, 1);
+		var odd = numLines % 2 == 1;
+		var pos = numLines == 1 ? 0 : (1 - (lane.LaneWidth / 2));
+
+		for (var i = 0; i < numLines; i++)
+		{
+			if (i > 0)
+			{
+				pos += (lane.LaneWidth - 2) / (numLines - 1);
+			}
+
+			yield return new NetLaneProps.Prop
+			{
+				m_tree = prop,
+				m_finalTree = prop,
+				m_prop = prop,
+				m_finalProp = prop,
+				m_probability = 100,
+				m_repeatDistance = 1.25F,
+				m_position = new Vector3(pos + (float)Math.Round(_random.NextDouble(), 2), 0, (float)Math.Round(_random.NextDouble() * 2.5, 2))
+			}.Extend(prop => new LaneProp(prop)
+			{
+				JunctionDistance = 2.5F,
+				VanillaSegmentFlags = new VanillaSegmentInfoFlags
+				{
+					Forbidden = lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None
+				},
+				SegmentFlags = new SegmentInfoFlags
+				{
+					Required = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) && ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Forbidden = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) && !ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None,
+				}
+			});
+		}
+	}
+
 	public static IEnumerable<NetLaneProps.Prop> GetGrassProps(LaneInfo lane)
 	{
 		var prop = GetProp(Prop.Grass);
-		var odd = (int)lane.LaneWidth % 2 == 1;
 		var numLines = Math.Max((int)Math.Ceiling(lane.LaneWidth) - 1, 1);
+		var odd = numLines % 2 == 1;
 		var pos = numLines == 1 ? 0 : (1 - (lane.LaneWidth / 2));
 
 		for (var i = 0; i < numLines; i++)

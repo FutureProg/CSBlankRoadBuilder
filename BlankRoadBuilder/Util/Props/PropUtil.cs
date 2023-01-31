@@ -78,6 +78,8 @@ public class PropUtil
 			Prop.Pillar24 => new PropTemplate($"760276468.R69 Middle 3c_Data", isBuilding: true),
 			Prop.Pillar30 => new PropTemplate($"760277420.R69 Over 3c_Data", isBuilding: true),
 			Prop.Pillar38 => new PropTemplate($"760278365.R69 Over 4c_Data", isBuilding: true),
+			Prop.LampPost => new PropTemplate($"StreetLamp02"),
+			Prop.Flowers => new PropTemplate($"2355034951.Wildflower_Yellow_Data", isTree: true),
 			_ => new PropTemplate(string.Empty),
 		};
 	}

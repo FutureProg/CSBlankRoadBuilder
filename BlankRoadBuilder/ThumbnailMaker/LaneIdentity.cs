@@ -19,4 +19,5 @@ public class StyleIdentityAttribute : Attribute
 	public int Id { get; }
 	public string Name { get; }
 	public Color DefaultColor { get; }
+	public int Order { get; set; }
 }
