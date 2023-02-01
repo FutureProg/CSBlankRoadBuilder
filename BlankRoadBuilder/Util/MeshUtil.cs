@@ -33,9 +33,9 @@ public static class MeshUtil
 		{
 			var markings = MarkingsUtil.GenerateMarkings(roadInfo);
 
-			segments.AddRange(NetworkMarkings.Markings(roadInfo, netInfo, markings));
+			segments.AddRange(NetworkMarkings.Markings(markings));
 
-			segments.AddRange(NetworkMarkings.IMTHelpers(roadInfo, netInfo, markings));
+			segments.AddRange(NetworkMarkings.IMTHelpers(roadInfo));
 		}
 
 		netInfo.m_segments = segments.ToArray();
