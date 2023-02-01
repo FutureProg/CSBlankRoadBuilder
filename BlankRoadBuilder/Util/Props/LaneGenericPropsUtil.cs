@@ -1,5 +1,6 @@
 ﻿using AdaptiveRoads.Manager;
 
+using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
@@ -11,35 +12,35 @@ using UnityEngine;
 
 namespace BlankRoadBuilder.Util.Props;
 
-public static partial class LanePropsUtil
+public partial class LanePropsUtil
 {
-	private static IEnumerable<NetLaneProps.Prop> GetWirePoleProps(LaneInfo lane, RoadInfo road)
+	private IEnumerable<NetLaneProps.Prop> GetWirePoleProps()
 	{
-		if (!road.ContainsWiredLanes)
+		if (!Road.ContainsWiredLanes)
 			yield break;
 
-		getLaneTramInfo(lane, road, out var tramLanesAreNextToMedians, out var leftTram, out var rightTram);
+		getLaneTramInfo(Lane, Road, out var tramLanesAreNextToMedians, out var leftTram, out var rightTram);
 
 		var angle = !leftTram ? 0 : 180;
 
 		var position = 0F;//lane.Tags.HasFlag(LaneTag.Asphalt) ? 0 : lane.Position < 0 ? 1F : -1F;
-		var verticalOffset = lane.Tags.HasFlag(LaneTag.Asphalt) ? -0.45F : -0.75F;
+		var verticalOffset = Lane.Tags.HasFlag(LaneTag.Asphalt) ? -0.45F : -0.75F;
 
 		PropInfo poleProp;
 
-		if (!tramLanesAreNextToMedians && lane.Tags.HasFlag(LaneTag.WirePoleLane))
+		if (!tramLanesAreNextToMedians && Lane.Tags.HasFlag(LaneTag.WirePoleLane))
 		{
 			poleProp = GetProp(Prop.TramPole);
 
-			verticalOffset = lane.Tags.HasFlag(LaneTag.Asphalt) ? -0.1F : -0.4F;
+			verticalOffset = Lane.Tags.HasFlag(LaneTag.Asphalt) ? -0.1F : -0.4F;
 		}
 		else if (leftTram && rightTram)
 		{
-			if (lane.LaneWidth > 4F)
+			if (Lane.LaneWidth > 4F)
 			{
 				poleProp = GetProp(Prop.TramSidePole);
 
-				position = -(float)Math.Round(Math.Max(0F, lane.LaneWidth - 4F) / 2F, 3);
+				position = -(float)Math.Round(Math.Max(0F, Lane.LaneWidth - 4F) / 2F, 3);
 
 				yield return pole(-1F);
 				yield return pole(0F);
@@ -55,12 +56,12 @@ public static partial class LanePropsUtil
 		}
 		else if (leftTram || rightTram)
 		{
-			var tramLane = leftTram ? lane.LeftLane : lane.RightLane;
+			var tramLane = leftTram ? Lane.LeftLane : Lane.RightLane;
 			var nextLane = leftTram ? tramLane?.LeftLane : tramLane?.RightLane;
 
 			if (nextLane?.Type.HasAnyFlag(LaneType.Filler, LaneType.Curb, LaneType.Pedestrian) ?? false)
 			{
-				getLaneTramInfo(nextLane, road, out _, out var l, out var r);
+				getLaneTramInfo(nextLane, Road, out _, out var l, out var r);
 
 				if ((l && r) || (l && rightTram))
 					yield break;
@@ -76,8 +77,8 @@ public static partial class LanePropsUtil
 
 			poleProp = GetProp(Prop.TramSidePole);
 			position = nextLane != null && nextLane.Type.HasFlag(LaneType.Tram)
-				? (float)Math.Round(Math.Max(0F, (lane.Type == LaneType.Curb ? 0.1F : 0F) + ((lane.LaneWidth - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
-				: (float)Math.Round(Math.Max(0F, lane.LaneWidth - 4F) / 2F, 3) * (leftTram ? -1F : 1F);
+				? (float)Math.Round(Math.Max(0F, (Lane.Type == LaneType.Curb ? 0.1F : 0F) + ((Lane.LaneWidth - 1F) / 2F)), 3) * (leftTram ? -1F : 1F)
+				: (float)Math.Round(Math.Max(0F, Lane.LaneWidth - 4F) / 2F, 3) * (leftTram ? -1F : 1F);
 		}
 		else
 		{
@@ -105,7 +106,7 @@ public static partial class LanePropsUtil
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags { Forbidden = RoadUtils.Flags.S_RemoveTramSupports }
 		});
 
-		static void getLaneTramInfo(LaneInfo lane, RoadInfo road, out bool tramLanesAreNextToMedians, out bool leftTram, out bool rightTram)
+		void getLaneTramInfo(LaneInfo lane, RoadInfo road, out bool tramLanesAreNextToMedians, out bool leftTram, out bool rightTram)
 		{
 			tramLanesAreNextToMedians = road.WiredLanesAreNextToMedians /*&& road.AsphaltWidth > 10F*/;
 			leftTram = tramLanesAreNextToMedians && lane.LeftLane != null && ((lane.LeftLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
@@ -113,9 +114,9 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetParkingProps(LaneInfo lane)
+	private IEnumerable<NetLaneProps.Prop> GetParkingProps()
 	{
-		if (lane.LeftLane?.Type == LaneType.Parking)
+		if (Lane.LeftLane?.Type == LaneType.Parking)
 		{
 			var parkingMeter = GetProp(Prop.ParkingMeter);
 
@@ -127,7 +128,7 @@ public static partial class LanePropsUtil
 				m_minLength = 22,
 				m_segmentOffset = -0.65F,
 				m_probability = 100,
-				m_position = new Vector3((float)Math.Round((lane.LaneWidth - (lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / -2, 3), 0, 4F),
+				m_position = new Vector3((float)Math.Round((Lane.LaneWidth - (Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / -2, 3), 0, 4F),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -135,7 +136,7 @@ public static partial class LanePropsUtil
 			});
 		}
 
-		if (lane.RightLane?.Type == LaneType.Parking)
+		if (Lane.RightLane?.Type == LaneType.Parking)
 		{
 			var parkingMeter = GetProp(Prop.ParkingMeter);
 
@@ -147,7 +148,7 @@ public static partial class LanePropsUtil
 				m_minLength = 22,
 				m_segmentOffset = 0.65F,
 				m_probability = 100,
-				m_position = new Vector3((float)Math.Round((lane.LaneWidth - (lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / 2, 3), 0, -4F),
+				m_position = new Vector3((float)Math.Round((Lane.LaneWidth - (Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / 2, 3), 0, -4F),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -156,25 +157,25 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetLights(LaneInfo lane, RoadInfo road)
+	private IEnumerable<NetLaneProps.Prop> GetLights()
 	{
-		if (road.Lanes.Any(x => x.Decorations.HasAnyFlag(LaneDecoration.StreetLight, LaneDecoration.DoubleStreetLight)))
+		if (Road.Lanes.Any(x => x.Decorations.HasAnyFlag(LaneDecoration.LampPost, LaneDecoration.StreetLight, LaneDecoration.DoubleStreetLight)))
 			return new NetLaneProps.Prop[0];
 
-		if (lane.Tags.HasFlag(LaneTag.CenterMedian))
+		if (Lane.Tags.HasFlag(LaneTag.CenterMedian))
 		{
-			if (!lane.Decorations.HasFlag(LaneDecoration.DoubleStreetLight))
+			if (!Lane.Decorations.HasFlag(LaneDecoration.DoubleStreetLight))
 			{
-				return GetStreetLights(lane, road, LaneDecoration.DoubleStreetLight);
+				return GetStreetLights(LaneDecoration.DoubleStreetLight);
 			}
 		}
-		else if (lane.Type == LaneType.Curb)
+		else if (Lane.Type == LaneType.Curb)
 		{
-			if ((!road.ContainsCenterMedian || road.AsphaltWidth >= 30F)
-				&& (road.ContainsCenterMedian || road.AsphaltWidth >= 20F || lane.Position >= 0)
-				&& !lane.Decorations.HasFlag(LaneDecoration.StreetLight))
+			if ((!Road.ContainsCenterMedian || Road.AsphaltWidth >= 30F)
+				&& (Road.ContainsCenterMedian || Road.AsphaltWidth >= 20F || Lane.Position >= 0)
+				&& !Lane.Decorations.HasFlag(LaneDecoration.StreetLight))
 			{
-				return GetStreetLights(lane, road, LaneDecoration.StreetLight);
+				return GetStreetLights(LaneDecoration.StreetLight);
 			}
 		}
 

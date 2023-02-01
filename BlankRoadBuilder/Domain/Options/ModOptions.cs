@@ -15,6 +15,7 @@ public static class ModOptions
 	private static readonly SavedBool _addLaneArrows = new(nameof(_addLaneArrows), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _addGrassPropsToGrassLanes = new(nameof(_addGrassPropsToGrassLanes), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _alwaysAddGhostLanes = new(nameof(_alwaysAddGhostLanes), nameof(BlankRoadBuilder), true);
+	private static readonly SavedBool _groundOnlyTrees = new(nameof(_groundOnlyTrees), nameof(BlankRoadBuilder), true);
 
 	private static readonly SavedInt _markingsStyle = new(nameof(_markingsStyle), nameof(BlankRoadBuilder), (int)MarkingStyle.Vanilla);
 	private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);
@@ -71,6 +72,9 @@ public static class ModOptions
 
 	[ModOptions("Use vanilla tree placement", "Generates the trees with a standard repeat distance")]
 	public static bool VanillaTreePlacement { get => _vanillaTreePlacement; set => _vanillaTreePlacement.value = value; }
+
+	[ModOptions("Only add trees to ground elevation", "Only adds the trees on the ground elevation")]
+	public static bool GroundOnlyTrees { get => _groundOnlyTrees; set => _groundOnlyTrees.value = value; }
 
 	[ModOptions("Disable the auto-fill of information and thumbnails in the save panel")]
 	public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }

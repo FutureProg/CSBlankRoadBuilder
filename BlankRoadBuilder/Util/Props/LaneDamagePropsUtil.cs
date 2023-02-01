@@ -9,40 +9,40 @@ using System.Linq;
 using UnityEngine;
 
 namespace BlankRoadBuilder.Util.Props;
-public static partial class LanePropsUtil
+public partial class LanePropsUtil
 {
 	private static readonly System.Random _random = new(Guid.NewGuid().GetHashCode());
 
-	private static IEnumerable<NetLaneProps.Prop> GetRoadDamageProps(RoadInfo road)
+	private IEnumerable<NetLaneProps.Prop> GetRoadDamageProps()
 	{
-		foreach (var prop in GenerateDamageProp(road, 60F, _potHoleProps, null))
+		foreach (var prop in GenerateDamageProp(60F, _potHoleProps, null))
 			yield return prop;
 
-		foreach (var prop in GenerateDamageProp(road, 85F, _roadCracksProps, null))
+		foreach (var prop in GenerateDamageProp(85F, _roadCracksProps, null))
 			yield return prop;
 
-		foreach (var prop in GenerateDamageProp(road, 30F, _roadPatchProps))
+		foreach (var prop in GenerateDamageProp(30F, _roadPatchProps))
 			yield return prop;
 
-		foreach (var prop in GenerateDamageProp(road, 6.5F, _wetnessProps))
+		foreach (var prop in GenerateDamageProp(6.5F, _wetnessProps))
 			yield return prop;
 
-		foreach (var prop in GenerateDamageProp(road, 10F, _stainsProps))
+		foreach (var prop in GenerateDamageProp(10F, _stainsProps))
 			yield return prop;
 
-		foreach (var prop in GenerateDamageProp(road, 40F, _roadWearProps, 90F))
+		foreach (var prop in GenerateDamageProp(40F, _roadWearProps, 90F))
 			yield return prop;
 
-		foreach (var prop in GenerateDamageProp(road, 30F, _roadDamageProps))
+		foreach (var prop in GenerateDamageProp(30F, _roadDamageProps))
 			yield return prop;
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GenerateDamageProp(RoadInfo road, float weight, List<KeyValuePair<float, string>> props, float? angle = 0F)
+	private IEnumerable<NetLaneProps.Prop> GenerateDamageProp(float weight, List<KeyValuePair<float, string>> props, float? angle = 0F)
 	{
-		var totalProps = GetPropCount(road, weight, props);
+		var totalProps = GetPropCount(Road, weight, props);
 		var propsReturned = 0;
-		var halfWidth = (int)((road.AsphaltWidth - 1) / 2);
-		var validProps = props.Where(x => x.Key < road.AsphaltWidth).ToList();
+		var halfWidth = (int)((Road.AsphaltWidth - 1) / 2);
+		var validProps = props.Where(x => x.Key < Road.AsphaltWidth).ToList();
 
 		while (propsReturned < totalProps)
 		{

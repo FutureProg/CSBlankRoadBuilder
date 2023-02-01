@@ -16,9 +16,9 @@ namespace BlankRoadBuilder.Util;
 
 public static class MeshUtil
 {
-	private static AssetModel GetModel(CurbType id, RoadAssetType type, RoadInfo roadInfo, ElevationType elevation, string name, bool inverted = false, bool sidewalkTransition = false)
+	private static AssetModel GetModel(CurbType id, RoadAssetType type, RoadInfo roadInfo, ElevationType elevation, string name, bool inverted = false, bool sidewalkTransition = false, bool noAsphaltTransition = false)
 	{
-		return AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, name + (inverted ? " Inverted" : ""), inverted, sidewalkTransition);
+		return AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, name + (inverted ? " Inverted" : ""), inverted, sidewalkTransition, noAsphaltTransition);
 	}
 
 	public static void UpdateMeshes(RoadInfo roadInfo, NetInfo netInfo, ElevationType elevation)
@@ -114,12 +114,19 @@ public static class MeshUtil
 	private static List<NetInfo.Node> GetNodes(ElevationType elevation, RoadInfo roadInfo)
 	{
 		var list = new List<NetInfo.Node>();
+		var noAsphaltTransition = roadInfo.AsphaltStyle == AsphaltStyle.None && !(elevation == ElevationType.Basic ? (roadInfo.SideTexture == TextureType.Asphalt) : elevation <= ElevationType.Bridge && (roadInfo.BridgeSideTexture == BridgeTextureType.Asphalt));
 
-		generateNodes(false);
+		list.AddRange(generateNodes(false).Select(x => x.Mesh));
+
+		if (noAsphaltTransition)
+			list.AddRange(generateNodes(false, true).Select(x => x.Mesh));
 
 		if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
 		{
-			generateNodes(true);
+			list.AddRange(generateNodes(true).Select(x => x.Mesh));
+
+			if (noAsphaltTransition)
+				list.AddRange(generateNodes(true, true).Select(x => x.Mesh));
 
 			for (var i = 0; i < list.Count / 2; i++)
 			{
@@ -128,17 +135,17 @@ public static class MeshUtil
 			}
 		}
 
-		void generateNodes(bool inverted)
+		IEnumerable<MeshInfo<NetInfo.Node, Node>> generateNodes(bool inverted, bool asTransition = false)
 		{
 			MeshInfo<NetInfo.Node, Node> highCurb, lowCurb, fullLowCurb, transition;
 
-			highCurb = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "High Curb", inverted));
+			highCurb = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "High Curb", inverted, noAsphaltTransition: asTransition));
 
-			list.Add(highCurb);
+			yield return highCurb;
 
 			if (roadInfo.RoadType != RoadType.Road)
 			{
-				transition = new(GetModel(CurbType.TR, RoadAssetType.Node, roadInfo, elevation, "Transition", inverted));
+				transition = new(GetModel(CurbType.TR, RoadAssetType.Node, roadInfo, elevation, "Transition", inverted, inverted, noAsphaltTransition: asTransition));
 
 				highCurb.Mesh.m_flagsForbidden |= NetNode.Flags.Transition;
 				transition.Mesh.m_flagsRequired |= NetNode.Flags.Transition;
@@ -146,13 +153,13 @@ public static class MeshUtil
 				//highCurb.MetaData.NodeFlags.Forbidden |= RoadUtils.Flags.N_FlatTransition;
 				//transition.MetaData.NodeFlags.Required |= RoadUtils.Flags.N_FlatTransition;
 
-				list.Add(transition);
+				yield return transition;
 
-				return;
+				yield break;
 			}
 
-			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Node, roadInfo, elevation, "Low Curb", inverted));
-			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Node, roadInfo, elevation, "Full Low Curb", inverted));
+			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Node, roadInfo, elevation, "Low Curb", inverted, inverted, noAsphaltTransition: asTransition));	
+			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Node, roadInfo, elevation, "Full Low Curb", inverted, inverted, noAsphaltTransition: asTransition));
 
 			highCurb.MetaData.SegmentEndFlags.Required |= RoadUtils.Flags.S_HighCurb;
 
@@ -163,8 +170,8 @@ public static class MeshUtil
 			fullLowCurb.MetaData.NodeFlags.Required |= RoadUtils.Flags.N_FullLowCurb;
 			fullLowCurb.MetaData.NodeFlags.Forbidden |= RoadUtils.Flags.N_ForceHighCurb;
 
-			list.Add(lowCurb);
-			list.Add(fullLowCurb);
+			yield return lowCurb;
+			yield return fullLowCurb;
 
 			//if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
 			//{

@@ -10,7 +10,7 @@ namespace BlankRoadBuilder.Util;
 
 public static class AssetUtil
 {
-	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb, string name, bool inverted, bool sidewalkTransition)
+	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb, string name, bool inverted, bool sidewalkTransition, bool noAsphaltTransition)
 	{
 		var curbless = curb == CurbType.Curbless;
 
@@ -22,7 +22,7 @@ public static class AssetUtil
 		var fileName = $"{MeshName(elevationType)}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 		var exportName = $"{elevationType}_{(inverted ? "inverted_" : "")}{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 
-		PrepareMeshFiles(road, name, meshType, elevationType, curb, curbless, inverted, sidewalkTransition, fileName, exportName);
+		PrepareMeshFiles(road, name, meshType, elevationType, curb, curbless, inverted, noAsphaltTransition, sidewalkTransition, fileName, exportName);
 
 		return ImportAsset(
 			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
@@ -60,7 +60,7 @@ public static class AssetUtil
 		}
 	}
 
-	private static void PrepareMeshFiles(RoadInfo road, string name, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, bool inverted, bool sidewalkTransition, string fileName, string exportFile)
+	private static void PrepareMeshFiles(RoadInfo road, string name, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, bool inverted, bool noAsphaltTransition, bool sidewalkTransition, string fileName, string exportFile)
 	{
 		Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
@@ -83,13 +83,13 @@ public static class AssetUtil
 			var type = regex.Groups[1].Value.ToLower().TrimStart('_');
 			var newName = $"{exportName}{(lod ? "_lod" : "")}_{mesh}.png";
 
-			if (mesh is "p" or "r")
+			if (mesh is "p" or "r" || (mesh == "d" && noAsphaltTransition))
 			{
 				var ashpalt = elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : elevationType <= ElevationType.Bridge && (road.BridgeSideTexture == BridgeTextureType.Asphalt);
 				var noashpalt = !ashpalt && road.AsphaltStyle == AsphaltStyle.None;
 				var noCurb = (road.RoadType == RoadType.Highway || (road.RoadType == RoadType.Flat && ModOptions.RemoveCurbOnFlatRoads)) && curb != CurbType.TR;
 
-				var requiredType = (ashpalt ? "asphalt" : noashpalt ? "noasphalt" : "") + (noCurb ? "nocurb" : "");
+				var requiredType = (ashpalt ? "asphalt" : noashpalt ? (noAsphaltTransition ? "noasphalttransition" : "noasphalt") : "") + (noCurb ? "nocurb" : "");
 
 				if (type == requiredType)
 				{

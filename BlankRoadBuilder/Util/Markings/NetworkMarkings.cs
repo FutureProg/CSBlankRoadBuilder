@@ -35,7 +35,7 @@ public static class NetworkMarkings
 			}
 			else
 			{
-				var addTransition = !item.Lanes.Any(x => x.Type == LaneType.Curb || x.Type == LaneType.Filler);
+				var addTransition = item.Lanes.Any(x => !x.Type.HasAnyFlag(LaneType.Curb, LaneType.Filler, LaneType.Tram));
 				var filler = GetFillers(item, addTransition);
 
 				if (item.Type != LaneDecoration.Pavement && item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop)))

@@ -10,6 +10,7 @@ using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Props;
 
 using ColossalFramework.IO;
+using ColossalFramework.UI;
 
 using System;
 using System.Collections.Generic;
@@ -538,7 +539,7 @@ public static class RoadBuilderUtil
 			m_stopType = ThumbnailMakerUtil.GetStopType(type, lane, road, out _),
 			m_direction = ThumbnailMakerUtil.GetLaneDirection(lane),
 			m_finalDirection = ThumbnailMakerUtil.GetLaneDirection(lane),
-			m_laneProps = GetLaneProps(index, type, lane, road),
+			m_laneProps = GetLaneProps(index, type, lane, road, elevation),
 			m_stopOffset = ThumbnailMakerUtil.GetStopOffset(type, lane),
 			m_elevated = false,
 			m_useTerrainHeight = false,
@@ -549,11 +550,11 @@ public static class RoadBuilderUtil
 		};
 	}
 
-	private static NetLaneProps GetLaneProps(int index, LaneType type, LaneInfo lane, RoadInfo road)
+	private static NetLaneProps GetLaneProps(int index, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
 	{
 		var laneProps = ScriptableObject.CreateInstance<NetLaneProps>();
 
-		laneProps.m_props = LanePropsUtil.GetLaneProps(index, type, lane, road) ?? new NetLaneProps.Prop[0];
+		laneProps.m_props = new LanePropsUtil(index, type, lane, road, elevation).GetLaneProps() ?? new NetLaneProps.Prop[0];
 
 		return laneProps;
 	}
