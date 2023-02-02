@@ -116,17 +116,17 @@ public static class MeshUtil
 		var list = new List<NetInfo.Node>();
 		var noAsphaltTransition = roadInfo.AsphaltStyle == AsphaltStyle.None && !(elevation == ElevationType.Basic ? (roadInfo.SideTexture == TextureType.Asphalt) : elevation <= ElevationType.Bridge && (roadInfo.BridgeSideTexture == BridgeTextureType.Asphalt));
 
-		list.AddRange(generateNodes(false).Select(x => x.Mesh));
+		list.AddRange(filteredNodes(false));
 
 		if (noAsphaltTransition)
-			list.AddRange(generateNodes(false, true).Select(x => x.Mesh));
+			list.AddRange(filteredNodes(false, true));
 
 		if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
 		{
-			list.AddRange(generateNodes(true).Select(x => x.Mesh));
+			list.AddRange(filteredNodes(true));
 
 			if (noAsphaltTransition)
-				list.AddRange(generateNodes(true, true).Select(x => x.Mesh));
+				list.AddRange(filteredNodes(true, true));
 
 			for (var i = 0; i < list.Count / 2; i++)
 			{
@@ -135,12 +135,32 @@ public static class MeshUtil
 			}
 		}
 
+		IEnumerable<NetInfo.Node> filteredNodes(bool inverted, bool asTransition = false)
+		{
+			foreach (var item in generateNodes(inverted, asTransition))
+			{
+				if (noAsphaltTransition)
+				{
+					if (asTransition)
+					{
+					//	item.Mesh.m_tagsRequired = new[] { "RB_NoAsphalt" };
+					}
+					else
+					{
+					//	item.Mesh.m_tagsForbidden = new[] { "RB_NoAsphalt" };
+					}
+				}
+
+				yield return item;
+			}
+		}
+
 		IEnumerable<MeshInfo<NetInfo.Node, Node>> generateNodes(bool inverted, bool asTransition = false)
 		{
 			MeshInfo<NetInfo.Node, Node> highCurb, lowCurb, fullLowCurb, transition;
 
 			highCurb = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "High Curb", inverted, noAsphaltTransition: asTransition));
-
+					
 			yield return highCurb;
 
 			if (roadInfo.RoadType != RoadType.Road)
