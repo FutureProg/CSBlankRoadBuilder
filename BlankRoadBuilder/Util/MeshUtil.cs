@@ -16,9 +16,9 @@ namespace BlankRoadBuilder.Util;
 
 public static class MeshUtil
 {
-	private static AssetModel GetModel(CurbType id, RoadAssetType type, RoadInfo roadInfo, ElevationType elevation, string name, bool inverted = false, bool sidewalkTransition = false, bool noAsphaltTransition = false)
+	private static AssetModel GetModel(CurbType id, RoadAssetType type, RoadInfo roadInfo, ElevationType elevation, string name, bool inverted = false, bool noAsphaltTransition = false)
 	{
-		return AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, name + (inverted ? " Inverted" : ""), inverted, sidewalkTransition, noAsphaltTransition);
+		return AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, name + (inverted ? " Inverted" : "") + (noAsphaltTransition ? " Asphalt" : ""), inverted, noAsphaltTransition);
 	}
 
 	public static void UpdateMeshes(RoadInfo roadInfo, NetInfo netInfo, ElevationType elevation)
@@ -36,6 +36,11 @@ public static class MeshUtil
 			segments.AddRange(NetworkMarkings.Markings(markings));
 
 			segments.AddRange(NetworkMarkings.IMTHelpers(roadInfo));
+		}
+
+		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.VanillaMarkings) && !ModOptions.NoVanillaCrosswalks)
+		{
+			nodes.AddRange(NetworkMarkings.GetCrosswalk(roadInfo));
 		}
 
 		netInfo.m_segments = segments.ToArray();
@@ -149,11 +154,13 @@ public static class MeshUtil
 				{
 					if (asTransition)
 					{
-					//	item.Mesh.m_tagsRequired = new[] { "RB_NoAsphalt" };
+						item.Mesh.m_tagsForbidden = new[] { "RB_NoAsphalt_" + roadInfo.SideTexture };
+						item.Mesh.m_minSameTags = 1;
 					}
 					else
 					{
-					//	item.Mesh.m_tagsForbidden = new[] { "RB_NoAsphalt" };
+						item.Mesh.m_tagsRequired = new[] { "RB_NoAsphalt_" + roadInfo.SideTexture };
+						item.Mesh.m_minOtherTags = item.Mesh.m_maxOtherTags = 0;
 					}
 				}
 
@@ -171,7 +178,7 @@ public static class MeshUtil
 
 			if (roadInfo.RoadType != RoadType.Road)
 			{
-				transition = new(GetModel(CurbType.TR, RoadAssetType.Node, roadInfo, elevation, "Transition", inverted, inverted, noAsphaltTransition: asTransition));
+				transition = new(GetModel(CurbType.TR, RoadAssetType.Node, roadInfo, elevation, "Transition", inverted, noAsphaltTransition: asTransition));
 
 				highCurb.Mesh.m_flagsForbidden |= NetNode.Flags.Transition;
 				transition.Mesh.m_flagsRequired |= NetNode.Flags.Transition;
@@ -184,8 +191,8 @@ public static class MeshUtil
 				yield break;
 			}
 
-			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Node, roadInfo, elevation, "Low Curb", inverted, inverted, noAsphaltTransition: asTransition));	
-			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Node, roadInfo, elevation, "Full Low Curb", inverted, inverted, noAsphaltTransition: asTransition));
+			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Node, roadInfo, elevation, "Low Curb", inverted, noAsphaltTransition: asTransition));	
+			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Node, roadInfo, elevation, "Full Low Curb", inverted, noAsphaltTransition: asTransition));
 
 			highCurb.MetaData.SegmentEndFlags.Required |= RoadUtils.Flags.S_HighCurb;
 

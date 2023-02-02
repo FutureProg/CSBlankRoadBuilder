@@ -360,8 +360,9 @@ public partial class LanePropsUtil
 				m_prop = prop,
 				m_finalProp = prop,
 				m_probability = 85,
+				m_angle = (float)_random.NextDouble() * 360 - 180,
 				m_repeatDistance = 1.25F,
-				m_position = new Vector3(pos + (float)Math.Round(_random.NextDouble() * 0.15, 2), 0, (float)Math.Round(_random.NextDouble() * 3, 2))
+				m_position = new Vector3(pos, 0, (float)Math.Round(_random.NextDouble() * 3, 2))
 			}.Extend(prop => new LaneProp(prop)
 			{
 				JunctionDistance = 2.5F,

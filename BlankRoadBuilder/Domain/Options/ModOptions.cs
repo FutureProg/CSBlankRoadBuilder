@@ -10,6 +10,7 @@ public static class ModOptions
 	private static readonly SavedBool _flatRoadsHaveNoCurb = new(nameof(_flatRoadsHaveNoCurb), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _hideRoadClutter = new(nameof(_hideRoadClutter), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _randomiseTreeDistance = new(nameof(_randomiseTreeDistance), nameof(BlankRoadBuilder), false);
+	private static readonly SavedBool _noVanillaCrosswalks = new(nameof(_noVanillaCrosswalks), nameof(BlankRoadBuilder), false);
 
 	private static readonly SavedBool _addLaneDecals = new(nameof(_addLaneDecals), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _addLaneArrows = new(nameof(_addLaneArrows), nameof(BlankRoadBuilder), true);
@@ -45,6 +46,9 @@ public static class ModOptions
 
 	[ModOptions("Remove curb on Flat Roads", "Removes the curb texture on the edge of the asphalt of flat roads")]
 	public static bool RemoveCurbOnFlatRoads { get => _flatRoadsHaveNoCurb; set => _flatRoadsHaveNoCurb.value = value; }
+
+	[ModOptions("No vanilla crosswalks", "Stops generating vanilla crosswalks in roads")]
+	public static bool NoVanillaCrosswalks { get => _noVanillaCrosswalks; set => _noVanillaCrosswalks.value = value; }
 
 	[ModOptions("Always add ghost lanes for pedestrian and curb lanes", "Disabling this removes the extra ghost lanes added when you're not using IMT markings")]
 	public static bool AlwaysAddGhostLanes { get => _alwaysAddGhostLanes; set => _alwaysAddGhostLanes.value = value; }

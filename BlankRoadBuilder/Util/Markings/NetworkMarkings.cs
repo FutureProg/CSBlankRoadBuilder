@@ -12,6 +12,7 @@ using System.Linq;
 using UnityEngine;
 
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
+using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
 
 namespace BlankRoadBuilder.Util.Markings;
 public static class NetworkMarkings
@@ -27,7 +28,7 @@ public static class NetworkMarkings
 			{
 				if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.VanillaMarkings, MarkingsSource.HiddenVanillaMarkings))
 				{
-					foreach (var filler in GetFillers(item, false))
+					foreach (var filler in GetFillers(item))
 					{
 						markings.Add(filler);
 					}
@@ -35,8 +36,7 @@ public static class NetworkMarkings
 			}
 			else
 			{
-				var addTransition = item.Lanes.Any(x => !x.Type.HasAnyFlag(LaneType.Curb, LaneType.Filler, LaneType.Tram));
-				var filler = GetFillers(item, addTransition);
+				var filler = GetFillers(item);
 
 				if (item.Type != LaneDecoration.Pavement && item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop)))
 				{
@@ -48,7 +48,7 @@ public static class NetworkMarkings
 						Elevation = item.Elevation,
 						LeftPoint = item.LeftPoint,
 						RightPoint = item.RightPoint
-					}, addTransition);
+					});
 
 					foreach (var f in fillers)
 					{
@@ -138,7 +138,7 @@ public static class NetworkMarkings
 				Elevation = lane.LaneElevation,
 				Helper = true,
 				Type = LaneDecoration.None
-			}, true);
+			});
 
 			foreach (var helper in fillers)
 			{
@@ -161,11 +161,46 @@ public static class NetworkMarkings
 		}
 	}
 
-	public static IEnumerable<MeshInfo<NetInfo.Segment, Segment>> GetFillers(FillerMarking fillerMarking, bool addTransition)
+	public static IEnumerable<NetInfo.Node> GetCrosswalk(RoadInfo roadInfo)
+	{
+		var crosswalk = getNode();
+
+		yield return crosswalk;
+
+		if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
+		{
+			var invertedCrosswalk = getNode(true);
+
+			invertedCrosswalk.MetaData.SegmentEndFlags.Required |= RoadUtils.Flags.S_IsTailNode;
+			crosswalk.MetaData.SegmentEndFlags.Forbidden |= RoadUtils.Flags.S_IsTailNode;
+
+			yield return invertedCrosswalk;
+		}
+
+		MeshInfo<NetInfo.Node, Node> getNode(bool inverted = false)
+		{
+			var mesh = GenerateMesh(null, null, new CrosswalkMarking(roadInfo, inverted), $"Crosswalk");
+			GenerateTexture(null, false, true, mesh, default);
+
+			var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
+			var node = new MeshInfo<NetInfo.Node, Node>(model);
+
+			node.MetaData.SegmentEndFlags.Required |= AdaptiveRoads.Manager.NetSegmentEnd.Flags.ZebraCrossing;
+			node.MetaData.NodeFlags.Forbidden |= RoadUtils.Flags.N_RemoveLaneArrows;
+			node.MetaData.SegmentFlags.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
+
+			return node;
+		}
+	}
+
+	public static IEnumerable<MeshInfo<NetInfo.Segment, Segment>> GetFillers(FillerMarking fillerMarking)
 	{
 		var filler = getFiller(false, false);
+		var surface = fillerMarking.Lanes.Min(x => x.SurfaceElevation);
+		var elevation = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.0025F : 0.01F);
+		var addTransition = surface!= elevation && fillerMarking.Lanes.Any(x => !x.Type.HasAnyFlag(LaneType.Curb, LaneType.Filler, LaneType.Tram));
 
-		if (!addTransition)
+		if (!addTransition || fillerMarking.Type == LaneDecoration.Filler)
 		{
 			if (filler != null)
 				yield return filler.Value;
@@ -234,11 +269,12 @@ public static class NetworkMarkings
 		if (!isFiller && filler == null)
 			return null;
 
-		var mesh = GenerateMesh(fillerMarking, null, GetName(fillerMarking));
+		var mesh = GenerateMesh(fillerMarking, null, null, GetName(fillerMarking));
 
 		GenerateTexture(
 			fillerMarking.Lanes.First(),
-			isFiller,
+			isFiller, 
+			false,
 			mesh,
 			fillerMarking.Type,
 			filler?.Color ?? default,
@@ -282,9 +318,9 @@ public static class NetworkMarkings
 			return null;
 		}
 
-		var mesh = GenerateMesh(null, marking, $"{marking.Marking} Line");
+		var mesh = GenerateMesh(null, marking, null, $"{marking.Marking} Line");
 
-		GenerateTexture(null, false, mesh, default, lineInfo.Color, lineInfo.MarkingStyle, lineInfo.DashLength, lineInfo.DashSpace);
+		GenerateTexture(null, false, false, mesh, default, lineInfo.Color, lineInfo.MarkingStyle, lineInfo.DashLength, lineInfo.DashSpace);
 
 		var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
 
@@ -295,13 +331,13 @@ public static class NetworkMarkings
 		return segment;
 	}
 
-	private static void GenerateTexture(LaneInfo? lane, bool filler, string name, LaneDecoration decoration, Color32 color = default, MarkingLineType style = default, float dashLength = 0F, float dashSpace = 0F)
+	private static void GenerateTexture(LaneInfo? lane, bool filler, bool crosswalk, string name, LaneDecoration decoration, Color32 color = default, MarkingLineType style = default, float dashLength = 0F, float dashSpace = 0F)
 	{
-		var baseName = !filler ? "Marking" : decoration == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
+		var baseName = crosswalk ? "Crosswalk" : !filler ? "Marking" : decoration == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, "Markings"), $"{baseName}*"))
 		{
-			if (filler)
+			if (filler || crosswalk)
 			{
 				File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file).Replace(baseName, name)), true);
 			}
@@ -391,7 +427,7 @@ public static class NetworkMarkings
 		}
 	}
 
-	private static string GenerateMesh(FillerMarking? fillerMarking, LineMarking? lineMarking, string name, bool transition = false, bool inverted = false)
+	private static string GenerateMesh(FillerMarking? fillerMarking, LineMarking? lineMarking, CrosswalkMarking? crosswalkMarking, string name, bool transition = false, bool inverted = false)
 	{
 		var type = lineMarking?.AN_Info;
 		var lineWidth = type == null ? 0F : type.LineWidth;
@@ -399,7 +435,9 @@ public static class NetworkMarkings
 		if (type != null && (type.MarkingStyle == MarkingLineType.SolidDouble || type.MarkingStyle == MarkingLineType.SolidDashed || type.MarkingStyle == MarkingLineType.DashedDouble || type.MarkingStyle == MarkingLineType.DashedSolid))
 			lineWidth *= 3;
 
-		var file = fillerMarking == null ? "Marking" : (fillerMarking.Helper || fillerMarking.Type == LaneDecoration.Filler || (fillerMarking.Type != LaneDecoration.Grass && fillerMarking.Elevation == fillerMarking.Lanes.Min(x => x.SurfaceElevation))) ? "Platform" : fillerMarking.Type == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
+		var file = crosswalkMarking != null ? "Crosswalk" : fillerMarking == null ? "Marking" : (fillerMarking.Helper || fillerMarking.Type == LaneDecoration.Filler || (fillerMarking.Type != LaneDecoration.Grass && fillerMarking.Elevation == fillerMarking.Lanes.Min(x => x.SurfaceElevation))) ? "Platform" : fillerMarking.Type == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
+
+		Debug.LogError(file);
 
 		var guid = Guid.NewGuid().ToString();
 
@@ -529,6 +567,21 @@ public static class NetworkMarkings
 
 							if (originalFile.Contains("_lod.obj"))
 								yPos = Math.Max(0.01F, yPos);
+						}
+						else if (crosswalkMarking != null)
+						{
+							if (xPos < 0 == crosswalkMarking.Inverted)
+								xPos = crosswalkMarking.Road.Lanes.First(x => x.Type == LaneType.Curb).Position + crosswalkMarking.Road.Lanes.First(x => x.Type == LaneType.Curb).LaneWidth / 2;
+							else
+								xPos = crosswalkMarking.Road.Lanes.Last(x => x.Type == LaneType.Curb).Position - crosswalkMarking.Road.Lanes.Last(x => x.Type == LaneType.Curb).LaneWidth / 2;
+							
+							if (!crosswalkMarking.Inverted)
+								xPos *= -1;
+
+							yPos = (crosswalkMarking.Road.RoadType == RoadType.Road ? -0.3F : 0) + 0.015F;
+
+							if (originalFile.Contains("_lod.obj"))
+								yPos = Math.Max(0.1F, yPos);
 						}
 
 						data[1] = xPos.ToString("0.00000000");

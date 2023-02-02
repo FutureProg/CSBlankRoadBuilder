@@ -181,7 +181,7 @@ public static class RoadBuilderUtil
 		netInfo.m_createGravel = elevation == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
 		netInfo.m_createRuining = elevation == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
 		netInfo.m_enableBendingNodes = roadInfo.LeftPavementWidth == roadInfo.RightPavementWidth;
-		netInfo.m_tags = GetTags(roadInfo).ToArray();
+		netInfo.m_tags = GetTags(roadInfo, elevation).ToArray();
 
 		RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation, false));
 		RoadUtils.SetNetAi(netInfo, "m_maintenanceCost", GetCost(roadInfo, elevation, true));
@@ -289,7 +289,7 @@ public static class RoadBuilderUtil
 		var noAsphaltTransition = roadInfo.AsphaltStyle == AsphaltStyle.None && !(elevation == ElevationType.Basic ? (roadInfo.SideTexture == TextureType.Asphalt) : elevation <= ElevationType.Bridge && (roadInfo.BridgeSideTexture == BridgeTextureType.Asphalt));
 
 		if (noAsphaltTransition)
-			yield return "RB_NoAsphalt";
+			yield return "RB_NoAsphalt_" + roadInfo.SideTexture;
 	}
 
 	private static readonly Dictionary<string, byte[]> _loadedAssemblies = new();

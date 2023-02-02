@@ -45,7 +45,7 @@ public class SlickButton : UIButton
 
 		Icon = AddUIComponent<UIButton>();
 
-		Icon.relativePosition = new Vector2(6, 6);
+		Icon.relativePosition = new Vector2((height - 24) / 2, (height - 24) / 2);
 		Icon.size = new Vector2(24, 24);
 		Icon.atlas = GetIconAtlas(file);
 		Icon.normalBgSprite = "normal";
