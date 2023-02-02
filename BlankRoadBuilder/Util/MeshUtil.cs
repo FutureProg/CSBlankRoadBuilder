@@ -127,18 +127,24 @@ public static class MeshUtil
 
 			if (noAsphaltTransition)
 				list.AddRange(filteredNodes(true, true));
-
-			for (var i = 0; i < list.Count / 2; i++)
-			{
-				list[i].GetMetaData().SegmentEndFlags.Forbidden |= RoadUtils.Flags.S_IsTailNode;
-				list[i + (list.Count / 2)].GetMetaData().SegmentEndFlags.Required |= RoadUtils.Flags.S_IsTailNode;
-			}
 		}
 
 		IEnumerable<NetInfo.Node> filteredNodes(bool inverted, bool asTransition = false)
 		{
 			foreach (var item in generateNodes(inverted, asTransition))
 			{
+				if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
+				{
+					if (inverted)
+					{
+						item.MetaData.SegmentEndFlags.Required |= RoadUtils.Flags.S_IsTailNode;
+					}
+					else
+					{
+						item.MetaData.SegmentEndFlags.Forbidden |= RoadUtils.Flags.S_IsTailNode;
+					}
+				}
+
 				if (noAsphaltTransition)
 				{
 					if (asTransition)
