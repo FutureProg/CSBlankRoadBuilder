@@ -11,6 +11,7 @@ public static class ModOptions
 	private static readonly SavedBool _hideRoadClutter = new(nameof(_hideRoadClutter), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _randomiseTreeDistance = new(nameof(_randomiseTreeDistance), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _noVanillaCrosswalks = new(nameof(_noVanillaCrosswalks), nameof(BlankRoadBuilder), false);
+	private static readonly SavedBool _solidLineVanillaCrosswalks = new(nameof(_solidLineVanillaCrosswalks), nameof(BlankRoadBuilder), false);
 
 	private static readonly SavedBool _addLaneDecals = new(nameof(_addLaneDecals), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _addLaneArrows = new(nameof(_addLaneArrows), nameof(BlankRoadBuilder), true);
@@ -22,6 +23,7 @@ public static class ModOptions
 	private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);
 	private static readonly SavedInt _markings = new(nameof(_markings), nameof(BlankRoadBuilder), (int)MarkingsSource.IMTWithMeshFillers);
 	private static readonly SavedInt _stepTransition = new(nameof(_stepTransition), nameof(BlankRoadBuilder), (int)StepSteepness.ModerateSlope);
+	private static readonly SavedInt _vanillaCrosswalkStyle = new(nameof(_vanillaCrosswalkStyle), nameof(BlankRoadBuilder), (int)CrosswalkStyle.Zebra);
 
 	private static readonly SavedFloat _lightRepeatDistance = new(nameof(_lightRepeatDistance), nameof(BlankRoadBuilder), 24);
 	private static readonly SavedFloat _treeRepeatDistance = new(nameof(_treeRepeatDistance), nameof(BlankRoadBuilder), 12);
@@ -31,6 +33,9 @@ public static class ModOptions
 
 	[ModOptions("Global Markings Style", "Changes the style of lane markings used when generating a road")]
 	public static MarkingStyle MarkingsStyle { get => (MarkingStyle)_markingsStyle.value; set => _markingsStyle.value = (int)value; }
+
+	[ModOptions("Vanilla crosswalks style", "Changes how the vanilla crosswalks are generated")]
+	public static CrosswalkStyle VanillaCrosswalkStyle { get => (CrosswalkStyle)_vanillaCrosswalkStyle.value; set => _vanillaCrosswalkStyle.value = (int)value; }
 
 	[ModOptions("Place traffic lights on the opposite side of the junction", "Traffic lights' positions will be at the start of the lanes instead of at the end")]
 	public static bool FlipTrafficLights { get => _flipTrafficLights; set => _flipTrafficLights.value = value; }
@@ -46,9 +51,6 @@ public static class ModOptions
 
 	[ModOptions("Remove curb on Flat Roads", "Removes the curb texture on the edge of the asphalt of flat roads")]
 	public static bool RemoveCurbOnFlatRoads { get => _flatRoadsHaveNoCurb; set => _flatRoadsHaveNoCurb.value = value; }
-
-	[ModOptions("No vanilla crosswalks", "Stops generating vanilla crosswalks in roads")]
-	public static bool NoVanillaCrosswalks { get => _noVanillaCrosswalks; set => _noVanillaCrosswalks.value = value; }
 
 	[ModOptions("Always add ghost lanes for pedestrian and curb lanes", "Disabling this removes the extra ghost lanes added when you're not using IMT markings")]
 	public static bool AlwaysAddGhostLanes { get => _alwaysAddGhostLanes; set => _alwaysAddGhostLanes.value = value; }

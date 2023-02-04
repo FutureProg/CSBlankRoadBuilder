@@ -38,7 +38,7 @@ public static class MeshUtil
 			segments.AddRange(NetworkMarkings.IMTHelpers(roadInfo));
 		}
 
-		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.VanillaMarkings) && !ModOptions.NoVanillaCrosswalks)
+		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.VanillaMarkings) && ModOptions.VanillaCrosswalkStyle != CrosswalkStyle.None)
 		{
 			nodes.AddRange(NetworkMarkings.GetCrosswalk(roadInfo));
 		}
