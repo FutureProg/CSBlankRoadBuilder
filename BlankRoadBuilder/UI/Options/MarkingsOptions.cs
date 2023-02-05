@@ -63,9 +63,8 @@ internal class MarkingsOptions : OptionsPanelBase
 	protected void AddLineOption(GenericMarkingType key, SavedLineOption value)
 	{
 		var button = _panel.AddUIComponent<SlickButton>();
-		button.size = new Vector2(36, 36);
-		button.relativePosition = new Vector2(_panel.width - 30, yPos);
-		button.text = "Reset";
+		button.size = new Vector2(30, 30);
+		button.relativePosition = new Vector2(_panel.width - 26, yPos);
 		button.tooltip = "Resets this line to the vanilla setting";
 		button.SetIcon("I_Undo.png");
 
@@ -184,9 +183,8 @@ internal class MarkingsOptions : OptionsPanelBase
 	protected void AddFillerOption(LaneType key, SavedFillerOption value)
 	{
 		var button = _panel.AddUIComponent<SlickButton>();
-		button.size = new Vector2(36, 36);
-		button.relativePosition = new Vector2(_panel.width - 30, yPos);
-		button.text = "Reset";
+		button.size = new Vector2(30, 30);
+		button.relativePosition = new Vector2(_panel.width - 26, yPos);
 		button.tooltip = "Resets this filler to the vanilla setting";
 		button.SetIcon("I_Undo.png");
 
