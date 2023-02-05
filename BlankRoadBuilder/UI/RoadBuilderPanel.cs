@@ -155,7 +155,7 @@ public class RoadBuilderPanel : UIPanel
 		var label = AddUIComponent<UILabel>();
 		label.text = text;
 		label.textScale = 0.75F;
-
+		
 		switch (alignment)
 		{
 			case TextAlignment.Left:

@@ -2,6 +2,8 @@
 
 using ColossalFramework;
 
+using UnityEngine;
+
 namespace BlankRoadBuilder.Domain.Options;
 public class SavedLineOption
 {
@@ -40,6 +42,8 @@ public class SavedLineOption
 	public int G { get => _colorG; set => _colorG.value = value; }
 	public int B { get => _colorB; set => _colorB.value = value; }
 	public int A { get => _colorA; set => _colorA.value = value; }
+
+	public Color32 Color => new Color32((byte)R, (byte)G, (byte)B, (byte)A);
 
 	public void Set(MarkingStyleUtil.LineInfo lineInfo)
 	{
