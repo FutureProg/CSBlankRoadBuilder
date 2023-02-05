@@ -49,7 +49,7 @@ public static class MeshUtil
 		var data = netInfo.GetMetaData();
 		var tracks = new List<Track>();
 
-		tracks.AddRange(GenerateBarriers(netInfo, roadInfo));
+		tracks.AddRange(GenerateBarriers(netInfo, roadInfo, elevation));
 
 		if (roadInfo.ContainsWiredLanes)
 		{
@@ -225,11 +225,9 @@ public static class MeshUtil
 		return list;
 	}
 
-	private static IEnumerable<Track> GenerateBarriers(NetInfo netInfo, RoadInfo road)
+	private static IEnumerable<Track> GenerateBarriers(NetInfo netInfo, RoadInfo road, ElevationType elevation)
 	{
-		if (!road.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier)))
-			yield break;
-
+		var hidden = elevation == ElevationType.Basic && !road.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier) && !x.Tags.HasFlag(LaneTag.StackedLane));
 		var lanes = road.Lanes.Where(x => x.Decorations.HasFlag(LaneDecoration.Barrier)).Select(x => x.NetLanes[0]).ToArray();
 
 		var barriers = new AssetModel[]
@@ -249,6 +247,7 @@ public static class MeshUtil
 			m_lodMaterial = x.m_lodMaterial,
 			TreatBendAsSegment = true,
 			RenderNode = true,
+			RenderSegment = !hidden,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lanes),
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.Flags.L_RemoveBarrier },
 			LaneTags = new LaneTagsT(new[] { "RoadBuilderBarrierLane" }),

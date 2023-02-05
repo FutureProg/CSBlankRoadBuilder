@@ -588,7 +588,7 @@ public static class NetworkMarkings
 									}
 								}
 							}
-							else if (fillerMarking.Type != LaneDecoration.Filler && yPos == -0.3F)
+							else if (yPos == -0.3F)
 								yPos = -0.01F + fillerMarking.Lanes.Min(x => x.SurfaceElevation);
 							else if (!transition)
 								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.005F : 0.011F);

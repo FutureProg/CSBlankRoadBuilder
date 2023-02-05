@@ -14,24 +14,24 @@ public class SlickButton : UIButton
 
 	public SlickButton()
 	{
-		size = new Vector2(220, 36);
+		size = new Vector2(160, 30);
 		atlas = UITextures.InGameAtlas;
 		normalBgSprite = "ButtonWhite";
 		hoveredBgSprite = "ButtonWhite";
 		focusedBgSprite = "ButtonWhite";
-		pressedBgSprite = "ButtonWhitePressed";
+		pressedBgSprite = "ButtonWhite";
 		disabledBgSprite = "ButtonWhiteDisabled";
 		color = Color.white;
 		focusedColor = Color.white;
-		textColor = Color.black;
-		focusedTextColor = Color.black;
+		textColor = new(50, 50, 50, 255);
+		focusedTextColor = new(50, 50, 50, 255);
 		disabledTextColor = Color.grey;
 		hoveredColor = new Color32(197, 216, 235, 255);
 		hoveredTextColor = new Color32(30, 37, 44, 255);
 		pressedColor = new Color32(39, 130, 224, 255);
 		pressedTextColor = new Color32(255, 255, 255, 255);
-		textScale = 1F;
-		textPadding = new RectOffset(0, 0, 4, 0);
+		textScale = 0.9F;
+		textPadding = new RectOffset(0, 6, 4, 0);
 		textVerticalAlignment = UIVerticalAlignment.Middle;
 		textHorizontalAlignment = UIHorizontalAlignment.Center;
 	}
@@ -45,8 +45,8 @@ public class SlickButton : UIButton
 
 		Icon = AddUIComponent<UIButton>();
 
-		Icon.relativePosition = new Vector2((height - 24) / 2, (height - 24) / 2);
-		Icon.size = new Vector2(24, 24);
+		Icon.relativePosition = new Vector2((height - 16) / 2, (height - 16) / 2);
+		Icon.size = new Vector2(16, 16);
 		Icon.atlas = GetIconAtlas(file);
 		Icon.normalBgSprite = "normal";
 		Icon.pressedBgSprite = "pressed";
@@ -55,7 +55,7 @@ public class SlickButton : UIButton
 		Icon.eventClick += IconClicked;
 		Icon.eventButtonStateChanged += IconStateChanged;
 
-		textPadding = new RectOffset(36, 0, 4, 0);
+		textPadding = new RectOffset(24, 6, 4, 0);
 	}
 
 	private void IconClicked(UIComponent component, UIMouseEventParameter eventParam)
@@ -89,7 +89,7 @@ public class SlickButton : UIButton
 
 		for (var i = 0; i < pixels.Length; i++)
 		{
-			newPixels[i] = new Color32(0, 0, 0, pixels[i].a);
+			newPixels[i] = new Color32(55, 55, 70, pixels[i].a);
 			newPixels[i + pixels.Length] = new Color32(255, 255, 255, pixels[i].a);
 		}
 

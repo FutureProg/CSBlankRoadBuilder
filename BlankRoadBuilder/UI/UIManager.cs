@@ -1,5 +1,8 @@
 ﻿using ColossalFramework.UI;
 
+using ModsCommon;
+using System;
+
 using UnityEngine;
 
 namespace BlankRoadBuilder.UI;
@@ -22,5 +25,6 @@ public class UIManager : MonoBehaviour
 		var gameObject = new GameObject(typeof(EditorPanel).Name);
 		gameObject.transform.parent = UIView.GetAView().transform;
 		currentPanel = gameObject.AddComponent<EditorPanel>();
+		//SingletonMod<BlankRoadBuilderMod>.Instance.ShowWhatsNew();
 	}
 }

@@ -19,13 +19,17 @@ using ModsCommon.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Resources;
 
 namespace BlankRoadBuilder;
 public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 {
 	public static Version ModVersion => typeof(BlankRoadBuilderMod).Assembly.GetName().Version;
+	public static DateTime CurrentVersionDate => new FileInfo(Path.Combine(ModFolder, $"{nameof(BlankRoadBuilder)}.dll")).LastWriteTimeUtc;
 
 	public static string BuilderFolder => Path.Combine(DataLocation.localApplicationData, "RoadBuilder");
 	public static string ImportFolder => Path.Combine(BuilderFolder, "Import");
@@ -43,9 +47,17 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	public override bool IsBeta => false;
 	public override List<ModVersion> Versions { get; } = new List<ModVersion>
 	{
-		new ModVersion(new Version("1.1"), new DateTime(2023, 1, 22)),
+		new ModVersion(new Version("1.2.0"), new DateTime(2023, 2, 5)),
 	};
 
+	public override string GetLocalizedString(string key, CultureInfo culture = null)
+	{
+		ResourceManager resourceManager = new ResourceManager($"{nameof(BlankRoadBuilder)}.Changelog", typeof(ResourceReader).Assembly);
+        
+		return Properties.Changelog.ResourceManager.GetString(key, Properties.Changelog.Culture);
+	}
+
+	protected override LocalizeManager LocalizeManager => new ModsCommon.LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	protected override List<BaseDependencyInfo> DependencyInfos
 	{
 		get

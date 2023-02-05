@@ -6,184 +6,344 @@ using BlankRoadBuilder.Util;
 using ColossalFramework.Importers;
 using ColossalFramework.UI;
 
+using ModsCommon.UI;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
+using System.Security.Policy;
 
 using UnityEngine;
 
 namespace BlankRoadBuilder.UI;
 
-public class RoadBuilderPanel : StandalonePanel
+public class RoadBuilderPanel : UIPanel
 {
-	public override float PanelWidth => 600f;
-	public override float PanelHeight => (ListRow.DefaultRowHeight * 6) + 40F + 42F + 56F;
+	public float PanelWidth = 581F;
+	public float PanelHeight = 750F;
+
+	private readonly UIScrollbar _scrollBar;
+	private readonly SlickButton _continueButton;
+	//private readonly SlickButton _refreshButton;
+	private readonly StringUITextField _searchTextBox;
+	private readonly UICheckBox _hideBuiltCheckBox;
+	private readonly UICheckBox _hideUpdatedCheckBox;
+	private readonly UIScrollablePanel _scrollPanel;
+	private readonly RoadTypeFilterDropDown _roadTypeDropDown;
+	private readonly RoadSizeFilterDropDown _roadSizeDropDown;
+
+	private List<RoadConfigControl>? listData;
+	private List<TagButton> listTags = new List<TagButton>();
+	private static bool hideBuilt;
+	private static bool hideUpdated;
+
 	public static string? LastLoadedRoadFileName { get; private set; }
 
-	protected override float TitleXPos => 9999;
-	protected override string PanelTitle => "Road Builder";
-
-	public UIButton ContinueButton => _continueButton;
-
-	private readonly UIList _fileList;
-	private readonly SlickButton _continueButton;
-	private readonly SlickButton _refreshButton;
-	private readonly UITextField _searchTextBox;
-	private readonly UICheckBox _hideBuiltCheckBox;
-
-	private ListData? _currentSelection;
-	private List<ListData>? listData;
-	private static bool hideBuilt;
+	public event Action? EventClose;
 
 	public RoadBuilderPanel()
 	{
-		color = new Color32(210, 229, 247, 255);
+		autoLayout = false;
+		canFocus = true;
+		isInteractive = true;
+		size = new Vector2(PanelWidth, PanelHeight);
+		atlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "PanelBack"));
+		backgroundSprite = "normal";
+		relativePosition = new Vector2(Mathf.Floor(((float)GetUIView().fixedWidth - base.width) / 2f), Mathf.Floor(((float)GetUIView().fixedHeight - base.height) / 2f));
 
-		var topLabel = UILabels.AddLabel(this, (width - 200F) / 2, 13F, PanelTitle, 200F, 1f, UIHorizontalAlignment.Center);
+		var uIDragHandle = AddUIComponent<UIDragHandle>();
+		uIDragHandle.size = new Vector2(width, 48);
+		uIDragHandle.relativePosition = Vector3.zero;
+		uIDragHandle.target = this;
 
-		topLabel.SendToBack();
+		var closeAtlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "I_Close"));
+		closeAtlas.sprites.Clear();
+		closeAtlas.AddSprites(new UITextureAtlas.SpriteInfo[]
+		{
+			new()
+			{
+				name = "normal",
+				region = new Rect(0f, 0.5f, 0.5f, 0.5f)
+			},
+			new()
+			{
+				name = "hovered",
+				region = new Rect(0.5f, 0.5f, 0.5f, 0.5f)
+			},
+			new()
+			{
+				name = "pressed",
+				region = new Rect(0f, 0f, 0.5f, 0.5f)
+			},
+		});
+		var uIButton = AddUIComponent<UIButton>();
+		uIButton.size = new Vector2(30,30);
+		uIButton.relativePosition = new Vector2(width - 35f, 5f);
+		uIButton.atlas = closeAtlas;
+		uIButton.normalBgSprite = "normal";
+		uIButton.hoveredBgSprite = "hovered";
+		uIButton.pressedBgSprite = "pressed";
+		uIButton.eventClick += delegate
+		{
+			EventClose?.Invoke();
+		};
 
-		_fileList = UIList.AddUIList<ListRow>(this, 0f, 40f + 42F, PanelWidth, PanelHeight - 40f - 42F - 56F, ListRow.DefaultRowHeight);
-		_fileList.EventSelectionChanged += _fileList_EventSelectionChanged;
-		_fileList.eventDoubleClick += _continueButton_eventClick;
+		_scrollPanel = AddUIComponent<UIScrollablePanel>();
+		_scrollPanel.autoSize = false;
+		_scrollPanel.autoLayout = false;
+		_scrollPanel.width = PanelWidth - 10 - 15;
+		_scrollPanel.clipChildren = true;
+		_scrollPanel.builtinKeyNavigation = true;
+		_scrollPanel.scrollWheelDirection = UIOrientation.Vertical;
+		_scrollBar = UIScrollbars.AddScrollbar(this, _scrollPanel);
 
 		_continueButton = AddUIComponent<SlickButton>();
-		_continueButton.text = "Build";
-		_continueButton.size = new Vector2(180, 36);
-		_continueButton.relativePosition = new Vector2(width - 180 - 10, height - 46);
+		_continueButton.text = "Build Road";
+		_continueButton.relativePosition = new Vector2(width - _continueButton.width - 10, height - 40);
 		_continueButton.SetIcon("I_Tools.png");
 		_continueButton.eventClick += _continueButton_eventClick;
 
-		_refreshButton = AddUIComponent<SlickButton>();
-		_refreshButton.text = "Refresh";
-		_refreshButton.size = new Vector2(180, 36);
-		_refreshButton.relativePosition = new Vector2(10, height - 46);
-		_refreshButton.SetIcon("I_Refresh.png");
-		_refreshButton.eventClick += _refreshButton_eventClick;
+		//_refreshButton = AddUIComponent<SlickButton>();
+		//_refreshButton.size = new Vector2(30, 30);
+		//_refreshButton.relativePosition = new Vector2(_continueButton.relativePosition.x - 40, height - 40);
+		//_refreshButton.SetIcon("I_Refresh.png");
+		//_refreshButton.eventClick += _refreshButton_eventClick;
 
 		_hideBuiltCheckBox = UICheckBoxes.AddLabelledCheckBox(this, 0, 0, "Hide generated roads", tooltip: "Only shows road configs that you haven't generated & saved yet");
 		_hideBuiltCheckBox.isChecked = hideBuilt;
-		_hideBuiltCheckBox.relativePosition = new Vector3(width - _hideBuiltCheckBox.width - (2 * Margin), 52F, 0);
+		_hideBuiltCheckBox.relativePosition = new Vector2(10, height - 15 - _hideBuiltCheckBox.height / 2 - 10);
 		_hideBuiltCheckBox.eventCheckChanged += _hideBuiltCheckBox_eventCheckChanged;
 
-		_searchTextBox = UITextFields.AddLabelledTextField(this, 10F + 90F, 46F, "Search:", width - 32F - 90F - _hideBuiltCheckBox.width - Margin, 30F, 1.2F, 6);
-		_searchTextBox.eventTextChanged += _searchTextBox_eventTextChanged;
+		_hideUpdatedCheckBox = UICheckBoxes.AddLabelledCheckBox(this, 0, 0, "Hide updated roads", tooltip: "Only shows road configs that you haven't updated yet");
+		_hideUpdatedCheckBox.isChecked = hideUpdated;
+		_hideUpdatedCheckBox.relativePosition = new Vector2(30 + _hideBuiltCheckBox.width, height - 15 - _hideUpdatedCheckBox.height / 2 - 10);
+		_hideUpdatedCheckBox.eventCheckChanged += _hideUpdatedCheckBox_eventCheckChanged;
+
+		_searchTextBox = AddUIComponent<StringUITextField>();
+		_searchTextBox.SetDefaultStyle();
+		_searchTextBox.size = new Vector2(PanelWidth / 2, 22);
+		_searchTextBox.relativePosition = new Vector2(10, 76);
+		_searchTextBox.textScale = 0.8F;
+		_searchTextBox.textColor = Color.black;
+		_searchTextBox.padding = new RectOffset(4, 4, 4, 4);
+		_searchTextBox.horizontalAlignment = UIHorizontalAlignment.Left;
+		_searchTextBox.eventTextChanged += (s, _) => RefreshView();
+
+		_roadTypeDropDown = AddUIComponent<RoadTypeFilterDropDown>();
+		_roadTypeDropDown.relativePosition = new Vector3(width - _roadTypeDropDown.width - 10, 48);
+		_roadTypeDropDown.eventSelectedIndexChanged += (s, _) => RefreshView();
+		_roadTypeDropDown.BringToFront();
+
+		_roadSizeDropDown = AddUIComponent<RoadSizeFilterDropDown>();
+		_roadSizeDropDown.relativePosition = new Vector3(width - _roadSizeDropDown.width - 10, 76);
+		_roadSizeDropDown.eventSelectedIndexChanged += (s, _) => RefreshView();
+		_roadSizeDropDown.BringToFront();
+
+		AddLabel(_roadTypeDropDown, "Road Type", TextAlignment.Left);
+		AddLabel(_roadSizeDropDown, "Road Size", TextAlignment.Left);
+		AddLabel(_searchTextBox, "Search", TextAlignment.Center);
+
+		ReadXMLFiles();
 
 		_searchTextBox.Focus();
+	}
+
+	private void AddLabel(UIComponent comp, string text, TextAlignment alignment)
+	{
+		var label = AddUIComponent<UILabel>();
+		label.text = text;
+		label.textScale = 0.75F;
+
+		switch (alignment)
+		{
+			case TextAlignment.Left:
+				label.relativePosition = new Vector2(comp.relativePosition.x - label.width - 6, comp.relativePosition.y + comp.height / 2 - label.height / 2 + 3);
+				break;
+			case TextAlignment.Center:
+				label.relativePosition = new Vector2(comp.relativePosition.x, comp.relativePosition.y - label.height - 3);
+				break;
+		}
 	}
 
 	private void _hideBuiltCheckBox_eventCheckChanged(UIComponent component, bool value)
 	{
 		hideBuilt = _hideBuiltCheckBox.isChecked;
-		RefreshList(false);
+		RefreshView();
 	}
 
-	private void _refreshButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+	private void _hideUpdatedCheckBox_eventCheckChanged(UIComponent component, bool value)
 	{
-		_searchTextBox.text = string.Empty;
-
-		RefreshList(true);
+		hideUpdated = _hideUpdatedCheckBox.isChecked;
+		RefreshView();
 	}
 
-	private void _searchTextBox_eventTextChanged(UIComponent component, string value)
-	{
-		RefreshList(false);
-	}
-
-	private void _fileList_EventSelectionChanged(UIComponent component, object value)
-	{
-		if (value is ListData objVal)
-		{
-			_currentSelection = objVal;
-		}
-	}
+	private void _refreshButton_eventClick(UIComponent component, UIMouseEventParameter eventParam) => ReadXMLFiles();
 
 	private void _continueButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
 	{
-		if (_currentSelection?.RoadInfo == null)
+		var road = listData.FirstOrDefault(x => x.Selected);
+		
+		if (road?.RoadInfo == null)
 		{
 			return;
 		}
 
-		_fileList.isVisible = false;
-		_refreshButton.isVisible = false;
-		_searchTextBox.isVisible = false;
-		_continueButton.isVisible = false;
-		_hideBuiltCheckBox.isVisible = false;
-
-		height = 200;
-
-		StartCoroutine(LoadRoad());
+		LastLoadedRoadFileName = road.FileName;
+		EventClose?.Invoke();
+		GenerationPanel.Create(road);
 	}
 
-	public System.Collections.IEnumerator LoadRoad()
+	private void ReadXMLFiles()
 	{
-		LastLoadedRoadFileName = _currentSelection?.FileName;
-
-		var loadingLabel = GenerateLoadingLabel();
-		yield return 0;
-
-		foreach (var stateInfo in RoadBuilderUtil.Build(_currentSelection?.RoadInfo))
-		{
-			if (stateInfo.Exception != null)
+		if (listData != null)
+			foreach (var item in listData)
 			{
-				Debug.LogException(stateInfo.Exception);
-
-				var panel = UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel");
-
-				panel.SetMessage("Failed to generate this road", $"{stateInfo.Exception.Message}\r\n\r\n{stateInfo.Exception}", true);
-
-				Destroy(gameObject, 0F);
-				yield break;
+				item.OnDestroy();
 			}
 
-			loadingLabel.text = stateInfo.Info;
-			yield return 0;
+		listData = new();
+		var roadDir = Path.Combine(BlankRoadBuilderMod.BuilderFolder, "Roads");
+
+		if (!Directory.Exists(roadDir))
+		{
+			return;
 		}
 
-		Destroy(gameObject, 0F);
+		foreach (var file in Directory.GetFiles(roadDir, "*.xml", SearchOption.AllDirectories))
+		{
+			var roadInfo = ThumbnailMakerUtil.GetRoadInfo(file);
+
+			if (roadInfo == null)
+			{
+				continue;
+			}
+
+			var ctrl = _scrollPanel.AddUIComponent<RoadConfigControl>();
+			ctrl.SetData(roadInfo, file);
+			ctrl.eventClick += RoadSelected;
+			ctrl.eventDoubleClick += RoadBuild;
+
+			listData.Add(ctrl);
+		}
+
+		AddTags();
+
+		RefreshView();
 	}
 
-	private UILabel GenerateLoadingLabel()
+	private void AddTags()
 	{
-		var loadingLabel = AddUIComponent<UILabel>();
+		var tags = listData.SelectMany(x => x.RoadInfo?.AutoTags.Concat(x.RoadInfo?.Tags)).Distinct((x, y) => x.Equals(y, StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-		loadingLabel.relativePosition = new Vector2(0, height / 2);
-		loadingLabel.autoSize = false;
-		loadingLabel.textScale = 1.4F;
-		loadingLabel.width = PanelWidth - (Margin * 2);
-		loadingLabel.height = height - (Margin * 2);
-		loadingLabel.textAlignment = UIHorizontalAlignment.Center;
-		loadingLabel.text = "Loading... The game may freeze momentarily. Please don't change anything.";
+		var x = 10F;
+		var y = 100 + 10F;
+		var lastHeight = 0F;
 
-		return loadingLabel;
+		//foreach (var item in listTags)
+		//{
+		//	item.OnDestroy();
+		//}
+
+		listTags.Clear();
+
+		foreach (var item in tags)
+		{
+			var ctrl = AddUIComponent<TagButton>();
+			ctrl.text = item;
+
+			if (x + ctrl.width + 6 > width)
+			{
+				x = 10;
+				y += ctrl.height + 6;
+			}
+
+			ctrl.relativePosition = new Vector2(x, y);
+			ctrl.SelectedChanged += (s, _) => RefreshView();
+
+			listTags.Add(ctrl);
+
+			lastHeight = ctrl.height;
+
+			x += ctrl.width + 6;
+		}
+
+		if (lastHeight > 0)
+			y += lastHeight + 10;
+
+		_scrollPanel.relativePosition = new Vector2(10, y);
+		_scrollPanel.height = PanelHeight - y - 48;
 	}
 
-	public void RefreshList(bool reload)
+	private void RoadBuild(UIComponent component, UIMouseEventParameter eventParam)
 	{
-		if (reload)
-			listData = ReadXMLFiles();
+		RoadSelected(component, eventParam);
+		_continueButton_eventClick(component, eventParam);
+	}
 
-		var data = listData.Where(SearchCheck).OrderByDescending(x => x.RoadInfo?.DateCreated).ToList();
+	private void RoadSelected(UIComponent component, UIMouseEventParameter eventParam)
+	{
+		if (listData == null)
+			return;
 
-		_fileList.Data = new FastList<object>()
+		foreach (var ctrl in listData)
 		{
-			m_buffer = data.ToArray(),
-			m_size = data.Count
-		};
-
-		if (data.Count > 0)
-		{
-			var loadedData = LastLoadedRoadFileName == null ? null : data.FirstOrDefault(x => x.FileName?.Equals(LastLoadedRoadFileName, StringComparison.CurrentCultureIgnoreCase) ?? false);
-
-			_fileList.SelectedIndex = loadedData == null ? 0 : data.IndexOf(loadedData);
+			ctrl.Selected = component == ctrl;
 		}
 	}
 
-	private bool SearchCheck(ListData item)
+	private void RefreshView()
 	{
-		if (_hideBuiltCheckBox.isChecked && item.assetMatch != null)
+		if (listData == null)
+			return;
+
+		_scrollBar.value = 0;
+
+		var x = 0F;
+		var y = 0F;
+
+		foreach (var ctrl in listData)
+		{
+			if (!SearchCheck(ctrl))
+			{
+				ctrl.isVisible = false;
+				ctrl.Selected = false;
+				ctrl.relativePosition = Vector2.zero;
+			}
+			else
+			{
+				if (x + ctrl.width + 6 > _scrollPanel.width)
+				{
+					x = 0;
+					y += ctrl.height + 10;
+				}
+
+				ctrl.relativePosition = new Vector2(x, y);
+
+				x += ctrl.width + 10;
+
+				ctrl.isVisible = true;
+			}
+		}
+	}
+
+	private bool SearchCheck(RoadConfigControl item)
+	{
+		if (_hideBuiltCheckBox.isChecked && item.AssetMatch != null)
+			return false;
+
+		if (_hideUpdatedCheckBox.isChecked && item.AssetMatch != null && item.AssetMatch.DateGenerated >= BlankRoadBuilderMod.CurrentVersionDate)
+			return false;
+
+		if (_roadTypeDropDown.SelectedObject != RoadTypeFilter.AnyRoadType && item.RoadInfo.RoadType != (RoadType)((int)_roadTypeDropDown.SelectedObject - 1))
+			return false;
+
+		if (_roadSizeDropDown.SelectedObject != RoadSizeFilter.AnyRoadSize & !Match(item.RoadInfo, _roadSizeDropDown.SelectedObject))
+			return false;
+
+		var selectedTags = listTags.Where(x => x.Selected).Select(x => x.text).ToList();
+		if (selectedTags.Any(x => !item.RoadInfo.Tags.Concat(item.RoadInfo.AutoTags).Any(y => y.Equals(x, StringComparison.CurrentCultureIgnoreCase))))
 			return false;
 
 		if (string.IsNullOrEmpty(_searchTextBox.text))
@@ -197,167 +357,27 @@ public class RoadBuilderPanel : StandalonePanel
 			|| split.All(x => item.RoadInfo?.Description.SearchCheck(x) ?? false);
 	}
 
-	private List<ListData> ReadXMLFiles()
+	private bool Match(RoadInfo road, RoadSizeFilter selectedValue)
 	{
-		var listItems = new List<ListData>();
-		var roadDir = Path.Combine(BlankRoadBuilderMod.BuilderFolder, "Roads");
+		var width = road.TotalRoadWidth;
 
-		if (!Directory.Exists(roadDir))
+		switch (selectedValue)
 		{
-			return listItems;
+			case RoadSizeFilter.Tiny:
+				return width.IsWithin(0, 16.01F);
+			case RoadSizeFilter.Small:
+				return width.IsWithin(16.01F, 24.01F);
+			case RoadSizeFilter.Medium:
+				return width.IsWithin(24.01F, 32.01F);
+			case RoadSizeFilter.Large:
+				return width.IsWithin(32.01F, 48.01F);
+			case RoadSizeFilter.VeryLarge:
+				return width.IsWithin(48.01F, int.MaxValue);
+			default:
+				return true;
 		}
-
-		foreach (var file in Directory.GetFiles(roadDir, "*.xml", SearchOption.AllDirectories))
-		{
-			var roadInfo = ThumbnailMakerUtil.GetRoadInfo(file);
-
-			if (roadInfo == null)
-			{
-				continue;
-			}
-
-			listItems.Add(new ListData
-			{
-				FileName = Path.GetFileNameWithoutExtension(file),
-				FilePath = file,
-				TextureAtlas = GetThumbnailTextureAtlas(file, roadInfo),
-				RoadInfo = roadInfo,
-				FileInfo = new FileInfo(file),
-				assetMatch = AssetMatchingUtil.GetMatchForRoadConfig(Path.GetFileNameWithoutExtension(file)),
-			});
-		}
-
-		return listItems;
 	}
 
-	public static UITextureAtlas GetThumbnailTextureAtlas(string? file, RoadInfo roadInfo)
-	{
-		var thumbnailTex = new Image(roadInfo.SmallThumbnail).CreateTexture();
-		var newAtlas = ScriptableObject.CreateInstance<UITextureAtlas>();
-
-		newAtlas.name = Path.GetFileName(file);
-		newAtlas.material = Instantiate(UIView.GetAView().defaultAtlas.material);
-		newAtlas.material.mainTexture = thumbnailTex;
-		newAtlas.AddSprite(new UITextureAtlas.SpriteInfo
-		{
-			name = "normal",
-			texture = thumbnailTex,
-			region = new Rect(0f, 0f, 1f, 1f)
-		});
-
-		return newAtlas;
-	}
-
-	private class ListData
-	{
-		public string? FileName;
-		public string? FilePath;
-		public UITextureAtlas? TextureAtlas;
-		public AssetMatchingUtil.Asset? assetMatch;
-		public RoadInfo? RoadInfo;
-		public FileInfo? FileInfo;
-	}
-
-	private class ListRow : UIListRow
-	{
-		public const float ThumbnailWidth = 109;
-		public const float ThumbnailHeight = 100;
-		public const float DefaultRowHeight = ThumbnailHeight + (Margin * 2);
-
-		public override float RowHeight => DefaultRowHeight;
-
-		private UILabel? _roadNameLabel;
-		private UISprite? _thumbnailImage;
-		private UISprite? _buildTick;
-		private UILabel? _roadDescriptionLabel;
-		private UILabel? _roadDateLabel;
-
-		public ListRow()
-		{
-			SelectedColor = new Color32(48, 165, 242, 255);
-		}
-
-		public override void Display(object data, int rowIndex)
-		{
-			if (data is not ListData listData)
-				return;
-
-			_thumbnailImage ??= GetThumbnailIcon();
-			_roadNameLabel ??= GetRoadNameLabel();
-			_roadDescriptionLabel ??= GetRoadDescriptionLabel();
-			_roadDateLabel ??= GetRoadDateLabel();
-			_buildTick ??= GetAssetFileStatus();
-
-			_thumbnailImage.atlas = listData.TextureAtlas;
-			_thumbnailImage.spriteName = "normal";
-			_roadNameLabel.text = listData.RoadInfo?.Name.RegexReplace("^BR[B4] ", "");
-			_roadDescriptionLabel.text = listData.RoadInfo?.Description;
-			_roadDateLabel.text = listData.FileInfo?.LastWriteTime.ToRelatedString(true);
-			_roadDateLabel.relativePosition = new Vector2(width - _roadDateLabel.width - (Margin * 2) - 5F, height - _roadDateLabel.height - Margin);
-			_buildTick.isVisible = listData.assetMatch != null;
-
-			Deselect(rowIndex);
-		}
-
-		private UILabel GetRoadDateLabel()
-		{
-			var label = AddUIComponent<UILabel>();
-
-			label.autoSize = true;
-			label.textScale = 0.8F;
-			label.textColor = new Color32(175, 175, 175, 255);
-
-			return label;
-		}
-
-		private UILabel GetRoadDescriptionLabel()
-		{
-			var label = AddUIComponent<UILabel>();
-
-			label.autoSize = false;
-			label.autoHeight = false;
-			label.textScale = 0.8F;
-			label.clipChildren = true;
-			label.wordWrap = true;
-			label.relativePosition = new Vector2(ThumbnailWidth + (Margin * 2), 36F);
-			label.width = width - (ThumbnailWidth + (Margin * 3)) - 10F;
-			label.height = DefaultRowHeight - 28F - Margin;
-			label.textColor = new Color32(205, 205, 205, 255);
-
-			return label;
-		}
-
-		private UISprite GetThumbnailIcon()
-		{
-			var sprite = AddUIComponent<UISprite>();
-
-			sprite.height = 100;
-			sprite.width = 109;
-			sprite.relativePosition = new Vector2(Margin, Margin);
-
-			return sprite;
-		}
-
-		private UILabel GetRoadNameLabel()
-		{
-			var label = AddUIComponent<UILabel>();
-
-			label.textScale = 1.2F;
-			label.font = UIFonts.SemiBold;
-			label.relativePosition = new Vector2(ThumbnailWidth + (Margin * 2), 8F);
-
-			return label;
-		}
-
-		private UISprite GetAssetFileStatus()
-		{
-			var sprite = AddUIComponent<UISprite>();
-			sprite.size = new Vector2(16, 16);
-			sprite.relativePosition = new Vector2(width - sprite.width - (Margin * 3), Margin);
-			sprite.atlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "I_BuildTick"));
-			sprite.spriteName = "normal";
-
-			return sprite;
-		}
-	}
+	private class RoadTypeFilterDropDown : EnumDropDown<RoadTypeFilter> { }
+	private class RoadSizeFilterDropDown : EnumDropDown<RoadSizeFilter> { }
 }

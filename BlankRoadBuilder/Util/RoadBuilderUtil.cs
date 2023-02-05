@@ -50,19 +50,31 @@ public static class RoadBuilderUtil
 
 		SegmentUtil.ClearNodes();
 
-		yield return new StateInfo($"Preparing the road..");
+		yield return new StateInfo($"Preparing the road..", ElevationType.Basic);
 
 		Exception? exception = null;
-
-		var info = GetNetInfo(roadInfo);
+		NetInfo? info = null;
 
 		try
 		{
+			info = GetNetInfo(roadInfo);
+
 			GenerateLaneWidthsAndPositions(roadInfo);
 		}
 		catch (Exception ex)
 		{
 			exception = ex;
+		}
+
+		if (exception != null)
+		{
+			yield return new StateInfo(exception);
+			yield break;
+		}
+
+		if (info == null)
+		{
+			yield break;
 		}
 
 		var netElelvations = info.GetElevations();
@@ -75,7 +87,7 @@ public static class RoadBuilderUtil
 				break;
 			}
 
-			yield return new StateInfo($"Generating the {elevation} elevation..");
+			yield return new StateInfo($"Generating the {(elevation == ElevationType.Basic ? "Ground" : elevation.ToString())} level..", elevation);
 
 			try
 			{
@@ -83,7 +95,7 @@ public static class RoadBuilderUtil
 
 				roadInfo.Lanes = new List<LaneInfo>(lanes);
 
-				if (elevation is ElevationType.Elevated or ElevationType.Bridge)
+				if (elevation is ElevationType.Elevated or ElevationType.Bridge || !roadInfo.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier)))
 				{
 					AddBridgeBarriersAndPillar(netInfo, roadInfo);
 				}
@@ -108,6 +120,8 @@ public static class RoadBuilderUtil
 				}
 				catch (Exception ex)
 				{
+					exception = ex;
+
 					Debug.LogError($"Failed to update mesh for {elevation} elevation: \r\n{ex}");
 				}
 			}
@@ -125,13 +139,26 @@ public static class RoadBuilderUtil
 
 		yield return new StateInfo($"Road generation completed, applying changes..");
 
-		CurrentRoad = roadInfo;
+		try
+		{
+			CurrentRoad = roadInfo;
 
-		ToolsModifierControl.toolController.m_editPrefabInfo = info;
-		AdaptiveNetworksUtil.Refresh();
-		IsBuilding = false;
+			ToolsModifierControl.toolController.m_editPrefabInfo = info;
+			AdaptiveNetworksUtil.Refresh();
+			IsBuilding = false;
 
-		SegmentUtil.GenerateTemplateSegments(info);
+			SegmentUtil.GenerateTemplateSegments(info);
+		}
+		catch (Exception ex)
+		{
+			exception = ex;
+		}
+
+		if (exception != null)
+		{
+			yield return new StateInfo(exception);
+			yield break;
+		}
 	}
 
 	private static NetInfo GetNetInfo(RoadInfo? roadInfo)

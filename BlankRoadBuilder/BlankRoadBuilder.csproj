@@ -9,9 +9,9 @@
 	<LangVersion>latest</LangVersion>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>enable</Nullable>
-	<Version>1.1.3</Version>
-	<FileVersion>1.1.3</FileVersion>
-	<AssemblyVersion>1.1.3</AssemblyVersion>
+	<Version>1.2.0</Version>
+	<FileVersion>1.2.0</FileVersion>
+	<AssemblyVersion>1.2.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -89,6 +89,21 @@
 	  <Private>False</Private>
 	</Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Changelog.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Changelog.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Changelog.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Changelog.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 	
 	<Import Project="..\ModsCommon\ModShared\ModsCommonShared.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\ToolShared\ModsToolShared.projitems" Label="Shared" />
@@ -123,8 +138,8 @@
 	<PostBuildEvent>
 	  rmdir /s /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
 	  mkdir "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-	  xcopy /y /e "../$(OutputPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-	  xcopy /y /e "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
+	  xcopy /y /e /q "../$(OutputPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
+	  xcopy /y /e /q /exclude:exclude.txt "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
 	  del /f /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder\*.pdb"
 	</PostBuildEvent>
 	<BaseOutputPath>Output</BaseOutputPath>

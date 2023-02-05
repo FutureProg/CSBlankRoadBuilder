@@ -374,4 +374,32 @@ public static class Extensions
 			? (past ? $"{months} months ago" : $"in {months} months") + $" on {dt.ToReadableString(false, DateFormat.TDMY)}"
 			: (past ? $"{days} days ago" : $"in {days} days") + $" on {dt.ToReadableString(false, DateFormat.TDMY)}";
 	}
+
+	public static IEnumerable<T> Distinct<T>(this IEnumerable<T> list, Func<T, T, bool> comparer)
+	{
+		List<T> items = new List<T>();
+		foreach (T item in list)
+		{
+			if (!items.Any((T x) => comparer(x, item)))
+			{
+				items.Add(item);
+				yield return item;
+			}
+		}
+	}
+
+	public static bool IsWithin(this double d, double Min, double Max)
+	{
+		return (!(Min < Max)) ? (d > Max && d < Min) : (d > Min && d < Max);
+	}
+
+	public static bool IsWithin(this float d, float Min, float Max)
+	{
+		return (!(Min < Max)) ? (d > Max && d < Min) : (d > Min && d < Max);
+	}
+
+	public static bool IsWithin(this int d, int Min, int Max)
+	{
+		return (Min >= Max) ? (d > Max && d < Min) : (d > Min && d < Max);
+	}
 }

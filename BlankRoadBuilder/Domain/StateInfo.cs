@@ -5,20 +5,19 @@ namespace BlankRoadBuilder.Domain;
 public struct StateInfo
 {
 	public string Info { get; set; }
-	public bool TaskEnded { get; set; }
+	public ElevationType ElevationStep { get; }
 	public Exception? Exception { get; set; }
 
-	public StateInfo(string info, bool ended = false)
+	public StateInfo(string info, ElevationType elevationStep = (ElevationType)(-1))
 	{
 		Info = info;
-		TaskEnded = ended;
+		ElevationStep = elevationStep;
 		Exception = null;
 	}
 
 	public StateInfo(Exception exception)
 	{
 		Info = exception.Message;
-		TaskEnded = true;
 		Exception = exception;
 	}
 }

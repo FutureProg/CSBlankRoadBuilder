@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ColossalFramework.IO;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
@@ -88,6 +90,9 @@ public static class AssetMatchingUtil
 		if (matchingData.Assets.TryGetValue(roadConfigFile, out var outStr))
 		{
 			re.CrpFile = outStr;
+
+			var inf = new FileInfo(Path.Combine(DataLocation.assetsPath, outStr));
+			re.DateGenerated = inf.Exists ? inf.LastWriteTimeUtc : DateTime.MinValue;
 		}
 		else
 		{
@@ -155,6 +160,7 @@ public static class AssetMatchingUtil
 		public string CrpFile;
 		public string RoadConfigFile;
 		public Domain.RoadOptions? RoadOptions;
+		public DateTime DateGenerated;
 	}
 }
 

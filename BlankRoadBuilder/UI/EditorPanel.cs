@@ -1,4 +1,5 @@
-﻿using AlgernonCommons.UI;
+﻿using AlgernonCommons;
+using AlgernonCommons.UI;
 
 using ColossalFramework;
 using ColossalFramework.UI;
@@ -23,11 +24,10 @@ public class EditorPanel : UIPanel
 	public EditorPanel()
 	{
 		autoLayout = false;
-		canFocus = true;
+		canFocus = false;
 		isInteractive = true;
-		atlas = UITextures.InGameAtlas;
-		backgroundSprite = "UnlockingPanel2";
-		color = new Color32(210, 229, 247, 255);
+		atlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "EditorPanelBack"));
+		backgroundSprite = "normal";
 		size = new Vector2(300, 100);
 
 		var uIDragHandle = AddUIComponent<UIDragHandle>();
@@ -36,13 +36,6 @@ public class EditorPanel : UIPanel
 		uIDragHandle.relativePosition = Vector3.zero;
 		uIDragHandle.target = this;
 		uIDragHandle.SendToBack();
-
-		var icon = AddUIComponent<UISprite>();
-		icon.relativePosition = new Vector2(4, 18);
-		icon.size = new Vector2(64, 64);
-		icon.atlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "Icon"));
-		icon.spriteName = "normal";
-		icon.SendToBack();
 
 		BuildButton = AddUIComponent<SlickButton>();
 		BuildButton.textScale = 0.85F;
@@ -65,7 +58,6 @@ public class EditorPanel : UIPanel
 		RoadFolderButton = AddUIComponent<SlickButton>();
 		RoadFolderButton.size = new Vector2(30, 30);
 		RoadFolderButton.relativePosition = new Vector2(260, 15);
-		RoadFolderButton.text = "RoadFolderButton";
 		RoadFolderButton.tooltip = "Open the folder where road configurations are stored";
 		RoadFolderButton.SetIcon("I_Folder.png");
 		RoadFolderButton.eventClick += RoadFolderButton_Click;
@@ -73,7 +65,6 @@ public class EditorPanel : UIPanel
 		TMFolderButton = AddUIComponent<SlickButton>();
 		TMFolderButton.size = new Vector2(30, 30);
 		TMFolderButton.relativePosition = new Vector2(260, 55);
-		TMFolderButton.text = "TMFolderButton";
 		TMFolderButton.tooltip = "Open the folder where Thumbnail Maker is stored";
 		TMFolderButton.SetIcon("I_Folder.png");
 		TMFolderButton.eventClick += TMFolderButton_Click;
@@ -121,8 +112,36 @@ public class EditorPanel : UIPanel
 
 	private void BuildButton_Click(UIComponent component, UIMouseEventParameter eventParam)
 	{
-		StandalonePanelManager<RoadBuilderPanel>.Create();
-		StandalonePanelManager<RoadBuilderPanel>.Panel.RefreshList(true);
+		try
+		{
+			if (s_gameObject == null)
+			{
+				s_gameObject = new GameObject(typeof(RoadBuilderPanel).Name);
+				s_gameObject.transform.parent = UIView.GetAView().transform;
+				s_panel = s_gameObject.AddComponent<RoadBuilderPanel>();
+				s_panel.EventClose += DestroyPanel;
+			}
+		}
+		catch (Exception exception)
+		{
+			Logging.LogException(exception, "exception creating standalone panel of type ", typeof(TerrainPanel).Name);
+		}
+	}
+
+
+	private static GameObject s_gameObject;
+
+	private static RoadBuilderPanel s_panel;
+
+	private static void DestroyPanel()
+	{
+		if (!(s_panel == null))
+		{
+			Destroy(s_panel);
+			Destroy(s_gameObject);
+			s_panel = null;
+			s_gameObject = null;
+		}
 	}
 
 	public override void OnDestroy()
