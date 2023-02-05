@@ -9,7 +9,7 @@ internal class Segment
 		{
 			if (ToolsModifierControl.isAssetEditor)
 			{
-			new IMTMarkings().ApplyMarkings(segment);
+			IMTMarkings.ApplyMarkings(segment);
 			}
 		}
 	}
