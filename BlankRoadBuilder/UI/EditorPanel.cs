@@ -1,6 +1,8 @@
 ﻿using AlgernonCommons;
 using AlgernonCommons.UI;
 
+using BlankRoadBuilder.Util;
+
 using ColossalFramework;
 using ColossalFramework.UI;
 
@@ -26,7 +28,7 @@ public class EditorPanel : UIPanel
 		autoLayout = false;
 		canFocus = false;
 		isInteractive = true;
-		atlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "EditorPanelBack"));
+		atlas = ResourceUtil.GetAtlas("EditorPanelBack.png");
 		backgroundSprite = "normal";
 		size = new Vector2(300, 100);
 

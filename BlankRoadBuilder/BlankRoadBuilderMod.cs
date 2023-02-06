@@ -36,7 +36,7 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	public static string ThumbnailMakerFolder => Path.Combine(BuilderFolder, "Thumbnail Maker");
 	public static string MeshesFolder => Path.Combine(ModFolder, "Meshes");
 	public static string TexturesFolder => Path.Combine(ModFolder, "Textures");
-	public static string? ModFolder { get; private set; }
+	public static string? ModFolder => PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly())?.modPath;
 
 	protected override Version RequiredGameVersion => new Version(1, 16, 0, 3);
 	public override string NameRaw => "Road Builder";
@@ -85,7 +85,7 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	{
 		Directory.CreateDirectory(BuilderFolder);
 
-		ModFolder = PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly())?.modPath;
+		//ModFolder = PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly())?.modPath;
 
 		try
 		{ CopyThumbnailMaker(); }
