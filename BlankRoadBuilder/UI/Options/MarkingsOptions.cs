@@ -65,8 +65,8 @@ internal class MarkingsOptions : OptionsPanelBase
 		var button = _panel.AddUIComponent<SlickButton>();
 		button.size = new Vector2(30, 30);
 		button.relativePosition = new Vector2(_panel.width - 26, yPos);
-		button.tooltip = "Resets this line to the vanilla setting";
 		button.SetIcon("I_Undo.png");
+		button.tooltip = "Resets this line to the vanilla setting";
 
 		var topLabel = AddLabel(GetTitle(key));
 		topLabel.textScale = 1.15F;

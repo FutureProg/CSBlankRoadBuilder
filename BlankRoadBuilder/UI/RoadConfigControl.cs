@@ -38,9 +38,7 @@ internal class RoadConfigControl : UISprite
 
 	static RoadConfigControl()
 	{
-		_bgAtlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "ConfigBack"));
-		_bgAtlas.sprites.Clear();
-		_bgAtlas.AddSprites(new UITextureAtlas.SpriteInfo[]
+		_bgAtlas = ResourceUtil.GetAtlas("ConfigBack.png", new UITextureAtlas.SpriteInfo[]
 		{
 			new()
 			{
@@ -82,7 +80,7 @@ internal class RoadConfigControl : UISprite
 				name = "lostselected",
 				region = new Rect(3/4F, 0f, 1/4F, 0.5f)
 			},
-		});
+		})!;
 	}
 
 	protected override void OnMouseEnter(UIMouseEventParameter p)

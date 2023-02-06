@@ -36,9 +36,7 @@ public class GenerationPanel : UIPanel
 		canFocus = true;
 		isInteractive = true;
 		size = new Vector2(PanelWidth, PanelHeight);
-		atlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "GenerationPanelBack"));
-		atlas.sprites.Clear();
-		atlas.AddSprites(new UITextureAtlas.SpriteInfo[]
+		atlas = ResourceUtil.GetAtlas("GenerationPanelBack.png", new UITextureAtlas.SpriteInfo[]
 		{
 			new()
 			{
@@ -79,9 +77,7 @@ public class GenerationPanel : UIPanel
 		uIDragHandle.relativePosition = Vector3.zero;
 		uIDragHandle.target = this;
 
-		var closeAtlas = UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), "I_Close"));
-		closeAtlas.sprites.Clear();
-		closeAtlas.AddSprites(new UITextureAtlas.SpriteInfo[]
+		var closeAtlas = ResourceUtil.GetAtlas("I_Close.png", new UITextureAtlas.SpriteInfo[]
 		{
 			new()
 			{

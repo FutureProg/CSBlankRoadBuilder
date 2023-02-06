@@ -1,11 +1,20 @@
-﻿using BlankRoadBuilder.Domain.Options;
+﻿using AdaptiveRoads.UI.VBSTool;
+
+using AlgernonCommons.UI;
+
+using BlankRoadBuilder.Domain.Options;
+using BlankRoadBuilder.Util;
 
 using ColossalFramework.UI;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
+
+using UnityEngine;
 
 namespace BlankRoadBuilder.UI.Options;
 internal class GeneralOptions : OptionsPanelBase
@@ -21,26 +30,38 @@ internal class GeneralOptions : OptionsPanelBase
 	public GeneralOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex)
 	{
 		var settings = typeof(ModOptions).GetProperties(BindingFlags.Public | BindingFlags.Static).Select(x => new Setting { Property = x, Info = Attribute.GetCustomAttribute(x, typeof(ModOptionsAttribute)) as ModOptionsAttribute }).ToList();
+		var first = true;
 
 		foreach (var grp in settings.GroupBy(x => x.Info?.Category))
 		{
-			var icon = tabStrip.AddUIComponent<UISprite>();
-			icon.atlas = UIManager.GetIcon(OptionCategory.GetIcon(grp.Key));
-			icon.spriteName = "normal";
-			icon.size = new UnityEngine.Vector2(24, 24);
-			icon.relativePosition = new UnityEngine.Vector2(Margin, yPos + (30 - 24) / 2);
+			if (first)
+			{
+				first = false;
+			}
+			else
+			{
+				yPos += 7;
+			}
 
-			var title = tabStrip.AddUIComponent<UILabel>();
-			title.text = grp.Key;
+			var icon = _panel.AddUIComponent<UISprite>();
+			icon.atlas = ResourceUtil.GetAtlas(OptionCategory.GetIcon(grp.Key));
+			icon.spriteName = "normal";
+			icon.size = new Vector2(32, 32);
+			icon.relativePosition = new Vector2(Margin, yPos + (30 - 32) / 2);
+
+			var title = _panel.AddUIComponent<UILabel>();
+			title.text = grp.Key?.ToUpper();
+			title.textScale = 1.4F;
+			title.font = UIFonts.SemiBold;
 			title.autoSize = true;
-			title.relativePosition = new UnityEngine.Vector2(24 + 2 * Margin, yPos + (30 - title.height) / 2);
+			title.relativePosition = new Vector2(32 + 2 * Margin, yPos + (30 - title.height) / 2);
+
+			yPos += 50;
 
 			foreach (var setting in grp)
 			{
 				if (GenerateSettingComponent(setting) is UIComponent component)
 				{
-					component.relativePosition = new UnityEngine.Vector2(component.relativePosition.x + 30, component.relativePosition.y);
-
 					if (!string.IsNullOrEmpty(setting.Info?.Description))
 					{
 						component.tooltip = setting.Info?.Description;
@@ -63,6 +84,8 @@ internal class GeneralOptions : OptionsPanelBase
 
 			textfield.eventTextChanged += (s, v) => setSettingValue(setting.Property, v);
 
+			textfield.parent.relativePosition = new Vector2(textfield.parent.relativePosition.x + 40, textfield.parent.relativePosition.y);
+
 			return textfield;
 		}
 
@@ -74,6 +97,11 @@ internal class GeneralOptions : OptionsPanelBase
 
 			dropDown.eventSelectedIndexChanged += (s, v) => setSettingValue(setting.Property, enumVales.Keys.ToList()[v]);
 
+			dropDown.parent.relativePosition = new Vector2(dropDown.parent.relativePosition.x + 40, dropDown.parent.relativePosition.y);
+
+			var label = dropDown.parent.Find<UILabel>("Label");
+			label.relativePosition = new Vector2(label.relativePosition.x, label.relativePosition.y - 5);
+
 			return dropDown;
 		}
 
@@ -83,20 +111,27 @@ internal class GeneralOptions : OptionsPanelBase
 
 			checkbox.eventCheckChanged += (s, v) => setSettingValue(setting.Property, v);
 
+			checkbox.relativePosition = new Vector2(checkbox.relativePosition.x + 40, checkbox.relativePosition.y);
+
+			yPos += 2;
+
 			return checkbox;
 		}
 
 		if (setting.Property.PropertyType == typeof(float) || setting.Property.PropertyType == typeof(int))
 		{
+			yPos += 3;
 			var slider = AddSlider(setting.Info.Name, setting.Info.MinValue, setting.Info.MaxValue, setting.Info.Step, getDefaultValue<float>(setting.Property), setting.Info.MeasurementUnit);
 
 			slider.eventValueChanged += (s, v) => setSettingValue(setting.Property, v);
 
+			slider.parent.relativePosition = new Vector2(slider.parent.relativePosition.x + 40, slider.parent.relativePosition.y);
+
+			yPos += 5;
+
 			return slider;
 		}
-
 		return null;
-
 		static t? getDefaultValue<t>(PropertyInfo property) => (t)property.GetValue(null, null);
 
 		static void setSettingValue(PropertyInfo property, object value) => property.SetValue(null, property.PropertyType.IsEnum ? Enum.ToObject(property.PropertyType, value) : Convert.ChangeType(value, property.PropertyType), null);
