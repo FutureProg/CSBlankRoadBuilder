@@ -22,11 +22,30 @@ internal class GeneralOptions : OptionsPanelBase
 	{
 		var settings = typeof(ModOptions).GetProperties(BindingFlags.Public | BindingFlags.Static).Select(x => new Setting { Property = x, Info = Attribute.GetCustomAttribute(x, typeof(ModOptionsAttribute)) as ModOptionsAttribute }).ToList();
 
-		foreach (var setting in settings)
+		foreach (var grp in settings.GroupBy(x => x.Info?.Category))
 		{
-			if (GenerateSettingComponent(setting) is UIComponent component && !string.IsNullOrEmpty(setting.Info?.Description))
+			var icon = tabStrip.AddUIComponent<UISprite>();
+			icon.atlas = UIManager.GetIcon(OptionCategory.GetIcon(grp.Key));
+			icon.spriteName = "normal";
+			icon.size = new UnityEngine.Vector2(24, 24);
+			icon.relativePosition = new UnityEngine.Vector2(Margin, yPos + (30 - 24) / 2);
+
+			var title = tabStrip.AddUIComponent<UILabel>();
+			title.text = grp.Key;
+			title.autoSize = true;
+			title.relativePosition = new UnityEngine.Vector2(24 + 2 * Margin, yPos + (30 - title.height) / 2);
+
+			foreach (var setting in grp)
 			{
-				component.tooltip = setting.Info?.Description;
+				if (GenerateSettingComponent(setting) is UIComponent component)
+				{
+					component.relativePosition = new UnityEngine.Vector2(component.relativePosition.x + 30, component.relativePosition.y);
+
+					if (!string.IsNullOrEmpty(setting.Info?.Description))
+					{
+						component.tooltip = setting.Info?.Description;
+					}
+				}
 			}
 		}
 	}

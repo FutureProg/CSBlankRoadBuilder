@@ -4,6 +4,7 @@ using BlankRoadBuilder.ThumbnailMaker;
 
 namespace BlankRoadBuilder.UI.Options;
 
+internal class FillerDropDown : EnumDropDown<MarkingFillerType> { }
 internal class FillerMarkingOptionControl : MarkingOptionControl<FillerDropDown, MarkingFillerType>
 {
 	private SavedFillerOption Value = new(default, Util.Markings.MarkingType.IMT);

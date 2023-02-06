@@ -412,17 +412,23 @@ public static class Extensions
 		label.textColor = new Color32(235, 235, 235, 255);
 		label.textScale = 0.75F;
 
-		switch (alignment)
+		comp.eventVisibilityChanged += (s, v) => label.isVisible = v;
+		comp.eventPositionChanged += (s, v) => SetPosition();
+		
+		void SetPosition()
 		{
-			case SpriteAlignment.LeftCenter:
-				label.relativePosition = new Vector2(comp.relativePosition.x - label.width - 6, comp.relativePosition.y + comp.height / 2 - label.height / 2 + 3);
-				break;
-			case SpriteAlignment.TopCenter:
-				label.relativePosition = new Vector2(comp.relativePosition.x + (comp.width - label.width) / 2, comp.relativePosition.y + comp.height / 2 - label.height / 2 + 3);
-				break;
-			case SpriteAlignment.TopLeft:
-				label.relativePosition = new Vector2(comp.relativePosition.x, comp.relativePosition.y - label.height - 3);
-				break;
+			switch (alignment)
+			{
+				case SpriteAlignment.LeftCenter:
+					label.relativePosition = new Vector2(comp.relativePosition.x - label.width - 6, comp.relativePosition.y + comp.height / 2 - label.height / 2 + 3);
+					break;
+				case SpriteAlignment.TopCenter:
+					label.relativePosition = new Vector2(comp.relativePosition.x + (comp.width - label.width) / 2, comp.relativePosition.y + comp.height / 2 - label.height / 2 + 3);
+					break;
+				case SpriteAlignment.TopLeft:
+					label.relativePosition = new Vector2(comp.relativePosition.x, comp.relativePosition.y - label.height - 3);
+					break;
+			}
 		}
 	}
 }

@@ -3,6 +3,7 @@ using BlankRoadBuilder.Domain;
 
 namespace BlankRoadBuilder.UI.Options;
 
+internal class LineDropDown : EnumDropDown<MarkingLineType> { }
 internal class LineMarkingOptionControl : MarkingOptionControl<LineDropDown, MarkingLineType>
 {
 	private SavedLineOption Value = new ((GenericMarkingType)(-1), Util.Markings.MarkingType.IMT);

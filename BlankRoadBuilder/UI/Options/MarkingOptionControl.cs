@@ -146,6 +146,3 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UIComponent w
 	protected abstract void SetDashWidth(float val);
 	protected abstract void SetDashSpace(float val);
 }
-
-internal class LineDropDown : EnumDropDown<MarkingLineType> { }
-internal class FillerDropDown : EnumDropDown<MarkingFillerType> { }
