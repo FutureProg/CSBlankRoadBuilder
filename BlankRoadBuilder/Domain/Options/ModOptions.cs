@@ -35,20 +35,20 @@ public static class ModOptions
 	[ModOptions(PROPS, "Hide road clutter by default", "Road clutter includes signs, parking meters, etc. They can still be shown using their AN toggle")]
 	public static bool HideRoadClutter { get => _hideRoadClutter; set => _hideRoadClutter.value = value; }
 
+	[ModOptions(DESIGN, "Only add trees to ground elevation", "Only adds the trees on the ground elevation")]
+	public static bool GroundOnlyTrees { get => _groundOnlyTrees; set => _groundOnlyTrees.value = value; }
+
 	[ModOptions(DESIGN, "Default Tram tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
 	public static TramTracks TramTracks { get => (TramTracks)_tramTracks.value; set => _tramTracks.value = (int)value; }
 
 	[ModOptions(DESIGN, "Elevated step slope", "Changes the steepness of elevated step transitions at intersections")]
 	public static StepSteepness StepTransition { get => (StepSteepness)_stepTransition.value; set => _stepTransition.value = (int)value; }
 
-	[ModOptions(PROPS, "Streetlight repeat distance", "Changes the distance between each street light", 6, 64, 0.5F, "m")]
-	public static float LightRepeatDistance { get => _lightRepeatDistance.value; set => _lightRepeatDistance.value = value; }
-
 	[ModOptions(PROPS, "Use vanilla streetlight placement", "Generates the lights with a standard repeat distance")]
 	public static bool VanillaStreetLightPlacement { get => _vanillaStreetLightPlacement; set => _vanillaStreetLightPlacement.value = value; }
 
-	[ModOptions(PROPS, "Trees repeat distance", "Changes the distance between each tree", 6, 64, 0.5F, "m")]
-	public static float TreeRepeatDistance { get => _treeRepeatDistance.value; set => _treeRepeatDistance.value = value; }
+	[ModOptions(PROPS, "Streetlight repeat distance", "Changes the distance between each street light", 6, 64, 0.5F, "m")]
+	public static float LightRepeatDistance { get => _lightRepeatDistance.value; set => _lightRepeatDistance.value = value; }
 
 	[ModOptions(PROPS, "Randomize tree distances")]
 	public static bool RandomizeTreeDistance { get => _randomiseTreeDistance; set => _randomiseTreeDistance.value = value; }
@@ -56,8 +56,8 @@ public static class ModOptions
 	[ModOptions(PROPS, "Use vanilla tree placement", "Generates the trees with a standard repeat distance")]
 	public static bool VanillaTreePlacement { get => _vanillaTreePlacement; set => _vanillaTreePlacement.value = value; }
 
-	[ModOptions(DESIGN, "Only add trees to ground elevation", "Only adds the trees on the ground elevation")]
-	public static bool GroundOnlyTrees { get => _groundOnlyTrees; set => _groundOnlyTrees.value = value; }
+	[ModOptions(PROPS, "Trees repeat distance", "Changes the distance between each tree", 6, 64, 0.5F, "m")]
+	public static float TreeRepeatDistance { get => _treeRepeatDistance.value; set => _treeRepeatDistance.value = value; }
 
 	[ModOptions(OTHER, "Disable the auto-fill of information and thumbnails in the save panel")]
 	public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }

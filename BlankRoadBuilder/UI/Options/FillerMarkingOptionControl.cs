@@ -24,10 +24,10 @@ internal class FillerMarkingOptionControl : MarkingOptionControl<FillerDropDown,
 			lineWidthTB.isVisible = false;
 
 		if (dashWidthTB != null)
-			dashWidthTB.parent.isVisible = Value.MarkingType is not MarkingFillerType.Filled;
+			dashWidthTB.isVisible = Value.MarkingType is not MarkingFillerType.Filled;
 
 		if (dashSpaceTB != null)
-			dashSpaceTB.parent.isVisible = Value.MarkingType is not MarkingFillerType.Filled;
+			dashSpaceTB.isVisible = Value.MarkingType is not MarkingFillerType.Filled;
 
 		base.SetVisibilityOfControls();
 	}

@@ -8,13 +8,16 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using ModsCommon.UI;
+using BlankRoadBuilder.Util;
+using AlgernonCommons.UI;
 
 namespace BlankRoadBuilder.UI.Options;
-internal abstract class MarkingOptionControl<DropDown, EnumType> : UIComponent where DropDown : EnumDropDown<EnumType> where EnumType : Enum
+internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite where DropDown : EnumDropDown<EnumType> where EnumType : Enum
 {
 	private const float Margin = 5F;
 
 	protected DropDown? dropDown;
+	private UISprite colorPreview;
 	protected ByteUITextField? rTB;
 	protected ByteUITextField? gTB;
 	protected ByteUITextField? bTB;
@@ -27,38 +30,51 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UIComponent w
 
 	protected void Init(string title, string description, Color32 color, EnumType value, float lineWidth, float dashWidth, float dashSpace)
 	{
+		size = new Vector2(355, 150);
+		atlas = ResourceUtil.GetAtlas("MarkingOptionBack.png");
+		spriteName = "normal";
+
 		titleLabel = AddUIComponent<UILabel>();
 		titleLabel.text = title;
 		titleLabel.textScale = 1;
-		titleLabel.textColor = new Color32(48, 133, 209, 255);
+		titleLabel.textColor = new Color32(92, 182, 239, 255);
 		titleLabel.autoSize = true;
+		titleLabel.font = UIFonts.SemiBold;
 		titleLabel.relativePosition = new Vector2(Margin, Margin);
 
 		descLabel = AddUIComponent<UILabel>();
 		descLabel.text = description;
-		descLabel.textScale = 0.65F;
-		descLabel.textColor = new Color32(200, 200, 200, 255);
+		descLabel.textScale = 0.55F;
+		descLabel.textColor = new Color32(210, 210, 210, 255);
 		descLabel.autoSize = false;
 		descLabel.autoHeight = true;
-		descLabel.relativePosition = new Vector2(titleLabel.width + 2 * Margin, Margin);
+		descLabel.relativePosition = new Vector2(titleLabel.width + 12	, 9);
 		descLabel.width = width - descLabel.relativePosition.x - Margin;
 
 		dropDown = AddUIComponent<DropDown>();
-		dropDown.relativePosition = new Vector2(Margin, titleLabel.height + 2 * Margin);
+		dropDown.relativePosition = new Vector2(Margin * 2, titleLabel.height + 2 * Margin);
 		dropDown.SelectedObject = value;
+		dropDown.textColor = Color.white;
+		dropDown.popupTextColor = Color.white;
+
+		colorPreview = AddUIComponent<UISprite>();
+		colorPreview.size = new Vector2(Margin + 18 * 2, Margin + 18 * 2);
+		colorPreview.spriteName = "normal";
 
 		rTB = AddUIComponent<ByteUITextField>();
 		gTB = AddUIComponent<ByteUITextField>();
 		bTB = AddUIComponent<ByteUITextField>();
 		aTB = AddUIComponent<ByteUITextField>();
 
-		rTB.size = gTB.size = bTB.size = aTB.size = new Vector2(60, 20);
+		rTB.size = gTB.size = bTB.size = aTB.size = new Vector2(50, 18);
 		rTB.textScale = gTB.textScale = bTB.textScale = aTB.textScale = 0.7F;
 
-		rTB.relativePosition = new Vector2(Margin + 25, dropDown.relativePosition.y + dropDown.height + Margin);
-		gTB.relativePosition = new Vector2(Margin + 25, rTB.relativePosition.y + rTB.height + Margin);
-		bTB.relativePosition = new Vector2(Margin + 25, gTB.relativePosition.y + gTB.height + Margin);
-		aTB.relativePosition = new Vector2(Margin + 25, bTB.relativePosition.y + bTB.height + Margin);
+		rTB.relativePosition = new Vector2(Margin + 22, dropDown.relativePosition.y + dropDown.height + Margin);
+		gTB.relativePosition = new Vector2(Margin + 22, rTB.relativePosition.y + rTB.height + Margin);
+		bTB.relativePosition = new Vector2(Margin + 22, gTB.relativePosition.y + gTB.height + Margin);
+		aTB.relativePosition = new Vector2(Margin + 22, bTB.relativePosition.y + bTB.height + Margin);
+
+		colorPreview.relativePosition = new Vector2(Margin + 82, gTB.relativePosition.y);
 
 		rTB.AddLabel("R", SpriteAlignment.LeftCenter);
 		gTB.AddLabel("G", SpriteAlignment.LeftCenter);
@@ -70,28 +86,49 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UIComponent w
 		bTB.Value = color.b;
 		aTB.Value = color.a;
 
+		RefreshColor(0);
+
 		lineWidthTB = AddUIComponent<FloatUITextField>();
 		lineWidthTB.Value = lineWidth;
 		lineWidthTB.relativePosition = new Vector2(width - 125 - Margin, 0);
 		lineWidthTB.textScale = 0.8F;
-		lineWidthTB.size = new Vector2(125, 20);
+		lineWidthTB.size = new Vector2(100, 18);
 
 		dashWidthTB = AddUIComponent<FloatUITextField>();
 		dashWidthTB.Value = dashWidth;
 		dashWidthTB.relativePosition = new Vector2(width - 125 - Margin, 0);
 		dashWidthTB.textScale = 0.8F;
-		dashWidthTB.size = new Vector2(125, 20);
+		dashWidthTB.size = new Vector2(100, 18);
 
 		dashSpaceTB = AddUIComponent<FloatUITextField>();
 		dashSpaceTB.Value = dashSpace;
 		dashSpaceTB.relativePosition = new Vector2(width - 125 - Margin, 0);
 		dashSpaceTB.textScale = 0.8F;
-		dashSpaceTB.size = new Vector2(125, 20);
+		dashSpaceTB.size = new Vector2(100, 18);
+
+		lineWidthTB.AddLabel("Line Width", SpriteAlignment.LeftCenter);
+		dashWidthTB.AddLabel("Dash Width", SpriteAlignment.LeftCenter);
+		dashSpaceTB.AddLabel("Dash Space", SpriteAlignment.LeftCenter);
+		lineWidthTB.AddLabel("m", SpriteAlignment.RightCenter);
+		dashWidthTB.AddLabel("m", SpriteAlignment.RightCenter);
+		dashSpaceTB.AddLabel("m", SpriteAlignment.RightCenter);
+
+		rTB.SetDefaultStyle();
+		gTB.SetDefaultStyle();
+		bTB.SetDefaultStyle();
+		aTB.SetDefaultStyle();
+		lineWidthTB.SetDefaultStyle();
+		dashWidthTB.SetDefaultStyle();
+		dashSpaceTB.SetDefaultStyle();
 
 		rTB.OnValueChanged += SetColorR;
 		gTB.OnValueChanged += SetColorG;
 		bTB.OnValueChanged += SetColorB;
 		aTB.OnValueChanged += SetColorA;
+		rTB.OnValueChanged += RefreshColor;
+		gTB.OnValueChanged += RefreshColor;
+		bTB.OnValueChanged += RefreshColor;
+		aTB.OnValueChanged += RefreshColor;
 		dropDown.OnSelectObjectChanged += SetMarkingStyle;
 		lineWidthTB.OnValueChanged += SetLineWidth;
 		dashWidthTB.OnValueChanged += SetDashWidth;
@@ -100,27 +137,37 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UIComponent w
 		SetVisibilityOfControls();
 	}
 
+	private void RefreshColor(byte obj)
+	{
+		if (colorPreview == null)
+			return;
+
+		var color = new Color32(rTB!.Value, gTB!.Value, bTB!.Value, aTB!.Value);
+
+		colorPreview.atlas = ResourceUtil.GetAtlas(ResourceUtil.GetImage("White.png")?.CreateTexture().Color(color, false));
+	}
+
 	protected virtual void SetVisibilityOfControls()
 	{
-		var y = titleLabel?.height ?? 0 + 2 * Margin;
+		var y = aTB!.relativePosition.y;
 
-		if (lineWidthTB != null && lineWidthTB.isVisible)
+		if (dashSpaceTB != null && dashSpaceTB.isVisible)
 		{
-			lineWidthTB.relativePosition = new Vector2(lineWidthTB.relativePosition.x, y);
+			dashSpaceTB.relativePosition = new Vector2(dashSpaceTB.relativePosition.x, y);
 
-			y += lineWidthTB.height + Margin;
+			y -= dashSpaceTB.height + Margin;
 		}
 
 		if (dashWidthTB != null && dashWidthTB.isVisible)
 		{
 			dashWidthTB.relativePosition = new Vector2(dashWidthTB.relativePosition.x, y);
 
-			y += dashWidthTB.height + Margin;
+			y -= dashWidthTB.height + Margin;
 		}
 
-		if (dashSpaceTB != null && dashSpaceTB.isVisible)
+		if (lineWidthTB != null && lineWidthTB.isVisible)
 		{
-			dashSpaceTB.relativePosition = new Vector2(dashSpaceTB.relativePosition.x, y);
+			lineWidthTB.relativePosition = new Vector2(lineWidthTB.relativePosition.x, y);
 		}
 	}
 
@@ -135,6 +182,7 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UIComponent w
 		gTB.isVisible = visible;
 		bTB.isVisible = visible;
 		aTB.isVisible = visible;
+		colorPreview.isVisible = visible;
 	}
 
 	protected abstract void SetMarkingStyle(EnumType val);

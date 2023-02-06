@@ -9,9 +9,24 @@ internal partial class FillerOptions : MarkingsOptions
 
 	public FillerOptions(MarkingType markingType, UITabstrip tabStrip, int tabIndex) : base(markingType, tabStrip, tabIndex)
 	{
+		var ind = 0;
 		foreach (var option in MarkingStyleUtil.CustomFillerMarkings[markingType])
 		{
-			AddFillerOption(option.Key, option.Value);
+			var ctrl = _panel.AddUIComponent<FillerMarkingOptionControl>();
+			ctrl.Init(option.Key, option.Value);
+
+			if (ind % 2 == 0)
+			{
+				ctrl.relativePosition = new UnityEngine.Vector2(Margin, yPos);
+			}
+			else
+			{
+				ctrl.relativePosition = new UnityEngine.Vector2(2 * Margin + ctrl.width, yPos);
+				yPos += ctrl.height + Margin;
+			}
+
+			ind++;
+			//	AddFillerOption(option.Key, option.Value);
 		}
 	}
 }
@@ -22,9 +37,24 @@ internal partial class LineOptions : MarkingsOptions
 
 	public LineOptions(MarkingType markingType, UITabstrip tabStrip, int tabIndex) : base(markingType, tabStrip, tabIndex)
 	{
+		var ind = 0;
 		foreach (var option in MarkingStyleUtil.CustomLineMarkings[markingType])
 		{
-			AddLineOption(option.Key, option.Value);
+			var ctrl = _panel.AddUIComponent<LineMarkingOptionControl>();
+			ctrl.Init(option.Key, option.Value);
+
+			if (ind % 2 == 0)
+			{
+				ctrl.relativePosition = new UnityEngine.Vector2(Margin, yPos);
+			}
+			else
+			{
+				ctrl.relativePosition = new UnityEngine.Vector2(2 * Margin + ctrl.width, yPos);
+				yPos += ctrl.height + Margin;
+			}
+
+			ind++;
+			//AddLineOption(option.Key, option.Value);
 		}
 	}
 }

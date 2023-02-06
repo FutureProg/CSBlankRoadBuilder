@@ -3,8 +3,8 @@
   <PropertyGroup>
 	<TargetFramework>net3.5</TargetFramework>  
 	<Deterministic>false</Deterministic>
-	<AssemblyTitle>Blank Road Builder</AssemblyTitle>
-	<Product>Blank Road Builder</Product>
+	<AssemblyTitle>Road Builder</AssemblyTitle>
+	<Product>Road Builder</Product>
 	<Description>A Cities: Skylines mod.</Description>
 	<LangVersion>latest</LangVersion>
 	<ImplicitUsings>disable</ImplicitUsings>

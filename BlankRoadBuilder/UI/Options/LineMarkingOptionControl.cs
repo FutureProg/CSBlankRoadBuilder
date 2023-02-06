@@ -23,10 +23,10 @@ internal class LineMarkingOptionControl : MarkingOptionControl<LineDropDown, Mar
 			lineWidthTB.isVisible = Value.MarkingType != MarkingLineType.None;
 
 		if (dashWidthTB != null)
-			dashWidthTB.parent.isVisible = Value.MarkingType is MarkingLineType.ZigZag or MarkingLineType.Dashed or MarkingLineType.DashedDouble or MarkingLineType.DashedSolid or MarkingLineType.SolidDashed;
+			dashWidthTB.isVisible = Value.MarkingType is MarkingLineType.ZigZag or MarkingLineType.Dashed or MarkingLineType.DashedDouble or MarkingLineType.DashedSolid or MarkingLineType.SolidDashed;
 		
 		if (dashSpaceTB != null)
-			dashSpaceTB.parent.isVisible = Value.MarkingType is MarkingLineType.Dashed or MarkingLineType.DashedDouble or MarkingLineType.DashedSolid or MarkingLineType.SolidDashed;
+			dashSpaceTB.isVisible = Value.MarkingType is MarkingLineType.Dashed or MarkingLineType.DashedDouble or MarkingLineType.DashedSolid or MarkingLineType.SolidDashed;
 
 		base.SetVisibilityOfControls();
 	}

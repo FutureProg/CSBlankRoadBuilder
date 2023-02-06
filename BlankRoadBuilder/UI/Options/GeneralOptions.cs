@@ -99,9 +99,6 @@ internal class GeneralOptions : OptionsPanelBase
 
 			dropDown.parent.relativePosition = new Vector2(dropDown.parent.relativePosition.x + 40, dropDown.parent.relativePosition.y);
 
-			var label = dropDown.parent.Find<UILabel>("Label");
-			label.relativePosition = new Vector2(label.relativePosition.x, label.relativePosition.y - 5);
-
 			return dropDown;
 		}
 

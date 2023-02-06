@@ -41,15 +41,17 @@ internal class ResourceUtil
 
 	internal static UITextureAtlas? GetAtlas(string name, UITextureAtlas.SpriteInfo[] sprites) => GetAtlas(name, null, sprites);
 	internal static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal") => GetAtlas(name, spriteName, null);
-	private static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal", UITextureAtlas.SpriteInfo[]? sprites = null)
-	{
-		var texture2D = GetImage(name)?.CreateTexture();
+	private static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal", UITextureAtlas.SpriteInfo[]? sprites = null) => GetAtlas(GetImage(name)?.CreateTexture(), spriteName, sprites);
 
+	internal static UITextureAtlas? GetAtlas(Texture2D? texture2D, UITextureAtlas.SpriteInfo[] sprites) => GetAtlas(texture2D, null, sprites);
+	internal static UITextureAtlas? GetAtlas(Texture2D? texture2D, string? spriteName = "normal") => GetAtlas(texture2D, spriteName, null);
+	private static UITextureAtlas? GetAtlas(Texture2D? texture2D, string? spriteName = "normal", UITextureAtlas.SpriteInfo[]? sprites = null)
+	{
 		if (texture2D == null)
 			return null;
 
 		var uITextureAtlas = ScriptableObject.CreateInstance<UITextureAtlas>();
-		uITextureAtlas.name = name;
+		uITextureAtlas.name = Guid.NewGuid().ToString();
 		uITextureAtlas.material = UnityEngine.Object.Instantiate(UIView.GetAView().defaultAtlas.material);
 		uITextureAtlas.material.mainTexture = texture2D;
 
