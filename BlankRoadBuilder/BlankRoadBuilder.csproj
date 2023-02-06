@@ -144,7 +144,7 @@
 	  rmdir /s /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
 	  mkdir "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
 	  xcopy /y /e /q "../$(OutputPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-	  xcopy /y /e /q /exclude:exclude.txt "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
+	  xcopy /y /e /q "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
 	  del /f /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder\*.pdb"
 	</PostBuildEvent>
 	<BaseOutputPath>Output</BaseOutputPath>
