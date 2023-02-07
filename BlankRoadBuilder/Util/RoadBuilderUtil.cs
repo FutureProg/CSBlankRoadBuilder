@@ -10,6 +10,7 @@ using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Props;
 
 using ColossalFramework.IO;
+using ColossalFramework.UI;
 
 using System;
 using System.Collections.Generic;
@@ -49,19 +50,31 @@ public static class RoadBuilderUtil
 
 		SegmentUtil.ClearNodes();
 
-		yield return new StateInfo($"Preparing the road..");
+		yield return new StateInfo($"Preparing the road..", ElevationType.Basic);
 
 		Exception? exception = null;
-
-		var info = GetNetInfo(roadInfo);
+		NetInfo? info = null;
 
 		try
 		{
+			info = GetNetInfo(roadInfo);
+
 			GenerateLaneWidthsAndPositions(roadInfo);
 		}
 		catch (Exception ex)
 		{
 			exception = ex;
+		}
+
+		if (exception != null)
+		{
+			yield return new StateInfo(exception);
+			yield break;
+		}
+
+		if (info == null)
+		{
+			yield break;
 		}
 
 		var netElelvations = info.GetElevations();
@@ -74,7 +87,7 @@ public static class RoadBuilderUtil
 				break;
 			}
 
-			yield return new StateInfo($"Generating the {elevation} elevation..");
+			yield return new StateInfo($"Generating the {(elevation == ElevationType.Basic ? "Ground" : elevation.ToString())} level..", elevation);
 
 			try
 			{
@@ -82,7 +95,7 @@ public static class RoadBuilderUtil
 
 				roadInfo.Lanes = new List<LaneInfo>(lanes);
 
-				if (elevation is ElevationType.Elevated or ElevationType.Bridge)
+				if (elevation is ElevationType.Elevated or ElevationType.Bridge || !roadInfo.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier)))
 				{
 					AddBridgeBarriersAndPillar(netInfo, roadInfo);
 				}
@@ -107,6 +120,8 @@ public static class RoadBuilderUtil
 				}
 				catch (Exception ex)
 				{
+					exception = ex;
+
 					Debug.LogError($"Failed to update mesh for {elevation} elevation: \r\n{ex}");
 				}
 			}
@@ -124,14 +139,26 @@ public static class RoadBuilderUtil
 
 		yield return new StateInfo($"Road generation completed, applying changes..");
 
-		SavePanelPatch.LastLoadedRoad = roadInfo;
-		CurrentRoad = roadInfo;
+		try
+		{
+			CurrentRoad = roadInfo;
 
-		ToolsModifierControl.toolController.m_editPrefabInfo = info;
-		AdaptiveNetworksUtil.Refresh();
-		IsBuilding = false;
+			ToolsModifierControl.toolController.m_editPrefabInfo = info;
+			AdaptiveNetworksUtil.Refresh();
+			IsBuilding = false;
 
-		SegmentUtil.GenerateTemplateSegments(info);
+			SegmentUtil.GenerateTemplateSegments(info);
+		}
+		catch (Exception ex)
+		{
+			exception = ex;
+		}
+
+		if (exception != null)
+		{
+			yield return new StateInfo(exception);
+			yield break;
+		}
 	}
 
 	private static NetInfo GetNetInfo(RoadInfo? roadInfo)
@@ -139,7 +166,7 @@ public static class RoadBuilderUtil
 		if (AssetDataExtension.WasLastLoaded != false)
 			return (NetInfo)ToolsModifierControl.toolController.m_editPrefabInfo;
 
-		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo.RoadType switch { RoadType.Highway or RoadType.Flat => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
+		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo?.RoadType switch { RoadType.Highway or RoadType.Flat => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
 
 		if (template.m_netAI is RoadAI roadAI)
 		{
@@ -174,25 +201,15 @@ public static class RoadBuilderUtil
 	private static void FillNetInfo(RoadInfo roadInfo, ElevationType elevation, NetInfo netInfo)
 	{
 		netInfo.m_surfaceLevel = roadInfo.RoadType == RoadType.Road ? -0.3F : 0F;
-		netInfo.m_clipTerrain = elevation == ElevationType.Basic;
-		netInfo.m_lowerTerrain = elevation != ElevationType.Basic;
 		netInfo.m_pavementWidth = roadInfo.LeftPavementWidth;
-		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 2);
+		netInfo.m_halfWidth = (float)Math.Round(roadInfo.TotalWidth / 2D, 4);
 		netInfo.m_maxBuildAngle = roadInfo.RoadType == RoadType.Highway ? 60F : 90F;
 		netInfo.m_createPavement = elevation == ElevationType.Basic && TextureType.Pavement == roadInfo.SideTexture;
 		netInfo.m_createGravel = elevation == ElevationType.Basic && TextureType.Gravel == roadInfo.SideTexture;
 		netInfo.m_createRuining = elevation == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
 		netInfo.m_enableBendingNodes = roadInfo.LeftPavementWidth == roadInfo.RightPavementWidth;
+		netInfo.m_tags = GetTags(roadInfo, elevation).ToArray();
 
-		//var itemClass = ScriptableObject.CreateInstance<ItemClass>();
-		//itemClass.m_layer = ItemClass.Layer.Default;
-		//itemClass.m_service = ItemClass.Service.Road;
-		//itemClass.m_subService = ItemClass.SubService.None;
-		//itemClass.m_level = roadInfo.RoadType == RoadType.Road ? (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8)) : ItemClass.Level.Level5;
-		//itemClass.name = roadInfo.RoadType == RoadType.Road ? ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords() : "Highway";
-		//netInfo.m_class = itemClass;
-
-		RoadUtils.SetNetAi(netInfo, "m_outsideConnection", null);
 		RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation, false));
 		RoadUtils.SetNetAi(netInfo, "m_maintenanceCost", GetCost(roadInfo, elevation, true));
 		RoadUtils.SetNetAi(netInfo, "m_noiseAccumulation", (int)(netInfo.m_halfWidth / 3));
@@ -233,36 +250,37 @@ public static class RoadBuilderUtil
 			});
 		}
 
-		metadata.ScriptedFlags[RoadUtils.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
-		metadata.ScriptedFlags[RoadUtils.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
-		//metadata.ScriptedFlags[RoadUtils.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
-		metadata.ScriptedFlags[RoadUtils.S_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
-		//metadata.ScriptedFlags[RoadUtils.N_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
-		//metadata.ScriptedFlags[RoadUtils.N_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
-		//metadata.ScriptedFlags[RoadUtils.S_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
-		//metadata.ScriptedFlags[RoadUtils.S_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
-		metadata.ScriptedFlags[RoadUtils.S_StepBackward] = new ExpressionWrapper(GetExpression("StepBackwardFlag"), "StepBackwardFlag");
-		metadata.ScriptedFlags[RoadUtils.S_StepForward] = new ExpressionWrapper(GetExpression("StepForwardFlag"), "StepForwardFlag");
-		metadata.ScriptedFlags[RoadUtils.S_IsTailNode] = new ExpressionWrapper(GetExpression("IsTailNodeFlag"), "IsTailNodeFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.T_GroundBarriers] = new ExpressionWrapper(GetExpression("GroundBarrierTransitionFlag"), "GroundBarrierTransitionFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.N_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.N_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.S_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
+		//metadata.ScriptedFlags[RoadUtils.Flags.S_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_StepBackward] = new ExpressionWrapper(GetExpression("StepBackwardFlag"), "StepBackwardFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_StepForward] = new ExpressionWrapper(GetExpression("StepForwardFlag"), "StepForwardFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.S_IsTailNode] = new ExpressionWrapper(GetExpression("IsTailNodeFlag"), "IsTailNodeFlag");
 
 		if (roadInfo.Lanes.Any(x => x.Type.HasFlag(LaneType.Trolley)))
-			metadata.ScriptedFlags[RoadUtils.T_TrolleyWires] = new ExpressionWrapper(GetExpression("TrolleyWiresFlag"), "TrolleyWiresFlag");
+			metadata.ScriptedFlags[RoadUtils.Flags.T_TrolleyWires] = new ExpressionWrapper(GetExpression("TrolleyWiresFlag"), "TrolleyWiresFlag");
 
-		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheRight, "Low curb on the right");
-		metadata.RenameCustomFlag(RoadUtils.S_LowCurbOnTheLeft, "Low curb on the left");
-		metadata.RenameCustomFlag(RoadUtils.S_AddRoadDamage, "Add road damage");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveRoadClutter, (ModOptions.HideRoadClutter ? "Show" : "Remove") + " road clutter");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
-		metadata.RenameCustomFlag(RoadUtils.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
-		metadata.RenameCustomFlag(RoadUtils.S_Curbless, "Make curb-less");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_LowCurbOnTheRight, "Low curb on the right");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_LowCurbOnTheLeft, "Low curb on the left");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_AddRoadDamage, "Add road damage");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveRoadClutter, (ModOptions.HideRoadClutter ? "Show" : "Remove") + " road clutter");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_Curbless, "Make curb-less");
 
-		metadata.RenameCustomFlag(RoadUtils.N_FullLowCurb, "Full low curb");
-		metadata.RenameCustomFlag(RoadUtils.N_ForceHighCurb, "Force high curb");
-		metadata.RenameCustomFlag(RoadUtils.N_RemoveLaneArrows, "Remove lane arrows");
-		metadata.RenameCustomFlag(RoadUtils.N_RemoveTramWires, "Remove tram/trolley wires");
-		metadata.RenameCustomFlag(RoadUtils.N_RemoveTramTracks, "Remove tram tracks");
-		metadata.RenameCustomFlag(RoadUtils.N_HideTreesCloseToIntersection, "Hide trees that are close to the intersection");
-		metadata.RenameCustomFlag(RoadUtils.N_Nodeless, "Remove node mesh");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_FullLowCurb, "Full low curb");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_ForceHighCurb, "Force high curb");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_RemoveLaneArrows, "Remove lane arrows");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_RemoveTramWires, "Remove tram/trolley wires");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_RemoveTramTracks, "Remove tram tracks");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_HideTreesCloseToIntersection, "Hide trees that are close to the intersection");
+		metadata.RenameCustomFlag(RoadUtils.Flags.N_Nodeless, "Remove node mesh");
 
 		var netLanes = netInfo.m_lanes.ToList();
 
@@ -272,26 +290,34 @@ public static class RoadBuilderUtil
 			{
 				var i = netLanes.IndexOf(netLane);
 
-				metadata.RenameCustomFlag(i, RoadUtils.L_RemoveTrees, "Remove trees");
-				metadata.RenameCustomFlag(i, RoadUtils.L_RemoveStreetLights, "Remove street lights");
+				metadata.RenameCustomFlag(i, RoadUtils.Flags.L_RemoveTrees, "Remove trees");
+				metadata.RenameCustomFlag(i, RoadUtils.Flags.L_RemoveStreetLights, "Remove street lights");
 
 				if (netLane.m_vehicleType == VehicleInfo.VehicleType.Tram)
 				{
-					metadata.RenameCustomFlag(i, RoadUtils.L_RemoveTramTracks, "Remove tram tracks");
-					metadata.RenameCustomFlag(i, RoadUtils.L_TramTracks_1, ModOptions.TramTracks != TramTracks.Rev0 ? "Use Rev0's tram tracks" : "Use Vanilla tram tracks");
-					metadata.RenameCustomFlag(i, RoadUtils.L_TramTracks_2, ModOptions.TramTracks == TramTracks.Clus ? "Use Vanilla tram tracks" : "Use Clus's LRT tram tracks");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_RemoveTramTracks, "Remove tram tracks");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_TramTracks_1, ModOptions.TramTracks != TramTracks.Rev0 ? "Use Rev0's tram tracks" : "Use Vanilla tram tracks");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_TramTracks_2, ModOptions.TramTracks == TramTracks.Clus ? "Use Vanilla tram tracks" : "Use Clus's LRT tram tracks");
 				}
 
 				if (lane.Decorations.HasFlag(LaneDecoration.Barrier))
 				{
-					metadata.RenameCustomFlag(i, RoadUtils.L_RemoveBarrier, "Remove barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_1, "Use sound barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_2, "Use left single-sided metal barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_3, "Use right single-sided metal barrier");
-					metadata.RenameCustomFlag(i, RoadUtils.L_Barrier_4, "Use double-sided metal barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_RemoveBarrier, "Remove barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_Barrier_1, "Use sound barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_Barrier_2, "Use left single-sided metal barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_Barrier_3, "Use right single-sided metal barrier");
+					metadata.RenameCustomFlag(i, RoadUtils.Flags.L_Barrier_4, "Use double-sided metal barrier");
 				}
 			}
 		}
+	}
+
+	private static IEnumerable<string> GetTags(RoadInfo roadInfo, ElevationType elevation)
+	{
+		var noAsphaltTransition = roadInfo.AsphaltStyle == AsphaltStyle.None && !(elevation == ElevationType.Basic ? (roadInfo.SideTexture == TextureType.Asphalt) : elevation <= ElevationType.Bridge && (roadInfo.BridgeSideTexture == BridgeTextureType.Asphalt));
+
+		if (noAsphaltTransition)
+			yield return "RB_NoAsphalt_" + roadInfo.SideTexture;
 	}
 
 	private static readonly Dictionary<string, byte[]> _loadedAssemblies = new();
@@ -304,25 +330,17 @@ public static class RoadBuilderUtil
 		}
 
 		var assembly = typeof(BlankRoadBuilderMod).Assembly;
-
-		// Get the name of the embedded resource
 		var resourceName = $"{nameof(BlankRoadBuilder)}.Expressions.{name}.dll";
-
-		// Load the embedded resource as a stream
 		var stream = assembly.GetManifestResourceStream(resourceName);
 
 		if (stream == null)
 		{ throw new Exception("Could not load the expression: " + name); }
 
-		// Convert the stream to a byte array
-		byte[] bytes;
-		using (var ms = new MemoryStream())
-		{
-			stream.CopyTo(ms);
-			bytes = ms.ToArray();
-		}
+		using var ms = new MemoryStream();
 
-		return _loadedAssemblies[name] = bytes;
+		stream.CopyTo(ms);
+
+		return _loadedAssemblies[name] = ms.ToArray();
 	}
 
 	private static int GetCost(RoadInfo roadInfo, ElevationType elevation, bool maintenance)
@@ -414,7 +432,7 @@ public static class RoadBuilderUtil
 		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
 		roadInfo.TotalWidth = roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth + roadInfo.AsphaltWidth;
 
-		var index = (roadInfo.AsphaltWidth + leftPavementWidth + rightPavementWidth + leftPavementWidth + rightPavementWidth - roadInfo.LeftPavementWidth - roadInfo.RightPavementWidth) / -2;
+		var index = (roadInfo.AsphaltWidth + roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth) / -2 + (roadInfo.LeftPavementWidth - leftPavementWidth);
 
 		foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasFlag(LaneTag.StackedLane)))
 		{
@@ -550,7 +568,7 @@ public static class RoadBuilderUtil
 			m_stopType = ThumbnailMakerUtil.GetStopType(type, lane, road, out _),
 			m_direction = ThumbnailMakerUtil.GetLaneDirection(lane),
 			m_finalDirection = ThumbnailMakerUtil.GetLaneDirection(lane),
-			m_laneProps = GetLaneProps(index, type, lane, road),
+			m_laneProps = GetLaneProps(index, type, lane, road, elevation),
 			m_stopOffset = ThumbnailMakerUtil.GetStopOffset(type, lane),
 			m_elevated = false,
 			m_useTerrainHeight = false,
@@ -561,11 +579,11 @@ public static class RoadBuilderUtil
 		};
 	}
 
-	private static NetLaneProps GetLaneProps(int index, LaneType type, LaneInfo lane, RoadInfo road)
+	private static NetLaneProps GetLaneProps(int index, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
 	{
 		var laneProps = ScriptableObject.CreateInstance<NetLaneProps>();
 
-		laneProps.m_props = LanePropsUtil.GetLaneProps(index, type, lane, road) ?? new NetLaneProps.Prop[0];
+		laneProps.m_props = new LanePropsUtil(index, type, lane, road, elevation).GetLaneProps() ?? new NetLaneProps.Prop[0];
 
 		return laneProps;
 	}

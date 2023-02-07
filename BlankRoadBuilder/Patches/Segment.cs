@@ -7,7 +7,10 @@ internal class Segment
 	{
 		public static void Postfix(ushort segment)
 		{
+			if (ToolsModifierControl.isAssetEditor)
+			{
 			IMTMarkings.ApplyMarkings(segment);
+			}
 		}
 	}
 }

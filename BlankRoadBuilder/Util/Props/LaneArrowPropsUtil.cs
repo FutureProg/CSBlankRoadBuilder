@@ -9,16 +9,16 @@ using UnityEngine;
 
 namespace BlankRoadBuilder.Util.Props;
 
-public static partial class LanePropsUtil
+public partial class LanePropsUtil
 {
-	private static IEnumerable<NetLaneProps.Prop> GetBikeLaneProps(LaneInfo lane)
+	private IEnumerable<NetLaneProps.Prop> GetBikeLaneProps()
 	{
 		if (!ModOptions.AddLaneDecals)
 		{
 			yield break;
 		}
 
-		var bikeLane = GetProp(lane.LaneWidth < 2F ? Prop.BicycleLaneDecalSmall : Prop.BicycleLaneDecal);
+		var bikeLane = GetProp(Lane.LaneWidth < 2F ? Prop.BicycleLaneDecalSmall : Prop.BicycleLaneDecal);
 		var prop = new NetLaneProps.Prop()
 		{
 			m_prop = bikeLane,
@@ -34,9 +34,9 @@ public static partial class LanePropsUtil
 		yield return prop;
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetBusLaneProps(LaneInfo lane)
+	private IEnumerable<NetLaneProps.Prop> GetBusLaneProps()
 	{
-		if (!lane.Type.HasFlag(LaneType.Car))
+		if (!Lane.Type.HasFlag(LaneType.Car))
 		{
 			foreach (var prop in GetLaneArrowProps())
 			{
@@ -60,11 +60,11 @@ public static partial class LanePropsUtil
 			m_minLength = 10,
 			m_segmentOffset = -1,
 			m_probability = 100,
-			m_position = new Vector3(0, 0, (lane.Type & LaneType.Bike) == LaneType.Bike ? 15 : 5),
+			m_position = new Vector3(0, 0, (Lane.Type & LaneType.Bike) == LaneType.Bike ? 15 : 5),
 		};
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetLaneArrowProps()
+	private IEnumerable<NetLaneProps.Prop> GetLaneArrowProps()
 	{
 		if (!ModOptions.AddLaneArrows)
 		{
@@ -93,7 +93,7 @@ public static partial class LanePropsUtil
 
 		yield return arrow(arrowR, NetLane.Flags.Right, NetLane.Flags.LeftForward);
 
-		static NetLaneProps.Prop arrow(PropInfo? propInfo, NetLane.Flags flagsRequired, NetLane.Flags flagsForbidden) => new NetLaneProps.Prop
+		NetLaneProps.Prop arrow(PropInfo? propInfo, NetLane.Flags flagsRequired, NetLane.Flags flagsForbidden) => new NetLaneProps.Prop
 		{
 			m_prop = propInfo,
 			m_finalProp = propInfo,
@@ -109,7 +109,7 @@ public static partial class LanePropsUtil
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			EndNodeFlags = new NetInfoExtionsion.NodeInfoFlags
-			{ Forbidden = flagsRequired == NetLane.Flags.Forward ? (NetNodeExt.Flags.TwoSegments | RoadUtils.N_RemoveLaneArrows) : RoadUtils.N_RemoveLaneArrows }
+			{ Forbidden = flagsRequired == NetLane.Flags.Forward ? (NetNodeExt.Flags.TwoSegments | RoadUtils.Flags.N_RemoveLaneArrows) : RoadUtils.Flags.N_RemoveLaneArrows }
 		});
 	}
 }

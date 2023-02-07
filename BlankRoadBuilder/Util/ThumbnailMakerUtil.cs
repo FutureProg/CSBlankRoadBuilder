@@ -4,11 +4,14 @@ using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 
 using UnityEngine;
+
+using static EconomyManager;
 
 namespace BlankRoadBuilder.Util;
 public static class ThumbnailMakerUtil
@@ -287,13 +290,13 @@ public static class ThumbnailMakerUtil
 			return type == LaneType.Bus ? 0.3F : 0.1F;
 		}
 
-		if (lane.RightLane?.Type == LaneType.Parking)
+		if (lane.RightLane?.Type == LaneType.Parking || lane.RightLane?.Type == LaneType.Empty)
 		{
-			return (type == LaneType.Bus ? 0.5F : 0F) + lane.RightLane.LaneWidth;
+			return lane.RightLane.LaneWidth;
 		}
-		else if (lane.LeftLane?.Type == LaneType.Parking)
+		else if (lane.LeftLane?.Type == LaneType.Parking || lane.LeftLane?.Type == LaneType.Empty)
 		{
-			return -((type == LaneType.Bus ? 0.5F : 0F) + lane.LeftLane.LaneWidth);
+			return -lane.LeftLane.LaneWidth;
 		}
 
 		return 0F;
@@ -433,5 +436,89 @@ public static class ThumbnailMakerUtil
 			LaneType.Parking => 0.02F,
 			_ => 0F,
 		};
+	}
+
+	public static IEnumerable<string> GetAutoTags(RoadInfo road)
+	{
+		if (road?.Lanes == null)
+		{
+			yield break;
+		}
+
+		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Tram)))
+		{
+			yield return "Tram";
+		}
+
+		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Trolley)))
+		{
+			yield return "Trolley";
+		}
+
+		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Bike)))
+		{
+			yield return "Bike";
+		}
+
+		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Bus)))
+		{
+			yield return "Bus";
+		}
+
+		if (IsOneWay(road.Lanes) == true)
+		{
+			yield return "One-Way";
+		}
+	}
+
+	public static bool? IsOneWay<T>(IEnumerable<T> lanes) where T : LaneInfo
+	{
+		var types = new[] { LaneType.Bike, LaneType.Car, LaneType.Bus, LaneType.Tram, LaneType.Trolley, LaneType.Emergency };
+		var firstLane = lanes.FirstOrDefault(x => x.Type.HasAnyFlag(types));
+
+		if (firstLane != null)
+		{
+			return firstLane.Direction != LaneDirection.Both && lanes
+				.Where(x => x.Type.HasAnyFlag(types))
+				.All(x => x.Direction == firstLane.Direction);
+		}
+
+		return null;
+	}
+
+	internal static float CalculateRoadSize(RoadInfo roadInfo)
+	{
+		var sizeLanes = roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.StackedLane));
+		var leftCurb = roadInfo.Lanes.FirstOrDefault(x => x.Type == LaneType.Curb);
+		var rightCurb = roadInfo.Lanes.LastOrDefault(x => x.Type == LaneType.Curb);
+		var leftPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) <= roadInfo.Lanes.IndexOf(leftCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
+		var rightPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) >= roadInfo.Lanes.IndexOf(rightCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
+
+		var LeftPavementWidth = Math.Max(1.5F, leftPavementWidth);
+		var RightPavementWidth = Math.Max(1.5F, rightPavementWidth);
+		var AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
+		var TotalWidth = LeftPavementWidth + RightPavementWidth + AsphaltWidth;
+		var index = (AsphaltWidth + LeftPavementWidth + RightPavementWidth) / -2 + (LeftPavementWidth - leftPavementWidth);
+		
+		if (roadInfo.VanillaWidth)
+		{
+			var newWidth = (float)(16 * Math.Ceiling((TotalWidth - 1F) / 16D));
+			var diff = newWidth - TotalWidth;
+
+			TotalWidth = newWidth;
+			LeftPavementWidth += diff / 2;
+			RightPavementWidth += diff / 2;
+		}
+
+		if (roadInfo.RoadWidth > TotalWidth)
+		{
+			var diff = roadInfo.RoadWidth - TotalWidth;
+
+			TotalWidth = roadInfo.RoadWidth;
+			LeftPavementWidth += diff / 2;
+			RightPavementWidth += diff / 2;
+		}
+
+		return TotalWidth;
 	}
 }

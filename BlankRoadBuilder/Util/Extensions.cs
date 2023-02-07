@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ColossalFramework.UI;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -373,5 +375,60 @@ public static class Extensions
 		return months > 0
 			? (past ? $"{months} months ago" : $"in {months} months") + $" on {dt.ToReadableString(false, DateFormat.TDMY)}"
 			: (past ? $"{days} days ago" : $"in {days} days") + $" on {dt.ToReadableString(false, DateFormat.TDMY)}";
+	}
+
+	public static IEnumerable<T> Distinct<T>(this IEnumerable<T> list, Func<T, T, bool> comparer)
+	{
+		List<T> items = new List<T>();
+		foreach (T item in list)
+		{
+			if (!items.Any((T x) => comparer(x, item)))
+			{
+				items.Add(item);
+				yield return item;
+			}
+		}
+	}
+
+	public static bool IsWithin(this double d, double Min, double Max)
+	{
+		return (!(Min < Max)) ? (d > Max && d < Min) : (d > Min && d < Max);
+	}
+
+	public static bool IsWithin(this float d, float Min, float Max)
+	{
+		return (!(Min < Max)) ? (d > Max && d < Min) : (d > Min && d < Max);
+	}
+
+	public static bool IsWithin(this int d, int Min, int Max)
+	{
+		return (Min >= Max) ? (d > Max && d < Min) : (d > Min && d < Max);
+	}
+
+	public static void AddLabel(this UIComponent comp, string text, SpriteAlignment alignment)
+	{
+		var label = comp.AddUIComponent<UILabel>();
+		label.text = text;
+		label.textColor = new Color32(235, 235, 235, 255);
+		label.textScale = 0.75F;
+		
+		//void SetPosition()
+		{
+			switch (alignment)
+			{
+				case SpriteAlignment.LeftCenter:
+					label.relativePosition = new Vector2(-label.width - 6, comp.height / 2 - label.height / 2 + 3);
+					break;
+				case SpriteAlignment.RightCenter:
+					label.relativePosition = new Vector2(comp.width + 6, comp.height / 2 - label.height / 2 + 3);
+					break;
+				case SpriteAlignment.TopCenter:
+					label.relativePosition = new Vector2((comp.width - label.width) / 2, comp.height / 2 - label.height / 2 + 3);
+					break;
+				case SpriteAlignment.TopLeft:
+					label.relativePosition = new Vector2(0, -label.height - 3);
+					break;
+			}
+		}
 	}
 }

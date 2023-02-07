@@ -13,6 +13,7 @@ public class FillerMarking
 	public float Elevation { get; set; }
 	public bool Helper { get; set; }
 	public bool TransitionForward { get; set; }
+	public bool TransitionBackward { get; set; }
 	public IEnumerable<LaneInfo> Lanes
 	{
 		get
@@ -25,9 +26,14 @@ public class FillerMarking
 				yield break;
 			}
 
-			while (lane != null && lane != RightPoint.LeftLane)
+			while (lane != null)
 			{
 				yield return lane;
+
+				if (lane == RightPoint.LeftLane)
+				{
+					yield break;
+				}
 
 				lane = lane.RightLane;
 			}
@@ -45,6 +51,4 @@ public class FillerMarking
 
 	public MarkingStyleUtil.FillerInfo? AN_Info => Helper ? GetHelperInfo() : MarkingStyleUtil.GetFillerMarkingInfo(Lanes.First().Type, MarkingType.AN);
 	public MarkingStyleUtil.FillerInfo? IMT_Info => MarkingStyleUtil.GetFillerMarkingInfo(Lanes.First().Type, MarkingType.IMT);
-
-	public bool TransitionBackward { get; internal set; }
 }

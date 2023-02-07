@@ -121,7 +121,8 @@ public static class MarkingsUtil
 			if (currentCategory == leftCategory && leftLane?.Direction != lane.Direction)
 			{
 				if (lane.Direction != LaneDirection.Backwards)
-					yield return marking(false, GenericMarkingType.Flipped | (currentCategory == LaneVehicleCategory.Vehicle ? (roadInfo.RoadType == RoadType.Highway ? GenericMarkingType.Hard : GenericMarkingType.End) : (GenericMarkingType)(int)currentCategory));
+					yield return marking(false, GenericMarkingType.Flipped | (currentCategory == LaneVehicleCategory.Vehicle ? GenericMarkingType.Hard : (GenericMarkingType)(int)currentCategory));
+			//	yield return marking(false, GenericMarkingType.Flipped | (currentCategory == LaneVehicleCategory.Vehicle ? (roadInfo.RoadType == RoadType.Highway ? GenericMarkingType.Hard : GenericMarkingType.End) : (GenericMarkingType)(int)currentCategory));
 			}
 
 			if (currentCategory == leftCategory && leftLane?.Direction == lane.Direction)
