@@ -26,8 +26,8 @@ public class TagButton : UIPanel
 
 	public TagButton()
 	{
-		atlas = UITextures.InGameAtlas;
-		backgroundSprite = "ButtonWhite";
+		atlas = ResourceUtil.GetAtlas("ButtonBack.png");
+		backgroundSprite = "normal";
 		color = Color.white;
 
 		SetIcon("I_Tag.png");

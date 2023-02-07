@@ -44,12 +44,13 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 
 		descLabel = AddUIComponent<UILabel>();
 		descLabel.text = description;
-		descLabel.textScale = 0.6F;
+		descLabel.textScale = 0.65F;
 		descLabel.textColor = new Color32(210, 210, 210, 255);
+		descLabel.wordWrap = true;
 		descLabel.autoSize = false;
 		descLabel.autoHeight = false;
 		descLabel.textAlignment = UIHorizontalAlignment.Right;
-		descLabel.relativePosition = new Vector2(width - 2 * Margin - 140, titleLabel.height + 2 * Margin);
+		descLabel.relativePosition = new Vector2(width - 3 * Margin - 140, 27 + 3 * Margin);
 
 		var undoButton = AddUIComponent<SlickButton>();
 		undoButton.size = new Vector2(30, 30);
@@ -61,7 +62,7 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 
 		dropDown = AddUIComponent<DropDown>();
 		dropDown.size = new Vector2(140, 22);
-		dropDown.relativePosition = new Vector2(Margin * 2, titleLabel.height + 2 * Margin);
+		dropDown.relativePosition = new Vector2(Margin * 2, titleLabel.height + 3 * Margin + 2);
 		dropDown.SelectedObject = value;
 		dropDown.textColor = Color.white;
 		dropDown.popupTextColor = Color.white;
@@ -185,7 +186,7 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 
 		if (descLabel != null)
 		{
-			descLabel.size = new Vector2(width - descLabel.relativePosition.x - Margin, y - descLabel.relativePosition.y - Margin);
+			descLabel.size = new Vector2(width - descLabel.relativePosition.x - Margin, y - descLabel.relativePosition.y - Margin + 30);
 		}
 	}
 

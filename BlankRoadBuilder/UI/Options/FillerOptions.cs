@@ -13,7 +13,7 @@ internal partial class FillerOptions : MarkingsOptions
 		foreach (var option in MarkingStyleUtil.CustomFillerMarkings[markingType])
 		{
 			var ctrl = _panel.AddUIComponent<FillerMarkingOptionControl>();
-			ctrl.Init(option.Key, option.Value);
+			ctrl.Init(markingType, option.Key, option.Value);
 
 			if (ind % 2 == 0)
 			{
@@ -41,7 +41,7 @@ internal partial class LineOptions : MarkingsOptions
 		foreach (var option in MarkingStyleUtil.CustomLineMarkings[markingType])
 		{
 			var ctrl = _panel.AddUIComponent<LineMarkingOptionControl>();
-			ctrl.Init(option.Key, option.Value);
+			ctrl.Init(markingType, option.Key, option.Value);
 
 			if (ind % 2 == 0)
 			{

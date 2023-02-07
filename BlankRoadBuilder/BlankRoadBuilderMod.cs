@@ -3,6 +3,7 @@
 using AlgernonCommons.UI;
 
 using BlankRoadBuilder.UI.Options;
+using BlankRoadBuilder.Util;
 
 using CitiesHarmony.API;
 
@@ -24,6 +25,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
+
+using UnityEngine;
 
 namespace BlankRoadBuilder;
 public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
@@ -137,8 +140,11 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 			return;
 
 		s_optionsParentPanel.autoLayout = false;
+		s_optionsParentPanel.relativePosition = Vector2.zero;
+		s_optionsParentPanel.autoLayoutPadding = new RectOffset();
+		s_optionsParentPanel.scrollPadding = new RectOffset();
 
-		var tabStrip = AutoTabstrip.AddTabstrip(s_optionsParentPanel, 0f, 0f, s_optionsParentPanel.width, s_optionsParentPanel.height - 15F, out _, tabHeight: 32f);
+		var tabStrip = AutoTabstrip.AddTabstrip(s_optionsParentPanel, 0f, 0f, s_optionsParentPanel.width, s_optionsParentPanel.height, out _, tabHeight: 32f);
 
 		new GeneralOptions(tabStrip, 0);
 		new LaneSizeOptions(tabStrip, 1);

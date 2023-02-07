@@ -25,11 +25,12 @@ public abstract class OptionsPanelBase
 		_panel.relativePosition = new Vector2(0, Margin);
 		_panel.autoSize = false;
 		_panel.autoLayout = false;
-		_panel.width = panel.width - (margin ?? 30F);
+		_panel.width = panel.width - (margin ?? 12F);
 		_panel.height = panel.height - Margin;
 		_panel.clipChildren = false;
 		_panel.builtinKeyNavigation = true;
 		_panel.scrollWheelDirection = UIOrientation.Vertical;
+		_panel.scrollPadding = new RectOffset((int)(margin ?? 10), 0, 0 ,0);
 
 		scrollbar = UIScrollbars.AddScrollbar(panel, _panel);
 

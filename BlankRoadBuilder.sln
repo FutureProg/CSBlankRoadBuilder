@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsTailNodeFlag", "IsTailNod
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Expressions", "Expressions", "{3A512972-3922-4D74-8C66-E66700A2D496}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GroundBarrierTransitionFlag", "GroundBarrierTransitionFlag\GroundBarrierTransitionFlag.csproj", "{ED5966BA-9E7B-4F08-A381-8428BF01D98B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{8D6A0F1C-007D-4AA2-BB51-D594AB6B782E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D6A0F1C-007D-4AA2-BB51-D594AB6B782E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D6A0F1C-007D-4AA2-BB51-D594AB6B782E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED5966BA-9E7B-4F08-A381-8428BF01D98B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED5966BA-9E7B-4F08-A381-8428BF01D98B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED5966BA-9E7B-4F08-A381-8428BF01D98B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED5966BA-9E7B-4F08-A381-8428BF01D98B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +98,7 @@ Global
 		{DD843485-56BE-4B73-8127-1AF7386A7660} = {3A512972-3922-4D74-8C66-E66700A2D496}
 		{A7646C58-4CF8-45C6-9FD7-2F567E306589} = {3A512972-3922-4D74-8C66-E66700A2D496}
 		{8D6A0F1C-007D-4AA2-BB51-D594AB6B782E} = {3A512972-3922-4D74-8C66-E66700A2D496}
+		{ED5966BA-9E7B-4F08-A381-8428BF01D98B} = {3A512972-3922-4D74-8C66-E66700A2D496}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83C9E90E-7614-42BE-A1FD-2148BB196CAE}

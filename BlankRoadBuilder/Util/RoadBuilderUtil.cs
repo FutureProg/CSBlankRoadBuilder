@@ -252,6 +252,7 @@ public static class RoadBuilderUtil
 
 		metadata.ScriptedFlags[RoadUtils.Flags.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
 		metadata.ScriptedFlags[RoadUtils.Flags.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
+		metadata.ScriptedFlags[RoadUtils.Flags.T_GroundBarriers] = new ExpressionWrapper(GetExpression("GroundBarrierTransitionFlag"), "GroundBarrierTransitionFlag");
 		//metadata.ScriptedFlags[RoadUtils.Flags.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
 		metadata.ScriptedFlags[RoadUtils.Flags.S_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
 		//metadata.ScriptedFlags[RoadUtils.Flags.N_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
@@ -329,25 +330,17 @@ public static class RoadBuilderUtil
 		}
 
 		var assembly = typeof(BlankRoadBuilderMod).Assembly;
-
-		// Get the name of the embedded resource
 		var resourceName = $"{nameof(BlankRoadBuilder)}.Expressions.{name}.dll";
-
-		// Load the embedded resource as a stream
 		var stream = assembly.GetManifestResourceStream(resourceName);
 
 		if (stream == null)
 		{ throw new Exception("Could not load the expression: " + name); }
 
-		// Convert the stream to a byte array
-		byte[] bytes;
-		using (var ms = new MemoryStream())
-		{
-			stream.CopyTo(ms);
-			bytes = ms.ToArray();
-		}
+		using var ms = new MemoryStream();
 
-		return _loadedAssemblies[name] = bytes;
+		stream.CopyTo(ms);
+
+		return _loadedAssemblies[name] = ms.ToArray();
 	}
 
 	private static int GetCost(RoadInfo roadInfo, ElevationType elevation, bool maintenance)

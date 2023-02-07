@@ -36,19 +36,17 @@ public static class NetworkMarkings
 			}
 			else
 			{
-				var filler = GetFillers(item);
+				var filler = GetFillers(item).ToList();
 
 				if (item.Type != LaneDecoration.Pavement && item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop)))
 				{
-					item.Type = LaneDecoration.Pavement;
-
 					var pavementFiller = GetFillers(new FillerMarking
 					{
 						Type = LaneDecoration.Pavement,
 						Elevation = item.Elevation,
 						LeftPoint = item.LeftPoint,
 						RightPoint = item.RightPoint
-					}, true);
+					}, true).ToList();
 
 					foreach (var f in filler)
 					{
@@ -311,7 +309,7 @@ public static class NetworkMarkings
 		if (fillerMarking.Helper)
 			return "Elevated Step";
 
-		return fillerMarking.Type + (fillerMarking.Type != LaneDecoration.Filler ? " Median" : "");
+		return (fillerMarking.Type != LaneDecoration.Filler ? $"{fillerMarking.Type} Median" : $"{fillerMarking.Lanes.FirstOrDefault()?.Type} Filler");
 	}
 
 	private static MeshInfo<NetInfo.Segment, Segment>? GetMarking(LineMarking marking)

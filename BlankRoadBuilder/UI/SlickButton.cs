@@ -17,12 +17,12 @@ public class SlickButton : UIButton
 	public SlickButton()
 	{
 		size = new Vector2(160, 30);
-		atlas = UITextures.InGameAtlas;
-		normalBgSprite = "ButtonWhite";
-		hoveredBgSprite = "ButtonWhite";
-		focusedBgSprite = "ButtonWhite";
-		pressedBgSprite = "ButtonWhite";
-		disabledBgSprite = "ButtonWhiteDisabled";
+		atlas = ResourceUtil.GetAtlas("ButtonBack.png");
+		normalBgSprite = "normal";
+		hoveredBgSprite = "normal";
+		focusedBgSprite = "normal";
+		pressedBgSprite = "normal";
+		disabledBgSprite = "normal";
 		color = Color.white;
 		focusedColor = Color.white;
 		textColor = new(50, 50, 50, 255);
@@ -58,6 +58,14 @@ public class SlickButton : UIButton
 		Icon.eventButtonStateChanged += IconStateChanged;
 
 		textPadding = new RectOffset(24, 6, 4, 0);
+	}
+
+	protected override void OnSizeChanged()
+	{
+		base.OnSizeChanged();
+
+		if (width==height)
+			atlas = ResourceUtil.GetAtlas("ButtonIconBack.png");
 	}
 
 	private void IconClicked(UIComponent component, UIMouseEventParameter eventParam)

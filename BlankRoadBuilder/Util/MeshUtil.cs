@@ -251,7 +251,7 @@ public static class MeshUtil
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lanes),
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.Flags.L_RemoveBarrier },
 			LaneTags = new LaneTagsT(new[] { "RoadBuilderBarrierLane" }),
-			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = RoadUtils.Flags.T_Markings }
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = hidden ? RoadUtils.Flags.T_GroundBarriers : RoadUtils.Flags.T_Markings }
 		}).ToList();
 
 		for (var i = 0; i < tracks.Count; i++)
