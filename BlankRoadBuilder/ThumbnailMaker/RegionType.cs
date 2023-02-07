@@ -4,5 +4,6 @@ public enum RegionType
 {
 	Europe = 0,
 	USA = 1,
-	Canada = 2
+	Canada = 2,
+	Australia = 3,
 }

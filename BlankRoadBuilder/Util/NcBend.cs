@@ -9,8 +9,8 @@ public static partial class SegmentUtil
 		{
 			if (NC::ModsCommon.SingletonManager<NC::NodeController.Manager>.Instance.GetOrCreateNodeData(node) is NC::NodeController.NodeData data)
 			{
-				data.Type = NC::NodeController.NodeStyleType.Bend;
-				data.Offset = 12F;
+				data.Type = NC::NodeController.NodeStyleType.Custom;
+				data.Offset = 8F;
 			}
 		}
 	}

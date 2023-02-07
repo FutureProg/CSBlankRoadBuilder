@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BlankRoadBuilder.Util;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
@@ -24,6 +26,7 @@ public class RoadInfo
 	public int SpeedLimit { get; set; }
 	public bool LHT { get; set; }
 	public bool VanillaWidth { get; set; }
+	public List<string> Tags { get; set; }
 	public List<LaneInfo> Lanes { get; set; }
 	public byte[] SmallThumbnail { get; set; }
 	public byte[] LargeThumbnail { get; set; }
@@ -37,6 +40,8 @@ public class RoadInfo
 	[XmlIgnore] public bool WiredLanesAreNextToMedians { get; set; }
 	[XmlIgnore] public bool ContainsCenterMedian => Lanes.Any(x => x.Tags.HasFlag(LaneTag.CenterMedian));
 	[XmlIgnore] public ParkingAngle ParkingAngle => Lanes.Max(x => x.ParkingAngle);
+	[XmlIgnore] public float TotalRoadWidth => ThumbnailMakerUtil.CalculateRoadSize(this);
+	[XmlIgnore] public List<string> AutoTags => ThumbnailMakerUtil.GetAutoTags(this).ToList();
 }
 
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

@@ -10,7 +10,7 @@ namespace BlankRoadBuilder.Util;
 
 public static class AssetUtil
 {
-	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb, string name, bool inverted, bool sidewalkTransition)
+	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb, string name, bool inverted, bool noAsphaltTransition)
 	{
 		var curbless = curb == CurbType.Curbless;
 
@@ -22,7 +22,7 @@ public static class AssetUtil
 		var fileName = $"{MeshName(elevationType)}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 		var exportName = $"{elevationType}_{(inverted ? "inverted_" : "")}{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
 
-		PrepareMeshFiles(road, name, meshType, elevationType, curb, curbless, inverted, sidewalkTransition, fileName, exportName);
+		PrepareMeshFiles(road, name, meshType, elevationType, curb, curbless, inverted, noAsphaltTransition, fileName, exportName);
 
 		return ImportAsset(
 			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
@@ -60,7 +60,7 @@ public static class AssetUtil
 		}
 	}
 
-	private static void PrepareMeshFiles(RoadInfo road, string name, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, bool inverted, bool sidewalkTransition, string fileName, string exportFile)
+	private static void PrepareMeshFiles(RoadInfo road, string name, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, bool inverted, bool noAsphaltTransition, string fileName, string exportFile)
 	{
 		Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
@@ -69,7 +69,7 @@ public static class AssetUtil
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			var lines = Resize(file, name, road, curb, curbless, inverted, sidewalkTransition);
+			var lines = Resize(file, name, road, curb, curbless, inverted);
 			var exportedFile = Path.Combine(BlankRoadBuilderMod.ImportFolder, $"{exportName}{(file.Contains("_lod") ? "_lod" : "")}.obj");
 
 			File.WriteAllLines(exportedFile, lines);
@@ -83,13 +83,13 @@ public static class AssetUtil
 			var type = regex.Groups[1].Value.ToLower().TrimStart('_');
 			var newName = $"{exportName}{(lod ? "_lod" : "")}_{mesh}.png";
 
-			if (mesh is "p" or "r")
+			if (mesh is "p" or "r" || (mesh == "d" && noAsphaltTransition))
 			{
 				var ashpalt = elevationType == ElevationType.Basic ? (road.SideTexture == TextureType.Asphalt) : elevationType <= ElevationType.Bridge && (road.BridgeSideTexture == BridgeTextureType.Asphalt);
 				var noashpalt = !ashpalt && road.AsphaltStyle == AsphaltStyle.None;
 				var noCurb = (road.RoadType == RoadType.Highway || (road.RoadType == RoadType.Flat && ModOptions.RemoveCurbOnFlatRoads)) && curb != CurbType.TR;
 
-				var requiredType = (ashpalt ? "asphalt" : noashpalt ? "noasphalt" : "") + (noCurb ? "nocurb" : "");
+				var requiredType = noAsphaltTransition ? "noasphalttransition" : ((ashpalt ? "asphalt" : noashpalt ? "noasphalt" : "") + (noCurb ? "nocurb" : ""));
 
 				if (type == requiredType)
 				{
@@ -103,7 +103,7 @@ public static class AssetUtil
 		}
 	}
 
-	public static string[] Resize(string file, string name, RoadInfo road, CurbType curb, bool curbless, bool inverted, bool sidewalkTransition)
+	public static string[] Resize(string file, string name, RoadInfo road, CurbType curb, bool curbless, bool inverted)
 	{
 		var baseWidth = 8F;
 		var newWidth = road.TotalWidth;
@@ -147,21 +147,21 @@ public static class AssetUtil
 
 					if (aPos < 4F && yPos >= -0.3)
 					{
-						if (sidewalkTransition)
-						{
-							var start = (xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth;
-							var end = (xPos < 0) == inverted ? road.RightPavementWidth : road.LeftPavementWidth;
-							var step = (float.Parse(data[3]) + 32) / 64;
+						//if (sidewalkTransition)
+						//{
+						//	var start = (xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth;
+						//	var end = (xPos < 0) == inverted ? road.RightPavementWidth : road.LeftPavementWidth;
+						//	var step = (float.Parse(data[3]) + 32) / 64;
 
-							xDiff -= fn((2 * step) - 1, Math.Min(start, end), Math.Max(start, end)) - 3;
+						//	xDiff -= fn((2 * step) - 1, Math.Min(start, end), Math.Max(start, end)) - 3;
 
-							//https://www.desmos.com/calculator/5rulizhfsh
-							static float fn(float x, float s, float e) => ((float)(-x + Math.Pow(-x, 3)) / (4 / (e - s))) + (e / 2) + 1;
-						}
-						else
-						{
+						//	//https://www.desmos.com/calculator/5rulizhfsh
+						//	static float fn(float x, float s, float e) => ((float)(-x + Math.Pow(-x, 3)) / (4 / (e - s))) + (e / 2) + 1;
+						//}
+						//else
+						//{
 							xDiff -= ((xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth) - 3;
-						}
+						//}
 					}
 
 					if (aPos > 0.1F)

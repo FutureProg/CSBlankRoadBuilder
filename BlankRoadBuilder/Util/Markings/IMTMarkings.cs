@@ -1,4 +1,6 @@
-﻿using BlankRoadBuilder.Domain.Options;
+﻿extern alias NM;
+
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
 using KianCommons;
@@ -6,7 +8,7 @@ using KianCommons;
 using ModsCommon;
 using ModsCommon.Utilities;
 
-using NodeMarkup.Manager;
+using NM::NodeMarkup.Manager;
 
 using System;
 using System.Collections.Generic;
@@ -30,7 +32,7 @@ public class IMTMarkings
 		}
 
 		var markings = MarkingsUtil.GenerateMarkings(RoadBuilderUtil.CurrentRoad);
-		var markup = SingletonManager<SegmentMarkupManager>.Instance[segmentId];
+		var markup = NM.ModsCommon.SingletonManager<SegmentMarkupManager>.Instance[segmentId];
 
 		markup.Clear();
 		markup.ResetOffsets();

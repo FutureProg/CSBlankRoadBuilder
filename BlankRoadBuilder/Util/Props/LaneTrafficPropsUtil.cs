@@ -11,86 +11,86 @@ using UnityEngine;
 
 namespace BlankRoadBuilder.Util.Props;
 
-public static partial class LanePropsUtil
+public partial class LanePropsUtil
 {
-	private static IEnumerable<NetLaneProps.Prop> GetSignsAndTrafficLights(LaneInfo lane, RoadInfo road)
+	private IEnumerable<NetLaneProps.Prop> GetSignsAndTrafficLights()
 	{
-		if (lane.Tags.HasFlag(LaneTag.Sidewalk) && lane.Type != LaneType.Curb)
+		if (Lane.Tags.HasFlag(LaneTag.Sidewalk) && Lane.Type != LaneType.Curb)
 			yield break;
 
-		var propPosition = -Math.Max(0, (lane.LaneWidth / 2) - 0.5F);
+		var propPosition = -Math.Max(0, (Lane.LaneWidth / 2) - 0.5F);
 
-		foreach (var prop in GetTrafficSigns(road, lane, propPosition))
+		foreach (var prop in GetTrafficSigns(propPosition))
 		{
 			yield return prop;
 		}
 
-		foreach (var prop in GetBikeSignProps(lane))
+		foreach (var prop in GetBikeSignProps())
 		{
 			yield return prop;
 		}
 
-		yield return TrafficLight(road, lane.TrafficLight.LeftForward, propPosition, true && lane.TrafficLight.LeftForward == Prop.TrafficLightPedestrian);
-		yield return TrafficLight(road, lane.TrafficLight.RightForward, -propPosition, ModOptions.FlipTrafficLights && lane.TrafficLight.RightForward != Prop.TrafficLightPedestrian);
-		yield return TrafficLight(road, lane.TrafficLight.LeftBackward, -propPosition).ToggleForwardBackward(true, ModOptions.FlipTrafficLights && lane.TrafficLight.LeftBackward != Prop.TrafficLightPedestrian);
-		yield return TrafficLight(road, lane.TrafficLight.RightBackward, propPosition, true && lane.TrafficLight.RightBackward == Prop.TrafficLightPedestrian).ToggleForwardBackward(true, false);
+		yield return TrafficLight(Lane.TrafficLight.LeftForward, propPosition, true && Lane.TrafficLight.LeftForward == Prop.TrafficLightPedestrian);
+		yield return TrafficLight(Lane.TrafficLight.RightForward, -propPosition, ModOptions.FlipTrafficLights && Lane.TrafficLight.RightForward != Prop.TrafficLightPedestrian);
+		yield return TrafficLight(Lane.TrafficLight.LeftBackward, -propPosition).ToggleForwardBackward(true, ModOptions.FlipTrafficLights && Lane.TrafficLight.LeftBackward != Prop.TrafficLightPedestrian);
+		yield return TrafficLight(Lane.TrafficLight.RightBackward, propPosition, true && Lane.TrafficLight.RightBackward == Prop.TrafficLightPedestrian).ToggleForwardBackward(true, false);
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetTrafficSigns(RoadInfo road, LaneInfo lane, float propPosition)
+	private IEnumerable<NetLaneProps.Prop> GetTrafficSigns(float propPosition)
 	{
-		if (lane.TrafficLight.LeftForwardSpace >= 2F)
+		if (Lane.TrafficLight.LeftForwardSpace >= 2F)
 		{
-			yield return RailwayCrossing(road, lane.TrafficLight.LeftForwardSpace, propPosition);
+			yield return RailwayCrossing(Lane.TrafficLight.LeftForwardSpace, propPosition);
 
-			if (!GetSideLanes(lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
+			if (!GetSideLanes(Lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
 			{
 				yield return StopSign(propPosition);
 				yield return YieldSign(propPosition);
 
-				foreach (var prop in GetWarningSigns(lane))
+				foreach (var prop in GetWarningSigns())
 				{
 					yield return prop;
 				}
 			}
 
-			if (!GetSideLanes(lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
+			if (!GetSideLanes(Lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
-				yield return SpeedSign(road, lane);
+				yield return SpeedSign();
 			}
 		}
 
-		if (lane.TrafficLight.RightBackwardSpace >= 2F)
+		if (Lane.TrafficLight.RightBackwardSpace >= 2F)
 		{
-			yield return RailwayCrossing(road, lane.TrafficLight.LeftForwardSpace, propPosition).ToggleForwardBackward();
+			yield return RailwayCrossing(Lane.TrafficLight.LeftForwardSpace, propPosition).ToggleForwardBackward();
 
-			if (!GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
+			if (!GetSideLanes(Lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
 			{
 				yield return StopSign(propPosition).ToggleForwardBackward();
 				yield return YieldSign(propPosition).ToggleForwardBackward();
 
-				foreach (var prop in GetWarningSigns(lane))
+				foreach (var prop in GetWarningSigns())
 				{
 					yield return prop.ToggleForwardBackward();
 				}
 			}
 
-			if (!GetSideLanes(lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
+			if (!GetSideLanes(Lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
-				yield return SpeedSign(road, lane).ToggleForwardBackward();
+				yield return SpeedSign().ToggleForwardBackward();
 			}
 		}
 
-		if (lane.Type == LaneType.Curb)
+		if (Lane.Type == LaneType.Curb)
 		{
-			if (road.RoadType == RoadType.Highway && road.Lanes.Any(x => x != lane && x.Direction == lane.Direction))
+			if (Road.RoadType == RoadType.Highway && Road.Lanes.Any(x => x != Lane && x.Direction == Lane.Direction))
 			{
-				yield return HighwaySign(propPosition).ToggleForwardBackward(lane.Direction == LaneDirection.Backwards);
-				yield return HighwayEndSign(propPosition).ToggleForwardBackward(lane.Direction == LaneDirection.Backwards);
+				yield return HighwaySign(propPosition).ToggleForwardBackward(Lane.Direction == LaneDirection.Backwards);
+				yield return HighwayEndSign(propPosition).ToggleForwardBackward(Lane.Direction == LaneDirection.Backwards);
 			}
 		}
 	}
 
-	private static NetLaneProps.Prop TrafficLight(RoadInfo road, Prop prop, float propPosition, bool flipAngle = false)
+	private NetLaneProps.Prop TrafficLight(Prop prop, float propPosition, bool flipAngle = false)
 	{
 		var propTemplate = GetProp(prop);
 
@@ -111,7 +111,7 @@ public static partial class LanePropsUtil
 			m_angle = flipAngle ? 270 : 90,
 			m_colorMode = NetLaneProps.ColorMode.EndState,
 			m_probability = 100,
-			m_position = new Vector3(propPosition, 0, road.ContainsWiredLanes ? -1.5F : -0.75F),
+			m_position = new Vector3(propPosition, 0, Road.ContainsWiredLanes ? -1.5F : -0.75F),
 		}.Extend(p => new NetInfoExtionsion.LaneProp(p)
 		{
 			SegmentEndFlags = new NetInfoExtionsion.SegmentEndInfoFlags { Required = prop == Prop.TrafficLightPedestrian ? NetSegmentEnd.Flags.ZebraCrossing : NetSegmentEnd.Flags.None }
@@ -136,7 +136,7 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetBikeSignProps(LaneInfo lane)
+	private IEnumerable<NetLaneProps.Prop> GetBikeSignProps()
 	{
 		var bikeProp = GetProp(Prop.BicycleSign);
 
@@ -145,7 +145,7 @@ public static partial class LanePropsUtil
 			yield break;
 		}
 
-		if (lane.RightLane?.Type == LaneType.Bike && lane.RightLane.Direction == LaneDirection.Backwards)
+		if (Lane.RightLane?.Type == LaneType.Bike && Lane.RightLane.Direction == LaneDirection.Backwards)
 		{
 			yield return new NetLaneProps.Prop
 			{
@@ -163,20 +163,20 @@ public static partial class LanePropsUtil
 				m_segmentOffset = 1F,
 				m_angle = 250F,
 				m_probability = 100,
-				m_position = new Vector3((lane.LaneWidth / 2F) - 0.3F, 0, 0),
+				m_position = new Vector3((Lane.LaneWidth / 2F) - 0.3F, 0, 0),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 				{
-					Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter,
-					Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+					Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+					Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
 				},
 				EndNodeFlags = new NetInfoExtionsion.NodeInfoFlags
 				{ Forbidden = NetNodeExt.Flags.SamePrefab }
 			});
 		}
 
-		if (lane.LeftLane?.Type == LaneType.Bike && lane.LeftLane.Direction == LaneDirection.Forward)
+		if (Lane.LeftLane?.Type == LaneType.Bike && Lane.LeftLane.Direction == LaneDirection.Forward)
 		{
 			yield return new NetLaneProps.Prop
 			{
@@ -194,13 +194,13 @@ public static partial class LanePropsUtil
 				m_segmentOffset = -1F,
 				m_angle = 70F,
 				m_probability = 100,
-				m_position = new Vector3((-lane.LaneWidth / 2F) + 0.3F, 0, 0),
+				m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.3F, 0, 0),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 				{
-					Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter,
-					Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+					Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+					Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
 				},
 				StartNodeFlags = new NetInfoExtionsion.NodeInfoFlags
 				{ Forbidden = NetNodeExt.Flags.SamePrefab }
@@ -208,7 +208,7 @@ public static partial class LanePropsUtil
 		}
 	}
 
-	private static IEnumerable<NetLaneProps.Prop> GetWarningSigns(LaneInfo lane)
+	private IEnumerable<NetLaneProps.Prop> GetWarningSigns()
 	{
 		var railroadCrossingProp = GetProp(Prop.RailwayCrossingAheadSign);
 		var signalAheadProp = GetProp(Prop.TrafficLightAheadSign);
@@ -229,13 +229,13 @@ public static partial class LanePropsUtil
 			m_segmentOffset = -0.65F,
 			m_angle = 70F,
 			m_probability = 100,
-			m_position = new Vector3((-lane.LaneWidth / 2F) + 0.4F, 0, 2F),
+			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 2F),
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 			{
-				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter,
-				Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+				Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
 			}
 		});
 
@@ -255,18 +255,18 @@ public static partial class LanePropsUtil
 			m_segmentOffset = -0.65F,
 			m_angle = 70F,
 			m_probability = 100,
-			m_position = new Vector3((-lane.LaneWidth / 2F) + 0.4F, 0, 2F),
+			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 2F),
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 			{
-				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter,
-				Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+				Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
 			}
 		});
 	}
 
-	private static NetLaneProps.Prop StopSign(float propPosition)
+	private NetLaneProps.Prop StopSign(float propPosition)
 	{
 		var stopSign = GetProp(Prop.StopSign);
 
@@ -294,7 +294,7 @@ public static partial class LanePropsUtil
 		});
 	}
 
-	private static NetLaneProps.Prop YieldSign(float propPosition)
+	private NetLaneProps.Prop YieldSign(float propPosition)
 	{
 		var stopSign = GetProp(Prop.YieldSign);
 
@@ -310,7 +310,7 @@ public static partial class LanePropsUtil
 			m_minLength = 0,
 			m_repeatDistance = 0,
 			m_segmentOffset = 1,
-			m_angle = 0,
+			m_angle = 90,
 			m_probability = 100,
 			m_position = new Vector3(propPosition, 0, 0),
 		}.Extend(p => new NetInfoExtionsion.LaneProp(p)
@@ -322,7 +322,7 @@ public static partial class LanePropsUtil
 		});
 	}
 
-	private static NetLaneProps.Prop HighwaySign(float propPosition)
+	private NetLaneProps.Prop HighwaySign(float propPosition)
 	{
 		var stopSign = GetProp(Prop.HighwaySign);
 
@@ -343,13 +343,13 @@ public static partial class LanePropsUtil
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 			{
-				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter,
-				Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+				Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
 			}
 		});
 	}
 
-	private static NetLaneProps.Prop HighwayEndSign(float propPosition)
+	private NetLaneProps.Prop HighwayEndSign(float propPosition)
 	{
 		var stopSign = GetProp(Prop.HighwayEndSign);
 
@@ -370,15 +370,15 @@ public static partial class LanePropsUtil
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 			{
-				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter,
-				Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+				Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
 			}
 		});
 	}
 
-	private static NetLaneProps.Prop SpeedSign(RoadInfo road, LaneInfo lane)
+	private NetLaneProps.Prop SpeedSign()
 	{
-		PropInfo? sign = ((int)Math.Round(road.SpeedLimit * (road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10) switch
+		PropInfo? sign = ((int)Math.Round(Road.SpeedLimit * (Road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10) switch
 		{
 			10 => GetProp(Prop.SpeedSign10),
 			20 => GetProp(Prop.SpeedSign20),
@@ -408,20 +408,20 @@ public static partial class LanePropsUtil
 			m_segmentOffset = -0.65F,
 			m_angle = 340F,
 			m_probability = 100,
-			m_position = new Vector3((-lane.LaneWidth / 2F) + 0.4F, 0, -1F),
+			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, -1F),
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 			{
-				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.S_RemoveRoadClutter,
-				Required = ModOptions.HideRoadClutter ? RoadUtils.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+				Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
 			},
 			StartNodeFlags = new NetInfoExtionsion.NodeInfoFlags
 			{ Required = NetNodeExt.Flags.SpeedChange },
 		});
 	}
 
-	private static NetLaneProps.Prop RailwayCrossing(RoadInfo road, float drivableArea, float propPosition)
+	private NetLaneProps.Prop RailwayCrossing(float drivableArea, float propPosition)
 	{
 		var railwayCrossing = getCrossingProp(drivableArea);
 
@@ -442,10 +442,10 @@ public static partial class LanePropsUtil
 			m_angle = 0,
 			m_colorMode = NetLaneProps.ColorMode.EndState,
 			m_probability = 100,
-			m_position = new Vector3(propPosition, 0, road.ContainsWiredLanes ? -2F : -1F),
+			m_position = new Vector3(propPosition, 0, Road.ContainsWiredLanes ? -2F : -1F),
 		};
 
-		static PropInfo getCrossingProp(float drivableArea)
+		PropInfo getCrossingProp(float drivableArea)
 		{
 			if (drivableArea >= 11F)
 			{

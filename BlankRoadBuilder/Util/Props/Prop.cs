@@ -70,4 +70,6 @@ public enum Prop
 	YieldSign = 66,
 	HighwaySign = 67,
 	HighwayEndSign = 68,
+	LampPost = 69,
+	Flowers = 70,
 }
