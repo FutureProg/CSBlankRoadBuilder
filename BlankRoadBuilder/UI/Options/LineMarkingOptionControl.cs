@@ -1,18 +1,23 @@
 ﻿using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.Util.Markings;
+using UnityEngine;
 
 namespace BlankRoadBuilder.UI.Options;
 
 internal class LineDropDown : EnumDropDown<MarkingLineType> { }
 internal class LineMarkingOptionControl : MarkingOptionControl<LineDropDown, MarkingLineType>
 {
+	public MarkingType MarkingType { get; private set; }
+
 	private SavedLineOption Value = new ((GenericMarkingType)(-1), Util.Markings.MarkingType.IMT);
 
-	public void Init(GenericMarkingType markingType, SavedLineOption value)
+	public void Init(MarkingType markingType, GenericMarkingType genericMarkingType, SavedLineOption value)
 	{
+		MarkingType = markingType;
 		Value = value;
 
-		Init(GetTitle(markingType), GetDescription(markingType), value.Color, value.MarkingType, value.LineWidth, value.DashLength, value.DashSpace);
+		Init(GetTitle(genericMarkingType), GetDescription(genericMarkingType), value.Color, value.MarkingType, value.LineWidth, value.DashLength, value.DashSpace);
 	}
 
 	protected override void SetVisibilityOfControls()
@@ -36,6 +41,25 @@ internal class LineMarkingOptionControl : MarkingOptionControl<LineDropDown, Mar
 		Value.MarkingType = val;
 
 		SetVisibilityOfControls();
+	}
+
+	public override void ResetMarking()
+	{
+		var vanilla = MarkingStyleUtil._markings(ModOptions.MarkingsStyle == MarkingStyle.Custom ? MarkingStyle.Vanilla : ModOptions.MarkingsStyle, MarkingType);
+
+		if (vanilla != null && vanilla.ContainsKey(Value.GenericMarking))
+			Value.Set(vanilla[Value.GenericMarking]);
+		else
+			Value.Set(new MarkingStyleUtil.LineInfo());
+
+		dropDown!.SelectedObject = Value.MarkingType;
+		lineWidthTB!.Value = Value.LineWidth;
+		dashWidthTB!.Value = Value.DashLength;
+		dashSpaceTB!.Value = Value.DashSpace;
+		rTB!.Value = (byte)Value.R;
+		gTB!.Value = (byte)Value.G;
+		bTB!.Value = (byte)Value.B;
+		aTB!.Value = (byte)Value.A;
 	}
 
 	protected override void SetColorR(byte val) => Value.R = val;
@@ -68,16 +92,16 @@ internal class LineMarkingOptionControl : MarkingOptionControl<LineDropDown, Mar
 	{
 		return key switch
 		{
-			GenericMarkingType.End => "used between two different lane types",
-			GenericMarkingType.Parking => "used between a parking and vehicle lane",
-			GenericMarkingType.Normal | GenericMarkingType.Soft => "used between two vehicle lanes going in the same direction",
-			GenericMarkingType.Normal | GenericMarkingType.Hard => "used between two different vehicle lanes types going in the same direction",
-			GenericMarkingType.Flipped | GenericMarkingType.Hard => "used between two vehicle lanes going in the opposite direction",
-			GenericMarkingType.Flipped | GenericMarkingType.End => "used between a vehicle lane and a filler on its left",
-			GenericMarkingType.Normal | GenericMarkingType.Bike => "used between two bike lanes going in the same direction",
-			GenericMarkingType.Flipped | GenericMarkingType.Bike => "used between two bike lanes going in the opposite direction",
-			GenericMarkingType.Normal | GenericMarkingType.Tram => "used between two tram lanes going in the same direction",
-			GenericMarkingType.Flipped | GenericMarkingType.Tram => "used between two tram lanes going in the opposite direction",
+			GenericMarkingType.End => "Used between two different lane types",
+			GenericMarkingType.Parking => "Used between a parking and vehicle lane",
+			GenericMarkingType.Normal | GenericMarkingType.Soft => "Used between two vehicle lanes going in the same direction",
+			GenericMarkingType.Normal | GenericMarkingType.Hard => "Used between two different vehicle lanes types going in the same direction",
+			GenericMarkingType.Flipped | GenericMarkingType.Hard => "Used between two vehicle lanes going in the opposite direction",
+			GenericMarkingType.Flipped | GenericMarkingType.End => "Used between a vehicle lane and a filler on its left",
+			GenericMarkingType.Normal | GenericMarkingType.Bike => "Used between two bike lanes going in the same direction",
+			GenericMarkingType.Flipped | GenericMarkingType.Bike => "Used between two bike lanes going in the opposite direction",
+			GenericMarkingType.Normal | GenericMarkingType.Tram => "Used between two tram lanes going in the same direction",
+			GenericMarkingType.Flipped | GenericMarkingType.Tram => "Used between two tram lanes going in the opposite direction",
 			_ => string.Empty,
 		};
 	}

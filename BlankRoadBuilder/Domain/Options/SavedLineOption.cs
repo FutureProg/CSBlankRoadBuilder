@@ -30,7 +30,7 @@ public class SavedLineOption
 		_colorG = new(baseName + nameof(_colorG), nameof(BlankRoadBuilder), 255);
 		_colorB = new(baseName + nameof(_colorB), nameof(BlankRoadBuilder), 255);
 		_colorA = new(baseName + nameof(_colorA), nameof(BlankRoadBuilder), 255);
-
+		
 		GenericMarking = genericMarking;
 	}
 

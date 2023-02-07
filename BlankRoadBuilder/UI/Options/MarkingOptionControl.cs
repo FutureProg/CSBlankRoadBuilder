@@ -17,7 +17,7 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 	private const float Margin = 5F;
 
 	protected DropDown? dropDown;
-	private UISprite colorPreview;
+	private UISprite? colorPreview;
 	protected ByteUITextField? rTB;
 	protected ByteUITextField? gTB;
 	protected ByteUITextField? bTB;
@@ -30,7 +30,7 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 
 	protected void Init(string title, string description, Color32 color, EnumType value, float lineWidth, float dashWidth, float dashSpace)
 	{
-		size = new Vector2(355, 150);
+		size = new Vector2(355, 155);
 		atlas = ResourceUtil.GetAtlas("MarkingOptionBack.png");
 		spriteName = "normal";
 
@@ -40,18 +40,27 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 		titleLabel.textColor = new Color32(92, 182, 239, 255);
 		titleLabel.autoSize = true;
 		titleLabel.font = UIFonts.SemiBold;
-		titleLabel.relativePosition = new Vector2(Margin, Margin);
+		titleLabel.relativePosition = new Vector2(2*Margin, 2*Margin);
 
 		descLabel = AddUIComponent<UILabel>();
 		descLabel.text = description;
-		descLabel.textScale = 0.55F;
+		descLabel.textScale = 0.6F;
 		descLabel.textColor = new Color32(210, 210, 210, 255);
 		descLabel.autoSize = false;
-		descLabel.autoHeight = true;
-		descLabel.relativePosition = new Vector2(titleLabel.width + 12	, 9);
-		descLabel.width = width - descLabel.relativePosition.x - Margin;
+		descLabel.autoHeight = false;
+		descLabel.textAlignment = UIHorizontalAlignment.Right;
+		descLabel.relativePosition = new Vector2(width - 2 * Margin - 140, titleLabel.height + 2 * Margin);
+
+		var undoButton = AddUIComponent<SlickButton>();
+		undoButton.size = new Vector2(30, 30);
+		undoButton.SetIcon("I_Undo.png");
+		undoButton.text = " ";
+		undoButton.tooltip = "Reset this marking option";
+		undoButton.relativePosition = new Vector2(width - 30 - Margin, Margin);
+		undoButton.eventClick += UndoButton_eventClick;
 
 		dropDown = AddUIComponent<DropDown>();
+		dropDown.size = new Vector2(140, 22);
 		dropDown.relativePosition = new Vector2(Margin * 2, titleLabel.height + 2 * Margin);
 		dropDown.SelectedObject = value;
 		dropDown.textColor = Color.white;
@@ -137,6 +146,8 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 		SetVisibilityOfControls();
 	}
 
+	private void UndoButton_eventClick(UIComponent component, UIMouseEventParameter eventParam) => ResetMarking();
+
 	private void RefreshColor(byte obj)
 	{
 		if (colorPreview == null)
@@ -168,12 +179,19 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 		if (lineWidthTB != null && lineWidthTB.isVisible)
 		{
 			lineWidthTB.relativePosition = new Vector2(lineWidthTB.relativePosition.x, y);
+
+			y -= lineWidthTB.height + Margin;
+		}
+
+		if (descLabel != null)
+		{
+			descLabel.size = new Vector2(width - descLabel.relativePosition.x - Margin, y - descLabel.relativePosition.y - Margin);
 		}
 	}
 
 	protected void SetColorVisibility(bool visible)
 	{
-		if (rTB == null || gTB == null || bTB == null || aTB == null)
+		if (rTB == null || gTB == null || bTB == null || aTB == null || colorPreview == null)
 		{
 			return;
 		}
@@ -185,6 +203,7 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 		colorPreview.isVisible = visible;
 	}
 
+	public abstract void ResetMarking();
 	protected abstract void SetMarkingStyle(EnumType val);
 	protected abstract void SetColorR(byte val);
 	protected abstract void SetColorG(byte val);
