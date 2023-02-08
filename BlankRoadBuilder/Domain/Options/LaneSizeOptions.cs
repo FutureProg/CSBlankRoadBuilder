@@ -12,6 +12,18 @@ public class LaneSizeOptions
 	private Dictionary<LaneType, float> _sizes;
 	private float _diagonalParkingSize;
 	private float _horizontalParkingSize;
+	private RoadSortMode _sortMode;
+
+	public RoadSortMode SortMode
+	{
+		get => _sortMode;
+		set
+		{
+			_sortMode = value;
+
+			Save();
+		}
+	}
 
 	public float DiagonalParkingSize
 	{
@@ -58,6 +70,7 @@ public class LaneSizeOptions
 
 				_diagonalParkingSize = savedSettings.DiagonalParkingSize;
 				_horizontalParkingSize = savedSettings.HorizontalParkingSize;
+				_sortMode = savedSettings.SortMode;
 				_sizes = new Dictionary<LaneType, float>();
 
 				foreach (LaneType laneType in Enum.GetValues(typeof(LaneType)))
@@ -88,6 +101,7 @@ public class LaneSizeOptions
 			Version = 1,
 			DiagonalParkingSize = _diagonalParkingSize,
 			HorizontalParkingSize = _horizontalParkingSize,
+			SortMode = _sortMode,
 			LaneTypes = _sizes.Keys.Cast<int>().ToList(),
 			LaneSizes = _sizes.Values.ToList(),
 		});
@@ -115,5 +129,6 @@ public class LaneSizeOptions
 		public float HorizontalParkingSize { get; set; }
 		public List<int> LaneTypes { get; set; }
 		public List<float> LaneSizes { get; set; }
+		public RoadSortMode SortMode { get; set; }
 	}
 }
