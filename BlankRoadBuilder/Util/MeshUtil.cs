@@ -62,7 +62,7 @@ public static class MeshUtil
 
 	private static List<NetInfo.Segment> GetSegments(ElevationType elevation, RoadInfo roadInfo)
 	{
-		var list = new List<NetInfo.Segment>();
+		var list = new List<MeshInfo<NetInfo.Segment, Segment>>();
 
 		MeshInfo<NetInfo.Segment, Segment> highCurb, lowCurb, fullLowCurb, curbless;
 
@@ -107,13 +107,18 @@ public static class MeshUtil
 			list.Add(fullLowCurb);
 		}
 
+		if (elevation == ElevationType.Basic)
+		{
+			list.ForEach(x => x.MetaData.Tiling = 2);
+		}
+
 		//if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
 		//{
 		//	highCurb.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_Asym | RoadUtils.Flags.S_AsymInverted;
 		//	highCurb.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_Asym | RoadUtils.Flags.S_AsymInverted;
 		//}
 
-		return list;
+		return list.Select(x => x.Mesh).ToList();
 	}
 
 	private static List<NetInfo.Node> GetNodes(ElevationType elevation, RoadInfo roadInfo)
@@ -162,6 +167,11 @@ public static class MeshUtil
 						item.Mesh.m_tagsRequired = new[] { "RB_NoAsphalt_" + roadInfo.SideTexture };
 						item.Mesh.m_minOtherTags = item.Mesh.m_maxOtherTags = 0;
 					}
+				}
+
+				if (elevation == ElevationType.Basic)
+				{
+					item.MetaData.Tiling = 2;
 				}
 
 				yield return item;

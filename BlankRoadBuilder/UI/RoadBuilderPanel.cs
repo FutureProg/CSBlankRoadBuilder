@@ -1,9 +1,10 @@
 ﻿using AlgernonCommons.UI;
 
+using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util;
 
-using ColossalFramework.Importers;
 using ColossalFramework.UI;
 
 using ModsCommon.UI;
@@ -12,8 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using System.Security.Policy;
 
 using UnityEngine;
 
@@ -35,7 +34,7 @@ public class RoadBuilderPanel : UIPanel
 	private readonly RoadSizeFilterDropDown _roadSizeDropDown;
 
 	private List<RoadConfigControl>? listData;
-	private List<TagButton> listTags = new List<TagButton>();
+	private readonly List<TagButton> listTags = new List<TagButton>();
 	private static bool hideBuilt;
 	private static bool hideUpdated;
 
@@ -51,7 +50,7 @@ public class RoadBuilderPanel : UIPanel
 		size = new Vector2(PanelWidth, PanelHeight);
 		atlas = ResourceUtil.GetAtlas("PanelBack.png");
 		backgroundSprite = "normal";
-		relativePosition = new Vector2(Mathf.Floor(((float)GetUIView().fixedWidth - base.width) / 2f), Mathf.Floor(((float)GetUIView().fixedHeight - base.height) / 2f));
+		relativePosition = new Vector2(Mathf.Floor((GetUIView().fixedWidth - base.width) / 2f), Mathf.Floor((GetUIView().fixedHeight - base.height) / 2f));
 
 		var uIDragHandle = AddUIComponent<UIDragHandle>();
 		uIDragHandle.size = new Vector2(width, 48);
@@ -77,7 +76,7 @@ public class RoadBuilderPanel : UIPanel
 			},
 		});
 		var uIButton = AddUIComponent<UIButton>();
-		uIButton.size = new Vector2(30,30);
+		uIButton.size = new Vector2(30, 30);
 		uIButton.relativePosition = new Vector2(width - 35f, 5f);
 		uIButton.atlas = closeAtlas;
 		uIButton.normalBgSprite = "normal";
@@ -153,7 +152,7 @@ public class RoadBuilderPanel : UIPanel
 		var label = AddUIComponent<UILabel>();
 		label.text = text;
 		label.textScale = 0.75F;
-		
+
 		switch (alignment)
 		{
 			case TextAlignment.Left:
@@ -177,12 +176,15 @@ public class RoadBuilderPanel : UIPanel
 		RefreshView();
 	}
 
-	private void _refreshButton_eventClick(UIComponent component, UIMouseEventParameter eventParam) => ReadXMLFiles();
+	private void _refreshButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+	{
+		ReadXMLFiles();
+	}
 
 	private void _continueButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
 	{
 		var road = listData.FirstOrDefault(x => x.Selected);
-		
+
 		if (road?.RoadInfo == null)
 		{
 			return;
@@ -196,10 +198,12 @@ public class RoadBuilderPanel : UIPanel
 	private void ReadXMLFiles()
 	{
 		if (listData != null)
+		{
 			foreach (var item in listData)
 			{
 				item.OnDestroy();
 			}
+		}
 
 		listData = new();
 		var roadDir = Path.Combine(BlankRoadBuilderMod.BuilderFolder, "Roads");
@@ -229,6 +233,18 @@ public class RoadBuilderPanel : UIPanel
 		AddTags();
 
 		RefreshView();
+
+		if (!string.IsNullOrEmpty(LastLoadedRoadFileName))
+		{
+			var road = listData.FirstOrDefault(x => x.FileName == LastLoadedRoadFileName);
+
+			if (road != null)
+			{
+				road.Selected = true;
+
+				_scrollPanel.ScrollIntoView(road);
+			}
+		}
 	}
 
 	private void AddTags()
@@ -268,7 +284,9 @@ public class RoadBuilderPanel : UIPanel
 		}
 
 		if (lastHeight > 0)
+		{
 			y += lastHeight + 10;
+		}
 
 		_scrollPanel.relativePosition = new Vector2(10, y);
 		_scrollPanel.height = PanelHeight - y - 48;
@@ -283,7 +301,9 @@ public class RoadBuilderPanel : UIPanel
 	private void RoadSelected(UIComponent component, UIMouseEventParameter eventParam)
 	{
 		if (listData == null)
+		{
 			return;
+		}
 
 		foreach (var ctrl in listData)
 		{
@@ -294,14 +314,23 @@ public class RoadBuilderPanel : UIPanel
 	private void RefreshView()
 	{
 		if (listData == null)
+		{
 			return;
+		}
 
 		_scrollBar.value = 0;
 
 		var x = 0F;
 		var y = 0F;
 
-		foreach (var ctrl in listData)
+		var sortedData = ModOptions.LaneSizes.SortMode switch
+		{
+			RoadSortMode.RoadName => listData.OrderBy(x => $"{(int)x.RoadInfo.RoadType}{x.RoadInfo.Name.RegexReplace("^RB[RHFP] ", "")?.RegexReplace(@"\d+([.,]\d+)?[um] ", "")}"),
+			RoadSortMode.RoadTypeAndSize => listData.OrderBy(x => x.RoadInfo.TotalRoadWidth + 10000 * (int)x.RoadInfo.RoadType),
+			RoadSortMode.DateCreated or _ => listData.OrderByDescending(x => x.RoadInfo.DateCreated)
+		};
+
+		foreach (var ctrl in sortedData)
 		{
 			if (!SearchCheck(ctrl))
 			{
@@ -329,23 +358,41 @@ public class RoadBuilderPanel : UIPanel
 	private bool SearchCheck(RoadConfigControl item)
 	{
 		if (_hideBuiltCheckBox.isChecked && item.AssetMatch != null)
+		{
 			return false;
+		}
 
 		if (_hideUpdatedCheckBox.isChecked && item.AssetMatch != null && item.AssetMatch.DateGenerated >= BlankRoadBuilderMod.CurrentVersionDate)
+		{
 			return false;
+		}
 
 		if (_roadTypeDropDown.SelectedObject != RoadTypeFilter.AnyRoadType && item.RoadInfo.RoadType != (RoadType)((int)_roadTypeDropDown.SelectedObject - 1))
+		{
 			return false;
+		}
 
 		if (_roadSizeDropDown.SelectedObject != RoadSizeFilter.AnyRoadSize & !Match(item.RoadInfo, _roadSizeDropDown.SelectedObject))
+		{
 			return false;
+		}
 
 		var selectedTags = listTags.Where(x => x.Selected).Select(x => x.text).ToList();
 		if (selectedTags.Any(x => !item.RoadInfo.Tags.Concat(item.RoadInfo.AutoTags).Any(y => y.Equals(x, StringComparison.CurrentCultureIgnoreCase))))
+		{
 			return false;
+		}
+
+		var invertedTags = listTags.Where(x => x.InvertSelected).Select(x => x.text).ToList();
+		if (invertedTags.Any(x => item.RoadInfo.Tags.Concat(item.RoadInfo.AutoTags).Any(y => y.Equals(x, StringComparison.CurrentCultureIgnoreCase))))
+		{
+			return false;
+		}
 
 		if (string.IsNullOrEmpty(_searchTextBox.text))
+		{
 			return true;
+		}
 
 		var split = _searchTextBox.text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -362,15 +409,15 @@ public class RoadBuilderPanel : UIPanel
 		switch (selectedValue)
 		{
 			case RoadSizeFilter.Tiny:
-				return width.IsWithin(0, 16.01F);
+				return width <= 16F;
 			case RoadSizeFilter.Small:
-				return width.IsWithin(16.01F, 24.01F);
+				return width > 16F && width <= 24F;
 			case RoadSizeFilter.Medium:
-				return width.IsWithin(24.01F, 32.01F);
+				return width > 24F && width <= 32F;
 			case RoadSizeFilter.Large:
-				return width.IsWithin(32.01F, 48.01F);
+				return width > 32F && width <= 48F;
 			case RoadSizeFilter.VeryLarge:
-				return width.IsWithin(48.01F, int.MaxValue);
+				return width > 48F;
 			default:
 				return true;
 		}

@@ -34,7 +34,7 @@ internal class ResourceUtil
 				stream.CopyTo(ms);
 				return new Image(ms.ToArray());
 			}
-		});
+		}, StringComparer.InvariantCultureIgnoreCase);
 	}
 
 	public static Image? GetImage(string? name) => _resources.TryGetValue(name, out var image) ? image : null;

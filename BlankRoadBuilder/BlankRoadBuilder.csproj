@@ -9,9 +9,9 @@
 	<LangVersion>latest</LangVersion>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>enable</Nullable>
-	<Version>1.2.1</Version>
-	<FileVersion>1.2.1</FileVersion>
-	<AssemblyVersion>1.2.1</AssemblyVersion>
+	<Version>1.2.2</Version>
+	<FileVersion>1.2.2</FileVersion>
+	<AssemblyVersion>1.2.2</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -45,6 +45,7 @@
 
   <ItemGroup>
 	<PackageReference Include="CitiesHarmony.API" Version="2.1.0" />
+	<PackageReference Include="IMT.API" Version="1.0.1" />
 	<PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
   </ItemGroup>
 

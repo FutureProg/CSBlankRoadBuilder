@@ -1,6 +1,4 @@
-﻿extern alias NC;
-
-using AlgernonCommons.UI;
+﻿using AlgernonCommons.UI;
 
 using BlankRoadBuilder.UI.Options;
 using BlankRoadBuilder.Util;
@@ -88,31 +86,10 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	{
 		Directory.CreateDirectory(BuilderFolder);
 
-		//ModFolder = PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly())?.modPath;
-
-		try
-		{ CopyThumbnailMaker(); }
-		catch { }
-
 		try
 		{
+			CopyThumbnailMaker();
 			DeleteAll(ImportFolder);
-
-			var assetsMatcherXML = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "SavedAssets.xml");
-			if (File.Exists(assetsMatcherXML))
-			{
-				File.Move(assetsMatcherXML, Path.Combine(BuilderFolder, "SavedAssets.xml"));
-			}
-
-			if (Directory.Exists(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder")))
-			{
-				var roads = Path.Combine(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"), "Roads");
-
-				if (Directory.Exists(roads) && Directory.GetFiles(roads, "*.xml", SearchOption.AllDirectories).Length > 0)
-					Process.Start(Path.Combine(ThumbnailMakerFolder, "ThumbnailMaker.exe"), "update");
-				else
-					DeleteAll(Path.Combine(DataLocation.localApplicationData, "BlankRoadBuilder"));
-			}
 		}
 		catch { }
 

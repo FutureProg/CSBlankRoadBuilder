@@ -114,10 +114,12 @@ internal class RoadConfigControl : UISprite
 
 		_thumbnailImage = GetThumbnailIcon();
 		_roadNameLabel = GetRoadNameLabel();
+		_roadDateLabel = GetRoadDateLabel();
 
 		_thumbnailImage.atlas = _textureAtlas;
 		_thumbnailImage.spriteName = "normal";
 		_roadNameLabel.text = RoadInfo.Name.Trim().Replace(" ", " ");
+		_roadDateLabel.text = FileInfo?.LastWriteTime.ToRelatedString(true);
 	}
 
 	private UISprite GetThumbnailIcon()
@@ -150,6 +152,24 @@ internal class RoadConfigControl : UISprite
 		return label;
 	}
 
+	private UILabel GetRoadDateLabel()
+	{
+		var label = AddUIComponent<UILabel>();
+
+		label.autoSize = false;
+		label.autoHeight = false;
+		label.wordWrap = true;
+		label.textScale = 0.55F;
+		label.textColor = new Color32(200, 200, 200, 255);
+		label.size = new Vector2(width, 80);
+		label.textAlignment = UIHorizontalAlignment.Center;
+		label.verticalAlignment = UIVerticalAlignment.Bottom;
+		label.padding = new RectOffset(3,3,3,3);
+		label.relativePosition = new Vector2(0, height - 80);
+
+		return label;
+	}
+
 	public string FileName { get; private set; }
 	public string FilePath { get; private set; }
 	public RoadInfo RoadInfo { get; private set; }
@@ -158,6 +178,7 @@ internal class RoadConfigControl : UISprite
 
 	private UITextureAtlas _textureAtlas;
 	private UILabel _roadNameLabel;
+	private UILabel _roadDateLabel;
 	private UISprite _thumbnailImage;
 	private bool selected;
 
