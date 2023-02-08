@@ -21,6 +21,7 @@ public class TagButton : UIPanel
 	public string text { get => _label.text; set { _label.text = value; size = _label.size; } }
 
 	public bool Selected { get; set; }
+	public bool InvertSelected { get; set; }
 
 	public event PropertyChangedEventHandler<bool>? SelectedChanged;
 
@@ -73,14 +74,20 @@ public class TagButton : UIPanel
 
 		pressed = false;
 
-		Invalidate();
-	}
-
-	protected override void OnClick(UIMouseEventParameter p)
-	{
-		base.OnClick(p);
-
-		Selected = !Selected;
+		if (p.buttons.HasFlag(UIMouseButton.Middle))
+		{
+			Selected = InvertSelected = false;
+		}
+		else if (p.buttons.HasFlag(UIMouseButton.Right))
+		{
+			InvertSelected = !InvertSelected;
+			Selected = false;
+		}
+		else
+		{
+			Selected = !Selected;
+			InvertSelected = false;
+		}
 
 		Invalidate();
 
@@ -90,7 +97,12 @@ public class TagButton : UIPanel
 	public override void Invalidate()
 	{
 		if (_label!= null)
-		if (pressed || Selected)
+		if (InvertSelected)
+		{
+			color = new Color32(148, 51, 35, 255);
+			_label.textColor = new Color32(255, 255, 255, 255);
+		}
+		else if (pressed || Selected)
 		{
 			color = new Color32(39, 130, 224, 255);
 			_label.textColor = new Color32(255, 255, 255, 255);
@@ -107,7 +119,7 @@ public class TagButton : UIPanel
 		}
 
 		if (Icon != null)
-			Icon.spriteName = Selected || pressed ? "pressed" : "normal";
+			Icon.spriteName = Selected || InvertSelected || pressed ? "pressed" : "normal";
 
 		base.Invalidate();
 	}

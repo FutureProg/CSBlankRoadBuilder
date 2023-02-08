@@ -364,7 +364,7 @@ public static class RoadBuilderUtil
 				CustomWidth = 0.1F,
 				Elevation = 0F,
 				Decorations = LaneDecoration.Barrier,
-				Position = -(roadInfo.TotalWidth / 2) + 0.45F,
+				Position = -(roadInfo.TotalWidth / 2 - 0.45F + 0.8F),
 				Tags = LaneTag.StackedLane
 			});
 		}
@@ -377,7 +377,7 @@ public static class RoadBuilderUtil
 				CustomWidth = 0.1F,
 				Elevation = 0F,
 				Decorations = LaneDecoration.Barrier,
-				Position = (roadInfo.TotalWidth / 2) - 0.45F,
+				Position = (roadInfo.TotalWidth / 2 - 0.45F + 0.8F),
 				Tags = LaneTag.StackedLane
 			});
 		}

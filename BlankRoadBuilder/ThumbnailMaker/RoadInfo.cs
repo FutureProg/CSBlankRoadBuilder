@@ -1,4 +1,8 @@
-﻿using BlankRoadBuilder.Util;
+﻿extern alias NM;
+
+using BlankRoadBuilder.Util;
+
+using NM::NodeMarkup.Utilities;
 
 using System;
 using System.Collections.Generic;
@@ -40,7 +44,7 @@ public class RoadInfo
 	[XmlIgnore] public bool WiredLanesAreNextToMedians { get; set; }
 	[XmlIgnore] public bool ContainsCenterMedian => Lanes.Any(x => x.Tags.HasFlag(LaneTag.CenterMedian));
 	[XmlIgnore] public ParkingAngle ParkingAngle => Lanes.Max(x => x.ParkingAngle);
-	[XmlIgnore] public float TotalRoadWidth => ThumbnailMakerUtil.CalculateRoadSize(this);
+	[XmlIgnore] public float TotalRoadWidth => Math.Max(RoadWidth, ThumbnailMakerUtil.CalculateRoadSize(this));
 	[XmlIgnore] public List<string> AutoTags => ThumbnailMakerUtil.GetAutoTags(this).ToList();
 }
 

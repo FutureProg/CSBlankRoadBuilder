@@ -69,7 +69,7 @@ public static class AssetUtil
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			var lines = Resize(file, name, road, curb, curbless, inverted);
+			var lines = Resize(file, name, road, elevationType, curb, curbless, inverted);
 			var exportedFile = Path.Combine(BlankRoadBuilderMod.ImportFolder, $"{exportName}{(file.Contains("_lod") ? "_lod" : "")}.obj");
 
 			File.WriteAllLines(exportedFile, lines);
@@ -103,7 +103,7 @@ public static class AssetUtil
 		}
 	}
 
-	public static string[] Resize(string file, string name, RoadInfo road, CurbType curb, bool curbless, bool inverted)
+	public static string[] Resize(string file, string name, RoadInfo road, ElevationType elevation, CurbType curb, bool curbless, bool inverted)
 	{
 		var baseWidth = 8F;
 		var newWidth = road.TotalWidth;
@@ -162,6 +162,10 @@ public static class AssetUtil
 						//{
 							xDiff -= ((xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth) - 3;
 						//}
+					}
+					else if (elevation is ElevationType.Elevated or ElevationType.Bridge)
+					{
+						xDiff += 0.8F;
 					}
 
 					if (aPos > 0.1F)

@@ -272,9 +272,22 @@ public class IMTMarkings
 		markup.AddRegularLine(pair, style);
 	}
 
+	private class PointCompare : IEqualityComparer<float>
+	{
+		public bool Equals(float x, float y)
+		{
+		return x.ToString() == y.ToString();
+		}
+
+		public int GetHashCode(float obj)
+		{
+			return obj.ToString().GetHashCode();
+		}
+	}
+
 	private static Dictionary<float, MarkupEnterPoint> GetPoints(Enter enter)
 	{
-		var points = new Dictionary<float, MarkupEnterPoint>();
+		var points = new Dictionary<float, MarkupEnterPoint>(new PointCompare());
 
 		foreach (var item in enter.Points)
 		{
