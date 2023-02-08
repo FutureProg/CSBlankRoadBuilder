@@ -233,6 +233,18 @@ public class RoadBuilderPanel : UIPanel
 		AddTags();
 
 		RefreshView();
+
+		if (!string.IsNullOrEmpty(LastLoadedRoadFileName))
+		{
+			var road = listData.FirstOrDefault(x => x.FileName == LastLoadedRoadFileName);
+
+			if (road != null)
+			{
+				road.Selected = true;
+
+				_scrollPanel.ScrollIntoView(road);
+			}
+		}
 	}
 
 	private void AddTags()
@@ -367,6 +379,12 @@ public class RoadBuilderPanel : UIPanel
 
 		var selectedTags = listTags.Where(x => x.Selected).Select(x => x.text).ToList();
 		if (selectedTags.Any(x => !item.RoadInfo.Tags.Concat(item.RoadInfo.AutoTags).Any(y => y.Equals(x, StringComparison.CurrentCultureIgnoreCase))))
+		{
+			return false;
+		}
+
+		var invertedTags = listTags.Where(x => x.InvertSelected).Select(x => x.text).ToList();
+		if (invertedTags.Any(x => item.RoadInfo.Tags.Concat(item.RoadInfo.AutoTags).Any(y => y.Equals(x, StringComparison.CurrentCultureIgnoreCase))))
 		{
 			return false;
 		}

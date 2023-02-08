@@ -488,37 +488,27 @@ public static class ThumbnailMakerUtil
 
 	internal static float CalculateRoadSize(RoadInfo roadInfo)
 	{
-		var sizeLanes = roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.StackedLane));
-		var leftCurb = roadInfo.Lanes.FirstOrDefault(x => x.Type == LaneType.Curb);
-		var rightCurb = roadInfo.Lanes.LastOrDefault(x => x.Type == LaneType.Curb);
-		var leftPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) <= roadInfo.Lanes.IndexOf(leftCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
-		var rightPavementWidth = sizeLanes.Where(x => roadInfo.Lanes.IndexOf(x) >= roadInfo.Lanes.IndexOf(rightCurb) && x.Tags.HasFlag(LaneTag.Sidewalk)).Sum(x => x.LaneWidth) - roadInfo.BufferWidth;
+		var sizeLanes = roadInfo.Lanes.Where(x => !x.Tags.HasAnyFlag(LaneTag.StackedLane)).ToList();
+		var leftCurb = sizeLanes.FirstOrDefault(x => x.Type == LaneType.Curb);
+		var rightCurb = sizeLanes.LastOrDefault(x => x.Type == LaneType.Curb);
+		float leftPavementWidth, rightPavementWidth;
 
-		var LeftPavementWidth = Math.Max(1.5F, leftPavementWidth);
-		var RightPavementWidth = Math.Max(1.5F, rightPavementWidth);
-		var AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
-		var TotalWidth = LeftPavementWidth + RightPavementWidth + AsphaltWidth;
-		var index = (AsphaltWidth + LeftPavementWidth + RightPavementWidth) / -2 + (LeftPavementWidth - leftPavementWidth);
-		
+		if (leftCurb == null || rightCurb == null)
+		{
+			leftPavementWidth = rightPavementWidth = 0;
+			return 0;
+		}
+
+		leftPavementWidth = sizeLanes.Where(x => sizeLanes.IndexOf(x) <= sizeLanes.IndexOf(leftCurb)).Sum(x => x.LaneWidth);
+		rightPavementWidth = sizeLanes.Where(x => sizeLanes.IndexOf(x) >= sizeLanes.IndexOf(rightCurb)).Sum(x => x.LaneWidth);
+		var asphaltWidth = sizeLanes.Where(x => sizeLanes.IndexOf(x) > sizeLanes.IndexOf(leftCurb) && sizeLanes.IndexOf(x) < sizeLanes.IndexOf(rightCurb)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
+		var totalWidth = Math.Max(1.5F, leftPavementWidth) + Math.Max(1.5F, rightPavementWidth) + asphaltWidth;
+
 		if (roadInfo.VanillaWidth)
 		{
-			var newWidth = (float)(16 * Math.Ceiling((TotalWidth - 1F) / 16D));
-			var diff = newWidth - TotalWidth;
-
-			TotalWidth = newWidth;
-			LeftPavementWidth += diff / 2;
-			RightPavementWidth += diff / 2;
+			totalWidth = (float)(16 * Math.Ceiling((totalWidth - 1F) / 16D));
 		}
 
-		if (roadInfo.RoadWidth > TotalWidth)
-		{
-			var diff = roadInfo.RoadWidth - TotalWidth;
-
-			TotalWidth = roadInfo.RoadWidth;
-			LeftPavementWidth += diff / 2;
-			RightPavementWidth += diff / 2;
-		}
-
-		return TotalWidth;
+		return (float)Math.Round(totalWidth, 2);
 	}
 }

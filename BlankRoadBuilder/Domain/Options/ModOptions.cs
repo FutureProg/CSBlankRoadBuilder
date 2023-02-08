@@ -1,7 +1,5 @@
 ﻿using ColossalFramework;
 
-using System.ComponentModel;
-
 using static BlankRoadBuilder.Domain.Options.OptionCategory;
 
 namespace BlankRoadBuilder.Domain.Options;
@@ -60,6 +58,9 @@ public static class ModOptions
 
 	[ModOptions(PROPS, 12F, "Trees repeat distance", "Changes the distance between each tree", 6, 64, 0.5F, "m")]
 	public static float TreeRepeatDistance { get => _treeRepeatDistance.value; set => _treeRepeatDistance.value = value; }
+	
+	[ModOptions(OTHER, (int)RoadSortMode.DateCreated, "Road sorting mode", "Changes the sorting of the road configurations")]
+	public static RoadSortMode RoadSortMode { get => LaneSizes.SortMode; set => LaneSizes.SortMode = value; }
 
 	[ModOptions(OTHER, false, "Disable the auto-fill of information and thumbnails in the save panel")]
 	public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }
