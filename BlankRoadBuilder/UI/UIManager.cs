@@ -28,7 +28,7 @@ public class UIManager : MonoBehaviour
 		var gameObject = new GameObject(typeof(EditorPanel).Name);
 		gameObject.transform.parent = UIView.GetAView().transform;
 		currentPanel = gameObject.AddComponent<EditorPanel>();
-		//SingletonMod<BlankRoadBuilderMod>.Instance.ShowWhatsNew();
+		SingletonMod<BlankRoadBuilderMod>.Instance.ShowWhatsNew();
 	}
 
 	public static UITextureAtlas GetIcon(string icon)

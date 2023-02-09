@@ -13,6 +13,7 @@ using ColossalFramework.UI;
 using ICities;
 
 using ModsCommon;
+using ModsCommon.UI;
 using ModsCommon.Utilities;
 
 using System;
@@ -46,19 +47,22 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	protected override ulong BetaWorkshopId => 2891132324ul;
 	protected override string IdRaw => nameof(BlankRoadBuilderMod);
 	public override bool IsBeta => false;
+	protected override LocalizeManager LocalizeManager { get; } = new LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	public override List<ModVersion> Versions { get; } = new List<ModVersion>
 	{
+		new ModVersion(new Version("1.2.2"), new DateTime(2023, 2, 8)),
+		new ModVersion(new Version("1.2.1"), new DateTime(2023, 2, 7)),
 		new ModVersion(new Version("1.2.0"), new DateTime(2023, 2, 5)),
+		new ModVersion(new Version("1.1.2"), new DateTime(2023, 1, 29)),
+		new ModVersion(new Version("1.1.1"), new DateTime(2023, 1, 23)),
+		new ModVersion(new Version("1.1.0"), new DateTime(2023, 1, 22)),
+		new ModVersion(new Version("1.0.4"), new DateTime(2023, 1, 6)),
+		new ModVersion(new Version("1.0.3"), new DateTime(2023, 1, 1)),
+		new ModVersion(new Version("1.0.2"), new DateTime(2022, 12, 31)),
+		new ModVersion(new Version("1.0.1"), new DateTime(2022, 12, 31)),
+		new ModVersion(new Version("1.0.0"), new DateTime(2022, 12, 31)),
 	};
 
-	public override string GetLocalizedString(string key, CultureInfo culture = null)
-	{
-		ResourceManager resourceManager = new ResourceManager($"{nameof(BlankRoadBuilder)}.Changelog", typeof(ResourceReader).Assembly);
-        
-		return Properties.Changelog.ResourceManager.GetString(key, Properties.Changelog.Culture);
-	}
-
-	protected override LocalizeManager LocalizeManager => new ModsCommon.LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	protected override List<BaseDependencyInfo> DependencyInfos
 	{
 		get
