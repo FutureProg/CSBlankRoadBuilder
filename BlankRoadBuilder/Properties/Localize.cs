@@ -59,5 +59,10 @@ namespace BlankRoadBuilder
 		/// [NEW] Added a TM option to display the road width in units when possible.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_2_2 => LocaleManager.GetString("Mod_WhatsNewMessage1_2_2", Culture);
+
+		/// <summary>
+		/// [NEW] Added a reset button in-game for lane sizes.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_2_3 => LocaleManager.GetString("Mod_WhatsNewMessage1_2_3", Culture);
 	}
 }

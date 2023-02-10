@@ -64,8 +64,7 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 		dropDown.size = new Vector2(140, 22);
 		dropDown.relativePosition = new Vector2(Margin * 2, titleLabel.height + 3 * Margin + 2);
 		dropDown.SelectedObject = value;
-		dropDown.textColor = Color.white;
-		dropDown.popupTextColor = Color.white;
+		dropDown.UseWhiteStyle();
 
 		colorPreview = AddUIComponent<UISprite>();
 		colorPreview.size = new Vector2(Margin + 18 * 2, Margin + 18 * 2);

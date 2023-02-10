@@ -316,4 +316,12 @@
 [FIXED] Fixed the close button not showing in-game.
 [FIXED] Fixed the previously built road not being selected when re-opening the panel.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_2_3" xml:space="preserve">
+    <value>[NEW] Added a reset button in-game for lane sizes.
+[NEW] Added an in-game changelog popup.
+[NEW] Opening the sidebar in Thumbnail Maker now focuses the search bar, pressing Ctrl+F will also focus it as well as opening the sidebar if it's closed.
+[UPDATED] Updated UI components used in the options panel.
+[FIXED] Fixed street lights being affected by the vanilla tree placement option.
+[FIXED] Fixed excluded tags' background color in Thumbnail Maker.</value>
+  </data>
 </root>

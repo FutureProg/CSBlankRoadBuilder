@@ -196,8 +196,8 @@ public partial class LanePropsUtil
 		{
 			m_prop = lightProp,
 			m_finalProp = lightProp,
-			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
-			m_repeatDistance = ModOptions.VanillaTreePlacement ? (ModOptions.LightRepeatDistance / 2) : 0,
+			m_minLength = ModOptions.VanillaStreetLightPlacement ? 10 : (Math.Abs(position) * 1.95F),
+			m_repeatDistance = ModOptions.VanillaStreetLightPlacement ? (ModOptions.LightRepeatDistance / 2) : 0,
 			m_probability = 100,
 			m_position = new Vector3(xPos, 0, position)
 		}.Extend(prop => new LaneProp(prop)
@@ -229,8 +229,8 @@ public partial class LanePropsUtil
 		{
 			m_prop = lightProp,
 			m_finalProp = lightProp,
-			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
-			m_repeatDistance = ModOptions.VanillaTreePlacement ? ModOptions.LightRepeatDistance : 0,
+			m_minLength = ModOptions.VanillaStreetLightPlacement ? 10 : (Math.Abs(position) * 1.95F),
+			m_repeatDistance = ModOptions.VanillaStreetLightPlacement ? ModOptions.LightRepeatDistance : 0,
 			m_probability = 100,
 			m_position = new Vector3(xPos, 0, position)
 		}.Extend(prop => new LaneProp(prop)

@@ -95,6 +95,24 @@ public class RoadBuilderPanel : UIPanel
 		_scrollPanel.builtinKeyNavigation = true;
 		_scrollPanel.scrollWheelDirection = UIOrientation.Vertical;
 		_scrollBar = UIScrollbars.AddScrollbar(this, _scrollPanel);
+		(_scrollBar.thumbObject as UISlicedSprite)!.atlas =
+		(_scrollBar.trackObject as UISlicedSprite)!.atlas = ResourceUtil.GetAtlas("Scrollbar.png", new UITextureAtlas.SpriteInfo[]
+		{
+			new()
+			{
+				name = "bar",
+				region = new Rect(0F, 0F, 0.5F, 1F)
+			},
+			new()
+			{
+				name = "thumb",
+				region = new Rect(0.5F, 0F, 0.5F, 1F)
+			},
+		});
+		(_scrollBar.thumbObject as UISlicedSprite)!.spriteName = "thumb";
+		(_scrollBar.trackObject as UISlicedSprite)!.spriteName = "bar";
+		_scrollBar.thumbObject.eventMouseDown += (s, _) => (s as UISlicedSprite)!.color = new Color32(39, 130, 224, 255);
+		_scrollBar.thumbObject.eventMouseUp += (s, _) => (s as UISlicedSprite)!.color = Color.white;
 
 		_continueButton = AddUIComponent<SlickButton>();
 		_continueButton.text = "Build Road";
@@ -108,12 +126,16 @@ public class RoadBuilderPanel : UIPanel
 		//_refreshButton.SetIcon("I_Refresh.png");
 		//_refreshButton.eventClick += _refreshButton_eventClick;
 
-		_hideBuiltCheckBox = UICheckBoxes.AddLabelledCheckBox(this, 0, 0, "Hide generated roads", tooltip: "Only shows road configs that you haven't generated & saved yet");
+		_hideBuiltCheckBox = AddUIComponent<CustomCheckbox>();
+		_hideBuiltCheckBox.text = "Hide generated roads";
+		_hideBuiltCheckBox.tooltip = "Only shows road configs that you haven't generated & saved yet";
 		_hideBuiltCheckBox.isChecked = hideBuilt;
 		_hideBuiltCheckBox.relativePosition = new Vector2(10, height - 15 - _hideBuiltCheckBox.height / 2 - 10);
 		_hideBuiltCheckBox.eventCheckChanged += _hideBuiltCheckBox_eventCheckChanged;
 
-		_hideUpdatedCheckBox = UICheckBoxes.AddLabelledCheckBox(this, 0, 0, "Hide updated roads", tooltip: "Only shows road configs that you haven't updated yet");
+		_hideUpdatedCheckBox = AddUIComponent<CustomCheckbox>();
+		_hideUpdatedCheckBox.text = "Hide updated roads";
+		_hideUpdatedCheckBox.tooltip = "Only shows road configs that you haven't updated yet";
 		_hideUpdatedCheckBox.isChecked = hideUpdated;
 		_hideUpdatedCheckBox.relativePosition = new Vector2(30 + _hideBuiltCheckBox.width, height - 15 - _hideUpdatedCheckBox.height / 2 - 10);
 		_hideUpdatedCheckBox.eventCheckChanged += _hideUpdatedCheckBox_eventCheckChanged;
