@@ -7,6 +7,9 @@ using BlankRoadBuilder.Util;
 using ColossalFramework.Importers;
 using ColossalFramework.UI;
 
+using ModsCommon;
+using ModsCommon.Utilities;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
@@ -113,11 +116,14 @@ internal class RoadConfigControl : UISprite
 		Selected = false;
 
 		_thumbnailImage = GetThumbnailIcon();
+		_versionLabel = GetVersionLabel();
 		_roadNameLabel = GetRoadNameLabel();
 		_roadDateLabel = GetRoadDateLabel();
 
-		_thumbnailImage.atlas = _textureAtlas;
-		_thumbnailImage.spriteName = "normal";
+		if (AssetMatch == null || !SingletonMod<BlankRoadBuilderMod>.Instance.Versions.Any(x => x.Date <= AssetMatch.DateGenerated.Date))
+			_versionLabel.isVisible = false;
+		else
+			_versionLabel.text = SingletonMod<BlankRoadBuilderMod>.Instance.Versions.FirstOrDefault(x => x.Date <= AssetMatch.DateGenerated.Date).Number.GetString();
 		_roadNameLabel.text = RoadInfo.Name.Trim().Replace(" ", " ");
 		_roadDateLabel.text = FileInfo?.LastWriteTime.ToRelatedString(true);
 	}
@@ -126,11 +132,33 @@ internal class RoadConfigControl : UISprite
 	{
 		var sprite = AddUIComponent<UISprite>();
 
+		sprite.atlas = _textureAtlas;
+		sprite.spriteName = "normal";
 		sprite.height = ThumbnailHeight;
 		sprite.width = ThumbnailWidth;
 		sprite.relativePosition = new Vector2(Margin, Margin);
 
 		return sprite;
+	}
+
+	private UILabel GetVersionLabel()
+	{
+		var label = AddUIComponent<UILabel>();
+
+		label.atlas = ResourceUtil.GetAtlas("VersionBack.png");
+		label.backgroundSprite = "normal";
+		label.font = UIFonts.SemiBold;
+		label.textColor = Color.black;
+		label.textScale = 0.6F;
+		label.padding = new RectOffset(0,0,2,0);
+		label.autoSize = false;
+		label.autoHeight = false;
+		label.textAlignment = UIHorizontalAlignment.Center;
+		label.verticalAlignment = UIVerticalAlignment.Middle;
+		label.size = new Vector2(32, 12);
+		label.relativePosition = new Vector2((width - label.width) / 2, Margin + 3);
+
+		return label;
 	}
 
 	private UILabel GetRoadNameLabel()
@@ -165,7 +193,7 @@ internal class RoadConfigControl : UISprite
 		label.textAlignment = UIHorizontalAlignment.Center;
 		label.verticalAlignment = UIVerticalAlignment.Bottom;
 		label.padding = new RectOffset(3,3,3,3);
-		label.relativePosition = new Vector2(0, height - 80);
+		label.relativePosition = new Vector2(0, height - 79);
 
 		return label;
 	}
@@ -180,6 +208,7 @@ internal class RoadConfigControl : UISprite
 	private UILabel _roadNameLabel;
 	private UILabel _roadDateLabel;
 	private UISprite _thumbnailImage;
+	private UILabel _versionLabel;
 	private bool selected;
 
 	private static UITextureAtlas GetThumbnailTextureAtlas(string? file, RoadInfo roadInfo)

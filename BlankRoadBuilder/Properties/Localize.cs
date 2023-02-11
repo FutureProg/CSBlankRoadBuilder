@@ -64,5 +64,10 @@ namespace BlankRoadBuilder
 		/// [NEW] Added a reset button in-game for lane sizes.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_2_3 => LocaleManager.GetString("Mod_WhatsNewMessage1_2_3", Culture);
+
+		/// <summary>
+		/// [NEW] Added a small label on the thumbnails in-game to indicate which version the road was generated
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_2_4 => LocaleManager.GetString("Mod_WhatsNewMessage1_2_4", Culture);
 	}
 }

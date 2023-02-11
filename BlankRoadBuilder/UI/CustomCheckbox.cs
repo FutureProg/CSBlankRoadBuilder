@@ -4,6 +4,7 @@ using BlankRoadBuilder.Util;
 
 using ColossalFramework.UI;
 
+using System;
 using System.Drawing.Printing;
 
 using UnityEngine;
@@ -42,13 +43,30 @@ public class CustomCheckbox : UICheckBox
 		});
 
 		label = AddUIComponent<UILabel>();
+		label.text = " ";
 		label.verticalAlignment = UIVerticalAlignment.Middle;
-		label.textScale = 1;
 		label.autoSize = true;
-		label.relativePosition = new Vector2(width + 5, 5);
-		width += label.width + 10;
+		label.eventSizeChanged += Label_SizeChanged;
+		textScale = 1;
+
+		Label_SizeChanged(this, default);
 
 		eventCheckChanged += CustomCheckbox_eventCheckChanged;
+	}
+
+	public float textScale
+	{
+		get => label.textScale; 
+		set 		
+		{
+			label.textScale = value;
+			label.relativePosition = new Vector2(height + 5, 1 + (height - label.height) / 2);
+		}
+	}
+
+	private void Label_SizeChanged(UIComponent component, Vector2 value)
+	{
+		width = 24 + label.width + 10;
 	}
 
 	private void CustomCheckbox_eventCheckChanged(UIComponent component, bool value)

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 
 using UnityEngine;
@@ -92,6 +93,12 @@ public static class AssetMatchingUtil
 			re.CrpFile = outStr;
 
 			var inf = new FileInfo(Path.Combine(DataLocation.assetsPath, outStr));
+
+			if (!inf.Exists)
+			{
+				inf = new DirectoryInfo(DataLocation.assetsPath).GetFiles(outStr,  SearchOption.AllDirectories).FirstOrDefault() ?? inf;
+			}
+
 			re.DateGenerated = inf.Exists ? inf.LastWriteTimeUtc : DateTime.MinValue;
 		}
 		else

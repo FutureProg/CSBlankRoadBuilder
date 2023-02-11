@@ -324,4 +324,9 @@
 [FIXED] Fixed street lights being affected by the vanilla tree placement option.
 [FIXED] Fixed excluded tags' background color in Thumbnail Maker.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_2_4" xml:space="preserve">
+    <value>[NEW] Added a small label on the thumbnails in-game to indicate which version the road was generated in.
+[UPDATED] Road files nested inside the Assets folder are now taken in consideration when displaying the build status of a road.
+[FIXED] Fixed the placement of the checkboxes in the build panel.</value>
+  </data>
 </root>

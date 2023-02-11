@@ -27,8 +27,8 @@ public class RoadBuilderPanel : UIPanel
 	private readonly SlickButton _continueButton;
 	//private readonly SlickButton _refreshButton;
 	private readonly StringUITextField _searchTextBox;
-	private readonly UICheckBox _hideBuiltCheckBox;
-	private readonly UICheckBox _hideUpdatedCheckBox;
+	private readonly CustomCheckbox _hideBuiltCheckBox;
+	private readonly CustomCheckbox _hideUpdatedCheckBox;
 	private readonly UIScrollablePanel _scrollPanel;
 	private readonly RoadTypeFilterDropDown _roadTypeDropDown;
 	private readonly RoadSizeFilterDropDown _roadSizeDropDown;
@@ -128,6 +128,7 @@ public class RoadBuilderPanel : UIPanel
 
 		_hideBuiltCheckBox = AddUIComponent<CustomCheckbox>();
 		_hideBuiltCheckBox.text = "Hide generated roads";
+		_hideBuiltCheckBox.textScale = 0.8F;
 		_hideBuiltCheckBox.tooltip = "Only shows road configs that you haven't generated & saved yet";
 		_hideBuiltCheckBox.isChecked = hideBuilt;
 		_hideBuiltCheckBox.relativePosition = new Vector2(10, height - 15 - _hideBuiltCheckBox.height / 2 - 10);
@@ -135,6 +136,7 @@ public class RoadBuilderPanel : UIPanel
 
 		_hideUpdatedCheckBox = AddUIComponent<CustomCheckbox>();
 		_hideUpdatedCheckBox.text = "Hide updated roads";
+		_hideUpdatedCheckBox.textScale = 0.8F;
 		_hideUpdatedCheckBox.tooltip = "Only shows road configs that you haven't updated yet";
 		_hideUpdatedCheckBox.isChecked = hideUpdated;
 		_hideUpdatedCheckBox.relativePosition = new Vector2(30 + _hideBuiltCheckBox.width, height - 15 - _hideUpdatedCheckBox.height / 2 - 10);
