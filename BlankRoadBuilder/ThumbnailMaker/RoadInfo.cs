@@ -1,8 +1,4 @@
-﻿extern alias NM;
-
-using BlankRoadBuilder.Util;
-
-using NM::NodeMarkup.Utilities;
+﻿using BlankRoadBuilder.Util;
 
 using System;
 using System.Collections.Generic;

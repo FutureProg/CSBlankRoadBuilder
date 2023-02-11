@@ -3,7 +3,7 @@
 using ColossalFramework.UI;
 
 using ModsCommon;
-using System;
+
 using System.IO;
 
 using UnityEngine;
@@ -33,6 +33,7 @@ public class UIManager : MonoBehaviour
 
 	public static UITextureAtlas GetIcon(string icon)
 	{
-		return UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), icon)); ;
+		return UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), icon));
+		;
 	}
 }

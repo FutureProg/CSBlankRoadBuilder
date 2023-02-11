@@ -1,18 +1,17 @@
-﻿using BlankRoadBuilder.Domain;
+﻿using AlgernonCommons.UI;
+
+using BlankRoadBuilder.Util;
 
 using ColossalFramework.UI;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 using ModsCommon.UI;
-using BlankRoadBuilder.Util;
-using AlgernonCommons.UI;
+
+using System;
+
+using UnityEngine;
 
 namespace BlankRoadBuilder.UI.Options;
-internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite where DropDown : EnumDropDown<EnumType> where EnumType : Enum
+internal abstract class CustomMarkingOptionControl<DropDown, EnumType> : UISprite where DropDown : EnumDropDown<EnumType> where EnumType : Enum
 {
 	private const float Margin = 5F;
 
@@ -40,7 +39,7 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 		titleLabel.textColor = new Color32(92, 182, 239, 255);
 		titleLabel.autoSize = true;
 		titleLabel.font = UIFonts.SemiBold;
-		titleLabel.relativePosition = new Vector2(2*Margin, 2*Margin);
+		titleLabel.relativePosition = new Vector2(2 * Margin, 2 * Margin);
 
 		descLabel = AddUIComponent<UILabel>();
 		descLabel.text = description;
@@ -50,7 +49,7 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 		descLabel.autoSize = false;
 		descLabel.autoHeight = false;
 		descLabel.textAlignment = UIHorizontalAlignment.Right;
-		descLabel.relativePosition = new Vector2(width - 3 * Margin - 140, 27 + 3 * Margin);
+		descLabel.relativePosition = new Vector2(width - (3 * Margin) - 140, 27 + (3 * Margin));
 
 		var undoButton = AddUIComponent<SlickButton>();
 		undoButton.size = new Vector2(30, 30);
@@ -62,12 +61,12 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 
 		dropDown = AddUIComponent<DropDown>();
 		dropDown.size = new Vector2(140, 22);
-		dropDown.relativePosition = new Vector2(Margin * 2, titleLabel.height + 3 * Margin + 2);
+		dropDown.relativePosition = new Vector2(Margin * 2, titleLabel.height + (3 * Margin) + 2);
 		dropDown.SelectedObject = value;
 		dropDown.UseWhiteStyle();
 
 		colorPreview = AddUIComponent<UISprite>();
-		colorPreview.size = new Vector2(Margin + 18 * 2, Margin + 18 * 2);
+		colorPreview.size = new Vector2(Margin + (18 * 2), Margin + (18 * 2));
 		colorPreview.spriteName = "normal";
 
 		rTB = AddUIComponent<ByteUITextField>();
@@ -146,7 +145,11 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 		SetVisibilityOfControls();
 	}
 
-	private void UndoButton_eventClick(UIComponent component, UIMouseEventParameter eventParam) => ResetMarking();
+	private void UndoButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+	{
+		ResetMarking();
+		RefreshColor(0);
+	}
 
 	private void RefreshColor(byte obj)
 	{
@@ -154,8 +157,18 @@ internal abstract class MarkingOptionControl<DropDown, EnumType> : UISprite wher
 			return;
 
 		var color = new Color32(rTB!.Value, gTB!.Value, bTB!.Value, aTB!.Value);
+		var texture = ResourceUtil.GetImage("White.png")!.CreateTexture();
+		var pixels = texture.GetPixels32();
 
-		colorPreview.atlas = ResourceUtil.GetAtlas(ResourceUtil.GetImage("White.png")?.CreateTexture().Color(color, false));
+		for (var i = 0; i < pixels.Length; i++)
+		{
+			pixels[i] = new Color32(color.r, color.g, color.b, (byte)(pixels[i].a * color.a / 255F));
+		}
+
+		texture.SetPixels32(pixels);
+		texture.Apply(updateMipmaps: false);
+
+		colorPreview.atlas = ResourceUtil.GetAtlas(texture);
 	}
 
 	protected virtual void SetVisibilityOfControls()

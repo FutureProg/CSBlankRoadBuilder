@@ -1,16 +1,15 @@
-﻿using BlankRoadBuilder.Domain.Options;
-using BlankRoadBuilder.Domain;
+﻿using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.Util.Markings;
-using UnityEngine;
 
 namespace BlankRoadBuilder.UI.Options;
 
 internal class LineDropDown : EnumDropDown<MarkingLineType> { }
-internal class LineMarkingOptionControl : MarkingOptionControl<LineDropDown, MarkingLineType>
+internal class LineMarkingOptionControl : CustomMarkingOptionControl<LineDropDown, MarkingLineType>
 {
 	public MarkingType MarkingType { get; private set; }
 
-	private SavedLineOption Value = new ((GenericMarkingType)(-1), Util.Markings.MarkingType.IMT);
+	private SavedLineOption Value = new((GenericMarkingType)(-1), Util.Markings.MarkingType.IMT);
 
 	public void Init(MarkingType markingType, GenericMarkingType genericMarkingType, SavedLineOption value)
 	{
@@ -29,7 +28,7 @@ internal class LineMarkingOptionControl : MarkingOptionControl<LineDropDown, Mar
 
 		if (dashWidthTB != null)
 			dashWidthTB.isVisible = Value.MarkingType is MarkingLineType.ZigZag or MarkingLineType.Dashed or MarkingLineType.DashedDouble or MarkingLineType.DashedSolid or MarkingLineType.SolidDashed;
-		
+
 		if (dashSpaceTB != null)
 			dashSpaceTB.isVisible = Value.MarkingType is MarkingLineType.Dashed or MarkingLineType.DashedDouble or MarkingLineType.DashedSolid or MarkingLineType.SolidDashed;
 
@@ -62,13 +61,40 @@ internal class LineMarkingOptionControl : MarkingOptionControl<LineDropDown, Mar
 		aTB!.Value = (byte)Value.A;
 	}
 
-	protected override void SetColorR(byte val) => Value.R = val;
-	protected override void SetColorG(byte val) => Value.G = val;
-	protected override void SetColorB(byte val) => Value.B = val;
-	protected override void SetColorA(byte val) => Value.A = val;
-	protected override void SetLineWidth(float val) => Value.LineWidth = val;
-	protected override void SetDashWidth(float val) => Value.DashLength = val;
-	protected override void SetDashSpace(float val) => Value.DashSpace = val;
+	protected override void SetColorR(byte val)
+	{
+		Value.R = val;
+	}
+
+	protected override void SetColorG(byte val)
+	{
+		Value.G = val;
+	}
+
+	protected override void SetColorB(byte val)
+	{
+		Value.B = val;
+	}
+
+	protected override void SetColorA(byte val)
+	{
+		Value.A = val;
+	}
+
+	protected override void SetLineWidth(float val)
+	{
+		Value.LineWidth = val;
+	}
+
+	protected override void SetDashWidth(float val)
+	{
+		Value.DashLength = val;
+	}
+
+	protected override void SetDashSpace(float val)
+	{
+		Value.DashSpace = val;
+	}
 
 	private string GetTitle(GenericMarkingType key)
 	{

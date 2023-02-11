@@ -53,6 +53,8 @@ public static class Extensions
 	{
 		str = str.RegexReplace("([a-z])([A-Z])", (Match x) => x.Groups[1].Value + " " + x.Groups[2].Value, ignoreCase: false)
 			.RegexReplace("([A-Z])([A-Z][a-z])", (Match x) => x.Groups[1].Value + " " + x.Groups[2].Value, ignoreCase: false)
+			.RegexReplace("([0-9])([A-Z]|[a-z])", (Match x) => x.Groups[1].Value + " " + x.Groups[2].Value, ignoreCase: false)
+			.RegexReplace("([A-Z]|[a-z])([0-9])", (Match x) => x.Groups[1].Value + " " + x.Groups[2].Value, ignoreCase: false)
 			.RegexReplace("(\\b)(?<!')([a-z])", (Match x) => x.Groups[1].Value + x.Groups[2].Value.ToUpper(), ignoreCase: false);
 		if (forceUpper)
 		{
@@ -381,8 +383,8 @@ public static class Extensions
 
 	public static IEnumerable<T> Distinct<T>(this IEnumerable<T> list, Func<T, T, bool> comparer)
 	{
-		List<T> items = new List<T>();
-		foreach (T item in list)
+		var items = new List<T>();
+		foreach (var item in list)
 		{
 			if (!items.Any((T x) => comparer(x, item)))
 			{
@@ -420,16 +422,16 @@ public static class Extensions
 		switch (alignment)
 		{
 			case SpriteAlignment.LeftCenter:
-				label.relativePosition = new Vector2(-label.width - padding - compPadding.left, comp.height / 2 - label.height / 2 + padding / 2);
+				label.relativePosition = new Vector2(-label.width - padding - compPadding.left, (comp.height / 2) - (label.height / 2) + (padding / 2));
 				break;
 			case SpriteAlignment.RightCenter:
-				label.relativePosition = new Vector2(comp.width + padding + compPadding.right, comp.height / 2 - label.height / 2 + padding / 2);
+				label.relativePosition = new Vector2(comp.width + padding + compPadding.right, (comp.height / 2) - (label.height / 2) + (padding / 2));
 				break;
 			case SpriteAlignment.TopCenter:
-				label.relativePosition = new Vector2((comp.width - label.width) / 2, -label.height - padding / 2 - compPadding.top);
+				label.relativePosition = new Vector2((comp.width - label.width) / 2, -label.height - (padding / 2) - compPadding.top);
 				break;
 			case SpriteAlignment.TopLeft:
-				label.relativePosition = new Vector2(0, -label.height - padding / 2 - compPadding.top);
+				label.relativePosition = new Vector2(0, -label.height - (padding / 2) - compPadding.top);
 				break;
 		}
 

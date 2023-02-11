@@ -1,8 +1,8 @@
 ﻿using AdaptiveRoads.Manager;
 
-using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
+using BlankRoadBuilder.Util.Props.Templates;
 
 using System;
 using System.Collections.Generic;

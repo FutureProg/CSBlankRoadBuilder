@@ -160,7 +160,7 @@ public static class AssetUtil
 						//}
 						//else
 						//{
-							xDiff -= ((xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth) - 3;
+						xDiff -= ((xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth) - 3;
 						//}
 					}
 					else if (elevation is ElevationType.Elevated or ElevationType.Bridge)

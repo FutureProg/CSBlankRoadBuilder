@@ -15,8 +15,8 @@ public struct StateInfo
 		Exception = null;
 	}
 
-    public StateInfo(Exception exception) : this(exception.Message)
-    {
-        Exception = exception;
-    }
+	public StateInfo(Exception exception) : this(exception.Message)
+	{
+		Exception = exception;
+	}
 }

@@ -1,9 +1,6 @@
 ﻿using AlgernonCommons.UI;
 
 using BlankRoadBuilder.UI.Options;
-using BlankRoadBuilder.Util;
-
-using CitiesHarmony.API;
 
 using ColossalFramework;
 using ColossalFramework.IO;
@@ -13,17 +10,12 @@ using ColossalFramework.UI;
 using ICities;
 
 using ModsCommon;
-using ModsCommon.UI;
 using ModsCommon.Utilities;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Resources;
 
 using UnityEngine;
 
@@ -50,6 +42,7 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	protected override LocalizeManager LocalizeManager { get; } = new LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	public override List<ModVersion> Versions { get; } = new List<ModVersion>
 	{
+		new ModVersion(new Version("1.2.5"), new DateTime(2023, 2, 12)),
 		new ModVersion(new Version("1.2.4"), new DateTime(2023, 2, 10)),
 		new ModVersion(new Version("1.2.3"), new DateTime(2023, 2, 9)),
 		new ModVersion(new Version("1.2.2"), new DateTime(2023, 2, 8)),
@@ -129,9 +122,10 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 
 		var tabStrip = AutoTabstrip.AddTabstrip(s_optionsParentPanel, 0f, 0f, s_optionsParentPanel.width, s_optionsParentPanel.height, out _, tabHeight: 32f);
 
-		new GeneralOptions(tabStrip, 0, 4);
-		new LaneSizeOptions(tabStrip, 1, 4);
-		new IMTOptionsPanel(tabStrip, 2, 4);
+		new GeneralOptions(tabStrip, 0, 5);
+		//new CustomPropsOptions(tabStrip, 1, 5);
+		new LaneSizeOptions(tabStrip, 1, 5);
+		new IMTOptionsPanel(tabStrip, 2, 5);
 		new VanillaOptionsPanel(tabStrip, 3, 4);
 
 		tabStrip.selectedIndex = -1;

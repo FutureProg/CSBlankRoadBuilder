@@ -1,11 +1,6 @@
-﻿using AlgernonCommons.UI;
-
-using BlankRoadBuilder.Util;
+﻿using BlankRoadBuilder.Util;
 
 using ColossalFramework.UI;
-
-using System;
-using System.Drawing.Printing;
 
 using UnityEngine;
 
@@ -56,11 +51,11 @@ public class CustomCheckbox : UICheckBox
 
 	public float textScale
 	{
-		get => label.textScale; 
-		set 		
+		get => label.textScale;
+		set
 		{
 			label.textScale = value;
-			label.relativePosition = new Vector2(height + 5, 1 + (height - label.height) / 2);
+			label.relativePosition = new Vector2(height + 5, 1 + ((height - label.height) / 2));
 		}
 	}
 

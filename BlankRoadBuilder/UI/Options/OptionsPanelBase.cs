@@ -1,15 +1,10 @@
-﻿extern alias NM;
-
-using AlgernonCommons.UI;
+﻿using AlgernonCommons.UI;
 
 using BlankRoadBuilder.Util;
 
 using ColossalFramework.UI;
 
-using ModsCommon.UI;
 using ModsCommon.Utilities;
-
-using NM::NodeMarkup.UI;
 
 using UnityEngine;
 
@@ -42,6 +37,7 @@ public abstract class OptionsPanelBase
 		uIButton.hoveredColor = new Color32(119, 127, 136, 255);
 		uIButton.focusedColor = new Color32(51, 116, 187, 255);
 		uIButton.pressedColor = new Color32(51, 116, 187, 255);
+		uIButton.tooltip = string.Empty;
 
 		_panel = panel.AddUIComponent<UIScrollablePanel>();
 		_panel.relativePosition = new Vector2(0, Margin);

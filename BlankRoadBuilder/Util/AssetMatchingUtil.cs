@@ -96,7 +96,7 @@ public static class AssetMatchingUtil
 
 			if (!inf.Exists)
 			{
-				inf = new DirectoryInfo(DataLocation.assetsPath).GetFiles(outStr,  SearchOption.AllDirectories).FirstOrDefault() ?? inf;
+				inf = new DirectoryInfo(DataLocation.assetsPath).GetFiles(outStr, SearchOption.AllDirectories).FirstOrDefault() ?? inf;
 			}
 
 			re.DateGenerated = inf.Exists ? inf.LastWriteTimeUtc : DateTime.MinValue;

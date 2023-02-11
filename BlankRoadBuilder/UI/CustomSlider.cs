@@ -1,13 +1,6 @@
-﻿using AlgernonCommons.UI;
-
-using BlankRoadBuilder.Util;
+﻿using BlankRoadBuilder.Util;
 
 using ColossalFramework.UI;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using UnityEngine;
 

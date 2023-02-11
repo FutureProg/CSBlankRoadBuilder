@@ -1,11 +1,6 @@
-﻿using AlgernonCommons.UI;
+﻿using BlankRoadBuilder.Util;
 
-using BlankRoadBuilder.Util;
-
-using ColossalFramework.Importers;
 using ColossalFramework.UI;
-
-using System.IO;
 
 using UnityEngine;
 
@@ -64,7 +59,7 @@ public class SlickButton : UIButton
 	{
 		base.OnSizeChanged();
 
-		if (width==height)
+		if (width == height)
 			atlas = ResourceUtil.GetAtlas("ButtonIconBack.png");
 	}
 

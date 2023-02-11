@@ -2,6 +2,7 @@
 
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
+using BlankRoadBuilder.Util.Props.Templates;
 
 using System.Collections.Generic;
 

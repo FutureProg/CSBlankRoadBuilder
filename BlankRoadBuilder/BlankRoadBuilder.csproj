@@ -9,9 +9,9 @@
 	<LangVersion>latest</LangVersion>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>enable</Nullable>
-	<Version>1.2.3</Version>
-	<FileVersion>1.2.3</FileVersion>
-	<AssemblyVersion>1.2.3</AssemblyVersion>
+	<Version>1.2.5</Version>
+	<FileVersion>1.2.5</FileVersion>
+	<AssemblyVersion>1.2.5</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -64,11 +64,6 @@
 	<Reference Include="ICities">
 	  <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
 	  <Private>False</Private>
-	</Reference>
-	<Reference Include="NodeMarkup">
-		<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2140418403\NodeMarkup.dll</HintPath>
-		<Private>False</Private>
-		<Aliases>NM</Aliases>
 	</Reference>
 	<Reference Include="NodeControllerRenewal">
 		<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2472062376\NodeControllerRenewal.dll</HintPath>

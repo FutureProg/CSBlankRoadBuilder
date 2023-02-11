@@ -13,7 +13,7 @@ internal class LaneSizeOptions : OptionsPanelBase
 {
 	public override string TabName { get; } = "Lane Sizes";
 
-	private List<Action> ResetActions = new List<Action>();
+	private readonly List<Action> ResetActions = new List<Action>();
 
 	public LaneSizeOptions(UITabstrip tabStrip, int tabIndex, int tabCount) : base(tabStrip, tabIndex, tabCount)
 	{

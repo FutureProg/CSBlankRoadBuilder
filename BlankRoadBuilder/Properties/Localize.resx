@@ -329,4 +329,12 @@
 [UPDATED] Road files nested inside the Assets folder are now taken in consideration when displaying the build status of a road.
 [FIXED] Fixed the placement of the checkboxes in the build panel.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_2_5" xml:space="preserve">
+    <value>[NEW] Added a better status filter in the build panel.
+[NEW] Added a button to clear all filters in the build panel.
+[NEW] Filter settings are now saved throughout your session.
+[UPDATED] Changed the color source of crosswalks to the "Border" line.
+[UPDATED] Added IMT API compatibility to ensure constant compatibility with both IMT Stable &amp; Beta.
+[FIXED] Fixed the color preview for markings not updating on the reset and not taking alpha in consideration.</value>
+  </data>
 </root>

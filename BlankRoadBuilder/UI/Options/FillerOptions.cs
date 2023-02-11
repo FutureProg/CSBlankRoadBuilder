@@ -21,7 +21,7 @@ internal partial class FillerOptions : OptionsPanelBase
 			}
 			else
 			{
-				ctrl.relativePosition = new UnityEngine.Vector2(2 * Margin + ctrl.width, yPos);
+				ctrl.relativePosition = new UnityEngine.Vector2((2 * Margin) + ctrl.width, yPos);
 				yPos += ctrl.height + Margin;
 			}
 
@@ -48,7 +48,7 @@ internal partial class LineOptions : OptionsPanelBase
 			}
 			else
 			{
-				ctrl.relativePosition = new UnityEngine.Vector2(2 * Margin + ctrl.width, yPos);
+				ctrl.relativePosition = new UnityEngine.Vector2((2 * Margin) + ctrl.width, yPos);
 				yPos += ctrl.height + Margin;
 			}
 

@@ -1,5 +1,4 @@
-﻿using AdaptiveRoads.Data.NetworkExtensions;
-using AlgernonCommons.UI;
+﻿using AlgernonCommons.UI;
 
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util;
@@ -11,11 +10,8 @@ using ModsCommon;
 using ModsCommon.Utilities;
 
 using System;
-using System.Collections.Generic;
-using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 using UnityEngine;
 
@@ -109,7 +105,7 @@ internal class RoadConfigControl : UISprite
 		_textureAtlas = GetThumbnailTextureAtlas(file, roadInfo);
 		AssetMatch = AssetMatchingUtil.GetMatchForRoadConfig(FileName);
 
-		size = new Vector2(129, 165);
+		size = new Vector2(129, 180);
 		clipChildren = true;
 
 		atlas = _bgAtlas;
@@ -120,12 +116,19 @@ internal class RoadConfigControl : UISprite
 		_roadNameLabel = GetRoadNameLabel();
 		_roadDateLabel = GetRoadDateLabel();
 
-		if (AssetMatch == null || !SingletonMod<BlankRoadBuilderMod>.Instance.Versions.Any(x => x.Date <= AssetMatch.DateGenerated.Date))
+		if (AssetMatch == null)
 			_versionLabel.isVisible = false;
+		else if (!SingletonMod<BlankRoadBuilderMod>.Instance.Versions.Any(x => x.Date <= AssetMatch.DateGenerated.Date))
+			_versionLabel.text = "Road missing";
+		else if (AssetMatch.DateGenerated >= BlankRoadBuilderMod.CurrentVersionDate)
+			_versionLabel.text = "Up to date";
 		else
-			_versionLabel.text = SingletonMod<BlankRoadBuilderMod>.Instance.Versions.FirstOrDefault(x => x.Date <= AssetMatch.DateGenerated.Date).Number.GetString();
-		_roadNameLabel.text = RoadInfo.Name.Trim().Replace(" ", " ");
+			_versionLabel.text = "Built with v" + SingletonMod<BlankRoadBuilderMod>.Instance.Versions.FirstOrDefault(x => x.Date <= AssetMatch.DateGenerated.Date).Number.GetString();
+
+		_roadNameLabel.text = RoadInfo.Name.Trim().RegexReplace("^RB\\w ", "")!.Replace(" ", " ");
 		_roadDateLabel.text = FileInfo?.LastWriteTime.ToRelatedString(true);
+		_roadNameLabel.relativePosition = new Vector2(0, ThumbnailHeight + Margin + 3);
+		_roadDateLabel.relativePosition = new Vector2(0, height - (_versionLabel.isVisible ? 95 : 79));
 	}
 
 	private UISprite GetThumbnailIcon()
@@ -145,18 +148,16 @@ internal class RoadConfigControl : UISprite
 	{
 		var label = AddUIComponent<UILabel>();
 
-		label.atlas = ResourceUtil.GetAtlas("VersionBack.png");
-		label.backgroundSprite = "normal";
 		label.font = UIFonts.SemiBold;
-		label.textColor = Color.black;
+		label.textColor = Color.white;
 		label.textScale = 0.6F;
-		label.padding = new RectOffset(0,0,2,0);
+		label.padding = new RectOffset(0, 0, 2, 0);
 		label.autoSize = false;
 		label.autoHeight = false;
 		label.textAlignment = UIHorizontalAlignment.Center;
 		label.verticalAlignment = UIVerticalAlignment.Middle;
-		label.size = new Vector2(32, 12);
-		label.relativePosition = new Vector2((width - label.width) / 2, Margin + 3);
+		label.size = new Vector2(width, 15);
+		label.relativePosition = new Vector2(0, height - 14);
 
 		return label;
 	}
@@ -175,7 +176,6 @@ internal class RoadConfigControl : UISprite
 		label.textAlignment = UIHorizontalAlignment.Center;
 		label.verticalAlignment = UIVerticalAlignment.Top;
 		label.padding = new RectOffset(4, 4, 4, 4);
-		label.relativePosition = new Vector2(0, ThumbnailHeight + Margin);
 
 		return label;
 	}
@@ -192,8 +192,7 @@ internal class RoadConfigControl : UISprite
 		label.size = new Vector2(width, 80);
 		label.textAlignment = UIHorizontalAlignment.Center;
 		label.verticalAlignment = UIVerticalAlignment.Bottom;
-		label.padding = new RectOffset(3,3,3,3);
-		label.relativePosition = new Vector2(0, height - 79);
+		label.padding = new RectOffset(3, 3, 3, 3);
 
 		return label;
 	}
@@ -214,18 +213,19 @@ internal class RoadConfigControl : UISprite
 	private static UITextureAtlas GetThumbnailTextureAtlas(string? file, RoadInfo roadInfo)
 	{
 		var thumbnailTex = new Image(roadInfo.SmallThumbnail).CreateTexture();
-		var newAtlas = ScriptableObject.CreateInstance<UITextureAtlas>();
+		var baseText = ResourceUtil.GetImage("RoadThumbBack.png")!.CreateTexture();
 
-		newAtlas.name = Path.GetFileName(file);
-		newAtlas.material = Instantiate(UIView.GetAView().defaultAtlas.material);
-		newAtlas.material.mainTexture = thumbnailTex;
-		newAtlas.AddSprite(new UITextureAtlas.SpriteInfo
+		var pixels = baseText.GetPixels32();
+		var thumbPixels = thumbnailTex.GetPixels32();
+
+		for (var i = 0; i < pixels.Length; i++)
 		{
-			name = "normal",
-			texture = thumbnailTex,
-			region = new Rect(0f, 0f, 1f, 1f)
-		});
+			pixels[i] = new Color32(thumbPixels[i].r, thumbPixels[i].g, thumbPixels[i].b, pixels[i].a);
+		}
 
-		return newAtlas;
+		baseText.SetPixels32(pixels);
+		baseText.Apply(updateMipmaps: false);
+
+		return ResourceUtil.GetAtlas(baseText)!;
 	}
 }

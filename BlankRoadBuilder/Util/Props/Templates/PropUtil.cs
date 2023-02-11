@@ -1,20 +1,114 @@
-﻿namespace BlankRoadBuilder.Util.Props;
+﻿using BlankRoadBuilder.Domain.Options;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+
+using UnityEngine;
+
+namespace BlankRoadBuilder.Util.Props.Templates;
 public class PropUtil
 {
+	private static Dictionary<Prop, PropTemplate>? cachedTemplates;
+
 	public static PropTemplate GetProp(Prop prop)
 	{
-		return GetDefaultProp(prop);
+		cachedTemplates ??= LoadTemplates();
+
+		return cachedTemplates.ContainsKey(prop) ? cachedTemplates[prop] : GetDefaultProp(prop);
+	}
+
+	public static void SaveTemplate(Prop prop, PropTemplate? template)
+	{
+		cachedTemplates ??= LoadTemplates();
+
+		cachedTemplates[prop] = template ?? GetDefaultProp(prop);
+
+		SaveTemplates();
+	}
+
+	public static void ResetSettings()
+	{
+		cachedTemplates = new();
+
+		SaveTemplates();
+	}
+
+	private static Dictionary<Prop, PropTemplate> LoadTemplates()
+	{
+		try
+		{
+			var path = Path.Combine(BlankRoadBuilderMod.BuilderFolder, "CustomProps.xml");
+
+			if (!File.Exists(path))
+				return new();
+
+			var serializer = new XmlSerializer(typeof(SavedPropTemplate[]));
+
+			using TextReader reader = new StreamReader(path);
+
+			var templates = (SavedPropTemplate[])serializer.Deserialize(reader);
+
+			return templates.ToDictionary(x => x.Prop, x => (PropTemplate)x);
+		}
+		catch (Exception ex) { Debug.LogException(ex); }
+
+		return new();
+	}
+
+	private static void SaveTemplates()
+	{
+		var templates = GetTemplates();
+		var path = Path.Combine(BlankRoadBuilderMod.BuilderFolder, "CustomProps.xml");
+		var serializer = new XmlSerializer(typeof(SavedPropTemplate[]));
+
+		using TextWriter writer = new StreamWriter(path);
+
+		serializer.Serialize(writer, templates);
+	}
+
+	public static SavedPropTemplate[] GetTemplates()
+	{
+		var props = Enum.GetValues(typeof(Prop));
+		var array = new SavedPropTemplate[props.Length];
+		var ind = 0;
+
+		foreach (Prop prop in props)
+		{
+			var template = GetProp(prop);
+			var type = template.GetType();
+			var properties = type
+				.GetProperties(BindingFlags.Public | BindingFlags.Static)
+				.Where(x => (Attribute.GetCustomAttribute(x, typeof(PropOptionAttribute)) as PropOptionAttribute) != null)
+				.ToDictionary(x => x.Name, x => x.GetValue(template, null));
+
+			array[ind++] = new SavedPropTemplate
+			{
+				Prop = prop,
+				Type = type.Name,
+				PropName = template.PropName,
+				IsTree = template.IsTree,
+				IsBuilding = template.IsBuilding,
+				PropertyKeys = properties.Keys.ToArray(),
+				PropertyValues = properties.Values.ToArray(),
+			};
+		}
+
+		return array;
 	}
 
 	private static PropTemplate GetDefaultProp(Prop prop)
 	{
 		return prop switch
 		{
-			Prop.TrafficLight01 => new PropTemplate("Traffic Light 01"),
-			Prop.TrafficLight01Mirror => new PropTemplate("Traffic Light 01 Mirror"),
-			Prop.TrafficLight02 => new PropTemplate("Traffic Light 02"),
-			Prop.TrafficLight02Mirror => new PropTemplate("Traffic Light 02 Mirror"),
-			Prop.TrafficLightPedestrian => new PropTemplate("Traffic Light Pedestrian"),
+			Prop.TrafficLight01 => new TrafficLightProp("Traffic Light 01"),
+			Prop.TrafficLight01Mirror => new TrafficLightProp("Traffic Light 01 Mirror"),
+			Prop.TrafficLight02 => new TrafficLightProp("Traffic Light 02"),
+			Prop.TrafficLight02Mirror => new TrafficLightProp("Traffic Light 02 Mirror"),
+			Prop.TrafficLightPedestrian => new TrafficLightProp("Traffic Light Pedestrian"),
 			Prop.BicycleSign => new PropTemplate("1779509676.R2 WF11-1 Bicycle Sign_Data"),
 			Prop.RailwayCrossingAheadSign => new PropTemplate("1779509676.R2 W10-1 Railroad Crossing Sign_Data"),
 			Prop.TrafficLightAheadSign => new PropTemplate("1779509676.R2 W3-3 Signal Ahead Sign_Data"),
@@ -80,7 +174,7 @@ public class PropUtil
 			Prop.Pillar38 => new PropTemplate($"760278365.R69 Over 4c_Data", isBuilding: true),
 			Prop.LampPost => new PropTemplate($"StreetLamp02"),
 			Prop.Flowers => new PropTemplate($"2355034951.Wildflower_Yellow_Data", isTree: true),
-			_ => new PropTemplate(string.Empty),
+			_ => new(""),
 		};
 	}
 }

@@ -1,21 +1,14 @@
-﻿using AdaptiveRoads.UI.VBSTool;
-
-using AlgernonCommons.UI;
+﻿using AlgernonCommons.UI;
 
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.Util;
 
-using ColossalFramework;
 using ColossalFramework.UI;
-
-using ModsCommon.UI;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 
 using UnityEngine;
 
@@ -50,14 +43,14 @@ internal class GeneralOptions : OptionsPanelBase
 			icon.atlas = ResourceUtil.GetAtlas(OptionCategory.GetIcon(grp.Key));
 			icon.spriteName = "normal";
 			icon.size = new Vector2(32, 32);
-			icon.relativePosition = new Vector2(Margin, yPos + (30 - 32) / 2);
+			icon.relativePosition = new Vector2(Margin, yPos + ((30 - 32) / 2));
 
 			var title = _panel.AddUIComponent<UILabel>();
 			title.text = grp.Key?.ToUpper();
 			title.textScale = 1.4F;
 			title.font = UIFonts.SemiBold;
 			title.autoSize = true;
-			title.relativePosition = new Vector2(32 + 2 * Margin, yPos + (30 - title.height) / 2);
+			title.relativePosition = new Vector2(32 + (2 * Margin), yPos + ((30 - title.height) / 2));
 
 			yPos += 50;
 
@@ -75,7 +68,7 @@ internal class GeneralOptions : OptionsPanelBase
 
 		var resetButton = _panel.AddUIComponent<SlickButton>();
 		resetButton.size = new Vector2(230, 30);
-		resetButton.relativePosition = new Vector2(32 + 2 * Margin, yPos - 50);
+		resetButton.relativePosition = new Vector2(32 + (2 * Margin), yPos - 50);
 		resetButton.text = "Reset all General settings";
 		resetButton.SetIcon("I_Undo.png");
 		resetButton.eventClicked += ResetButton_eventClicked;
@@ -89,7 +82,7 @@ internal class GeneralOptions : OptionsPanelBase
 		}
 	}
 
-	private List<Action> ResetActions = new();
+	private readonly List<Action> ResetActions = new();
 
 	private object? GenerateSettingComponent(Setting setting)
 	{

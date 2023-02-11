@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BlankRoadBuilder.ThumbnailMaker;
+﻿namespace BlankRoadBuilder.ThumbnailMaker;
 internal enum RoadSizeFilter
 {
 	AnyRoadSize,
