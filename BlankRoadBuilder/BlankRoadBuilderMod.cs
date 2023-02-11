@@ -1,9 +1,6 @@
 ﻿using AlgernonCommons.UI;
 
 using BlankRoadBuilder.UI.Options;
-using BlankRoadBuilder.Util;
-
-using CitiesHarmony.API;
 
 using ColossalFramework;
 using ColossalFramework.IO;
@@ -17,12 +14,8 @@ using ModsCommon.Utilities;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Resources;
 
 using UnityEngine;
 
@@ -46,19 +39,25 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	protected override ulong BetaWorkshopId => 2891132324ul;
 	protected override string IdRaw => nameof(BlankRoadBuilderMod);
 	public override bool IsBeta => false;
+	protected override LocalizeManager LocalizeManager { get; } = new LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	public override List<ModVersion> Versions { get; } = new List<ModVersion>
 	{
+		new ModVersion(new Version("1.2.5"), new DateTime(2023, 2, 12)),
+		new ModVersion(new Version("1.2.4"), new DateTime(2023, 2, 10)),
+		new ModVersion(new Version("1.2.3"), new DateTime(2023, 2, 9)),
+		new ModVersion(new Version("1.2.2"), new DateTime(2023, 2, 8)),
+		new ModVersion(new Version("1.2.1"), new DateTime(2023, 2, 7)),
 		new ModVersion(new Version("1.2.0"), new DateTime(2023, 2, 5)),
+		new ModVersion(new Version("1.1.2"), new DateTime(2023, 1, 29)),
+		new ModVersion(new Version("1.1.1"), new DateTime(2023, 1, 23)),
+		new ModVersion(new Version("1.1.0"), new DateTime(2023, 1, 22)),
+		new ModVersion(new Version("1.0.4"), new DateTime(2023, 1, 6)),
+		new ModVersion(new Version("1.0.3"), new DateTime(2023, 1, 1)),
+		new ModVersion(new Version("1.0.2"), new DateTime(2022, 12, 31)),
+		new ModVersion(new Version("1.0.1"), new DateTime(2022, 12, 31)),
+		new ModVersion(new Version("1.0.0"), new DateTime(2022, 12, 31)),
 	};
 
-	public override string GetLocalizedString(string key, CultureInfo culture = null)
-	{
-		ResourceManager resourceManager = new ResourceManager($"{nameof(BlankRoadBuilder)}.Changelog", typeof(ResourceReader).Assembly);
-        
-		return Properties.Changelog.ResourceManager.GetString(key, Properties.Changelog.Culture);
-	}
-
-	protected override LocalizeManager LocalizeManager => new ModsCommon.LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	protected override List<BaseDependencyInfo> DependencyInfos
 	{
 		get
@@ -123,10 +122,11 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 
 		var tabStrip = AutoTabstrip.AddTabstrip(s_optionsParentPanel, 0f, 0f, s_optionsParentPanel.width, s_optionsParentPanel.height, out _, tabHeight: 32f);
 
-		new GeneralOptions(tabStrip, 0);
-		new LaneSizeOptions(tabStrip, 1);
-		new IMTOptionsPanel(tabStrip, 2);
-		new VanillaOptionsPanel(tabStrip, 3);
+		new GeneralOptions(tabStrip, 0, 5);
+		//new CustomPropsOptions(tabStrip, 1, 5);
+		new LaneSizeOptions(tabStrip, 1, 5);
+		new IMTOptionsPanel(tabStrip, 2, 5);
+		new VanillaOptionsPanel(tabStrip, 3, 4);
 
 		tabStrip.selectedIndex = -1;
 		tabStrip.selectedIndex = 0;

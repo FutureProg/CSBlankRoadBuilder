@@ -2,7 +2,6 @@
 using AdaptiveRoads.Manager;
 
 using KianCommons;
-using System.Linq;
 
 namespace TrolleyWiresFlag
 {

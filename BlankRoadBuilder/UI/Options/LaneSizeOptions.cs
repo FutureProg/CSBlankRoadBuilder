@@ -4,14 +4,21 @@ using BlankRoadBuilder.ThumbnailMaker;
 using ColossalFramework.UI;
 
 using System;
+using System.Collections.Generic;
+
+using UnityEngine;
 
 namespace BlankRoadBuilder.UI.Options;
 internal class LaneSizeOptions : OptionsPanelBase
 {
 	public override string TabName { get; } = "Lane Sizes";
 
-	public LaneSizeOptions(UITabstrip tabStrip, int tabIndex) : base(tabStrip, tabIndex)
+	private readonly List<Action> ResetActions = new List<Action>();
+
+	public LaneSizeOptions(UITabstrip tabStrip, int tabIndex, int tabCount) : base(tabStrip, tabIndex, tabCount)
 	{
+		_panel.scrollPadding = new RectOffset(15, 0, 30, 0);
+
 		var i = 0;
 		var y = 0F;
 
@@ -22,6 +29,8 @@ internal class LaneSizeOptions : OptionsPanelBase
 
 			if (i++ % 2 == 0)
 				yPos = y;
+
+			ResetActions.Add(() => slider.value = ModOptions.LaneSizes[laneType]);
 
 			slider.eventValueChanged += (s, v) =>
 			{
@@ -37,6 +46,8 @@ internal class LaneSizeOptions : OptionsPanelBase
 		if (i++ % 2 == 0)
 			yPos = y;
 
+		ResetActions.Add(() => diagonalParking.value = ModOptions.LaneSizes.DiagonalParkingSize);
+
 		diagonalParking.eventValueChanged += (s, v) =>
 		{
 			ModOptions.LaneSizes.DiagonalParkingSize = v;
@@ -50,11 +61,32 @@ internal class LaneSizeOptions : OptionsPanelBase
 		if (i++ % 2 == 0)
 			yPos = y;
 
-		horizontalParking.eventValueChanged += (s, v) =>
-		 {
-			 ModOptions.LaneSizes.HorizontalParkingSize = v;
+		ResetActions.Add(() => horizontalParking.value = ModOptions.LaneSizes.HorizontalParkingSize);
 
-			 ModOptions.LaneSizes.Save();
-		 };
+		horizontalParking.eventValueChanged += (s, v) =>
+		{
+			ModOptions.LaneSizes.HorizontalParkingSize = v;
+
+			ModOptions.LaneSizes.Save();
+		};
+
+		var resetButton = _panel.AddUIComponent<SlickButton>();
+		resetButton.size = new Vector2(230, 30);
+		resetButton.relativePosition = new Vector2(25, yPos + Margin);
+		resetButton.text = "Reset all lane widths";
+		resetButton.SetIcon("I_Undo.png");
+		resetButton.eventClicked += ResetButton_eventClicked;
+	}
+
+	private void ResetButton_eventClicked(UIComponent component, UIMouseEventParameter eventParam)
+	{
+		ModOptions.LaneSizes.Update(true);
+
+		ModOptions.LaneSizes.Save();
+
+		foreach (var item in ResetActions)
+		{
+			item();
+		}
 	}
 }

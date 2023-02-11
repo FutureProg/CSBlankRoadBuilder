@@ -1,11 +1,6 @@
 ﻿using AdaptiveRoads.CustomScript;
 using AdaptiveRoads.Manager;
 
-using System.Linq;
-using KianCommons;
-
-using System.Globalization;
-
 namespace IsTailNodeFlag
 {
 	public class IsTailNode : PredicateBase

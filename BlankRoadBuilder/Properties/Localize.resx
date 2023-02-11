@@ -1,0 +1,340 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Mod_WhatsNewMessage1_0_0" xml:space="preserve">
+    <value>[NEW] The generated thumbnail has been redesigned to be more realistic and visually accurate.
+[NEW] The road width now includes the space for both sidewalks and asphalt.
+[NEW] You can now choose the texture for the sides of the road at both ground and bridge elevation, as well as removing the asphalt texture from the road.
+[NEW] Curb delimiters have been added, allowing for customizable sidewalks by adding or removing lanes before/after them.
+[NEW] Lines now represent individual lanes (previous options such as 1L, 2L, 3L have been removed).
+[NEW] The default lane direction is now two-way, and the "None" option has been removed.
+[NEW] Grass, gravel, pavement, and tree lane types have been combined into a single "Filler" type.
+[NEW] A new add-on feature allows you to choose the surface of any lane and add decorations to Filler and Curb lanes. These add-ons include: Filler, Grass, Gravel, Pavement, Tree, Benches, Flower Pots, Street Light, Double Street Light, Bollard, Hedge, Transit Stop, Trash Bin, Bike Parking, Street Ads, and Barrier.
+[NEW] The "Add stop to filler" option has been moved to the add-ons feature as "Transit Stop.".
+[NEW] The user interface for customizing lane width, elevation, and speed was moved directly into the lane settings.
+[NEW] You can now remove the padding of fillers on the left, right, or both sides.
+[NEW] A duplicate button has been added for lanes.
+[NEW] A LHT (left-hand traffic) indicator has been added to thumbnails.
+[NEW] A built-in font is now used for speed signs and road widths, you can still choose a custom font.
+[NEW] You can now snap road widths to vanilla-compatible values.
+[NEW] Empty lanes are now just empty space and cannot have any add-ons.
+[NEW] Clearing lanes will now also clear the road width, speed limit, and custom name.
+[NEW] Duplicate Flip no longer duplicates the filler in the middle of the road.
+[NEW] A button has been added to the options panel which allows you to re-generate all previously exported roads in case you change your default settings or colors and want to apply the changes automatically.
+[NEW] Added Highways and Flat Roads road-type options.
+[NEW] Added Intersection Marking Tool auto-generated markings.
+[NEW] You can choose between IMT &amp; AN markings in the settings.
+[NEW] IMT is now required to use this mod.
+[NEW] Setting the Buffer Width to 0 will now hide line markings at the curb.
+[NEW] Grass lanes will now change to pavement when a bus stop is present.
+[NEW] Lane surfaces that are next to each other will now be merged into one.
+[NEW] Added an indicator that a road was saved in the road list &amp; a checkbox to hide roads you’ve already saved from the list.
+[NEW] The following options have been added to the mod's settings:.
+[NEW] Place traffic lights on the opposite side of the junction.
+[NEW] Add lane arrows (enabled by default).
+[NEW] Add lane decals (enabled by default).
+[NEW] Add grass props to grass lanes (enabled by default).
+[NEW] Use vanilla tree placement.
+[NEW] Use vanilla streetlight placement.
+[UPDATED] The default width of bus lanes has been changed to 3 meters.
+[UPDATED] The angle of diagonal parking has been increased from 45 to 60 degrees.
+[UPDATED] The extra road width will now be used to expand sidewalks rather than fillers.
+[UPDATED] Pedestrian Traffic lights no longer get generated if the walking distance is less or equal to 3m and fixed them sometimes not showing when they should.
+[UPDATED] Removed ghost lanes, IMT points are now generated for all lanes.
+[UPDATED] Trees will now always be visible, and you can use an AN toggle to hide those close to the intersection.
+[UPDATED] The curb on crosswalks has been lowered and is now almost flush with the asphalt.
+[UPDATED] The filler settings have been simplified to only include "filled" and "dashed". The previous options can now be selected within the Thumbnail Maker.
+[UPDATED] The generation options panel will no longer appear after selecting a road to build. Instead, the generation process will start immediately.
+[UPDATED] The elevation of props and lanes on grass, pavement, and gravel will default to a higher elevation, and props will no longer change elevation when hiding markings;.
+[UPDATED] AN Fillers can no longer be individually hidden.
+[UPDATED] The buffer width can no longer be set to a value below 0.
+[UPDATED] Removed the minimum width limit for tram side poles.
+[UPDATED] The mod folder has been renamed from BlankRoadBuilder to RoadBuilder.
+[FIXED] Traffic signs being placed for lanes in the opposite direction has been fixed.
+[FIXED] LHT interactions between the Thumbnail Maker and the game have been fixed.
+[FIXED] Loading roads while having different LHT settings in Thumbnail Maker now works correctly.
+[FIXED] AN markings’ dash length being double its intended value has been fixed.
+[FIXED] Horizontal parking’s lane width has been fixed.
+[FIXED] Width calculations of fillers has been fixed.
+[FIXED] Fixed the scrollbar issue in the settings.
+[FIXED] Custom UI font in thumbnail maker now works correctly.
+[FIXED] Improved the search to also match words from different places in the road description.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_0_1" xml:space="preserve">
+    <value>[NEW] Added an option to remove the curb texture from flat roads.
+[UPDATED] Reduced the minimum size needed for traffic lights to appear on the curb.
+[UPDATED] Reduced the maximum size of the arrows in the small thumbnail.
+[FIXED] Fixed pavement width calculation with vanilla width snapping.
+[FIXED] Fixed distorted icons on the thumbnail when lanes were really thin.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_0_2" xml:space="preserve">
+    <value>[UPDATED] Traffic lights' drivable area calculations no longer stop on Empty lanes.
+[UPDATED] Adding streetlights in Thumbnail Maker now disables the auto-generated ones.
+[FIXED] Fixed vanilla snapping width calculation being off in-game.
+[FIXED] Fixed an error while generating IMT markings.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_0_3" xml:space="preserve">
+    <value>[NEW] A new 'Fire Hydrant' add-on option has been added.
+[UPDATED] Pedestrian traffic lights now show up correctly even when there are lanes of opposite directions next to them.
+[UPDATED] The state of the 'Hide generated roads' checkbox is now preserved when reopening the panel.
+[UPDATED] Elevation fillers are no longer created when the custom elevation is the same as the default value.
+[UPDATED] The narrow bicycle lane decal is now used when the lane is less than 2m wide.
+[FIXED] The solid IMT fillers now correctly follow the lane guide.
+[FIXED] The IMT fillers now match the padding settings in Thumbnail Maker.
+[FIXED] Fixed IMT fillers' height calculations sometimes being off.
+[FIXED] The positions of tram poles on curb lanes have been fixed.
+[FIXED] An error that occurred when generating flat tram roads has been fixed.
+[FIXED] Fixed speed limits when using the USA (mph) region type.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_0_4" xml:space="preserve">
+    <value>[NEW] Added AN toggles for curbless and nodeless variants.
+[NEW] Editing a road in Thumbnail Maker no longer generates a duplicate road file when saving.
+[NEW] Added an option to remove ghost lanes when IMT markings are not enabled.
+[UPDATED] Improved connections between flat and highway roads and pedestrian roads or other surface-level roads.
+[UPDATED] Increased default parking widths from 2/4/5.5m to 2/5/6m.
+[UPDATED] Lightened the color of the pavement median in the Thumbnail Maker.
+[UPDATED] Made streetlights in the Thumbnail Maker more accurately match their appearance in-game.
+[FIXED] Fixed incorrect transitions for 24m+ roads when paired with highways.
+[FIXED] Fixed a bug that caused the direction of add-ons to be flipped when they were close to the center of the road.
+[FIXED] Fixed lanes with a speed limit of 0.
+[FIXED] Fixed "Filled" IMT fillers in the IMT not following the correct guide layout.
+[FIXED] Fixed a visual bug with medians on curb lanes in the Thumbnail Maker.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_1_0" xml:space="preserve">
+    <value>[NEW] AN markings have been replaced with Vanilla markings.
+[NEW] Markings and Fillers will now correctly twist at intersections.
+[NEW] Fillers now remain at the correct height while using Curb Height Adjuster.
+[NEW] Markings no longer have gaps at intersections.
+[NEW] Markings and Fillers now show up at much larger distances.
+[NEW] You can now generate roads with asymmetrical pavement widths.
+[NEW] Roads with asymmetrical pavements will have Bend nodes disabled as they are not currently supported.
+[NEW] Use the “Re-export Roads” button in Thumbnail Maker to regenerate all your roads’ thumbnails to reflect the road width changes.
+[NEW] Elevation steps for elevated lanes will now include slopes at intersections; the steepness of the slope can be adjusted in the mod options.
+[NEW] Trolley wires will now be rendered on nodes, but note that this requires all roads at the node to be generated after this update.
+[NEW] Yield, highway entrance, and highway exit signs have been added.
+[NEW] Added the option to hide road clutter by default, its respective AN toggle would then be used to show them instead of hiding them.
+[NEW] Added the option to change the repeat distance of trees and streetlights.
+[NEW] Added the option to randomize the distance between trees, this does not work with the Vanilla Tree Placement option.
+[UPDATED] The road building process in the editor has been updated to automatically clear all previous roads and provide template segments for easy testing.
+[UPDATED] Barriers will now always be generated, regardless of the Auto-Markings option.
+[UPDATED] The selected road while going into the editor no longer affects the generated road.
+[UPDATED] Elevated and Bridge elevations will now be automatically added while slope and tunnel elevations will be automatically removed.
+[UPDATED] Pavement and Gravel fillers will no longer have a curb when at surface level.
+[UPDATED] The size of bridge pillars has been corrected to take into account larger pavement widths.
+[FIXED] Automatic street lights will no longer be generated if a manual double-streetlight is placed.
+[FIXED] Fixed IMT markings being placed on all roads instead of just the one being edited.
+[FIXED] Fixed traffic signs not being generated.
+[FIXED] Fixed Traffic Lights facing the wrong direction while playing in LHT mode.
+[FIXED] Fixed default parking sizes in Thumbnail Maker.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_1_1" xml:space="preserve">
+    <value>[NEW] Added a limit of 250 lanes while generating a road, roads with more lanes than this limit break your game.
+[FIXED] Fixed a bug while updating an older road that changed its original name. *Regenerating the road with this update will fix the broken road.
+[FIXED] Fixed Trolley bus wires on nodes sometimes crossing the left/right wires.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_1_2" xml:space="preserve">
+    <value>[UPDATED] Improved the save panel integration.
+[FIXED] Fixed the transition between ground and elevated glitch.
+[FIXED] Fixed lanes having the wrong position when the sidewalks are smaller than 1.5m.
+[FIXED] Fixed curb lanes not having street lights when they're too small.
+[FIXED] Lowered the minimum width required for props to show on curb lanes.
+[FIXED] Fixed the yield sign having the wrong rotation.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_2_0" xml:space="preserve">
+    <value>[NEW] Adding flower pots to lanes with grass on them now adds planted flowers instead.
+[NEW] Added slope transition for all fillers excluding Curb, Tram, &amp; Filler Lane types.
+[NEW] Added an option to only generate trees on the ground elevation.
+[NEW] Added vanilla crosswalks with customisable styles, those only show when Vanilla Markings are enabled, and can be toggled off.
+[NEW] Added a Lamp Post add-on.
+[NEW] Added tags to roads to easily categorise your roads.
+[UPDATED] Added Australian speed sign option.
+[UPDATED] Added benches, flower pots &amp; lamp posts as available decorations for pedestrian lanes.
+[UPDATED] Buffer size is now saved throughout sessions.
+[UPDATED] Custom text is now added automatically to the road’s description for easier search in-game.
+[UPDATED] You can now customise a road’s description manually.
+[UPDATED] Added the option to add the road’s width inside its generated name.
+[UPDATED] Added the option to display the lane widths on the large thumbnail.
+[UPDATED] Duplicating a lane while holding down the mouse button now allows you to quickly move that lane up and down.
+[UPDATED] Improved the “Currently editing” UI &amp; added a button to reset your changes to the road.
+[UPDATED] Added a better warnings UI while editing a road instead of receiving the warnings while exporting the road.
+[UPDATED] Moved the saved roads section to its own sidebar that can be shown &amp; hidden away.
+[UPDATED] Added more filter options in the saved road sidebar; filter by road type, road size &amp; tags.
+[UPDATED] Changed the UI of saved roads to fit more on your screen, right click a road for more options like easily copying the road’s thumbnail without loading it. You can customise how many columns are shown in the sidebar inside the options.
+[UPDATED] Added the option to change the sorting of the saved roads.
+[UPDATED] Custom text on the thumbnail now changes size to fit all of the text at the top of the thumbnail.
+[UPDATED] Duplicate Flip now also flips the left sidewalk to the right sidewalk if the right sidewalk is empty.
+[UPDATED] Right-clicking the “Add Lane” button now places the lane at the top of the list, while clicking with the middle mouse button places it at the end.
+[UPDATED] Clicking on the speed limit textbox’s icon now opens the speed limit selection window.
+[UPDATED] Saving a thumbnail now opens a save dialog where you can choose the location as well as which thumbnail to save.
+[UPDATED] Added a “Disable Animations” option in the Themes &amp; UI panel.
+[UPDATED] Improved non-asphalt roads’ transition with asphalt roads.
+[UPDATED] Reduced the size of the main editor panel.
+[UPDATED] Redesigned the in-game UI.
+[UPDATED] Roads in-game are now color-coded by:.
+[UPDATED] Red: Road was previously built but is no longer available (locally).
+[UPDATED] Orange: Road was built and is available, but is not updated to the current version of Road Builder.
+[UPDATED] Green: Road is built with the latest version of Road Builder.
+[FIXED] Fixed the glitch between ground &amp; elevated levels.
+[FIXED] Barriers now show on the node of this transition.
+[FIXED] Fixed large font sizes on the thumbnail for computers that have display zoom enabled.
+</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_2_1" xml:space="preserve">
+    <value>[NEW] Added a reset button for the general options in-game.
+[UPDATED] Improved the in-game options UI.
+[FIXED] Fixed grass medians not showing when there's a transit stop on the lane.
+[FIXED] Fixed barriers showing at two-segment ground nodes.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_2_2" xml:space="preserve">
+    <value>[NEW] Added a TM option to display the road width in units when possible.
+[NEW] Added a TM option to display per-lane custom speed limits on the large thumbnail.
+[UPDATED] Road configs sorting is now shared between in-game and Thumbnail Maker, your previous selection will be reset after this update.
+[UPDATED] Right-clicking a tag now inverts it, showing only roads that don’t match that tag. You can also use the middle-mouse button to clear it.
+[UPDATED] Grass fillers that are on the sidewalk and have transit stops on them no longer generate a pavement mesh when the stop is active, it will still hide the grass.
+[UPDATED] Medians on a curb lane now always end at the curb no matter the padding option.
+[FIXED] Fixed medians on a curb flickering when the buffer size was 0.
+[FIXED] Fixed medians being bugged out if they were placed on an edge curb lane.
+[FIXED] Fixed road-size filtering being wrong in-game.
+[FIXED] Fixed the right-click menu in Thumbnail Maker going under the taskbar.
+[FIXED] Fixed IMT markings sometimes not showing when using small lanes.
+[FIXED] Fixed the close button not showing in-game.
+[FIXED] Fixed the previously built road not being selected when re-opening the panel.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_2_3" xml:space="preserve">
+    <value>[NEW] Added a reset button in-game for lane sizes.
+[NEW] Added an in-game changelog popup.
+[NEW] Opening the sidebar in Thumbnail Maker now focuses the search bar, pressing Ctrl+F will also focus it as well as opening the sidebar if it's closed.
+[UPDATED] Updated UI components used in the options panel.
+[FIXED] Fixed street lights being affected by the vanilla tree placement option.
+[FIXED] Fixed excluded tags' background color in Thumbnail Maker.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_2_4" xml:space="preserve">
+    <value>[NEW] Added a small label on the thumbnails in-game to indicate which version the road was generated in.
+[UPDATED] Road files nested inside the Assets folder are now taken in consideration when displaying the build status of a road.
+[FIXED] Fixed the placement of the checkboxes in the build panel.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_2_5" xml:space="preserve">
+    <value>[NEW] Added a better status filter in the build panel.
+[NEW] Added a button to clear all filters in the build panel.
+[NEW] Filter settings are now saved throughout your session.
+[UPDATED] Changed the color source of crosswalks to the "Border" line.
+[UPDATED] Added IMT API compatibility to ensure constant compatibility with both IMT Stable &amp; Beta.
+[FIXED] Fixed the color preview for markings not updating on the reset and not taking alpha in consideration.</value>
+  </data>
+</root>

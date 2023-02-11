@@ -1,6 +1,7 @@
 ﻿using AdaptiveRoads.Manager;
 
 using BlankRoadBuilder.ThumbnailMaker;
+using BlankRoadBuilder.Util.Props.Templates;
 
 using System;
 using System.Collections.Generic;

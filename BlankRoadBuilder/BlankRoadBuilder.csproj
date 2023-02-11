@@ -9,9 +9,9 @@
 	<LangVersion>latest</LangVersion>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>enable</Nullable>
-	<Version>1.2.2</Version>
-	<FileVersion>1.2.2</FileVersion>
-	<AssemblyVersion>1.2.2</AssemblyVersion>
+	<Version>1.2.5</Version>
+	<FileVersion>1.2.5</FileVersion>
+	<AssemblyVersion>1.2.5</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -45,14 +45,11 @@
 
   <ItemGroup>
 	<PackageReference Include="CitiesHarmony.API" Version="2.1.0" />
-	<PackageReference Include="IMT.API" Version="1.0.1" />
+	<PackageReference Include="IMT.API" Version="1.0.2" />
 	<PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
   </ItemGroup>
 
   <ItemGroup>
-	<Reference Include="IntersectionMarkingTool.API">
-	  <HintPath>..\libs\IntersectionMarkingTool.API.dll</HintPath>
-	</Reference>
 	<Reference Include="AlgernonCommons.Patching">
 	  <HintPath>..\libs\AlgernonCommons.Patching.dll</HintPath>
 	</Reference>
@@ -67,11 +64,6 @@
 	<Reference Include="ICities">
 	  <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
 	  <Private>False</Private>
-	</Reference>
-	<Reference Include="NodeMarkup">
-		<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2140418403\NodeMarkup.dll</HintPath>
-		<Private>False</Private>
-		<Aliases>NM</Aliases>
 	</Reference>
 	<Reference Include="NodeControllerRenewal">
 		<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2472062376\NodeControllerRenewal.dll</HintPath>
@@ -97,20 +89,48 @@
 	</Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Properties\Changelog.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Changelog.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Remove="Properties\Localize.en-GB.resx" />
+		<EmbeddedResource Remove="Properties\Localize.resx" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Changelog.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Changelog.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="Properties\Localize.en-GB.resx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Include="Properties\Localize.resx">
+			<Generator>LocalizeGenerator</Generator>
+			<LastGenOutput>Localize.cs</LastGenOutput>
+			<CustomToolNamespace>BlankRoadBuilder</CustomToolNamespace>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Properties\Localize.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Localize.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<Target Name="PdbToMdb" AfterTargets="Build">
+		<ItemGroup>
+			<FilesToDelete Include="$(OutDir)*.pdb" />
+		</ItemGroup>
+		<Delete Files="@(FilesToDelete)" />
+
+		<ItemGroup>
+			<LocalizeToMove Include="$(OutDir)Properties\*.resx" />
+		</ItemGroup>
+		<Move SourceFiles="@(LocalizeToMove)" DestinationFiles="@(LocalizeToMove->'$(OutDir)Localize\%(Filename)%(Extension)')" />
+		<RemoveDir Directories="$(OutDir)Properties" />
+
+		<ItemGroup>
+			<CommonLocalizeToMove Include="$(OutDir)*.resx" />
+		</ItemGroup>
+		<Move SourceFiles="@(CommonLocalizeToMove)" DestinationFiles="@(CommonLocalizeToMove->'$(OutDir)Localize\%(Filename)%(Extension)')" />
+	</Target>
 	
 	<Import Project="..\ModsCommon\ModShared\ModsCommonShared.projitems" Label="Shared" />
 	<Import Project="..\ModsCommon\ToolShared\ModsToolShared.projitems" Label="Shared" />

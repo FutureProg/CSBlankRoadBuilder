@@ -3,11 +3,11 @@
 using ColossalFramework.UI;
 
 namespace BlankRoadBuilder.UI.Options;
-internal partial class FillerOptions : MarkingsOptions
+internal partial class FillerOptions : OptionsPanelBase
 {
 	public override string TabName => "Custom Filler Settings";
 
-	public FillerOptions(MarkingType markingType, UITabstrip tabStrip, int tabIndex) : base(markingType, tabStrip, tabIndex)
+	public FillerOptions(MarkingType markingType, UITabstrip tabStrip, int tabIndex, int tabCount) : base(tabStrip, tabIndex, tabCount)
 	{
 		var ind = 0;
 		foreach (var option in MarkingStyleUtil.CustomFillerMarkings[markingType])
@@ -21,21 +21,20 @@ internal partial class FillerOptions : MarkingsOptions
 			}
 			else
 			{
-				ctrl.relativePosition = new UnityEngine.Vector2(2 * Margin + ctrl.width, yPos);
+				ctrl.relativePosition = new UnityEngine.Vector2((2 * Margin) + ctrl.width, yPos);
 				yPos += ctrl.height + Margin;
 			}
 
 			ind++;
-			//	AddFillerOption(option.Key, option.Value);
 		}
 	}
 }
 
-internal partial class LineOptions : MarkingsOptions
+internal partial class LineOptions : OptionsPanelBase
 {
 	public override string TabName => "Custom Line Settings";
 
-	public LineOptions(MarkingType markingType, UITabstrip tabStrip, int tabIndex) : base(markingType, tabStrip, tabIndex)
+	public LineOptions(MarkingType markingType, UITabstrip tabStrip, int tabIndex, int tabCount) : base(tabStrip, tabIndex, tabCount)
 	{
 		var ind = 0;
 		foreach (var option in MarkingStyleUtil.CustomLineMarkings[markingType])
@@ -49,12 +48,11 @@ internal partial class LineOptions : MarkingsOptions
 			}
 			else
 			{
-				ctrl.relativePosition = new UnityEngine.Vector2(2 * Margin + ctrl.width, yPos);
+				ctrl.relativePosition = new UnityEngine.Vector2((2 * Margin) + ctrl.width, yPos);
 				yPos += ctrl.height + Margin;
 			}
 
 			ind++;
-			//AddLineOption(option.Key, option.Value);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using BlankRoadBuilder.Util.Props;
+﻿using BlankRoadBuilder.Util.Props.Templates;
 
 namespace BlankRoadBuilder.Domain;
 

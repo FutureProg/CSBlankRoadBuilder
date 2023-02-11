@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 using UnityEngine;
 
@@ -29,22 +27,42 @@ internal class ResourceUtil
 			if (stream == null)
 				return null;
 
-			using (var ms = new MemoryStream())
-			{
-				stream.CopyTo(ms);
-				return new Image(ms.ToArray());
-			}
+			using var ms = new MemoryStream();
+			stream.CopyTo(ms);
+			return new Image(ms.ToArray());
 		}, StringComparer.InvariantCultureIgnoreCase);
 	}
 
-	public static Image? GetImage(string? name) => _resources.TryGetValue(name, out var image) ? image : null;
+	public static Image? GetImage(string? name)
+	{
+		return _resources.TryGetValue(name, out var image) ? image : null;
+	}
 
-	internal static UITextureAtlas? GetAtlas(string name, UITextureAtlas.SpriteInfo[] sprites) => GetAtlas(name, null, sprites);
-	internal static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal") => GetAtlas(name, spriteName, null);
-	private static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal", UITextureAtlas.SpriteInfo[]? sprites = null) => GetAtlas(GetImage(name)?.CreateTexture(), spriteName, sprites);
+	internal static UITextureAtlas? GetAtlas(string name, UITextureAtlas.SpriteInfo[] sprites)
+	{
+		return GetAtlas(name, null, sprites);
+	}
 
-	internal static UITextureAtlas? GetAtlas(Texture2D? texture2D, UITextureAtlas.SpriteInfo[] sprites) => GetAtlas(texture2D, null, sprites);
-	internal static UITextureAtlas? GetAtlas(Texture2D? texture2D, string? spriteName = "normal") => GetAtlas(texture2D, spriteName, null);
+	internal static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal")
+	{
+		return GetAtlas(name, spriteName, null);
+	}
+
+	private static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal", UITextureAtlas.SpriteInfo[]? sprites = null)
+	{
+		return GetAtlas(GetImage(name)?.CreateTexture(), spriteName, sprites);
+	}
+
+	internal static UITextureAtlas? GetAtlas(Texture2D? texture2D, UITextureAtlas.SpriteInfo[] sprites)
+	{
+		return GetAtlas(texture2D, null, sprites);
+	}
+
+	internal static UITextureAtlas? GetAtlas(Texture2D? texture2D, string? spriteName = "normal")
+	{
+		return GetAtlas(texture2D, spriteName, null);
+	}
+
 	private static UITextureAtlas? GetAtlas(Texture2D? texture2D, string? spriteName = "normal", UITextureAtlas.SpriteInfo[]? sprites = null)
 	{
 		if (texture2D == null)

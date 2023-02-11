@@ -15,13 +15,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Xml.Linq;
-
-using UnityEngine;
-
-using static RenderManager;
 
 namespace BlankRoadBuilder.Patches;
 
@@ -38,7 +32,7 @@ public class SavePanelPatch
 			.GetField("m_SnapShotSprite", BindingFlags.Instance | BindingFlags.NonPublic)
 			.GetValue(__instance) is UITextureSprite m_SnapShotSprite)
 		{
-			m_SnapShotSprite.relativePosition = new UnityEngine.Vector3(m_SnapShotSprite.relativePosition.x + (m_SnapShotSprite.width - m_SnapShotSprite.height) / 2, m_SnapShotSprite.relativePosition.y, m_SnapShotSprite.relativePosition.z);
+			m_SnapShotSprite.relativePosition = new UnityEngine.Vector3(m_SnapShotSprite.relativePosition.x + ((m_SnapShotSprite.width - m_SnapShotSprite.height) / 2), m_SnapShotSprite.relativePosition.y, m_SnapShotSprite.relativePosition.z);
 			m_SnapShotSprite.width = m_SnapShotSprite.height;
 		}
 	}

@@ -5,12 +5,11 @@ using AdaptiveRoads.Manager;
 
 using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
-using BlankRoadBuilder.Patches;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Props;
+using BlankRoadBuilder.Util.Props.Templates;
 
 using ColossalFramework.IO;
-using ColossalFramework.UI;
 
 using System;
 using System.Collections.Generic;
@@ -364,7 +363,7 @@ public static class RoadBuilderUtil
 				CustomWidth = 0.1F,
 				Elevation = 0F,
 				Decorations = LaneDecoration.Barrier,
-				Position = -(roadInfo.TotalWidth / 2 - 0.45F + 0.8F),
+				Position = -((roadInfo.TotalWidth / 2) - 0.45F + 0.8F),
 				Tags = LaneTag.StackedLane
 			});
 		}
@@ -377,7 +376,7 @@ public static class RoadBuilderUtil
 				CustomWidth = 0.1F,
 				Elevation = 0F,
 				Decorations = LaneDecoration.Barrier,
-				Position = (roadInfo.TotalWidth / 2 - 0.45F + 0.8F),
+				Position = (roadInfo.TotalWidth / 2) - 0.45F + 0.8F,
 				Tags = LaneTag.StackedLane
 			});
 		}
@@ -432,7 +431,7 @@ public static class RoadBuilderUtil
 		roadInfo.AsphaltWidth = sizeLanes.Where(x => x.Tags.HasFlag(LaneTag.Asphalt)).Sum(x => x.LaneWidth) + (2 * roadInfo.BufferWidth);
 		roadInfo.TotalWidth = roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth + roadInfo.AsphaltWidth;
 
-		var index = (roadInfo.AsphaltWidth + roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth) / -2 + (roadInfo.LeftPavementWidth - leftPavementWidth);
+		var index = ((roadInfo.AsphaltWidth + roadInfo.LeftPavementWidth + roadInfo.RightPavementWidth) / -2) + (roadInfo.LeftPavementWidth - leftPavementWidth);
 
 		foreach (var lane in roadInfo.Lanes.Where(x => !x.Tags.HasFlag(LaneTag.StackedLane)))
 		{

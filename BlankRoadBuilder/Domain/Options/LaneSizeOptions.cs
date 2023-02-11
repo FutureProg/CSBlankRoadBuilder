@@ -57,11 +57,11 @@ public class LaneSizeOptions
 
 	public LaneSizeOptions() { Update(); }
 
-	public void Update()
+	public void Update(bool reset = false)
 	{
 		try
 		{
-			if (File.Exists(Path.Combine(BlankRoadBuilderMod.BuilderFolder, "LaneSizes.xml")))
+			if (!reset && File.Exists(Path.Combine(BlankRoadBuilderMod.BuilderFolder, "LaneSizes.xml")))
 			{
 				var x = new XmlSerializer(typeof(SavedSettings));
 
