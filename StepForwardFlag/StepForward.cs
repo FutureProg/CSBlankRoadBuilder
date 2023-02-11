@@ -1,10 +1,9 @@
 ﻿using AdaptiveRoads.CustomScript;
 using AdaptiveRoads.Manager;
 
-using System.Linq;
 using KianCommons;
 
-using System.Globalization;
+using System.Linq;
 
 namespace StepForwardFlag
 {
@@ -43,11 +42,11 @@ namespace StepForwardFlag
 			var InfoA = node.SegmentIDs.First().ToSegment().Info;
 			var InfoD = node.SegmentIDs.Last().ToSegment().Info;
 
-			return (InfoA == InfoD // Same road
+			return InfoA == InfoD // Same road
 				|| (InfoA.m_netAI as RoadAI)?.m_elevatedInfo == InfoD
 				|| (InfoD.m_netAI as RoadAI)?.m_elevatedInfo == InfoA
 				|| (InfoA.m_netAI as RoadAI)?.m_slopeInfo == InfoD
-				|| (InfoD.m_netAI as RoadAI)?.m_slopeInfo == InfoA);
+				|| (InfoD.m_netAI as RoadAI)?.m_slopeInfo == InfoA;
 		}
 	}
 }

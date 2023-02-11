@@ -11,8 +11,6 @@ using System.Xml.Serialization;
 
 using UnityEngine;
 
-using static EconomyManager;
-
 namespace BlankRoadBuilder.Util;
 public static class ThumbnailMakerUtil
 {
@@ -290,11 +288,11 @@ public static class ThumbnailMakerUtil
 			return type == LaneType.Bus ? 0.3F : 0.1F;
 		}
 
-		if (lane.RightLane?.Type == LaneType.Parking || lane.RightLane?.Type == LaneType.Empty)
+		if (lane.RightLane?.Type is LaneType.Parking or LaneType.Empty)
 		{
 			return lane.RightLane.LaneWidth;
 		}
-		else if (lane.LeftLane?.Type == LaneType.Parking || lane.LeftLane?.Type == LaneType.Empty)
+		else if (lane.LeftLane?.Type is LaneType.Parking or LaneType.Empty)
 		{
 			return -lane.LeftLane.LaneWidth;
 		}

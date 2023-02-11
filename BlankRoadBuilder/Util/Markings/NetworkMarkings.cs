@@ -181,7 +181,7 @@ public static class NetworkMarkings
 		MeshInfo<NetInfo.Node, Node> getNode(bool inverted = false)
 		{
 			var mesh = GenerateMesh(null, null, new CrosswalkMarking(roadInfo, inverted), $"Crosswalk");
-			GenerateTexture(null, false, true, mesh, default, GetLineMarkingInfo(GenericMarkingType.Hard | GenericMarkingType.Normal, MarkingType.AN)?.Color ?? new Color32(77, 77, 77, 255), dashSpace: roadInfo.AsphaltWidth);
+			GenerateTexture(null, false, true, mesh, default, GetLineMarkingInfo(GenericMarkingType.End, MarkingType.AN)?.Color ?? new Color32(77, 77, 77, 255), dashSpace: roadInfo.AsphaltWidth);
 
 			var model = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Markings, mesh + ".obj", filesReady: true);
 			var node = new MeshInfo<NetInfo.Node, Node>(model);
@@ -202,7 +202,7 @@ public static class NetworkMarkings
 		{
 			var surface = fillerMarking.Lanes.Min(x => x.SurfaceElevation);
 			var elevation = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.0025F : 0.01F);
-			
+
 			addTransition = surface != elevation && fillerMarking.Lanes.Any(x => !x.Type.HasAnyFlag(LaneType.Curb, LaneType.Filler, LaneType.Tram));
 		}
 
@@ -279,7 +279,7 @@ public static class NetworkMarkings
 
 		GenerateTexture(
 			fillerMarking.Lanes.First(),
-			isFiller, 
+			isFiller,
 			false,
 			mesh,
 			fillerMarking.Type,
@@ -312,7 +312,7 @@ public static class NetworkMarkings
 		if (fillerMarking.Helper)
 			return "Elevated Step";
 
-		return (fillerMarking.Type != LaneDecoration.Filler ? $"{fillerMarking.Type} Median" : $"{fillerMarking.Lanes.FirstOrDefault()?.Type} Filler");
+		return fillerMarking.Type != LaneDecoration.Filler ? $"{fillerMarking.Type} Median" : $"{fillerMarking.Lanes.FirstOrDefault()?.Type} Filler";
 	}
 
 	private static MeshInfo<NetInfo.Segment, Segment>? GetMarking(LineMarking marking)
@@ -361,10 +361,10 @@ public static class NetworkMarkings
 			}
 			else if (file.EndsWith("_a.png"))
 			{
-				if(crosswalk)
+				if (crosswalk)
 					generateCrosswalkAlpha(file);
-					else
-				generateAlpha(file);
+				else
+					generateAlpha(file);
 			}
 			else
 			{
@@ -447,14 +447,14 @@ public static class NetworkMarkings
 
 			for (var i = 0; i < pixels.Length; i++)
 			{
-				var y = width - i / width;
+				var y = width - (i / width);
 
 				if (y < topY || y > bottomY)
 					continue;
 
 				if (ModOptions.VanillaCrosswalkStyle.HasFlag(CrosswalkStyle.Dashed))
 				{
-					var ratioX = (i % width) % ratio;
+					var ratioX = i % width % ratio;
 
 					if (y < topY + line || y > bottomY - line)
 						pixels[i] = ratioX < ratio * 1 / 3 || ratioX > ratio * 2 / 3 ? Color.white : Color.black;
@@ -462,7 +462,7 @@ public static class NetworkMarkings
 
 				if (ModOptions.VanillaCrosswalkStyle.HasFlag(CrosswalkStyle.Zebra))
 				{
-					var ratioX = (i % width) % ratio;
+					var ratioX = i % width % ratio;
 
 					pixels[i] = ratioX < ratio * 1 / 3 || ratioX > ratio * 2 / 3 ? Color.black : Color.white;
 				}
@@ -626,11 +626,11 @@ public static class NetworkMarkings
 						}
 						else if (crosswalkMarking != null)
 						{
-							if (xPos < 0 == crosswalkMarking.Inverted)
-								xPos = crosswalkMarking.Road.Lanes.First(x => x.Type == LaneType.Curb).Position + crosswalkMarking.Road.Lanes.First(x => x.Type == LaneType.Curb).LaneWidth / 2 - crosswalkMarking.Road.BufferWidth;
+							if ((xPos < 0) == crosswalkMarking.Inverted)
+								xPos = crosswalkMarking.Road.Lanes.First(x => x.Type == LaneType.Curb).Position + (crosswalkMarking.Road.Lanes.First(x => x.Type == LaneType.Curb).LaneWidth / 2) - crosswalkMarking.Road.BufferWidth;
 							else
-								xPos = crosswalkMarking.Road.Lanes.Last(x => x.Type == LaneType.Curb).Position - crosswalkMarking.Road.Lanes.Last(x => x.Type == LaneType.Curb).LaneWidth / 2 + crosswalkMarking.Road.BufferWidth;
-							
+								xPos = crosswalkMarking.Road.Lanes.Last(x => x.Type == LaneType.Curb).Position - (crosswalkMarking.Road.Lanes.Last(x => x.Type == LaneType.Curb).LaneWidth / 2) + crosswalkMarking.Road.BufferWidth;
+
 							if (!crosswalkMarking.Inverted)
 								xPos *= -1;
 

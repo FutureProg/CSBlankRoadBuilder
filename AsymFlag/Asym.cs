@@ -1,10 +1,8 @@
 ﻿using AdaptiveRoads.CustomScript;
-using AdaptiveRoads.Manager;
 
-using System.Linq;
 using KianCommons;
 
-using System.Globalization;
+using System.Linq;
 
 namespace AsymFlag
 {

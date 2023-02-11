@@ -1,4 +1,4 @@
-﻿namespace BlankRoadBuilder.Util.Props;
+﻿namespace BlankRoadBuilder.Util.Props.Templates;
 public enum Prop
 {
 	None = 0,

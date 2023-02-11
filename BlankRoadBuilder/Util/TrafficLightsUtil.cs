@@ -1,6 +1,7 @@
 ﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
+using BlankRoadBuilder.Util.Props.Templates;
 
 namespace BlankRoadBuilder.Util;
 public class TrafficLightsUtil
@@ -33,38 +34,38 @@ public class TrafficLightsUtil
 	{
 		if (tl.LeftForwardSpace > 0F)
 		{
-			tl.LeftForward = tl.LeftForwardSpace >= 6F ? Props.Prop.TrafficLight02 : Props.Prop.TrafficLight01Mirror;
+			tl.LeftForward = tl.LeftForwardSpace >= 6F ? Prop.TrafficLight02 : Prop.TrafficLight01Mirror;
 		}
 		else if (tl.LeftForwardSpace + tl.LeftBackwardSpace > minimumSpace)
 		{
-			tl.LeftForward = Props.Prop.TrafficLightPedestrian;
+			tl.LeftForward = Prop.TrafficLightPedestrian;
 		}
 
 		if (tl.LeftBackwardSpace > 6F)
 		{
-			tl.LeftBackward = tl.LeftBackwardSpace >= 12F ? Props.Prop.TrafficLight02Mirror : Props.Prop.TrafficLight01;
+			tl.LeftBackward = tl.LeftBackwardSpace >= 12F ? Prop.TrafficLight02Mirror : Prop.TrafficLight01;
 		}
 		else if (tl.LeftForwardSpace + tl.LeftBackwardSpace > minimumSpace)
 		{
-			tl.LeftBackward = Props.Prop.TrafficLightPedestrian;
+			tl.LeftBackward = Prop.TrafficLightPedestrian;
 		}
 
 		if (tl.RightForwardSpace > 6F)
 		{
-			tl.RightForward = tl.RightForwardSpace >= 12F ? Props.Prop.TrafficLight02Mirror : Props.Prop.TrafficLight01;
+			tl.RightForward = tl.RightForwardSpace >= 12F ? Prop.TrafficLight02Mirror : Prop.TrafficLight01;
 		}
 		else if (tl.RightBackwardSpace + tl.RightForwardSpace > minimumSpace)
 		{
-			tl.RightForward = Props.Prop.TrafficLightPedestrian;
+			tl.RightForward = Prop.TrafficLightPedestrian;
 		}
 
 		if (tl.RightBackwardSpace > 0F)
 		{
-			tl.RightBackward = tl.RightBackwardSpace >= 6F ? Props.Prop.TrafficLight02 : Props.Prop.TrafficLight01Mirror;
+			tl.RightBackward = tl.RightBackwardSpace >= 6F ? Prop.TrafficLight02 : Prop.TrafficLight01Mirror;
 		}
 		else if (tl.RightBackwardSpace + tl.RightForwardSpace > minimumSpace)
 		{
-			tl.RightBackward = Props.Prop.TrafficLightPedestrian;
+			tl.RightBackward = Prop.TrafficLightPedestrian;
 		}
 
 		return tl;
@@ -74,46 +75,46 @@ public class TrafficLightsUtil
 	{
 		if (tl.LeftForwardSpace > 0F)
 		{
-			tl.LeftForward = Props.Prop.TrafficLight01Mirror;
+			tl.LeftForward = Prop.TrafficLight01Mirror;
 		}
 		else if (tl.LeftForwardSpace + tl.LeftBackwardSpace > minimumSpace)
 		{
-			tl.LeftForward = Props.Prop.TrafficLightPedestrian;
+			tl.LeftForward = Prop.TrafficLightPedestrian;
 		}
 
 		if (tl.LeftBackwardSpace > 6F)
 		{
-			tl.LeftBackward = Props.Prop.TrafficLight01Mirror;
+			tl.LeftBackward = Prop.TrafficLight01Mirror;
 		}
 		else if (tl.LeftForwardSpace > 0F)
 		{
-			tl.LeftBackward = tl.LeftForwardSpace >= 6F ? Props.Prop.TrafficLight02 : Props.Prop.TrafficLight01Mirror;
+			tl.LeftBackward = tl.LeftForwardSpace >= 6F ? Prop.TrafficLight02 : Prop.TrafficLight01Mirror;
 		}
 		else if (tl.LeftBackwardSpace > minimumSpace)
 		{
-			tl.LeftBackward = Props.Prop.TrafficLightPedestrian;
+			tl.LeftBackward = Prop.TrafficLightPedestrian;
 		}
 
 		if (tl.RightForwardSpace > 6F)
 		{
-			tl.RightForward = Props.Prop.TrafficLight01;
+			tl.RightForward = Prop.TrafficLight01;
 		}
 		else if (tl.RightBackwardSpace > 0F)
 		{
-			tl.RightForward = tl.RightBackwardSpace >= 6F ? Props.Prop.TrafficLight02 : Props.Prop.TrafficLight01Mirror;
+			tl.RightForward = tl.RightBackwardSpace >= 6F ? Prop.TrafficLight02 : Prop.TrafficLight01Mirror;
 		}
 		else if (tl.RightForwardSpace > minimumSpace)
 		{
-			tl.RightForward = Props.Prop.TrafficLightPedestrian;
+			tl.RightForward = Prop.TrafficLightPedestrian;
 		}
 
 		if (tl.RightBackwardSpace > 0F)
 		{
-			tl.RightBackward = Props.Prop.TrafficLight01Mirror;
+			tl.RightBackward = Prop.TrafficLight01Mirror;
 		}
 		else if (tl.RightBackwardSpace + tl.RightForwardSpace > minimumSpace)
 		{
-			tl.RightBackward = Props.Prop.TrafficLightPedestrian;
+			tl.RightBackward = Prop.TrafficLightPedestrian;
 		}
 
 		return tl;

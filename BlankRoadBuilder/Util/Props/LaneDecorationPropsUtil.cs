@@ -3,6 +3,7 @@
 using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
+using BlankRoadBuilder.Util.Props.Templates;
 
 using System;
 using System.Collections.Generic;
@@ -196,8 +197,8 @@ public partial class LanePropsUtil
 		{
 			m_prop = lightProp,
 			m_finalProp = lightProp,
-			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
-			m_repeatDistance = ModOptions.VanillaTreePlacement ? (ModOptions.LightRepeatDistance / 2) : 0,
+			m_minLength = ModOptions.VanillaStreetLightPlacement ? 10 : (Math.Abs(position) * 1.95F),
+			m_repeatDistance = ModOptions.VanillaStreetLightPlacement ? (ModOptions.LightRepeatDistance / 2) : 0,
 			m_probability = 100,
 			m_position = new Vector3(xPos, 0, position)
 		}.Extend(prop => new LaneProp(prop)
@@ -229,8 +230,8 @@ public partial class LanePropsUtil
 		{
 			m_prop = lightProp,
 			m_finalProp = lightProp,
-			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
-			m_repeatDistance = ModOptions.VanillaTreePlacement ? ModOptions.LightRepeatDistance : 0,
+			m_minLength = ModOptions.VanillaStreetLightPlacement ? 10 : (Math.Abs(position) * 1.95F),
+			m_repeatDistance = ModOptions.VanillaStreetLightPlacement ? ModOptions.LightRepeatDistance : 0,
 			m_probability = 100,
 			m_position = new Vector3(xPos, 0, position)
 		}.Extend(prop => new LaneProp(prop)
@@ -360,7 +361,7 @@ public partial class LanePropsUtil
 				m_prop = prop,
 				m_finalProp = prop,
 				m_probability = 85,
-				m_angle = (float)_random.NextDouble() * 360 - 180,
+				m_angle = ((float)_random.NextDouble() * 360) - 180,
 				m_repeatDistance = 1.25F,
 				m_position = new Vector3(pos, 0, (float)Math.Round(_random.NextDouble() * 3, 2))
 			}.Extend(prop => new LaneProp(prop)
@@ -439,8 +440,8 @@ public partial class LanePropsUtil
 
 		for (var i = ModOptions.TreeRepeatDistance / 2; i <= 96; i += ModOptions.TreeRepeatDistance)
 		{
-			var pos1 = i + (float)(ModOptions.RandomizeTreeDistance ? (_random.NextDouble() * ModOptions.TreeRepeatDistance / 2 - ModOptions.TreeRepeatDistance / 4) : 0);
-			var pos2 = -i + (float)(ModOptions.RandomizeTreeDistance ? (_random.NextDouble() * ModOptions.TreeRepeatDistance / 2 - ModOptions.TreeRepeatDistance / 4) : 0);
+			var pos1 = i + (float)(ModOptions.RandomizeTreeDistance ? ((_random.NextDouble() * ModOptions.TreeRepeatDistance / 2) - (ModOptions.TreeRepeatDistance / 4)) : 0);
+			var pos2 = -i + (float)(ModOptions.RandomizeTreeDistance ? ((_random.NextDouble() * ModOptions.TreeRepeatDistance / 2) - (ModOptions.TreeRepeatDistance / 4)) : 0);
 
 			yield return getTree(pos1);
 			yield return getTree(pos2);

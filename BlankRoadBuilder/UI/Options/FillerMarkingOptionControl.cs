@@ -1,13 +1,12 @@
-﻿using BlankRoadBuilder.Domain.Options;
-using BlankRoadBuilder.Domain;
+﻿using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Markings;
-using UnityEngine;
 
 namespace BlankRoadBuilder.UI.Options;
 
 internal class FillerDropDown : EnumDropDown<MarkingFillerType> { }
-internal class FillerMarkingOptionControl : MarkingOptionControl<FillerDropDown, MarkingFillerType>
+internal class FillerMarkingOptionControl : CustomMarkingOptionControl<FillerDropDown, MarkingFillerType>
 {
 	public MarkingType MarkingType { get; private set; }
 
@@ -62,11 +61,34 @@ internal class FillerMarkingOptionControl : MarkingOptionControl<FillerDropDown,
 		aTB!.Value = (byte)Value.A;
 	}
 
-	protected override void SetColorR(byte val) => Value.R = val;
-	protected override void SetColorG(byte val) => Value.G = val;
-	protected override void SetColorB(byte val) => Value.B = val;
-	protected override void SetColorA(byte val) => Value.A = val;
+	protected override void SetColorR(byte val)
+	{
+		Value.R = val;
+	}
+
+	protected override void SetColorG(byte val)
+	{
+		Value.G = val;
+	}
+
+	protected override void SetColorB(byte val)
+	{
+		Value.B = val;
+	}
+
+	protected override void SetColorA(byte val)
+	{
+		Value.A = val;
+	}
+
 	protected override void SetLineWidth(float val) { }
-	protected override void SetDashWidth(float val) => Value.DashLength = val;
-	protected override void SetDashSpace(float val) => Value.DashSpace = val;
+	protected override void SetDashWidth(float val)
+	{
+		Value.DashLength = val;
+	}
+
+	protected override void SetDashSpace(float val)
+	{
+		Value.DashSpace = val;
+	}
 }

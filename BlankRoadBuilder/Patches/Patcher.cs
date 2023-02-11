@@ -29,7 +29,7 @@ public static class Patcher
 
 					harmony.Patch(typeof(NetManager).GetMethod(nameof(NetManager.CreateSegment), new Type[] { typeof(ushort).MakeByRefType(), typeof(Randomizer).MakeByRefType(), typeof(NetInfo), typeof(TreeInfo), typeof(ushort), typeof(ushort), typeof(Vector3), typeof(Vector3), typeof(uint), typeof(uint), typeof(bool) })
 						, postfix: new HarmonyMethod(typeof(Segment.UpdateEndSegments).GetMethod(nameof(Segment.UpdateEndSegments.Postfix), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)));
-				
+
 					Patched = true;
 				}
 				catch { }

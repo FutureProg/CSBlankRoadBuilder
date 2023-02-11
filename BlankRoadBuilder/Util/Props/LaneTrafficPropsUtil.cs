@@ -2,6 +2,7 @@
 
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
+using BlankRoadBuilder.Util.Props.Templates;
 
 using System;
 using System.Collections.Generic;
@@ -108,7 +109,7 @@ public partial class LanePropsUtil
 			m_minLength = 0,
 			m_repeatDistance = 0,
 			m_segmentOffset = 1,
-			m_angle = flipAngle ? 270 : 90,
+			m_angle = (flipAngle ? 270 : 90) + propTemplate.Angle,
 			m_colorMode = NetLaneProps.ColorMode.EndState,
 			m_probability = 100,
 			m_position = new Vector3(propPosition, 0, Road.ContainsWiredLanes ? -1.5F : -0.75F),

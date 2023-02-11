@@ -183,7 +183,7 @@ public static class MeshUtil
 			MeshInfo<NetInfo.Node, Node> highCurb, lowCurb, fullLowCurb, transition;
 
 			highCurb = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "High Curb", inverted, noAsphaltTransition: asTransition));
-					
+
 			yield return highCurb;
 
 			if (roadInfo.RoadType != RoadType.Road)
@@ -201,7 +201,7 @@ public static class MeshUtil
 				yield break;
 			}
 
-			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Node, roadInfo, elevation, "Low Curb", inverted, noAsphaltTransition: asTransition));	
+			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Node, roadInfo, elevation, "Low Curb", inverted, noAsphaltTransition: asTransition));
 			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Node, roadInfo, elevation, "Full Low Curb", inverted, noAsphaltTransition: asTransition));
 
 			highCurb.MetaData.SegmentEndFlags.Required |= RoadUtils.Flags.S_HighCurb;

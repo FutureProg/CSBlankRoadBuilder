@@ -58,7 +58,7 @@ public static class ModOptions
 
 	[ModOptions(PROPS, 12F, "Trees repeat distance", "Changes the distance between each tree", 6, 64, 0.5F, "m")]
 	public static float TreeRepeatDistance { get => _treeRepeatDistance.value; set => _treeRepeatDistance.value = value; }
-	
+
 	[ModOptions(OTHER, (int)RoadSortMode.DateCreated, "Road sorting mode", "Changes the sorting of the road configurations")]
 	public static RoadSortMode RoadSortMode { get => LaneSizes.SortMode; set => LaneSizes.SortMode = value; }
 

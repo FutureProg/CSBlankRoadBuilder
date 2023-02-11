@@ -1,10 +1,6 @@
 ﻿using AdaptiveRoads.CustomScript;
-using AdaptiveRoads.Manager;
 
 using KianCommons;
-
-using System.Globalization;
-using System.Linq;
 
 namespace TransitionFlag
 {

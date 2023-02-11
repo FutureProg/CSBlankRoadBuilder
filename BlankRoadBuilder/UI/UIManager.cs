@@ -3,7 +3,7 @@
 using ColossalFramework.UI;
 
 using ModsCommon;
-using System;
+
 using System.IO;
 
 using UnityEngine;
@@ -28,11 +28,12 @@ public class UIManager : MonoBehaviour
 		var gameObject = new GameObject(typeof(EditorPanel).Name);
 		gameObject.transform.parent = UIView.GetAView().transform;
 		currentPanel = gameObject.AddComponent<EditorPanel>();
-		//SingletonMod<BlankRoadBuilderMod>.Instance.ShowWhatsNew();
+		SingletonMod<BlankRoadBuilderMod>.Instance.ShowWhatsNew();
 	}
 
 	public static UITextureAtlas GetIcon(string icon)
 	{
-		return UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), icon)); ;
+		return UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), icon));
+		;
 	}
 }

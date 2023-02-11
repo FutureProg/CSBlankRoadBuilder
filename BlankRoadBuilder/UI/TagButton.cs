@@ -1,12 +1,6 @@
-﻿using AlgernonCommons.UI;
+﻿using BlankRoadBuilder.Util;
 
-using BlankRoadBuilder.Util;
-
-using ColossalFramework.Importers;
 using ColossalFramework.UI;
-
-using System.IO;
-using System.Reflection.Emit;
 
 using UnityEngine;
 
@@ -14,7 +8,7 @@ namespace BlankRoadBuilder.UI;
 public class TagButton : UIPanel
 {
 	private UISprite? Icon;
-	private UILabel _label;
+	private readonly UILabel _label;
 
 	private bool hovered;
 	private bool pressed;
@@ -27,7 +21,7 @@ public class TagButton : UIPanel
 
 	public TagButton()
 	{
-		atlas = ResourceUtil.GetAtlas("ButtonBack.png");
+		atlas = ResourceUtil.GetAtlas("TagBack.png");
 		backgroundSprite = "normal";
 		color = Color.white;
 
@@ -96,27 +90,27 @@ public class TagButton : UIPanel
 
 	public override void Invalidate()
 	{
-		if (_label!= null)
-		if (InvertSelected)
-		{
-			color = new Color32(148, 51, 35, 255);
-			_label.textColor = new Color32(255, 255, 255, 255);
-		}
-		else if (pressed || Selected)
-		{
-			color = new Color32(39, 130, 224, 255);
-			_label.textColor = new Color32(255, 255, 255, 255);
-		}
-		else if (hovered)
-		{
-			color = new Color32(197, 216, 235, 255);
-			_label.textColor = new Color32(30, 37, 44, 255);
-		}
-		else
-		{
-			color = Color.white;
-			_label.textColor = new(50, 50, 50, 255);
-		}
+		if (_label != null)
+			if (InvertSelected)
+			{
+				color = new Color32(148, 51, 35, 255);
+				_label.textColor = new Color32(255, 255, 255, 255);
+			}
+			else if (pressed || Selected)
+			{
+				color = new Color32(39, 130, 224, 255);
+				_label.textColor = new Color32(255, 255, 255, 255);
+			}
+			else if (hovered)
+			{
+				color = new Color32(197, 216, 235, 255);
+				_label.textColor = new Color32(30, 37, 44, 255);
+			}
+			else
+			{
+				color = Color.white;
+				_label.textColor = new(50, 50, 50, 255);
+			}
 
 		if (Icon != null)
 			Icon.spriteName = Selected || InvertSelected || pressed ? "pressed" : "normal";

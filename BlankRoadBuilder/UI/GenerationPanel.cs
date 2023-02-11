@@ -1,24 +1,11 @@
-﻿using AdaptiveRoads.Data.NetworkExtensions;
-using AdaptiveRoads.UI.VBSTool;
-
-using AlgernonCommons;
-using AlgernonCommons.UI;
+﻿using AlgernonCommons;
 
 using BlankRoadBuilder.Domain;
-using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util;
 
-using ColossalFramework.Importers;
 using ColossalFramework.UI;
 
-using ModsCommon.UI;
-
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using System.Security.Policy;
 
 using UnityEngine;
 
@@ -70,7 +57,7 @@ public class GenerationPanel : UIPanel
 			},
 		});
 		backgroundSprite = nameof(ElevationType.Basic);
-		relativePosition = new Vector2(Mathf.Floor(((float)GetUIView().fixedWidth - base.width) / 2f), Mathf.Floor(((float)GetUIView().fixedHeight - base.height) / 2f));
+		relativePosition = new Vector2(Mathf.Floor((GetUIView().fixedWidth - base.width) / 2f), Mathf.Floor((GetUIView().fixedHeight - base.height) / 2f));
 
 		var uIDragHandle = AddUIComponent<UIDragHandle>();
 		uIDragHandle.size = new Vector2(width, 48);
@@ -96,7 +83,7 @@ public class GenerationPanel : UIPanel
 			},
 		});
 		var uIButton = AddUIComponent<UIButton>();
-		uIButton.size = new Vector2(30,30);
+		uIButton.size = new Vector2(30, 30);
 		uIButton.relativePosition = new Vector2(width - 35f, 5f);
 		uIButton.atlas = closeAtlas;
 		uIButton.normalBgSprite = "normal";
