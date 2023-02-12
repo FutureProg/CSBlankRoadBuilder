@@ -1,11 +1,20 @@
-﻿using AlgernonCommons.UI;
+﻿using AdaptiveRoads.UI.VBSTool;
 
+using AlgernonCommons.UI;
+
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.Util;
 using BlankRoadBuilder.Util.Props.Templates;
 
 using ColossalFramework.UI;
 
 using ModsCommon.UI;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 
 using UnityEngine;
 
@@ -14,17 +23,12 @@ internal class CustomPropOptionControl : UISprite
 {
 	private const float Margin = 5F;
 
-	protected SelectPropProperty? dropDown;
-	private readonly UISprite? colorPreview;
-	protected ByteUITextField? rTB;
-	protected ByteUITextField? gTB;
-	protected ByteUITextField? bTB;
-	protected ByteUITextField? aTB;
-	protected FloatUITextField? lineWidthTB;
-	protected FloatUITextField? dashWidthTB;
-	protected FloatUITextField? dashSpaceTB;
+	private readonly List<Action> _setDataProperties=new();
+	private SelectPropProperty? propSelectButton;
+	private SelectTreeProperty? treeSelectButton;
+	private SelectBuildingProperty? buildingSelectButton;
 	private UILabel? titleLabel;
-	private readonly UILabel? descLabel;
+	private float yPos;
 
 	public Prop Prop { get; private set; }
 	public PropTemplate? Value { get; private set; }
@@ -48,20 +52,62 @@ internal class CustomPropOptionControl : UISprite
 		undoButton.size = new Vector2(30, 30);
 		undoButton.SetIcon("I_Undo.png");
 		undoButton.text = " ";
-		undoButton.tooltip = "Reset this marking option";
+		undoButton.tooltip = "Reset this prop's settings to their default values";
 		undoButton.relativePosition = new Vector2(width - 30 - Margin, Margin);
 		undoButton.eventClick += UndoButton_eventClick;
 
-		dropDown = AddUIComponent<SelectPropProperty>();
-		dropDown.size = new Vector2(200, 50);
-		dropDown.relativePosition = new Vector2(Margin * 2, titleLabel.height + (3 * Margin) + 2);
+		propSelectButton = AddUIComponent<SelectPropProperty>();
+		propSelectButton.size = new Vector2(200, 50);
+		propSelectButton.relativePosition = new Vector2(width - propSelectButton.width - 2 * Margin - 10, 30 + (2 * Margin));
+
+		treeSelectButton = AddUIComponent<SelectTreeProperty>();
+		treeSelectButton.size = new Vector2(200, 50);
+		treeSelectButton.relativePosition = new Vector2(width - treeSelectButton.width - 2 * Margin - 10, 30 + (2 * Margin));
+
+		buildingSelectButton = AddUIComponent<SelectBuildingProperty>();
+		buildingSelectButton.size = new Vector2(200, 50);
+		buildingSelectButton.relativePosition = new Vector2(width - buildingSelectButton.width - 2 * Margin - 10, 30 + (2 * Margin));
+
+		var label = propSelectButton.AddLabel("Prop", SpriteAlignment.LeftCenter, 0.8F);
+		label.relativePosition = new Vector2(-propSelectButton.relativePosition.x + Margin, label.relativePosition.y);
+		label = treeSelectButton.AddLabel("Tree", SpriteAlignment.LeftCenter, 0.8F);
+		label.relativePosition = new Vector2(-treeSelectButton.relativePosition.x + Margin, label.relativePosition.y);
+		label = buildingSelectButton.AddLabel("Pillar", SpriteAlignment.LeftCenter, 0.8F);
+		label.relativePosition = new Vector2(-buildingSelectButton.relativePosition.x + Margin, label.relativePosition.y);
+
+		yPos = propSelectButton.relativePosition.y + propSelectButton.height + Margin;
+
+		var properties = value.GetType()
+			.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+			.ToDictionary(x => x, x => Attribute.GetCustomAttribute(x, typeof(PropOptionAttribute)) as PropOptionAttribute);
+		
+		foreach (var item in properties)
+		{
+			var control = GenerateSettingComponent(item.Key, item.Value);
+		}
 
 		UpdateData(value);
 
-		dropDown.OnValueChanged += DropDown_OnValueChanged;
+		propSelectButton.OnValueChanged += DropDown_OnValueChanged;
+		treeSelectButton.OnValueChanged += DropDown_OnValueChanged;
+		buildingSelectButton.OnValueChanged += DropDown_OnValueChanged;
 	}
 
 	private void DropDown_OnValueChanged(PropInfo obj)
+	{
+		Value!.PropName = obj.name;
+
+		PropUtil.SaveTemplate(Prop, Value);
+	}
+
+	private void DropDown_OnValueChanged(TreeInfo obj)
+	{
+		Value!.PropName = obj.name;
+
+		PropUtil.SaveTemplate(Prop, Value);
+	}
+
+	private void DropDown_OnValueChanged(BuildingInfo obj)
 	{
 		Value!.PropName = obj.name;
 
@@ -79,51 +125,205 @@ internal class CustomPropOptionControl : UISprite
 	{
 		Value = value;
 
-		dropDown!.Prefab = Value!;
-	}
-
-	protected virtual void SetVisibilityOfControls()
-	{
-		var y = aTB!.relativePosition.y;
-
-		if (dashSpaceTB != null && dashSpaceTB.isVisible)
+		if (Value.IsTree)
 		{
-			dashSpaceTB.relativePosition = new Vector2(dashSpaceTB.relativePosition.x, y);
-
-			y -= dashSpaceTB.height + Margin;
+			propSelectButton!.isVisible = buildingSelectButton!.isVisible = false;
+			treeSelectButton!.isVisible = true;
+			treeSelectButton!.Prefab = Value!;
+		}
+		else if (Value.IsBuilding)
+		{
+			propSelectButton!.isVisible = treeSelectButton!.isVisible = false;
+			buildingSelectButton!.isVisible = true;
+			buildingSelectButton!.Prefab = Value!;
+		}
+		else
+		{
+			treeSelectButton!.isVisible = buildingSelectButton!.isVisible = false;
+			propSelectButton!.isVisible = true;
+			propSelectButton!.Prefab = Value!;
 		}
 
-		if (dashWidthTB != null && dashWidthTB.isVisible)
+		foreach (var item in _setDataProperties)
 		{
-			dashWidthTB.relativePosition = new Vector2(dashWidthTB.relativePosition.x, y);
-
-			y -= dashWidthTB.height + Margin;
-		}
-
-		if (lineWidthTB != null && lineWidthTB.isVisible)
-		{
-			lineWidthTB.relativePosition = new Vector2(lineWidthTB.relativePosition.x, y);
-
-			y -= lineWidthTB.height + Margin;
-		}
-
-		if (descLabel != null)
-		{
-			descLabel.size = new Vector2(width - descLabel.relativePosition.x - Margin, y - descLabel.relativePosition.y - Margin + 30);
+			item();
 		}
 	}
 
-	protected void SetColorVisibility(bool visible)
+	private UIComponent? GenerateSettingComponent(PropertyInfo property, PropOptionAttribute? info)
 	{
-		if (rTB == null || gTB == null || bTB == null || aTB == null || colorPreview == null)
+		if (info == null)
 		{
-			return;
+			return null;
 		}
 
-		rTB.isVisible = visible;
-		gTB.isVisible = visible;
-		bTB.isVisible = visible;
-		aTB.isVisible = visible;
-		colorPreview.isVisible = visible;
+		if (property.PropertyType == typeof(string))
+		{
+			var textfield = AddTextField(info.Name);
+
+			textfield.OnValueChanged += (v) => setSettingValue(property, v);
+
+			_setDataProperties.Add(() => textfield.Value = getValue<string>(property) ?? string.Empty);
+
+			return textfield;
+		}
+
+		if (property.PropertyType.IsEnum)
+		{
+			var enumVales = getEnumValues(property.PropertyType);
+
+			var dropDown = AddDropdown(info.Name, enumVales.Values.ToArray());
+
+			dropDown.eventSelectedIndexChanged += (s, v) => setSettingValue(property, enumVales.Keys.ToList()[v]);
+
+			_setDataProperties.Add(() => dropDown.selectedIndex = enumVales.Keys.ToList().IndexOf(getValue<int>(property)));
+
+			return dropDown;
+		}
+
+		if (property.PropertyType == typeof(bool))
+		{
+			var checkbox = AddCheckbox(info.Name);
+
+			checkbox.eventCheckChanged += (s, v) => setSettingValue(property, v);
+
+			_setDataProperties.Add(() => checkbox.isChecked = getValue<bool>(property));
+
+			yPos += 2;
+
+			return checkbox;
+		}
+
+		if (property.PropertyType == typeof(int))
+		{
+			var slider = AddIntField(info.Name, info.MinValue, info.MaxValue, info.MeasurementUnit);
+
+			slider.OnValueChanged += (v) => setSettingValue(property, v);
+
+			_setDataProperties.Add(() => slider.Value = getValue<int>(property));
+
+			yPos += 5;
+
+			return slider;
+		}
+
+		if (property.PropertyType == typeof(float))
+		{
+			var slider = AddFloatField(info.Name, info.MinValue, info.MaxValue, info.MeasurementUnit);
+
+			slider.OnValueChanged += (v) => setSettingValue(property, v);
+
+			_setDataProperties.Add(() => slider.Value = getValue<float>(property));
+
+			yPos += 5;
+
+			return slider;
+		}
+
+		return null;
+
+		t? getValue<t>(PropertyInfo property) => (t)property.GetValue(Value, null);
+
+		Dictionary<int, string> getEnumValues(Type enumType) => Enum.GetValues(enumType).Cast<object>().ToDictionary(x => (int)x, x => x.ToString().FormatWords());
+
+		void setSettingValue(PropertyInfo property, object value)
+		{
+			property.SetValue(Value, property.PropertyType.IsEnum ? Enum.ToObject(property.PropertyType, value) : Convert.ChangeType(value, property.PropertyType), null);
+			
+			PropUtil.SaveTemplate(Prop, Value);
+		}
+	}
+
+	private GenericDropDown AddDropdown(string labelKey, string[] items)
+	{
+		var ctrl = AddUIComponent<GenericDropDown>();
+		ctrl.size = new Vector2(140, 22);
+		ctrl.textScale = 0.8F;
+		ctrl.items = items;
+
+		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
+
+		ctrl.relativePosition = new Vector2(width - ctrl.width - 2 * Margin - 10, yPos + Margin);
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + Margin, label.relativePosition.y);
+
+		yPos = ctrl.height + ctrl.relativePosition.y + Margin;
+
+		return ctrl;
+	}
+
+	private IntUITextField AddIntField(string labelKey, float minValue, float maxValue, string? measurementUnit = null)
+	{
+		var ctrl = AddUIComponent<IntUITextField>();
+		ctrl.size = new Vector2(140, 22);
+		ctrl.textScale = 0.8F;
+		ctrl.MinValue = (int)minValue;
+		ctrl.MaxValue = (int)maxValue;
+		ctrl.SetDefaultStyle();
+
+		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
+
+		ctrl.relativePosition = new Vector2(width - ctrl.width - 2 * Margin - 10, yPos + Margin);
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + Margin, label.relativePosition.y);
+
+		if (!string.IsNullOrEmpty(measurementUnit))
+		{
+			ctrl.AddLabel(measurementUnit!, SpriteAlignment.RightCenter);
+		}
+
+		yPos = ctrl.height + ctrl.relativePosition.y + Margin;
+
+		return ctrl;
+	}
+
+	private FloatUITextField AddFloatField(string labelKey, float minValue, float maxValue, string? measurementUnit = null)
+	{
+		var ctrl = AddUIComponent<FloatUITextField>();
+		ctrl.size = new Vector2(140, 22);
+		ctrl.textScale = 0.8F;
+		ctrl.MinValue = minValue;
+		ctrl.MaxValue = maxValue;
+		ctrl.SetDefaultStyle();
+
+		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
+
+		ctrl.relativePosition = new Vector2(width - ctrl.width - 2 * Margin - 10, yPos + Margin);
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + Margin, label.relativePosition.y);
+
+		if (!string.IsNullOrEmpty(measurementUnit))
+		{
+			ctrl.AddLabel(measurementUnit!, SpriteAlignment.RightCenter);
+		}
+
+		yPos = ctrl.height + ctrl.relativePosition.y + Margin;
+
+		return ctrl;
+	}
+
+	private StringUITextField AddTextField(string labelKey)
+	{
+		var ctrl = AddUIComponent<StringUITextField>();
+		ctrl.size = new Vector2(140, 22);
+		ctrl.textScale = 0.8F;
+		ctrl.SetDefaultStyle();
+
+		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
+
+		ctrl.relativePosition = new Vector2(width - ctrl.width - 2 * Margin - 10, yPos + Margin);
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + Margin, label.relativePosition.y);
+
+		yPos = ctrl.height + ctrl.relativePosition.y + Margin;
+
+		return ctrl;
+	}
+
+	private UICheckBox AddCheckbox(string labelKey)
+	{
+		var newCheckbox = AddUIComponent<CustomCheckbox>();
+		newCheckbox.relativePosition = new Vector2(Margin, yPos);
+		newCheckbox.text = labelKey;
+
+		yPos += newCheckbox.height + Margin;
+
+		return newCheckbox;
 	}
 }

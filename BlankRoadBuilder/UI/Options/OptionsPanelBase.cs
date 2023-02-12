@@ -75,7 +75,7 @@ public abstract class OptionsPanelBase
 
 	protected virtual UIDropDown AddDropdown(string labelKey, string[] items, int selectedIndex)
 	{
-		var dropDown = _panel.AddUIComponent<OptionDropDown>();
+		var dropDown = _panel.AddUIComponent<GenericDropDown>();
 		dropDown.relativePosition = new Vector2(Margin, yPos + 28);
 		dropDown.items = items;
 		dropDown.selectedIndex = selectedIndex;

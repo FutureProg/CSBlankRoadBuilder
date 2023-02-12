@@ -20,20 +20,22 @@ internal class CustomPropsOptions : OptionsPanelBase
 
 	public CustomPropsOptions(UITabstrip tabStrip, int tabIndex, int tabCount) : base(tabStrip, tabIndex, tabCount)
 	{
-		var first = true;
 		var props = Enum.GetValues(typeof(Prop));
 		var values = props.Cast<Prop>().ToDictionary(x => x, PropUtil.GetProp);
 
-		foreach (var grp in values.GroupBy(x => x.Value.Category))
+		var resetButton = _panel.AddUIComponent<SlickButton>();
+		resetButton.size = new Vector2(230, 30);
+		resetButton.relativePosition = new Vector2(_panel.width - resetButton.width, 0);
+		resetButton.text = "Reset all General settings";
+		resetButton.SetIcon("I_Undo.png");
+		resetButton.eventClicked += ResetButton_eventClicked;
+
+		yPos += 7;
+
+		foreach (var grp in values.GroupBy(x => x.Value.Category).OrderBy(x => x.Key))
 		{
-			if (first)
-			{
-				first = false;
-			}
-			else
-			{
-				yPos += 7;
-			}
+			if (grp.Key == PropCategory.None)
+				continue;
 
 			var icon = _panel.AddUIComponent<UISprite>();
 			icon.atlas = ResourceUtil.GetAtlas(GetIcon(grp.Key));
@@ -51,7 +53,7 @@ internal class CustomPropsOptions : OptionsPanelBase
 			yPos += 50;
 
 			var ind = 0;
-			foreach (var option in grp)
+			foreach (var option in grp.OrderBy(x => x.Key.ToString()))
 			{
 				var ctrl = _panel.AddUIComponent<CustomPropOptionControl>();
 				ctrl.Init(option.Key, option.Value);
@@ -71,13 +73,6 @@ internal class CustomPropsOptions : OptionsPanelBase
 				ind++;
 			}
 		}
-
-		var resetButton = _panel.AddUIComponent<SlickButton>();
-		resetButton.size = new Vector2(230, 30);
-		resetButton.relativePosition = new Vector2(32 + (2 * Margin), yPos - 50);
-		resetButton.text = "Reset all General settings";
-		resetButton.SetIcon("I_Undo.png");
-		resetButton.eventClicked += ResetButton_eventClicked;
 	}
 
 	private string GetIcon(PropCategory key)

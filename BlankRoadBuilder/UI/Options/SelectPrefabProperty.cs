@@ -220,7 +220,7 @@ public class SelectPropProperty : SelectPrefabProperty<PropInfo, PropPanel, Prop
 	}
 }
 public class SelectTreeProperty : SelectPrefabProperty<TreeInfo, TreePanel, TreeEntity, SelectTreePopup> { }
-public class SelectNetworkProperty : SelectPrefabProperty<NetInfo, NetPanel, NetEntity, SelectNetPopup> { }
+public class SelectBuildingProperty : SelectPrefabProperty<BuildingInfo, BuildingPanel, BuildingEntity, SelectBuildingPopup> { }
 
 public class SelectPropPopup : SearchPopup<PropInfo, PropEntity>
 {
@@ -260,11 +260,11 @@ public class SelectTreePopup : SearchPopup<TreeInfo, TreeEntity>
 		return prefab.name;
 	}
 }
-public class SelectNetPopup : SearchPopup<NetInfo, NetEntity>
+public class SelectBuildingPopup : SearchPopup<BuildingInfo, BuildingEntity>
 {
 	protected override string NotFoundText => "Nothing Found";
 	private static string SearchText { get; set; } = string.Empty;
-	public override void Init(IEnumerable<NetInfo> values, Func<NetInfo, bool> selector = null)
+	public override void Init(IEnumerable<BuildingInfo> values, Func<BuildingInfo, bool> selector = null)
 	{
 		Search.text = SearchText;
 		base.Init(values, selector);
@@ -274,7 +274,7 @@ public class SelectNetPopup : SearchPopup<NetInfo, NetEntity>
 		SearchText = Search.text;
 		base.DeInit();
 	}
-	protected override string GetName(NetInfo prefab)
+	protected override string GetName(BuildingInfo prefab)
 	{
 		return prefab.name;
 	}
@@ -308,7 +308,7 @@ public abstract class PrefabEntity<PrefabType, PanelType> : PopupEntity<PrefabTy
 }
 public class PropEntity : PrefabEntity<PropInfo, PropPanel> { }
 public class TreeEntity : PrefabEntity<TreeInfo, TreePanel> { }
-public class NetEntity : PrefabEntity<NetInfo, NetPanel> { }
+public class BuildingEntity : PrefabEntity<BuildingInfo, BuildingPanel> { }
 
 public abstract class PrefabPanel<PrefabType> : CustomUIPanel, IReusable
 	where PrefabType : PrefabInfo
@@ -401,7 +401,7 @@ public class TreePanel : PrefabPanel<TreeInfo>
 {
 	protected override string LocalizedTitle => Prefab.name;
 }
-public class NetPanel : PrefabPanel<NetInfo>
+public class BuildingPanel : PrefabPanel<BuildingInfo>
 {
 	protected override string LocalizedTitle => Prefab.name;
 }

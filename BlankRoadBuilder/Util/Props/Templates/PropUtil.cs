@@ -81,7 +81,7 @@ public class PropUtil
 			var template = GetProp(prop);
 			var type = template.GetType();
 			var properties = type
-				.GetProperties(BindingFlags.Public | BindingFlags.Static)
+				.GetProperties(BindingFlags.Public | BindingFlags.Instance)
 				.Where(x => (Attribute.GetCustomAttribute(x, typeof(PropOptionAttribute)) as PropOptionAttribute) != null)
 				.ToDictionary(x => x.Name, x => x.GetValue(template, null));
 

@@ -36,7 +36,13 @@ public class IMTMarkings
 		}
 
 		var markings = MarkingsUtil.GenerateMarkings(RoadBuilderUtil.CurrentRoad);
-		var markup = Provider.GetOrCreateSegmentMarking(segmentId);
+		var markup = Provider?.GetOrCreateSegmentMarking(segmentId);
+
+		if (markup == null || markings == null)
+		{
+			Debug.LogError(Provider == null ? "IMT provider is missing" : "Failed to get the Markup information");
+			return;
+		}
 
 		markup.ClearMarkings();
 		markup.ResetPointOffsets();

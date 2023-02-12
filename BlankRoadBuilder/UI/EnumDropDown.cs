@@ -21,9 +21,9 @@ public class EnumDropDown<EnumType> : CustomUIDropDown<EnumType> where EnumType 
 	}
 }
 
-public class OptionDropDown : CustomUIDropDown<string>
+public class GenericDropDown : CustomUIDropDown<string>
 {
-	public OptionDropDown() : base(new Vector2(360, 28))
+	public GenericDropDown() : base(new Vector2(360, 28))
 	{
 		textScale = 0.9F;
 	}
