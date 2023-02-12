@@ -82,14 +82,14 @@ public class RoadBuilderPanel : UIPanel
 				region = new Rect(0f, 0f, 0.5f, 0.5f)
 			},
 		});
-		var uIButton = AddUIComponent<UIButton>();
-		uIButton.size = new Vector2(30, 30);
-		uIButton.relativePosition = new Vector2(width - 35f, 5f);
-		uIButton.atlas = closeAtlas;
-		uIButton.normalBgSprite = "normal";
-		uIButton.hoveredBgSprite = "hovered";
-		uIButton.pressedBgSprite = "pressed";
-		uIButton.eventClick += delegate
+		var closeButton = AddUIComponent<UIButton>();
+		closeButton.size = new Vector2(30, 30);
+		closeButton.relativePosition = new Vector2(width - 35f, 5f);
+		closeButton.atlas = closeAtlas;
+		closeButton.normalBgSprite = "normal";
+		closeButton.hoveredBgSprite = "hovered";
+		closeButton.pressedBgSprite = "pressed";
+		closeButton.eventClick += delegate
 		{
 			EventClose?.Invoke();
 		};
@@ -174,6 +174,8 @@ public class RoadBuilderPanel : UIPanel
 
 		RefreshView();
 
+		uIDragHandle.BringToFront();
+		closeButton.BringToFront();
 		_searchTextBox.Focus();
 	}
 
