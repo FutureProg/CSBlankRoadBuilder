@@ -52,11 +52,11 @@ internal abstract class CustomMarkingOptionControl<DropDown, EnumType> : UISprit
 		descLabel.relativePosition = new Vector2(width - (3 * Margin) - 140, 27 + (3 * Margin));
 
 		var undoButton = AddUIComponent<SlickButton>();
-		undoButton.size = new Vector2(30, 30);
+		undoButton.size = new Vector2(22, 22);
 		undoButton.SetIcon("I_Undo.png");
 		undoButton.text = " ";
 		undoButton.tooltip = "Reset this marking option";
-		undoButton.relativePosition = new Vector2(width - 30 - Margin, Margin);
+		undoButton.relativePosition = new Vector2(width - 22 - 6, 6);
 		undoButton.eventClick += UndoButton_eventClick;
 
 		dropDown = AddUIComponent<DropDown>();

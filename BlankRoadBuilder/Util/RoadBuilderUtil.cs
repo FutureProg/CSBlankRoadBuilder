@@ -409,11 +409,11 @@ public static class RoadBuilderUtil
 
 	private static readonly Dictionary<float, Prop> _pillars = new()
 	{
-		{ 38F, Prop.Pillar38   },
-		{ 30F, Prop.Pillar30   },
-		{ 24F, Prop.Pillar24   },
-		{ 16F, Prop.Pillar16   },
-		{  0F, Prop.PillarBase },
+		{ 38F, Prop.Pillar38m   },
+		{ 30F, Prop.Pillar30m   },
+		{ 24F, Prop.Pillar24m   },
+		{ 16F, Prop.Pillar16m   },
+		{  0F, Prop.PillarSmall },
 	};
 
 	private static void GenerateLaneWidthsAndPositions(RoadInfo roadInfo)

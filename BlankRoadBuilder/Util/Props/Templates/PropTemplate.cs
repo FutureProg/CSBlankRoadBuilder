@@ -1,4 +1,5 @@
-﻿namespace BlankRoadBuilder.Util.Props.Templates;
+﻿using UnityEngine;
+namespace BlankRoadBuilder.Util.Props.Templates;
 
 public class PropTemplate
 {
@@ -8,6 +9,7 @@ public class PropTemplate
 	public bool IsBuilding { get; set; }
 
 	public float Angle { get; protected set; }
+	public Vector3 Position { get; protected set; }
 
 	public PropTemplate(string propName, bool isTree = false, bool isBuilding = false)
 	{

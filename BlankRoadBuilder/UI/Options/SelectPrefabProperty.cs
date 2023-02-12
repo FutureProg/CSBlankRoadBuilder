@@ -8,6 +8,7 @@ using ModsCommon.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 using UnityEngine;
 
@@ -37,7 +38,7 @@ public abstract class SelectPrefabProperty<PrefabType, PanelType, EntityType, Po
 	private CustomUIButton Background { get; set; }
 	private PanelType Panel { get; set; }
 	private CustomUIButton Button { get; set; }
-	private PopupType Popup { get; set; }
+	private PopupType? Popup { get; set; }
 
 	private PrefabType _prefab;
 	public override PrefabType? Prefab
@@ -59,7 +60,9 @@ public abstract class SelectPrefabProperty<PrefabType, PanelType, EntityType, Po
 		{
 			var count = PrefabCollection<PrefabType>.LoadedCount();
 			for (uint i = 0; i < count; i += 1)
+			{
 				yield return PrefabCollection<PrefabType>.GetLoaded(i);
+			}
 		}
 	}
 
@@ -99,15 +102,21 @@ public abstract class SelectPrefabProperty<PrefabType, PanelType, EntityType, Po
 		base.Update();
 
 		if (Input.GetMouseButtonDown(0))
+		{
 			CheckPopup();
+		}
 	}
 
 	private void ButtonClick(UIComponent component, UIMouseEventParameter eventParam)
 	{
 		if (Popup == null)
+		{
 			OpenPopup();
+		}
 		else
+		{
 			ClosePopup();
+		}
 	}
 	protected void OpenPopup()
 	{
@@ -122,7 +131,7 @@ public abstract class SelectPrefabProperty<PrefabType, PanelType, EntityType, Po
 		Popup.ItemSelected = CommonTextures.FieldFocused;
 		Popup.EntityHeight = 50f;
 		Popup.MaxVisibleItems = 10;
-		Popup.maximumSize = new Vector2(230f, 700f);
+		Popup.maximumSize = new Vector2(240f, 700f);
 		Popup.Init(PrefabSortPredicate != null ? Prefabs.OrderBy(PrefabSortPredicate) : Prefabs, PrefabSelectPredicate);
 		Popup.Focus();
 		Popup.SelectedObject = Prefab;
@@ -155,7 +164,9 @@ public abstract class SelectPrefabProperty<PrefabType, PanelType, EntityType, Po
 			var mouse = uiView.ScreenPointToGUI(Input.mousePosition / uiView.inputScale);
 			var popupRect = new Rect(Popup.absolutePosition, Popup.size);
 			if (!popupRect.Contains(mouse))
+			{
 				ClosePopup();
+			}
 		}
 	}
 
@@ -178,7 +189,7 @@ public abstract class SelectPrefabProperty<PrefabType, PanelType, EntityType, Po
 			p.Use();
 		}
 	}
-	private void SetPopupPosition(UIComponent component = null, Vector2 value = default)
+	private void SetPopupPosition(UIComponent? component = null, Vector2 value = default)
 	{
 		if (Popup != null)
 		{
@@ -199,10 +210,14 @@ public abstract class SelectPrefabProperty<PrefabType, PanelType, EntityType, Po
 		base.OnSizeChanged();
 
 		if (Panel != null)
+		{
 			Panel.size = new Vector2(width, height);
+		}
 
 		if (Background != null)
+		{
 			Background.size = new Vector2(width, height);
+		}
 
 		if (Button != null)
 		{
@@ -220,13 +235,19 @@ public class SelectPropProperty : SelectPrefabProperty<PropInfo, PropPanel, Prop
 	}
 }
 public class SelectTreeProperty : SelectPrefabProperty<TreeInfo, TreePanel, TreeEntity, SelectTreePopup> { }
-public class SelectBuildingProperty : SelectPrefabProperty<BuildingInfo, BuildingPanel, BuildingEntity, SelectBuildingPopup> { }
+public class SelectBuildingProperty : SelectPrefabProperty<BuildingInfo, BuildingPanel, BuildingEntity, SelectBuildingPopup>
+{
+	public SelectBuildingProperty()
+	{
+		PrefabSelectPredicate = b => b.m_AssetEditorPillarTemplate || Regex.IsMatch(b.name, @"\.R69.+?\d+c_Data$");
+	}
+}
 
 public class SelectPropPopup : SearchPopup<PropInfo, PropEntity>
 {
 	protected override string NotFoundText => "Nothing Found";
 	private static string SearchText { get; set; } = string.Empty;
-	public override void Init(IEnumerable<PropInfo> values, Func<PropInfo, bool> selector = null)
+	public override void Init(IEnumerable<PropInfo> values, Func<PropInfo, bool>? selector = null)
 	{
 		Search.text = SearchText;
 		base.Init(values, selector);
@@ -238,14 +259,14 @@ public class SelectPropPopup : SearchPopup<PropInfo, PropEntity>
 	}
 	protected override string GetName(PropInfo prefab)
 	{
-		return prefab.name;
+		return prefab.GetLocalizedTitle().RegexReplace(@"^PROPS_TITLE\[(.+?)\]:0$", x => x.Groups[1].Value);
 	}
 }
 public class SelectTreePopup : SearchPopup<TreeInfo, TreeEntity>
 {
 	protected override string NotFoundText => "Nothing Found";
 	private static string SearchText { get; set; } = string.Empty;
-	public override void Init(IEnumerable<TreeInfo> values, Func<TreeInfo, bool> selector = null)
+	public override void Init(IEnumerable<TreeInfo> values, Func<TreeInfo, bool>? selector = null)
 	{
 		Search.text = SearchText;
 		base.Init(values, selector);
@@ -257,14 +278,14 @@ public class SelectTreePopup : SearchPopup<TreeInfo, TreeEntity>
 	}
 	protected override string GetName(TreeInfo prefab)
 	{
-		return prefab.name;
+		return prefab.GetLocalizedTitle().RegexReplace(@"^PROPS_TITLE\[(.+?)\]:0$", x => x.Groups[1].Value);
 	}
 }
 public class SelectBuildingPopup : SearchPopup<BuildingInfo, BuildingEntity>
 {
 	protected override string NotFoundText => "Nothing Found";
 	private static string SearchText { get; set; } = string.Empty;
-	public override void Init(IEnumerable<BuildingInfo> values, Func<BuildingInfo, bool> selector = null)
+	public override void Init(IEnumerable<BuildingInfo> values, Func<BuildingInfo, bool>? selector = null)
 	{
 		Search.text = SearchText;
 		base.Init(values, selector);
@@ -276,7 +297,7 @@ public class SelectBuildingPopup : SearchPopup<BuildingInfo, BuildingEntity>
 	}
 	protected override string GetName(BuildingInfo prefab)
 	{
-		return prefab.name;
+		return prefab.GetLocalizedTitle().RegexReplace(@"^PROPS_TITLE\[(.+?)\]:0$", x => x.Groups[1].Value);
 	}
 }
 
@@ -395,13 +416,13 @@ public abstract class PrefabPanel<PrefabType> : CustomUIPanel, IReusable
 }
 public class PropPanel : PrefabPanel<PropInfo>
 {
-	protected override string LocalizedTitle => Prefab.name;
+	protected override string LocalizedTitle => Prefab.GetLocalizedTitle().RegexReplace(@"^PROPS_TITLE\[(.+?)\]:0$", x => x.Groups[1].Value);
 }
 public class TreePanel : PrefabPanel<TreeInfo>
 {
-	protected override string LocalizedTitle => Prefab.name;
+	protected override string LocalizedTitle => Prefab.GetLocalizedTitle().RegexReplace(@"^PROPS_TITLE\[(.+?)\]:0$", x => x.Groups[1].Value);
 }
 public class BuildingPanel : PrefabPanel<BuildingInfo>
 {
-	protected override string LocalizedTitle => Prefab.name;
+	protected override string LocalizedTitle => Prefab.GetLocalizedTitle().RegexReplace(@"^PROPS_TITLE\[(.+?)\]:0$", x => x.Groups[1].Value);
 }

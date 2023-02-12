@@ -4,6 +4,7 @@ using AlgernonCommons.UI;
 
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.Util;
+using BlankRoadBuilder.Util.Props;
 using BlankRoadBuilder.Util.Props.Templates;
 
 using ColossalFramework.UI;
@@ -49,31 +50,31 @@ internal class CustomPropOptionControl : UISprite
 		titleLabel.relativePosition = new Vector2(2 * Margin, 2 * Margin);
 
 		var undoButton = AddUIComponent<SlickButton>();
-		undoButton.size = new Vector2(30, 30);
+		undoButton.size = new Vector2(22, 22);
 		undoButton.SetIcon("I_Undo.png");
 		undoButton.text = " ";
 		undoButton.tooltip = "Reset this prop's settings to their default values";
-		undoButton.relativePosition = new Vector2(width - 30 - Margin, Margin);
+		undoButton.relativePosition = new Vector2(width - 22 - 6, 6);
 		undoButton.eventClick += UndoButton_eventClick;
 
 		propSelectButton = AddUIComponent<SelectPropProperty>();
-		propSelectButton.size = new Vector2(200, 50);
-		propSelectButton.relativePosition = new Vector2(width - propSelectButton.width - 2 * Margin - 10, 30 + (2 * Margin));
+		propSelectButton.size = new Vector2(240, 50);
+		propSelectButton.relativePosition = new Vector2(width - propSelectButton.width - Margin, 30 + (2 * Margin));
 
 		treeSelectButton = AddUIComponent<SelectTreeProperty>();
-		treeSelectButton.size = new Vector2(200, 50);
-		treeSelectButton.relativePosition = new Vector2(width - treeSelectButton.width - 2 * Margin - 10, 30 + (2 * Margin));
+		treeSelectButton.size = new Vector2(240, 50);
+		treeSelectButton.relativePosition = new Vector2(width - treeSelectButton.width - Margin, 30 + (2 * Margin));
 
 		buildingSelectButton = AddUIComponent<SelectBuildingProperty>();
-		buildingSelectButton.size = new Vector2(200, 50);
-		buildingSelectButton.relativePosition = new Vector2(width - buildingSelectButton.width - 2 * Margin - 10, 30 + (2 * Margin));
+		buildingSelectButton.size = new Vector2(240, 50);
+		buildingSelectButton.relativePosition = new Vector2(width - buildingSelectButton.width - Margin, 30 + (2 * Margin));
 
 		var label = propSelectButton.AddLabel("Prop", SpriteAlignment.LeftCenter, 0.8F);
-		label.relativePosition = new Vector2(-propSelectButton.relativePosition.x + Margin, label.relativePosition.y);
+		label.relativePosition = new Vector2(-propSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
 		label = treeSelectButton.AddLabel("Tree", SpriteAlignment.LeftCenter, 0.8F);
-		label.relativePosition = new Vector2(-treeSelectButton.relativePosition.x + Margin, label.relativePosition.y);
+		label.relativePosition = new Vector2(-treeSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
 		label = buildingSelectButton.AddLabel("Pillar", SpriteAlignment.LeftCenter, 0.8F);
-		label.relativePosition = new Vector2(-buildingSelectButton.relativePosition.x + Margin, label.relativePosition.y);
+		label.relativePosition = new Vector2(-buildingSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
 		yPos = propSelectButton.relativePosition.y + propSelectButton.height + Margin;
 
@@ -81,10 +82,19 @@ internal class CustomPropOptionControl : UISprite
 			.GetProperties(BindingFlags.Public | BindingFlags.Instance)
 			.ToDictionary(x => x, x => Attribute.GetCustomAttribute(x, typeof(PropOptionAttribute)) as PropOptionAttribute);
 		
-		foreach (var item in properties)
+		foreach (var item in properties.Where(x => x.Value != null && !x.Value.Serialization))
 		{
-			var control = GenerateSettingComponent(item.Key, item.Value);
+			var seperator = AddUIComponent<UISprite>();
+			seperator.size = new Vector2(width, 1);
+			seperator.relativePosition = new Vector3(0, yPos);
+			seperator.atlas = ResourceUtil.GetAtlas("I_Seperator.png");
+			seperator.spriteName = "normal";
+			seperator.color = new Color32(104, 109, 116, 255);
+
+			GenerateSettingComponent(item.Key, item.Value);
 		}
+
+		height =  Margin + components.Max(x => x.height + x.relativePosition.y);
 
 		UpdateData(value);
 
@@ -243,10 +253,10 @@ internal class CustomPropOptionControl : UISprite
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - 2 * Margin - 10, yPos + Margin);
-		label.relativePosition = new Vector2(-ctrl.relativePosition.x + Margin, label.relativePosition.y);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + Margin);
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
-		yPos = ctrl.height + ctrl.relativePosition.y + Margin;
+		yPos = ctrl.height + ctrl.relativePosition.y;
 
 		return ctrl;
 	}
@@ -262,15 +272,15 @@ internal class CustomPropOptionControl : UISprite
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - 2 * Margin - 10, yPos + Margin);
-		label.relativePosition = new Vector2(-ctrl.relativePosition.x + Margin, label.relativePosition.y);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + Margin);
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
 		if (!string.IsNullOrEmpty(measurementUnit))
 		{
-			ctrl.AddLabel(measurementUnit!, SpriteAlignment.RightCenter);
+			label.text += $" ({measurementUnit})";
 		}
 
-		yPos = ctrl.height + ctrl.relativePosition.y + Margin;
+		yPos = ctrl.height + ctrl.relativePosition.y;
 
 		return ctrl;
 	}
@@ -286,15 +296,15 @@ internal class CustomPropOptionControl : UISprite
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - 2 * Margin - 10, yPos + Margin);
-		label.relativePosition = new Vector2(-ctrl.relativePosition.x + Margin, label.relativePosition.y);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + Margin);
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
 		if (!string.IsNullOrEmpty(measurementUnit))
 		{
-			ctrl.AddLabel(measurementUnit!, SpriteAlignment.RightCenter);
+			label.text += $" ({measurementUnit})";
 		}
 
-		yPos = ctrl.height + ctrl.relativePosition.y + Margin;
+		yPos = ctrl.height + ctrl.relativePosition.y;
 
 		return ctrl;
 	}
@@ -308,10 +318,10 @@ internal class CustomPropOptionControl : UISprite
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - 2 * Margin - 10, yPos + Margin);
-		label.relativePosition = new Vector2(-ctrl.relativePosition.x + Margin, label.relativePosition.y);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + Margin);
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
-		yPos = ctrl.height + ctrl.relativePosition.y + Margin;
+		yPos = ctrl.height + ctrl.relativePosition.y;
 
 		return ctrl;
 	}

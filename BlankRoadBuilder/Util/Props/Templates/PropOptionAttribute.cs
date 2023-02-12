@@ -3,6 +3,11 @@
 namespace BlankRoadBuilder.Domain.Options;
 public class PropOptionAttribute : Attribute
 {
+	public PropOptionAttribute(bool forSave) : this(string.Empty, string.Empty)
+	{
+		Serialization = forSave;
+	}
+
 	public PropOptionAttribute(object defaultValue, string name, string description = "")
 	{
 		DefaultValue = defaultValue;
@@ -18,6 +23,7 @@ public class PropOptionAttribute : Attribute
 		MeasurementUnit = measurementUnit;
 	}
 
+	public bool Serialization { get; }
 	public object DefaultValue { get; }
 	public string Name { get; }
 	public string Description { get; }

@@ -123,10 +123,10 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 		var tabStrip = AutoTabstrip.AddTabstrip(s_optionsParentPanel, 0f, 0f, s_optionsParentPanel.width, s_optionsParentPanel.height, out _, tabHeight: 32f);
 
 		new GeneralOptions(tabStrip, 0, 5);
-		//new CustomPropsOptions(tabStrip, 1, 5);
-		new LaneSizeOptions(tabStrip, 1, 5);
-		new IMTOptionsPanel(tabStrip, 2, 5);
-		new VanillaOptionsPanel(tabStrip, 3, 4);
+		new CustomPropsOptions(tabStrip, 1, 5);
+		new LaneSizeOptions(tabStrip, 2, 5);
+		new IMTOptionsPanel(tabStrip, 3, 5);
+		new VanillaOptionsPanel(tabStrip, 4, 5);
 
 		tabStrip.selectedIndex = -1;
 		tabStrip.selectedIndex = 0;

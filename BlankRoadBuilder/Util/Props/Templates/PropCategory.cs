@@ -4,4 +4,13 @@ public enum PropCategory
 {
 	None,
 	TrafficLights,
+	Lights,
+	Arrows,
+	LaneDecals,
+	Stops,
+	LevelCrossingBarriers,
+	RoadSigns,
+	SpeedSigns,
+	Decorations,
+	BridgePillars,
 }
