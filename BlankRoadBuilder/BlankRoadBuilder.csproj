@@ -194,15 +194,4 @@
 		<Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(WorkshopDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
 		<Copy SourceFiles="$(ProjectDir)\PreviewImage$(Type).png" DestinationFiles="$(WorkshopDir)\PreviewImage.png" />
 	</Target>
-
-	<!--<PropertyGroup>
-		<PostBuildEvent>
-			rmdir /s /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder"
-			mkdir "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder"
-			xcopy /y /e /q "../$(OutputPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder"
-			xcopy /y /e /q "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder"
-			del /f /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder\*.pdb"
-		</PostBuildEvent>
-	</PropertyGroup>
--->
 </Project>
