@@ -9,9 +9,26 @@
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<Version>1.2.5</Version>
 		<FileVersion>1.2.5</FileVersion>
 		<AssemblyVersion>1.2.5</AssemblyVersion>
+		<Configurations>Stable Debug;Stable Release</Configurations>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Stable Release|AnyCPU'">
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<Optimize>true</Optimize>
+		<DebugType>pdbonly</DebugType>
+		<DefineConstants />
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Stable Debug|AnyCPU'">
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<Optimize>false</Optimize>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<DefineConstants>DEBUG</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -33,15 +50,13 @@
 		</AssemblySearchPaths>
 	</PropertyGroup>
 
-	<PropertyGroup>
-		<OutputPath>Build</OutputPath>
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<None Remove="Expressions\**" />
 		<EmbeddedResource Include="Expressions\**" />
 		<EmbeddedResource Include="Properties\Icons\*.png" />
+		<None Include="ModContents\**">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -57,7 +72,7 @@
 		<Reference Include="ColossalManaged">
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="ICities" >
+		<Reference Include="ICities">
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="AdaptiveRoads">
@@ -69,7 +84,7 @@
 		<Reference Include="PrefabMetadataAPI">
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="UnityEngine" >
+		<Reference Include="UnityEngine">
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="NodeControllerRenewal">
@@ -144,22 +159,50 @@
 		</ItemGroup>
 		<Move SourceFiles="@(LocalizeToMove)" DestinationFiles="@(LocalizeToMove->'$(OutDir)Localize\%(Filename)%(Extension)')" />
 		<RemoveDir Directories="$(OutDir)Properties" />
+		<RemoveDir Directories="$(OutDir)en-GB" />
 
 		<ItemGroup>
 			<CommonLocalizeToMove Include="$(OutDir)*.resx" />
 		</ItemGroup>
 		<Move SourceFiles="@(CommonLocalizeToMove)" DestinationFiles="@(CommonLocalizeToMove->'$(OutDir)Localize\%(Filename)%(Extension)')" />
-	</Target>
 
-	<PropertyGroup>
-		<PostBuildEvent>
-			rmdir /s /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-			mkdir "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-			xcopy /y /e /q "../$(OutputPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-			xcopy /y /e /q "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-			del /f /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder\*.pdb"
-		</PostBuildEvent>
-		<BaseOutputPath>Output</BaseOutputPath>
+		<ItemGroup>
+			<ContentsToMove Include="$(OutDir)\ModContents\**" />
+		</ItemGroup>
+		<Move SourceFiles="@(ContentsToMove)" DestinationFiles="@(ContentsToMove->'$(OutDir)\%(RecursiveDir)\%(Filename)%(Extension)')" />
+	</Target>
+	
+	<PropertyGroup Condition="'$(Configuration)' == 'Stable Release' OR '$(Configuration)' == 'Stable Debug'">
+		<WorkshopId>2891132324</WorkshopId>
+		<Type>Stable</Type>
+		<LocalDir>$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods\$(MSBuildProjectName)$(Type)</LocalDir>
+		<WorkshopDir>C:\Program Files (x86)\Steam\steamapps\workshop\content\255710\$(WorkshopId)</WorkshopDir>
 	</PropertyGroup>
 
+	<Target Name="DeployToLocal" AfterTargets="PdbToMdb">
+		<Message Text="Deploy to local $(LocalDir)" Importance="high" />
+		<RemoveDir Directories="$(LocalDir)" />
+		<ItemGroup>
+			<FilesToCopy Include="$(OutDir)\**\*.*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(LocalDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+	</Target>
+
+	<Target Name="DeployToWorkshop" AfterTargets="PdbToMdb" Condition="'$(Configuration)' == 'Stable Release' OR '$(Configuration)' == 'Beta Release'">
+		<Message Text="Deploy to workshop $(WorkshopDir)" Importance="high" />
+		<RemoveDir Directories="$(WorkshopDir)" />
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(WorkshopDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="$(ProjectDir)\PreviewImage$(Type).png" DestinationFiles="$(WorkshopDir)\PreviewImage.png" />
+	</Target>
+
+	<!--<PropertyGroup>
+		<PostBuildEvent>
+			rmdir /s /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder"
+			mkdir "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder"
+			xcopy /y /e /q "../$(OutputPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder"
+			xcopy /y /e /q "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder"
+			del /f /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\RoadBuilder\*.pdb"
+		</PostBuildEvent>
+	</PropertyGroup>
+-->
 </Project>
