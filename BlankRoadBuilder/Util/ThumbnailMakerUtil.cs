@@ -221,13 +221,24 @@ public static class ThumbnailMakerUtil
 
 		if (lane.Tags.HasFlag(LaneTag.Sidewalk))
 		{
-			forward = lane.Position > 0;
+			var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram;
 
-			//if (forward == true && (road.Options?.DisableRightSidewalkStop ?? false))
-			//	forward = null;
+			if (road.Lanes.Any(l =>
+			{
+				if ((l.Type & stoppableVehicleLanes) == 0)
+					return false;
 
-			//if (forward == false && (road.Options?.DisableLeftSidewalkStop ?? false))
-			//	forward = null;
+				var distance = Math.Abs(l.Position - lane.Position) - (lane.LaneWidth + l.LaneWidth) / 2;
+
+				return distance <= 3F;
+			}))
+			{
+				forward = lane.Position > 0;
+			}
+			else
+			{ 
+				forward = null; 
+			}
 		}
 		else if (lane.Tags.HasFlag(LaneTag.StoppableVehicleOnLeft))
 		{

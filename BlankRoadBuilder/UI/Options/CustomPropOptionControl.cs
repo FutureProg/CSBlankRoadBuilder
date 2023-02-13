@@ -1,8 +1,4 @@
-﻿using AdaptiveRoads.UI.VBSTool;
-
-using AlgernonCommons.UI;
-
-using BlankRoadBuilder.Domain.Options;
+﻿using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.Util;
 using BlankRoadBuilder.Util.Props;
 using BlankRoadBuilder.Util.Props.Templates;

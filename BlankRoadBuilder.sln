@@ -5,29 +5,29 @@ VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlankRoadBuilder", "BlankRoadBuilder\BlankRoadBuilder.csproj", "{F925132A-26D3-42CC-A0BB-27067938E4DE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnyStopFlag", "AnyStopFlag\AnyStopFlag.csproj", "{89805810-553B-43F0-AA77-5B61C81DE82A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnyStopFlag", "AN Expressions\AnyStopFlag\AnyStopFlag.csproj", "{89805810-553B-43F0-AA77-5B61C81DE82A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarkingTransitionFlag", "MarkingTransitionFlag\MarkingTransitionFlag.csproj", "{79BD3C30-454C-48BF-9570-EE4CCFAB315E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarkingTransitionFlag", "AN Expressions\MarkingTransitionFlag\MarkingTransitionFlag.csproj", "{79BD3C30-454C-48BF-9570-EE4CCFAB315E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransitionFlag", "TransitionFlag\TransitionFlag.csproj", "{768B1157-17A0-44A3-BC4F-7CA463719D36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransitionFlag", "AN Expressions\TransitionFlag\TransitionFlag.csproj", "{768B1157-17A0-44A3-BC4F-7CA463719D36}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighCurbFlag", "HighCurbFlag\HighCurbFlag.csproj", "{F9BAD640-3421-4BE6-A596-CC0D0B9B7FD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighCurbFlag", "AN Expressions\HighCurbFlag\HighCurbFlag.csproj", "{F9BAD640-3421-4BE6-A596-CC0D0B9B7FD1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsymFlag", "AsymFlag\AsymFlag.csproj", "{B8259679-BEC7-4A23-A69F-360FBD00C09F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsymFlag", "AN Expressions\AsymFlag\AsymFlag.csproj", "{B8259679-BEC7-4A23-A69F-360FBD00C09F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsymInvertedFlag", "AsymInvertedFlag\AsymInvertedFlag.csproj", "{D96AF329-97D6-4228-BBDB-D626F4F0A5A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsymInvertedFlag", "AN Expressions\AsymInvertedFlag\AsymInvertedFlag.csproj", "{D96AF329-97D6-4228-BBDB-D626F4F0A5A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepForwardFlag", "StepForwardFlag\StepForwardFlag.csproj", "{2CCEB69F-3E8E-498A-99D7-4FF3E462F414}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepForwardFlag", "AN Expressions\StepForwardFlag\StepForwardFlag.csproj", "{2CCEB69F-3E8E-498A-99D7-4FF3E462F414}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepBackwardFlag", "StepBackwardFlag\StepBackwardFlag.csproj", "{DD843485-56BE-4B73-8127-1AF7386A7660}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepBackwardFlag", "AN Expressions\StepBackwardFlag\StepBackwardFlag.csproj", "{DD843485-56BE-4B73-8127-1AF7386A7660}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrolleyWiresFlag", "TrolleyWiresFlag\TrolleyWiresFlag.csproj", "{A7646C58-4CF8-45C6-9FD7-2F567E306589}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrolleyWiresFlag", "AN Expressions\TrolleyWiresFlag\TrolleyWiresFlag.csproj", "{A7646C58-4CF8-45C6-9FD7-2F567E306589}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsTailNodeFlag", "IsTailNodeFlag\IsTailNodeFlag.csproj", "{8D6A0F1C-007D-4AA2-BB51-D594AB6B782E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsTailNodeFlag", "AN Expressions\IsTailNodeFlag\IsTailNodeFlag.csproj", "{8D6A0F1C-007D-4AA2-BB51-D594AB6B782E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Expressions", "Expressions", "{3A512972-3922-4D74-8C66-E66700A2D496}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GroundBarrierTransitionFlag", "GroundBarrierTransitionFlag\GroundBarrierTransitionFlag.csproj", "{ED5966BA-9E7B-4F08-A381-8428BF01D98B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GroundBarrierTransitionFlag", "AN Expressions\GroundBarrierTransitionFlag\GroundBarrierTransitionFlag.csproj", "{ED5966BA-9E7B-4F08-A381-8428BF01D98B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,4 @@
-﻿using AlgernonCommons.UI;
-
-using BlankRoadBuilder.ThumbnailMaker;
+﻿using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util;
 
 using ColossalFramework.Importers;

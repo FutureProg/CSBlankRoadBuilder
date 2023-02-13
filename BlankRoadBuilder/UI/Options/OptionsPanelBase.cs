@@ -1,9 +1,6 @@
-﻿using AlgernonCommons.UI;
+﻿using ColossalFramework.UI;
 
-using BlankRoadBuilder.Util;
-
-using ColossalFramework.UI;
-
+using ModsCommon.UI;
 using ModsCommon.Utilities;
 
 using UnityEngine;
@@ -23,21 +20,7 @@ public abstract class OptionsPanelBase
 
 	public OptionsPanelBase(UITabstrip tabStrip, int tabIndex, int tabCount, float? margin = null)
 	{
-		var panel = UITabstrips.AddTextTab(tabStrip, TabName, tabIndex, out var uIButton, autoLayout: false);
-
-		var name = tabIndex == 0 ? "Left" : tabIndex == (tabCount - 1) ? "Right" : "Middle";
-
-		uIButton.atlas = CommonTextures.Atlas;
-		uIButton.normalBgSprite = "FieldNormal" + name;
-		uIButton.disabledBgSprite = "FieldDisabled" + name;
-		uIButton.focusedBgSprite = "FieldFocused" + name;
-		uIButton.hoveredBgSprite = "FieldHovered" + name;
-		uIButton.pressedBgSprite = "FieldFocused" + name;
-		uIButton.color = new Color32(119, 127, 136, 255);
-		uIButton.hoveredColor = new Color32(119, 127, 136, 255);
-		uIButton.focusedColor = new Color32(51, 116, 187, 255);
-		uIButton.pressedColor = new Color32(51, 116, 187, 255);
-		uIButton.tooltip = string.Empty;
+		var panel = AddTextTab(tabStrip, TabName, tabIndex, tabCount);
 
 		_panel = panel.AddUIComponent<UIScrollablePanel>();
 		_panel.relativePosition = new Vector2(0, Margin);
@@ -50,25 +33,7 @@ public abstract class OptionsPanelBase
 		_panel.scrollWheelDirection = UIOrientation.Vertical;
 		_panel.scrollPadding = new RectOffset((int)(margin ?? 10), 0, 0, 20);
 
-		scrollbar = UIScrollbars.AddScrollbar(panel, _panel);
-		(scrollbar.thumbObject as UISlicedSprite)!.atlas =
-		(scrollbar.trackObject as UISlicedSprite)!.atlas = ResourceUtil.GetAtlas("Scrollbar.png", new UITextureAtlas.SpriteInfo[]
-		{
-			new()
-			{
-				name = "bar",
-				region = new Rect(0F, 0F, 0.5F, 1F)
-			},
-			new()
-			{
-				name = "thumb",
-				region = new Rect(0.5F, 0F, 0.5F, 1F)
-			},
-		});
-		(scrollbar.thumbObject as UISlicedSprite)!.spriteName = "thumb";
-		(scrollbar.trackObject as UISlicedSprite)!.spriteName = "bar";
-		scrollbar.thumbObject.eventMouseDown += (s, _) => (s as UISlicedSprite)!.color = new Color32(39, 130, 224, 255);
-		scrollbar.thumbObject.eventMouseUp += (s, _) => (s as UISlicedSprite)!.color = Color.white;
+		scrollbar = CustomScrollBar.AddScrollbar(panel, _panel);
 
 		panel.eventVisibilityChanged += (s, e) => scrollbar.value = 0;
 	}
@@ -101,12 +66,17 @@ public abstract class OptionsPanelBase
 
 	protected virtual UITextField AddTextField(string labelKey, string? initialValue)
 	{
-		var newTextField = UITextFields.AddPlainTextfield(_panel, labelKey);
+		var newTextField = _panel.AddUIComponent<StringUITextField>();
+		newTextField.size = new Vector2(140, 22);
+		newTextField.textScale = 0.8F;
+		newTextField.SetDefaultStyle();
+
+		newTextField.AddLabel(labelKey, SpriteAlignment.TopLeft, 1);
 
 		newTextField.parent.relativePosition = new Vector2(Margin, yPos);
 		newTextField.text = initialValue;
 
-		yPos += newTextField.parent.height + Margin;
+		yPos += newTextField.height + Margin;
 
 		return newTextField;
 	}
@@ -133,12 +103,32 @@ public abstract class OptionsPanelBase
 		return newSlider;
 	}
 
-	protected virtual UILabel AddLabel(string text)
+	public static UIPanel AddTextTab(UITabstrip tabstrip, string tabName, int tabIndex, int tabCount, float width = 170f, bool autoLayout = false)
 	{
-		var label = UILabels.AddLabel(_panel, Margin, yPos, text);
+		var uIButton = tabstrip.AddTab(tabName);
+		uIButton.atlas = CommonTextures.Atlas;
+		var name = tabIndex == 0 ? "Left" : tabIndex == (tabCount - 1) ? "Right" : "Middle";
+		uIButton.normalBgSprite = "FieldNormal" + name;
+		uIButton.disabledBgSprite = "FieldDisabled" + name;
+		uIButton.focusedBgSprite = "FieldFocused" + name;
+		uIButton.hoveredBgSprite = "FieldHovered" + name;
+		uIButton.pressedBgSprite = "FieldFocused" + name;
+		uIButton.color = new Color32(119, 127, 136, 255);
+		uIButton.hoveredColor = new Color32(119, 127, 136, 255);
+		uIButton.focusedColor = new Color32(51, 116, 187, 255);
+		uIButton.pressedColor = new Color32(51, 116, 187, 255);
 
-		yPos += label.height + Margin;
+		if (tabstrip is not AutoTabstrip)
+		{
+			uIButton.width = width;
+		}
 
-		return label;
+		var uIPanel = tabstrip.tabContainer.components[tabIndex] as UIPanel;
+		uIPanel!.autoLayout = autoLayout;
+		uIPanel.autoLayoutDirection = LayoutDirection.Vertical;
+		uIPanel.autoLayoutPadding.top = 5;
+		uIPanel.autoLayoutPadding.left = 10;
+
+		return uIPanel;
 	}
 }

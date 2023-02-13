@@ -106,7 +106,7 @@ public partial class LanePropsUtil
 					break;
 				case LaneType.Curb:
 				case LaneType.Filler:
-					if (Lane.LaneWidth - Road.BufferWidth < 0.25F)
+					if ((Type == LaneType.Curb ? (Lane.LaneWidth - Road.BufferWidth) : Lane.LaneWidth) < 0.25F)
 					{
 						foreach (var prop in GetLights())
 						{
