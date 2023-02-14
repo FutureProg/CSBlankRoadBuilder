@@ -11,18 +11,18 @@ public class LaneDecalProp : PropTemplate
 
 	public LaneDecalProp(string propName, bool isTree = false, bool isBuilding = false) : base(propName, isTree, isBuilding) { }
 
-	[PropOption("Base Angle", "Used to compensate for a custom prop's different base angle", 0, 360, 1, "°")]
+	[PropOption("Angle", "Used to compensate for a custom prop's different base angle", 0, 360, 1, "°")]
 	public float StartAngle { get => Angle; set => Angle = value; }
 
 	[PropOption("Repeat Distance", "Makes the prop repeat every X meters on the segment", 0, 64, 0.1F, "m")]
 	public float RepeatDistance { get => RepeatInterval; set => RepeatInterval = value; }
 
 	[PropOption("Segment Snapping", "Determines the snapping position of the prop based on the direction of the lane")]
-	public PropSegmentSnapping SegmentSnapping { get => (PropSegmentSnapping)(int)(SegmentOffset * 100F); set => RepeatInterval = (int)value / 100F; }
+	public PropSegmentSnapping SegmentSnapping { get => (PropSegmentSnapping)(int)(SegmentOffset * 100F); set => SegmentOffset = (int)value / 100F; }
 
-	[PropOption("Relative Position", "Determines the offset from the default position of the stop", MeasurementUnit = "m"), XmlIgnore]
+	[PropOption("Relative Position", "Determines the offset from the default position of the prop", MeasurementUnit = "m")]
 	public CustomVector3 RelativePosition { get => Position; set => Position = value; }
 
-	[PropOption(true)]
-	public string SavedPosition { get => RelativePosition; set => RelativePosition = value; }
+	[PropOption("Only show at intersections", "Shows the decal only when the lane starts at an intersection")]
+	public bool OnlyShowAtIntersections { get; set; }
 }

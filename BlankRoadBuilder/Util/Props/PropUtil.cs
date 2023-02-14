@@ -97,8 +97,19 @@ public class PropUtil
                 IsTree = template.IsTree,
                 IsBuilding = template.IsBuilding,
                 PropertyKeys = properties.Keys.ToArray(),
-                PropertyValues = properties.Values.ToArray(),
+                PropertyValues = properties.Values.Select(TranslateProperty).ToArray(),
             });
+
+            static object TranslateProperty(object value)
+			{
+				if (value is ICustomPropProperty customPropProperty)
+					return customPropProperty.AsPrimitive();
+
+                if (value is Enum)
+                    return Convert.ToInt32(value);
+
+				return value;
+            }
         }
 
         return list.ToArray();
@@ -113,29 +124,29 @@ public class PropUtil
             Prop.TrafficLight02 => new TrafficLightProp("Traffic Light 02"),
             Prop.TrafficLight02Mirror => new TrafficLightProp("Traffic Light 02 Mirror"),
             Prop.TrafficLightPedestrian => new TrafficLightProp("Traffic Light Pedestrian"),
-            Prop.BicycleSign => new RoadSignProp("1779509676.R2 WF11-1 Bicycle Sign_Data"),
-            Prop.RailwayCrossingAheadSign => new RoadSignProp("1779509676.R2 W10-1 Railroad Crossing Sign_Data"),
-            Prop.TrafficLightAheadSign => new RoadSignProp("1779509676.R2 W3-3 Signal Ahead Sign_Data"),
-            Prop.YieldSign => new RoadSignProp("1779508928.R2 R1-2 Yield Sign_Data"),
-            Prop.StopSign => new RoadSignProp("Stop Sign"),
-            Prop.HighwaySign => new RoadSignProp("Motorway Sign"),
-            Prop.HighwayEndSign => new RoadSignProp("1779509676.R2 W19-3 Fwy Ends Sign_Data"),
-            Prop.RailwayCrossingVeryLong => new LevelCrossingProp("Railway Crossing Very Long"),
+            Prop.BicycleSign => new RoadSignProp("1779509676.R2 WF11-1 Bicycle Sign_Data") { StartAngle = 70F, SegmentSnapping = PropSegmentSnapping.SnapToBack },
+            Prop.RailwayCrossingAheadSign => new RoadSignProp("1779509676.R2 W10-1 Railroad Crossing Sign_Data") { StartAngle = 70F, SegmentSnapping = PropSegmentSnapping.SnapHalfwayToBack },
+            Prop.TrafficLightAheadSign => new RoadSignProp("1779509676.R2 W3-3 Signal Ahead Sign_Data") { StartAngle = 70F, SegmentSnapping = PropSegmentSnapping.SnapHalfwayToBack },
+            Prop.YieldSign => new RoadSignProp("1779508928.R2 R1-2 Yield Sign_Data") { StartAngle = 90F, SegmentSnapping = PropSegmentSnapping.SnapToFront },
+            Prop.StopSign => new RoadSignProp("Stop Sign") { SegmentSnapping = PropSegmentSnapping.SnapToFront },
+            Prop.HighwaySign => new RoadSignProp("Motorway Sign") { StartAngle = -20, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new Domain.CustomVector3(0, 0, 10) },
+            Prop.HighwayEndSign => new RoadSignProp("1779509676.R2 W19-3 Fwy Ends Sign_Data") { StartAngle = 70, RelativePosition = new Domain.CustomVector3(0, 0, 10) },
+			Prop.RailwayCrossingVeryLong => new LevelCrossingProp("Railway Crossing Very Long"),
             Prop.RailwayCrossingLong => new LevelCrossingProp("Railway Crossing Long"),
             Prop.RailwayCrossingMedium => new LevelCrossingProp("Railway Crossing Medium"),
             Prop.RailwayCrossingShort => new LevelCrossingProp("Railway Crossing Short"),
-            Prop.BicycleLaneDecal => new LaneDecalProp("Bike Lane"),
-            Prop.BicycleLaneDecalSmall => new LaneDecalProp("Bike Lane Narrow"),
-            Prop.FireHydrant => new DecorationProp("Fire Hydrant"),
-            Prop.BusLaneDecal => new LaneDecalProp("Bus Lane"),
-            Prop.ArrowForward => new ArrowProp("Road Arrow F"),
-            Prop.ArrowLeft => new ArrowProp("Road Arrow L"),
-            Prop.ArrowRight => new ArrowProp("Road Arrow R"),
-            Prop.ArrowLeftRight => new ArrowProp("Road Arrow LR"),
-            Prop.ArrowForwardLeft => new ArrowProp("Road Arrow LF"),
-            Prop.ArrowForwardRight => new ArrowProp("Road Arrow FR"),
-            Prop.ArrowForwardLeftRight => new ArrowProp("Road Arrow LFR"),
-            Prop.BicycleParking => new DecorationProp("bicycle_stand"),
+            Prop.BicycleLaneDecal => new LaneDecalProp("Bike Lane") { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
+            Prop.BicycleLaneDecalSmall => new LaneDecalProp("Bike Lane Narrow") { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
+			Prop.FireHydrant => new DecorationProp("Fire Hydrant") { StartAngle = 90, Chance = 70, SegmentSnapping = PropSegmentSnapping.SnapHalfwayToFront, RelativePosition = new(0, 0, 0.15F) },
+            Prop.BusLaneDecal => new LaneDecalProp("Bus Lane") { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
+			Prop.ArrowForward => new ArrowProp("Road Arrow F") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
+            Prop.ArrowLeft => new ArrowProp("Road Arrow L") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
+            Prop.ArrowRight => new ArrowProp("Road Arrow R") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
+            Prop.ArrowLeftRight => new ArrowProp("Road Arrow LR") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
+            Prop.ArrowForwardLeft => new ArrowProp("Road Arrow LF") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
+            Prop.ArrowForwardRight => new ArrowProp("Road Arrow FR") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
+            Prop.ArrowForwardLeftRight => new ArrowProp("Road Arrow LFR") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
+            Prop.BicycleParking => new DecorationProp("bicycle_stand") { StartAngle = 90, RepeatDistance = 30 },
             Prop.TrashBin => new DecorationProp("Park Trashbin 01"),
             Prop.StreetAd => new DecorationProp("904031558.Street Ads 01_Data"),
             Prop.SingleStreetLight => new LightProp("Toll Road Light Single"),

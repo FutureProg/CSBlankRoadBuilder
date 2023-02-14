@@ -23,13 +23,14 @@ public partial class LanePropsUtil
 		var prop = new NetLaneProps.Prop()
 		{
 			m_prop = bikeLane,
-			m_finalProp = bikeLane,
-			m_startFlagsRequired = NetNode.Flags.Junction,
-			m_angle = 180,
+			m_tree = bikeLane,
+			m_startFlagsRequired = bikeLane is LaneDecalProp laneDecalProp && !laneDecalProp.OnlyShowAtIntersections ? NetNode.Flags.None : NetNode.Flags.Junction,
+			m_angle = bikeLane.Angle,
 			m_minLength = 10,
-			m_segmentOffset = -1,
+			m_segmentOffset = bikeLane.SegmentOffset,
+			m_repeatDistance = bikeLane.RepeatInterval,
 			m_probability = 100,
-			m_position = new Vector3(0, 0, 5),
+			m_position = bikeLane.Position,
 		};
 
 		yield return prop;
@@ -55,13 +56,14 @@ public partial class LanePropsUtil
 		yield return new NetLaneProps.Prop()
 		{
 			m_prop = busLane,
-			m_finalProp = busLane,
-			m_startFlagsRequired = NetNode.Flags.Junction,
-			m_angle = 180,
+			m_tree = busLane,
+			m_startFlagsRequired = busLane is LaneDecalProp laneDecalProp && !laneDecalProp.OnlyShowAtIntersections ? NetNode.Flags.None : NetNode.Flags.Junction,
+			m_angle = busLane.Angle,
 			m_minLength = 10,
-			m_segmentOffset = -1,
+			m_segmentOffset = busLane.SegmentOffset,
+			m_repeatDistance = busLane.RepeatInterval,
 			m_probability = 100,
-			m_position = new Vector3(0, 0, (Lane.Type & LaneType.Bike) == LaneType.Bike ? 15 : 5),
+			m_position = new Vector3(0, 0, (Lane.Type & LaneType.Bike) == LaneType.Bike ? 10 : 0) + busLane.Position,
 		};
 	}
 
@@ -94,19 +96,19 @@ public partial class LanePropsUtil
 
 		yield return arrow(arrowR, NetLane.Flags.Right, NetLane.Flags.LeftForward);
 
-		NetLaneProps.Prop arrow(PropInfo? propInfo, NetLane.Flags flagsRequired, NetLane.Flags flagsForbidden) => new NetLaneProps.Prop
+		NetLaneProps.Prop arrow(PropTemplate propInfo, NetLane.Flags flagsRequired, NetLane.Flags flagsForbidden) => new NetLaneProps.Prop
 		{
 			m_prop = propInfo,
-			m_finalProp = propInfo,
+			m_tree = propInfo,
 			m_flagsRequired = flagsRequired,
 			m_flagsForbidden = flagsForbidden,
 			m_endFlagsRequired = NetNode.Flags.Junction,
 			m_endFlagsForbidden = NetNode.Flags.LevelCrossing | NetNode.Flags.Bend,
-			m_angle = 180,
+			m_angle = propInfo.Angle,
 			m_minLength = 10,
-			m_segmentOffset = 0.8F,
+			m_segmentOffset = 1F,
 			m_probability = 100,
-			m_position = new Vector3(0, 0, -4),
+			m_position = propInfo.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			EndNodeFlags = new NetInfoExtionsion.NodeInfoFlags

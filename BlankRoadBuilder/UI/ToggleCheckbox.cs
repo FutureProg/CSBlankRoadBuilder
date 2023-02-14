@@ -6,13 +6,13 @@ using UnityEngine;
 
 namespace BlankRoadBuilder.UI;
 
-public class CustomCheckbox : UICheckBox
+public class ToggleCheckbox : UICheckBox
 {
 	private readonly UISprite _backgroundSprite;
 
-	public CustomCheckbox()
+	public ToggleCheckbox()
 	{
-		width = 24F;
+		width = 48F;
 		height = 24F;
 		clipChildren = false;
 
@@ -23,7 +23,7 @@ public class CustomCheckbox : UICheckBox
 		checkedBoxObject.relativePosition = _backgroundSprite.relativePosition = Vector2.zero;
 		_backgroundSprite.spriteName = "check-unchecked";
 		((UISprite)checkedBoxObject).spriteName = "check-checked";
-		((UISprite)checkedBoxObject).atlas = _backgroundSprite.atlas = ResourceUtil.GetAtlas("I_Check.png", new UITextureAtlas.SpriteInfo[]
+		((UISprite)checkedBoxObject).atlas = _backgroundSprite.atlas = ResourceUtil.GetAtlas("I_Toggle.png", new UITextureAtlas.SpriteInfo[]
 		{
 			new()
 			{
@@ -37,31 +37,7 @@ public class CustomCheckbox : UICheckBox
 			}
 		});
 
-		label = AddUIComponent<UILabel>();
-		label.text = " ";
-		label.verticalAlignment = UIVerticalAlignment.Middle;
-		label.autoSize = true;
-		label.eventSizeChanged += Label_SizeChanged;
-		textScale = 1;
-
-		Label_SizeChanged(this, default);
-
 		eventCheckChanged += CustomCheckbox_eventCheckChanged;
-	}
-
-	public float textScale
-	{
-		get => label.textScale;
-		set
-		{
-			label.textScale = value;
-			label.relativePosition = new Vector2(height + 5, 1 + ((height - label.height) / 2));
-		}
-	}
-
-	private void Label_SizeChanged(UIComponent component, Vector2 value)
-	{
-		width = 24 + label.width + 10;
 	}
 
 	private void CustomCheckbox_eventCheckChanged(UIComponent component, bool value)

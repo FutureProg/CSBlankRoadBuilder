@@ -28,7 +28,7 @@ internal abstract class CustomMarkingOptionControl<DropDown, EnumType> : UISprit
 	protected void Init(string title, string description, Color32 color, EnumType value, float lineWidth, float dashWidth, float dashSpace)
 	{
 		size = new Vector2(355, 155);
-		atlas = ResourceUtil.GetAtlas("MarkingOptionBack.png");
+		atlas = ResourceUtil.GetAtlas("MarkingOptionBack.png", border: 5);
 		spriteName = "normal";
 
 		titleLabel = AddUIComponent<UILabel>();
@@ -47,7 +47,7 @@ internal abstract class CustomMarkingOptionControl<DropDown, EnumType> : UISprit
 		descLabel.autoSize = false;
 		descLabel.autoHeight = false;
 		descLabel.textAlignment = UIHorizontalAlignment.Right;
-		descLabel.relativePosition = new Vector2(width - (3 * Margin) - 140, 27 + (3 * Margin));
+		descLabel.relativePosition = new Vector2(width - (3 * Margin) - 140, 22 + (3 * Margin));
 
 		var undoButton = AddUIComponent<SlickButton>();
 		undoButton.size = new Vector2(22, 22);
@@ -126,6 +126,8 @@ internal abstract class CustomMarkingOptionControl<DropDown, EnumType> : UISprit
 		lineWidthTB.SetDefaultStyle();
 		dashWidthTB.SetDefaultStyle();
 		dashSpaceTB.SetDefaultStyle();
+		rTB.color = gTB.color = bTB.color = aTB.color = lineWidthTB.color = dashWidthTB.color = dashSpaceTB.color 
+			= new Color32(162, 168, 178, 255);
 
 		rTB.OnValueChanged += SetColorR;
 		gTB.OnValueChanged += SetColorG;

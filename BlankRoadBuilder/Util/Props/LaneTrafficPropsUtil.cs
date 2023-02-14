@@ -98,7 +98,7 @@ public partial class LanePropsUtil
 		return new NetLaneProps.Prop
 		{
 			m_prop = propTemplate,
-			m_finalProp = propTemplate,
+			m_tree = propTemplate,
 			m_flagsRequired = NetLane.Flags.None,
 			m_flagsForbidden = NetLane.Flags.JoinedJunction | NetLane.Flags.Inverted,
 			m_startFlagsRequired = NetNode.Flags.None,
@@ -151,7 +151,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = bikeProp,
-				m_finalProp = bikeProp,
+				m_tree = bikeProp,
 				m_flagsRequired = NetLane.Flags.None,
 				m_flagsForbidden = NetLane.Flags.Inverted,
 				m_startFlagsRequired = NetNode.Flags.None,
@@ -161,10 +161,10 @@ public partial class LanePropsUtil
 				m_cornerAngle = 0,
 				m_minLength = 10F,
 				m_repeatDistance = 0,
-				m_segmentOffset = 1F,
-				m_angle = 250F,
-				m_probability = 100,
-				m_position = new Vector3((Lane.LaneWidth / 2F) - 0.3F, 0, 0),
+				m_segmentOffset = -bikeProp.SegmentOffset,
+				m_angle = bikeProp.Angle + 180,
+				m_probability = bikeProp.Probability,
+				m_position = new Vector3((Lane.LaneWidth / 2F) - 0.3F, 0, 0) + bikeProp.Position,
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -182,7 +182,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = bikeProp,
-				m_finalProp = bikeProp,
+				m_tree = bikeProp,
 				m_flagsRequired = NetLane.Flags.None,
 				m_flagsForbidden = NetLane.Flags.Inverted,
 				m_startFlagsRequired = NetNode.Flags.Junction,
@@ -192,10 +192,10 @@ public partial class LanePropsUtil
 				m_cornerAngle = 0,
 				m_minLength = 10F,
 				m_repeatDistance = 0,
-				m_segmentOffset = -1F,
-				m_angle = 70F,
-				m_probability = 100,
-				m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.3F, 0, 0),
+				m_segmentOffset = bikeProp.SegmentOffset,
+				m_angle = bikeProp.Angle,
+				m_probability = bikeProp.Probability,
+				m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.3F, 0, 0) + bikeProp.Position,
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -217,7 +217,7 @@ public partial class LanePropsUtil
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = railroadCrossingProp,
-			m_finalProp = railroadCrossingProp,
+			m_tree = railroadCrossingProp,
 			m_flagsRequired = NetLane.Flags.None,
 			m_flagsForbidden = NetLane.Flags.JoinedJunctionInverted,
 			m_startFlagsRequired = NetNode.Flags.None,
@@ -227,10 +227,10 @@ public partial class LanePropsUtil
 			m_cornerAngle = 0,
 			m_minLength = 20F,
 			m_repeatDistance = 0,
-			m_segmentOffset = -0.65F,
-			m_angle = 70F,
-			m_probability = 100,
-			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 2F),
+			m_segmentOffset = railroadCrossingProp.SegmentOffset,
+			m_angle = railroadCrossingProp.Angle,
+			m_probability = railroadCrossingProp.Probability,
+			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 2F) + railroadCrossingProp.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -243,7 +243,7 @@ public partial class LanePropsUtil
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = signalAheadProp,
-			m_finalProp = signalAheadProp,
+			m_tree = signalAheadProp,
 			m_flagsRequired = NetLane.Flags.None,
 			m_flagsForbidden = NetLane.Flags.JoinedJunctionInverted,
 			m_startFlagsRequired = NetNode.Flags.None,
@@ -253,10 +253,10 @@ public partial class LanePropsUtil
 			m_cornerAngle = 0,
 			m_minLength = 20F,
 			m_repeatDistance = 0,
-			m_segmentOffset = -0.65F,
-			m_angle = 70F,
-			m_probability = 100,
-			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 2F),
+			m_segmentOffset = signalAheadProp.SegmentOffset,
+			m_angle = signalAheadProp.Angle,
+			m_probability = signalAheadProp.Probability,
+			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 2F) + signalAheadProp.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -274,7 +274,7 @@ public partial class LanePropsUtil
 		return new NetLaneProps.Prop
 		{
 			m_prop = stopSign,
-			m_finalProp = stopSign,
+			m_tree = stopSign,
 			m_flagsForbidden = NetLane.Flags.Inverted,
 			m_startFlagsRequired = NetNode.Flags.None,
 			m_startFlagsForbidden = NetNode.Flags.None,
@@ -282,10 +282,10 @@ public partial class LanePropsUtil
 			m_endFlagsForbidden = NetNode.Flags.TrafficLights | NetNode.Flags.OneWayIn,
 			m_minLength = 0,
 			m_repeatDistance = 0,
-			m_segmentOffset = 1,
-			m_angle = 0,
-			m_probability = 100,
-			m_position = new Vector3(propPosition, 0, 0),
+			m_segmentOffset = stopSign.SegmentOffset,
+			m_angle = stopSign.Angle,
+			m_probability = stopSign.Probability,
+			m_position = new Vector3(propPosition, 0, 0) + stopSign.Position,
 		}.Extend(p => new NetInfoExtionsion.LaneProp(p)
 		{
 			SegmentEndFlags = new NetInfoExtionsion.SegmentEndInfoFlags
@@ -297,12 +297,12 @@ public partial class LanePropsUtil
 
 	private NetLaneProps.Prop YieldSign(float propPosition)
 	{
-		var stopSign = GetProp(Prop.YieldSign);
+		var yieldSign = GetProp(Prop.YieldSign);
 
 		return new NetLaneProps.Prop
 		{
-			m_prop = stopSign,
-			m_finalProp = stopSign,
+			m_prop = yieldSign,
+			m_tree = yieldSign,
 			m_flagsForbidden = NetLane.Flags.Inverted,
 			m_startFlagsRequired = NetNode.Flags.None,
 			m_startFlagsForbidden = NetNode.Flags.None,
@@ -310,10 +310,10 @@ public partial class LanePropsUtil
 			m_endFlagsForbidden = NetNode.Flags.TrafficLights | NetNode.Flags.OneWayIn,
 			m_minLength = 0,
 			m_repeatDistance = 0,
-			m_segmentOffset = 1,
-			m_angle = 90,
-			m_probability = 100,
-			m_position = new Vector3(propPosition, 0, 0),
+			m_segmentOffset = yieldSign.SegmentOffset,
+			m_angle = yieldSign.Angle,
+			m_probability = yieldSign.Probability,
+			m_position = new Vector3(propPosition, 0, 0) + yieldSign.Position,
 		}.Extend(p => new NetInfoExtionsion.LaneProp(p)
 		{
 			SegmentEndFlags = new NetInfoExtionsion.SegmentEndInfoFlags
@@ -325,21 +325,21 @@ public partial class LanePropsUtil
 
 	private NetLaneProps.Prop HighwaySign(float propPosition)
 	{
-		var stopSign = GetProp(Prop.HighwaySign);
+		var highwaySign = GetProp(Prop.HighwaySign);
 
 		return new NetLaneProps.Prop
 		{
-			m_prop = stopSign,
-			m_finalProp = stopSign,
+			m_prop = highwaySign,
+			m_tree = highwaySign,
 			m_flagsForbidden = NetLane.Flags.Inverted,
 			m_startFlagsRequired = NetNode.Flags.Transition,
 			m_startFlagsForbidden = NetNode.Flags.None,
 			m_minLength = 20,
 			m_repeatDistance = 0,
-			m_segmentOffset = -1,
-			m_angle = -20,
-			m_probability = 100,
-			m_position = new Vector3(propPosition, 0, 10),
+			m_segmentOffset = highwaySign.SegmentOffset,
+			m_angle = highwaySign.Angle,
+			m_probability = highwaySign.Probability,
+			m_position = new Vector3(propPosition, 0, 0) + highwaySign.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -352,21 +352,21 @@ public partial class LanePropsUtil
 
 	private NetLaneProps.Prop HighwayEndSign(float propPosition)
 	{
-		var stopSign = GetProp(Prop.HighwayEndSign);
+		var highwayEndSign = GetProp(Prop.HighwayEndSign);
 
 		return new NetLaneProps.Prop
 		{
-			m_prop = stopSign,
-			m_finalProp = stopSign,
+			m_prop = highwayEndSign,
+			m_tree = highwayEndSign,
 			m_flagsForbidden = NetLane.Flags.Inverted,
 			m_endFlagsRequired = NetNode.Flags.Transition,
 			m_startFlagsForbidden = NetNode.Flags.None,
 			m_minLength = 20,
 			m_repeatDistance = 0,
-			m_segmentOffset = 0,
-			m_angle = 70,
-			m_probability = 100,
-			m_position = new Vector3(propPosition, 0, 10),
+			m_segmentOffset = highwayEndSign.SegmentOffset,
+			m_angle = highwayEndSign.Angle,
+			m_probability = highwayEndSign.Probability,
+			m_position = new Vector3(propPosition, 0, 0) + highwayEndSign.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -379,7 +379,7 @@ public partial class LanePropsUtil
 
 	private NetLaneProps.Prop SpeedSign()
 	{
-		PropInfo? sign = ((int)Math.Round(Road.SpeedLimit * (Road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10) switch
+		PropTemplate sign = ((int)Math.Round(Road.SpeedLimit * (Road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10) switch
 		{
 			10 => GetProp(Prop.SpeedSign10),
 			20 => GetProp(Prop.SpeedSign20),
@@ -401,7 +401,7 @@ public partial class LanePropsUtil
 		return new NetLaneProps.Prop
 		{
 			m_prop = sign,
-			m_finalProp = sign,
+			m_tree = sign,
 			m_flagsRequired = NetLane.Flags.None,
 			m_flagsForbidden = NetLane.Flags.Inverted,
 			m_minLength = 15F,
@@ -429,7 +429,7 @@ public partial class LanePropsUtil
 		return new NetLaneProps.Prop
 		{
 			m_prop = railwayCrossing,
-			m_finalProp = railwayCrossing,
+			m_tree = railwayCrossing,
 			m_flagsRequired = NetLane.Flags.None,
 			m_flagsForbidden = NetLane.Flags.Inverted,
 			m_startFlagsRequired = NetNode.Flags.None,
@@ -440,13 +440,13 @@ public partial class LanePropsUtil
 			m_minLength = 0,
 			m_repeatDistance = 0,
 			m_segmentOffset = 1,
-			m_angle = 0,
+			m_angle = railwayCrossing.Angle,
 			m_colorMode = NetLaneProps.ColorMode.EndState,
 			m_probability = 100,
-			m_position = new Vector3(propPosition, 0, Road.ContainsWiredLanes ? -2F : -1F),
+			m_position = new Vector3(propPosition, 0, Road.ContainsWiredLanes ? -2F : -1F) + railwayCrossing.Position,
 		};
 
-		PropInfo getCrossingProp(float drivableArea)
+		PropTemplate getCrossingProp(float drivableArea)
 		{
 			if (drivableArea >= 11F)
 			{

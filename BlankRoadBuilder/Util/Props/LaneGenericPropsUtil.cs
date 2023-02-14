@@ -26,7 +26,7 @@ public partial class LanePropsUtil
 		var position = 0F;//lane.Tags.HasFlag(LaneTag.Asphalt) ? 0 : lane.Position < 0 ? 1F : -1F;
 		var verticalOffset = Lane.Tags.HasFlag(LaneTag.Asphalt) ? -0.45F : -0.75F;
 
-		PropInfo poleProp;
+		PropTemplate poleProp;
 
 		if (!tramLanesAreNextToMedians && Lane.Tags.HasFlag(LaneTag.WirePoleLane))
 		{
@@ -92,7 +92,7 @@ public partial class LanePropsUtil
 		NetLaneProps.Prop pole(float segment, bool end = false) => new NetLaneProps.Prop
 		{
 			m_prop = poleProp,
-			m_finalProp = poleProp,
+			m_tree = poleProp,
 			m_endFlagsForbidden = end ? NetNode.Flags.Middle : NetNode.Flags.None,
 			m_cornerAngle = 0.75F,
 			m_minLength = segment != 0 || verticalOffset == -0.2F ? 0F : 22F,
@@ -123,7 +123,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = parkingMeter,
-				m_finalProp = parkingMeter,
+				m_tree = parkingMeter,
 				m_angle = 90,
 				m_minLength = 22,
 				m_segmentOffset = -0.65F,
@@ -143,7 +143,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = parkingMeter,
-				m_finalProp = parkingMeter,
+				m_tree = parkingMeter,
 				m_angle = 270,
 				m_minLength = 22,
 				m_segmentOffset = 0.65F,

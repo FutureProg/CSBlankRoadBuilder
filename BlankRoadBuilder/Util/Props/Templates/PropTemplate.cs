@@ -11,7 +11,7 @@ public class PropTemplate
 	public float Angle { get; protected set; }
 	public float RepeatInterval { get; protected set; }
 	public float SegmentOffset { get; protected set; }
-	public float Probability { get; protected set; }
+	public int Probability { get; protected set; } = 100;
 	public Vector3 Position { get; protected set; }
 
 	public PropTemplate(string propName, bool isTree = false, bool isBuilding = false)

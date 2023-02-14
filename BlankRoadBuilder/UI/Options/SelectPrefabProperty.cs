@@ -95,6 +95,13 @@ public abstract class SelectPrefabProperty<PrefabType, PanelType, EntityType, Po
 		Button.verticalAlignment = UIVerticalAlignment.Middle;
 		Button.relativePosition = new Vector3(0f, 0f);
 		Button.eventClick += ButtonClick;
+
+		Button.color = Button.focusedColor = new Color32(178, 192, 202, 255);
+		Button.hoveredColor = Button.pressedColor = new Color32(155, 164, 170, 255);
+		Background.color = new Color32(162, 168, 178, 255);
+		Background.focusedColor = new Color32(162, 168, 178, 255);
+		Background.pressedColor = new Color32(162, 168, 178, 255);
+		Background.hoveredColor = new Color32(179, 188, 203, 255);
 	}
 
 	public override void Update()
@@ -129,6 +136,7 @@ public abstract class SelectPrefabProperty<PrefabType, PanelType, EntityType, Po
 		Popup.backgroundSprite = CommonTextures.FieldHovered;
 		Popup.ItemHover = CommonTextures.FieldNormal;
 		Popup.ItemSelected = CommonTextures.FieldFocused;
+		Popup.color = Background.color;
 		Popup.EntityHeight = 50f;
 		Popup.MaxVisibleItems = 10;
 		Popup.maximumSize = new Vector2(240f, 700f);

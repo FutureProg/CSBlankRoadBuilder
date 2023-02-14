@@ -121,27 +121,29 @@ public partial class LanePropsUtil
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
-			m_probability = 70,
-			m_angle = PropAngle() * 90,
-			m_segmentOffset = 0.60F,
-			m_position = new Vector3(0, 0, -PropAngle() * Lane.LaneWidth / 2)
+			m_tree = prop,
+			m_probability = prop.Probability,
+			m_repeatDistance = prop.RepeatInterval,
+			m_angle = PropAngle() * prop.Angle,
+			m_segmentOffset = prop.SegmentOffset,
+			m_position = new Vector3(0, 0, -PropAngle() * Lane.LaneWidth / 2) + prop.Position
 		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetBikeParking()
 	{
 		var prop = GetProp(Prop.BicycleParking);
+		var bench = GetProp(Prop.Bench);
 
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
+			m_tree = prop,
 			m_probability = 100,
 			m_angle = PropAngle() * 90,
-			m_repeatDistance = Lane.Decorations.HasFlag(LaneDecoration.Benches) ? 15F : 30F,
-			m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.Benches) ? -5F : 1F)
-		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
+			m_repeatDistance = Lane.Decorations.HasFlag(LaneDecoration.Benches) ? bench.RepeatInterval : prop.RepeatInterval,
+			m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.Benches) ? -6F : 0) + prop.Position + (Lane.Decorations.HasFlag(LaneDecoration.Benches) ? bench.Position : new())
+		}.Extend(prop => new LaneProp(prop));
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetTrashBin()
@@ -151,7 +153,7 @@ public partial class LanePropsUtil
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
+			m_tree = prop,
 			m_probability = 100,
 			m_angle = PropAngle() * 90,
 			m_repeatDistance = 15F,
@@ -167,7 +169,7 @@ public partial class LanePropsUtil
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
+			m_tree = prop,
 			m_probability = 100,
 			m_angle = 0,
 			m_repeatDistance = 25F,
@@ -196,7 +198,7 @@ public partial class LanePropsUtil
 		NetLaneProps.Prop getLight(float position) => new NetLaneProps.Prop
 		{
 			m_prop = lightProp,
-			m_finalProp = lightProp,
+			m_tree = lightProp,
 			m_minLength = ModOptions.VanillaStreetLightPlacement ? 10 : (Math.Abs(position) * 1.95F),
 			m_repeatDistance = ModOptions.VanillaStreetLightPlacement ? (ModOptions.LightRepeatDistance / 2) : 0,
 			m_probability = 100,
@@ -229,7 +231,7 @@ public partial class LanePropsUtil
 		NetLaneProps.Prop getLight(float position) => new NetLaneProps.Prop
 		{
 			m_prop = lightProp,
-			m_finalProp = lightProp,
+			m_tree = lightProp,
 			m_minLength = ModOptions.VanillaStreetLightPlacement ? 10 : (Math.Abs(position) * 1.95F),
 			m_repeatDistance = ModOptions.VanillaStreetLightPlacement ? ModOptions.LightRepeatDistance : 0,
 			m_probability = 100,
@@ -249,7 +251,7 @@ public partial class LanePropsUtil
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
+			m_tree = prop,
 			m_probability = 100,
 			m_angle = PropAngle() * 90,
 			m_repeatDistance = 15F,
@@ -271,10 +273,8 @@ public partial class LanePropsUtil
 
 		yield return new NetLaneProps.Prop
 		{
-			m_tree = prop,
-			m_finalTree = prop,
 			m_prop = prop,
-			m_finalProp = prop,
+			m_tree = prop,
 			m_probability = 100,
 			m_repeatDistance = 3.25F,
 			m_position = new Vector3(position, 0, 0)
@@ -288,10 +288,8 @@ public partial class LanePropsUtil
 
 		yield return new NetLaneProps.Prop
 		{
-			m_tree = prop,
-			m_finalTree = prop,
 			m_prop = prop,
-			m_finalProp = prop,
+			m_tree = prop,
 			m_probability = 100,
 			m_repeatDistance = 2F,
 			m_position = new Vector3(hasOtherDecos ? PropAngle() * Lane.LaneWidth / -2 : 0, 0.01F, 0)
@@ -307,7 +305,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = prop,
-				m_finalProp = prop,
+				m_tree = prop,
 				m_probability = 100,
 				m_angle = PropAngle() * 90,
 				m_repeatDistance = 15F,
@@ -317,7 +315,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = prop,
-				m_finalProp = prop,
+				m_tree = prop,
 				m_probability = 100,
 				m_angle = PropAngle() * 90,
 				m_repeatDistance = 15F,
@@ -329,10 +327,8 @@ public partial class LanePropsUtil
 
 		yield return new NetLaneProps.Prop
 		{
-			m_tree = prop,
-			m_finalTree = prop,
 			m_prop = prop,
-			m_finalProp = prop,
+			m_tree = prop,
 			m_probability = 100,
 			m_angle = PropAngle() * 90,
 			m_repeatDistance = 5F,
@@ -356,10 +352,8 @@ public partial class LanePropsUtil
 
 			yield return new NetLaneProps.Prop
 			{
-				m_tree = prop,
-				m_finalTree = prop,
 				m_prop = prop,
-				m_finalProp = prop,
+				m_tree = prop,
 				m_probability = 85,
 				m_angle = ((float)_random.NextDouble() * 360) - 180,
 				m_repeatDistance = 1.25F,
@@ -396,10 +390,8 @@ public partial class LanePropsUtil
 
 			yield return new NetLaneProps.Prop
 			{
-				m_tree = prop,
-				m_finalTree = prop,
 				m_prop = prop,
-				m_finalProp = prop,
+				m_tree = prop,
 				m_probability = 100,
 				m_repeatDistance = 1.25F,
 				m_position = new Vector3(pos, -0.4F, 0)
@@ -477,7 +469,7 @@ public partial class LanePropsUtil
 		NetLaneProps.Prop getPlanter(float position) => new NetLaneProps.Prop
 		{
 			m_prop = planter,
-			m_finalProp = planter,
+			m_tree = planter,
 			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
 			m_upgradable = true,
 			m_probability = 100,

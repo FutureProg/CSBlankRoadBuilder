@@ -1,20 +1,19 @@
-﻿using System;
+﻿using BlankRoadBuilder.Util.Props;
+using System;
 
 using UnityEngine;
 
 namespace BlankRoadBuilder.Domain;
 
 [Serializable]
-public class CustomVector3
+public struct CustomVector3 : ICustomPropProperty
 {
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
 
-    public CustomVector3()
-    {
-
-    }
+    public CustomVector3() : this(0, 0, 0)
+    { }
 
     public CustomVector3(float x, float y, float z)
     {
@@ -35,12 +34,12 @@ public class CustomVector3
 
 	public static implicit operator string(CustomVector3 vector)
 	{
-		return $"{vector.X},{vector.Y},{vector.Z}";
+		return $"{vector.X};{vector.Y};{vector.Z}";
 	}
 
 	public static implicit operator CustomVector3(string vector)
 	{
-		var splits = vector?.Split(',');
+		var splits = vector?.Split(';');
 
 		if (splits?.Length == 3)
 		{
@@ -49,4 +48,6 @@ public class CustomVector3
 
 		return new();
 	}
+
+	public object AsPrimitive() => (string)this;
 }

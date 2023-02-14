@@ -171,7 +171,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = busStopLarge,
-				m_finalProp = busStopLarge,
+				m_tree = busStopLarge,
 				m_flagsRequired = NetLane.Flags.Stop,
 				m_angle = 90,
 				m_probability = 100,
@@ -186,7 +186,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = tramStopLarge,
-				m_finalProp = tramStopLarge,
+				m_tree = tramStopLarge,
 				m_flagsRequired = NetLane.Flags.Stop2,
 				m_angle = 90,
 				m_probability = 100,
@@ -202,7 +202,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = sightSeeingProp,
-				m_finalProp = sightSeeingProp,
+				m_tree = sightSeeingProp,
 				m_flagsRequired = NetLane.Flags.Stops,
 				m_angle = 90,
 				m_probability = 100,
@@ -212,7 +212,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = trolleyStop,
-				m_finalProp = trolleyStop,
+				m_tree = trolleyStop,
 				m_flagsRequired = NetLane.Flags.Stop2,
 				m_flagsForbidden = NetLane.Flags.Stop,
 				m_angle = 90,

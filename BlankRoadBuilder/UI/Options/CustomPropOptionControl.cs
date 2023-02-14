@@ -1,4 +1,5 @@
-﻿using BlankRoadBuilder.Domain.Options;
+﻿using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.Util;
 using BlankRoadBuilder.Util.Props;
 using BlankRoadBuilder.Util.Props.Templates;
@@ -19,6 +20,7 @@ namespace BlankRoadBuilder.UI.Options;
 internal class CustomPropOptionControl : UISprite
 {
 	private const float Margin = 5F;
+	private const float ITEM_HEIGHT = 30;
 
 	private readonly List<Action> _setDataProperties=new();
 	private SelectPropProperty? propSelectButton;
@@ -34,7 +36,7 @@ internal class CustomPropOptionControl : UISprite
 	{
 		Prop = prop;
 		size = new Vector2(345, 155);
-		atlas = ResourceUtil.GetAtlas("MarkingOptionBack.png");
+		atlas = ResourceUtil.GetAtlas("MarkingOptionBack.png", border: 5);
 		spriteName = "normal";
 
 		titleLabel = AddUIComponent<UILabel>();
@@ -58,7 +60,7 @@ internal class CustomPropOptionControl : UISprite
 		clearButton.SetIcon("I_Cancel.png");
 		clearButton.text = " ";
 		clearButton.tooltip = "Clears this prop so it does not get generated with your roads";
-		clearButton.relativePosition = new Vector2(undoButton.relativePosition.x - Margin - 22, 6);
+		clearButton.relativePosition = new Vector2(undoButton.relativePosition.x -2 *Margin - 22, 6);
 		clearButton.eventClick += ClearButton_eventClick;
 
 		propSelectButton = AddUIComponent<SelectPropProperty>();
@@ -98,7 +100,7 @@ internal class CustomPropOptionControl : UISprite
 			GenerateSettingComponent(item.Key, item.Value);
 		}
 
-		height =  Margin + components.Max(x => x.height + x.relativePosition.y);
+		height = Margin + components.Max(x => x.height + x.relativePosition.y);
 
 		UpdateData(value);
 
@@ -171,11 +173,11 @@ internal class CustomPropOptionControl : UISprite
 		}
 	}
 
-	private UIComponent? GenerateSettingComponent(PropertyInfo property, PropOptionAttribute? info)
+	private void GenerateSettingComponent(PropertyInfo property, PropOptionAttribute? info)
 	{
 		if (info == null)
 		{
-			return null;
+			return;
 		}
 
 		if (property.PropertyType == typeof(string))
@@ -186,7 +188,7 @@ internal class CustomPropOptionControl : UISprite
 
 			_setDataProperties.Add(() => textfield.Value = getValue<string>(property) ?? string.Empty);
 
-			return textfield;
+			return;
 		}
 
 		if (property.PropertyType.IsEnum)
@@ -199,7 +201,7 @@ internal class CustomPropOptionControl : UISprite
 
 			_setDataProperties.Add(() => dropDown.selectedIndex = enumVales.Keys.ToList().IndexOf(getValue<int>(property)));
 
-			return dropDown;
+			return;
 		}
 
 		if (property.PropertyType == typeof(bool))
@@ -209,10 +211,8 @@ internal class CustomPropOptionControl : UISprite
 			checkbox.eventCheckChanged += (s, v) => setSettingValue(property, v);
 
 			_setDataProperties.Add(() => checkbox.isChecked = getValue<bool>(property));
-
-			yPos += 2;
-
-			return checkbox;
+			
+			return;
 		}
 
 		if (property.PropertyType == typeof(int))
@@ -223,9 +223,7 @@ internal class CustomPropOptionControl : UISprite
 
 			_setDataProperties.Add(() => slider.Value = getValue<int>(property));
 
-			yPos += 5;
-
-			return slider;
+			return;
 		}
 
 		if (property.PropertyType == typeof(float))
@@ -236,12 +234,32 @@ internal class CustomPropOptionControl : UISprite
 
 			_setDataProperties.Add(() => slider.Value = getValue<float>(property));
 
-			yPos += 5;
-
-			return slider;
+			return;
 		}
 
-		return null;
+		if (property.PropertyType == typeof(CustomVector3))
+		{
+			var zTB = AddPositionFloatField("Z", info.MinValue, info.MaxValue,false);
+			var yTB = AddPositionFloatField("Y", info.MinValue, info.MaxValue,false);
+			var xTB = AddPositionFloatField("X", info.MinValue, info.MaxValue,true);
+
+			yTB.relativePosition = new Vector3(zTB.relativePosition.x - 65, yTB.relativePosition.y);
+			xTB.relativePosition = new Vector3(yTB.relativePosition.x - 65, xTB.relativePosition.y);
+
+			var label = xTB.AddLabel(info.Name, SpriteAlignment.LeftCenter, 0.8F);
+
+			label.relativePosition = new Vector2(-xTB.relativePosition.x + 2 * Margin, label.relativePosition.y);
+
+			zTB.OnValueChanged += (v) => setSettingValue(property, new CustomVector3(xTB.Value, yTB.Value, zTB.Value));
+			yTB.OnValueChanged += (v) => setSettingValue(property, new CustomVector3(xTB.Value, yTB.Value, zTB.Value));
+			xTB.OnValueChanged += (v) => setSettingValue(property, new CustomVector3(xTB.Value, yTB.Value, zTB.Value));
+
+			_setDataProperties.Add(() => zTB.Value = getValue<CustomVector3>(property).Z);
+			_setDataProperties.Add(() => yTB.Value = getValue<CustomVector3>(property).Y);
+			_setDataProperties.Add(() => xTB.Value = getValue<CustomVector3>(property).X);
+
+			return;
+		}
 
 		t? getValue<t>(PropertyInfo property) => (t)property.GetValue(Value, null);
 
@@ -258,16 +276,17 @@ internal class CustomPropOptionControl : UISprite
 	private GenericDropDown AddDropdown(string labelKey, string[] items)
 	{
 		var ctrl = AddUIComponent<GenericDropDown>();
-		ctrl.size = new Vector2(140, 22);
+		ctrl.size = new Vector2(170, 22);
 		ctrl.textScale = 0.8F;
 		ctrl.items = items;
+		ctrl.UseWhiteStyle();
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + Margin);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
 		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
-		yPos = ctrl.height + ctrl.relativePosition.y;
+		yPos += ITEM_HEIGHT;
 
 		return ctrl;
 	}
@@ -275,15 +294,16 @@ internal class CustomPropOptionControl : UISprite
 	private IntUITextField AddIntField(string labelKey, float minValue, float maxValue, string? measurementUnit = null)
 	{
 		var ctrl = AddUIComponent<IntUITextField>();
-		ctrl.size = new Vector2(140, 22);
+		ctrl.size = new Vector2(170, 22);
 		ctrl.textScale = 0.8F;
 		ctrl.MinValue = (int)minValue;
 		ctrl.MaxValue = (int)maxValue;
 		ctrl.SetDefaultStyle();
+		ctrl.color = new Color32(162, 168, 178, 255);
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + Margin);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
 		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
 		if (!string.IsNullOrEmpty(measurementUnit))
@@ -291,7 +311,7 @@ internal class CustomPropOptionControl : UISprite
 			label.text += $" ({measurementUnit})";
 		}
 
-		yPos = ctrl.height + ctrl.relativePosition.y;
+		yPos += ITEM_HEIGHT;
 
 		return ctrl;
 	}
@@ -299,15 +319,16 @@ internal class CustomPropOptionControl : UISprite
 	private FloatUITextField AddFloatField(string labelKey, float minValue, float maxValue, string? measurementUnit = null)
 	{
 		var ctrl = AddUIComponent<FloatUITextField>();
-		ctrl.size = new Vector2(140, 22);
+		ctrl.size = new Vector2(170, 22);
 		ctrl.textScale = 0.8F;
 		ctrl.MinValue = minValue;
 		ctrl.MaxValue = maxValue;
 		ctrl.SetDefaultStyle();
+		ctrl.color = new Color32(162, 168, 178, 255);
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + Margin);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
 		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
 		if (!string.IsNullOrEmpty(measurementUnit))
@@ -315,7 +336,27 @@ internal class CustomPropOptionControl : UISprite
 			label.text += $" ({measurementUnit})";
 		}
 
-		yPos = ctrl.height + ctrl.relativePosition.y;
+		yPos += ITEM_HEIGHT;
+
+		return ctrl;
+	}
+		
+	private FloatUITextField AddPositionFloatField(string labelKey, float minValue, float maxValue, bool advanceYpos)
+	{
+		var ctrl = AddUIComponent<FloatUITextField>();
+		ctrl.size = new Vector2(40, 22);
+		ctrl.textScale = 0.8F;
+		ctrl.MinValue = minValue;
+		ctrl.MaxValue = maxValue;
+		ctrl.SetDefaultStyle();
+		ctrl.color = new Color32(162, 168, 178, 255);
+
+		ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
+
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
+
+		if (advanceYpos)
+			yPos += ITEM_HEIGHT;
 
 		return ctrl;
 	}
@@ -323,13 +364,14 @@ internal class CustomPropOptionControl : UISprite
 	private StringUITextField AddTextField(string labelKey)
 	{
 		var ctrl = AddUIComponent<StringUITextField>();
-		ctrl.size = new Vector2(140, 22);
+		ctrl.size = new Vector2(170, 22);
 		ctrl.textScale = 0.8F;
 		ctrl.SetDefaultStyle();
+		ctrl.color = new Color32(162, 168, 178, 255);
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + Margin);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
 		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
 		yPos = ctrl.height + ctrl.relativePosition.y;
@@ -337,14 +379,17 @@ internal class CustomPropOptionControl : UISprite
 		return ctrl;
 	}
 
-	private UICheckBox AddCheckbox(string labelKey)
+	private ToggleCheckbox AddCheckbox(string labelKey)
 	{
-		var newCheckbox = AddUIComponent<CustomCheckbox>();
-		newCheckbox.relativePosition = new Vector2(Margin, yPos);
-		newCheckbox.text = labelKey;
+		var ctrl = AddUIComponent<ToggleCheckbox>();
 
-		yPos += newCheckbox.height + Margin;
+		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		return newCheckbox;
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y - 1);
+
+		yPos += ITEM_HEIGHT;
+
+		return ctrl;
 	}
 }
