@@ -235,9 +235,9 @@ public class SelectPropProperty : SelectPrefabProperty<PropInfo, PropPanel, Prop
 	}
 }
 public class SelectTreeProperty : SelectPrefabProperty<TreeInfo, TreePanel, TreeEntity, SelectTreePopup> { }
-public class SelectBuildingProperty : SelectPrefabProperty<BuildingInfo, BuildingPanel, BuildingEntity, SelectBuildingPopup>
+public class SelectPillarProperty : SelectPrefabProperty<BuildingInfo, PillarPanel, PillarEntity, SelectPillarPopup>
 {
-	public SelectBuildingProperty()
+	public SelectPillarProperty()
 	{
 		PrefabSelectPredicate = b => b.m_AssetEditorPillarTemplate || Regex.IsMatch(b.name, @"\.R69.+?\d+c_Data$");
 	}
@@ -281,7 +281,7 @@ public class SelectTreePopup : SearchPopup<TreeInfo, TreeEntity>
 		return prefab.GetLocalizedTitle().RegexReplace(@"^PROPS_TITLE\[(.+?)\]:0$", x => x.Groups[1].Value);
 	}
 }
-public class SelectBuildingPopup : SearchPopup<BuildingInfo, BuildingEntity>
+public class SelectPillarPopup : SearchPopup<BuildingInfo, PillarEntity>
 {
 	protected override string NotFoundText => "Nothing Found";
 	private static string SearchText { get; set; } = string.Empty;
@@ -329,7 +329,7 @@ public abstract class PrefabEntity<PrefabType, PanelType> : PopupEntity<PrefabTy
 }
 public class PropEntity : PrefabEntity<PropInfo, PropPanel> { }
 public class TreeEntity : PrefabEntity<TreeInfo, TreePanel> { }
-public class BuildingEntity : PrefabEntity<BuildingInfo, BuildingPanel> { }
+public class PillarEntity : PrefabEntity<BuildingInfo, PillarPanel> { }
 
 public abstract class PrefabPanel<PrefabType> : CustomUIPanel, IReusable
 	where PrefabType : PrefabInfo
@@ -422,7 +422,7 @@ public class TreePanel : PrefabPanel<TreeInfo>
 {
 	protected override string LocalizedTitle => Prefab.GetLocalizedTitle().RegexReplace(@"^PROPS_TITLE\[(.+?)\]:0$", x => x.Groups[1].Value);
 }
-public class BuildingPanel : PrefabPanel<BuildingInfo>
+public class PillarPanel : PrefabPanel<BuildingInfo>
 {
 	protected override string LocalizedTitle => Prefab.GetLocalizedTitle().RegexReplace(@"^PROPS_TITLE\[(.+?)\]:0$", x => x.Groups[1].Value);
 }

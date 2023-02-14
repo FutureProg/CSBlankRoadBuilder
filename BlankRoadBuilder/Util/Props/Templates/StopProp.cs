@@ -11,10 +11,10 @@ public class StopProp : PropTemplate
 
 	public StopProp(string propName, bool isTree = false, bool isBuilding = false) : base(propName, isTree, isBuilding) { }
 
-	[PropOption(0, "Base Angle", "Used to compensate for a custom prop's different base angle", 0, 360, 1, "°")]
+	[PropOption("Base Angle", "Used to compensate for a custom prop's different base angle", 0, 360, 1, "°")]
 	public float StartAngle { get => Angle; set => Angle = value; }
 
-	[PropOption(0, "Relative Position", "Determines the offset from the default position of the stop", MeasurementUnit = "m"), XmlIgnore]
+	[PropOption("Relative Position", "Determines the offset from the default position of the stop", MeasurementUnit = "m"), XmlIgnore]
 	public CustomVector3 RelativePosition { get => Position; set => Position = value; }
 
 	[PropOption(true)]

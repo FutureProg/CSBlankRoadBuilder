@@ -23,7 +23,7 @@ internal class CustomPropOptionControl : UISprite
 	private readonly List<Action> _setDataProperties=new();
 	private SelectPropProperty? propSelectButton;
 	private SelectTreeProperty? treeSelectButton;
-	private SelectBuildingProperty? buildingSelectButton;
+	private SelectPillarProperty? pillarSelectButton;
 	private UILabel? titleLabel;
 	private float yPos;
 
@@ -53,6 +53,14 @@ internal class CustomPropOptionControl : UISprite
 		undoButton.relativePosition = new Vector2(width - 22 - 6, 6);
 		undoButton.eventClick += UndoButton_eventClick;
 
+		var clearButton = AddUIComponent<SlickButton>();
+		clearButton.size = new Vector2(22, 22);
+		clearButton.SetIcon("I_Cancel.png");
+		clearButton.text = " ";
+		clearButton.tooltip = "Clears this prop so it does not get generated with your roads";
+		clearButton.relativePosition = new Vector2(undoButton.relativePosition.x - Margin - 22, 6);
+		clearButton.eventClick += ClearButton_eventClick;
+
 		propSelectButton = AddUIComponent<SelectPropProperty>();
 		propSelectButton.size = new Vector2(240, 50);
 		propSelectButton.relativePosition = new Vector2(width - propSelectButton.width - Margin, 30 + (2 * Margin));
@@ -61,16 +69,16 @@ internal class CustomPropOptionControl : UISprite
 		treeSelectButton.size = new Vector2(240, 50);
 		treeSelectButton.relativePosition = new Vector2(width - treeSelectButton.width - Margin, 30 + (2 * Margin));
 
-		buildingSelectButton = AddUIComponent<SelectBuildingProperty>();
-		buildingSelectButton.size = new Vector2(240, 50);
-		buildingSelectButton.relativePosition = new Vector2(width - buildingSelectButton.width - Margin, 30 + (2 * Margin));
+		pillarSelectButton = AddUIComponent<SelectPillarProperty>();
+		pillarSelectButton.size = new Vector2(240, 50);
+		pillarSelectButton.relativePosition = new Vector2(width - pillarSelectButton.width - Margin, 30 + (2 * Margin));
 
 		var label = propSelectButton.AddLabel("Prop", SpriteAlignment.LeftCenter, 0.8F);
 		label.relativePosition = new Vector2(-propSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
 		label = treeSelectButton.AddLabel("Tree", SpriteAlignment.LeftCenter, 0.8F);
 		label.relativePosition = new Vector2(-treeSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
-		label = buildingSelectButton.AddLabel("Pillar", SpriteAlignment.LeftCenter, 0.8F);
-		label.relativePosition = new Vector2(-buildingSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
+		label = pillarSelectButton.AddLabel("Pillar", SpriteAlignment.LeftCenter, 0.8F);
+		label.relativePosition = new Vector2(-pillarSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
 
 		yPos = propSelectButton.relativePosition.y + propSelectButton.height + Margin;
 
@@ -96,7 +104,7 @@ internal class CustomPropOptionControl : UISprite
 
 		propSelectButton.OnValueChanged += DropDown_OnValueChanged;
 		treeSelectButton.OnValueChanged += DropDown_OnValueChanged;
-		buildingSelectButton.OnValueChanged += DropDown_OnValueChanged;
+		pillarSelectButton.OnValueChanged += DropDown_OnValueChanged;
 	}
 
 	private void DropDown_OnValueChanged(PropInfo obj)
@@ -127,25 +135,32 @@ internal class CustomPropOptionControl : UISprite
 		UpdateData(PropUtil.GetProp(Prop));
 	}
 
+	private void ClearButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+	{
+		propSelectButton!.Prefab = null;
+		treeSelectButton!.Prefab = null;
+		pillarSelectButton!.Prefab = null;
+	}
+
 	public void UpdateData(PropTemplate value)
 	{
 		Value = value;
 
 		if (Value.IsTree)
 		{
-			propSelectButton!.isVisible = buildingSelectButton!.isVisible = false;
+			propSelectButton!.isVisible = pillarSelectButton!.isVisible = false;
 			treeSelectButton!.isVisible = true;
 			treeSelectButton!.Prefab = Value!;
 		}
 		else if (Value.IsBuilding)
 		{
 			propSelectButton!.isVisible = treeSelectButton!.isVisible = false;
-			buildingSelectButton!.isVisible = true;
-			buildingSelectButton!.Prefab = Value!;
+			pillarSelectButton!.isVisible = true;
+			pillarSelectButton!.Prefab = Value!;
 		}
 		else
 		{
-			treeSelectButton!.isVisible = buildingSelectButton!.isVisible = false;
+			treeSelectButton!.isVisible = pillarSelectButton!.isVisible = false;
 			propSelectButton!.isVisible = true;
 			propSelectButton!.Prefab = Value!;
 		}
