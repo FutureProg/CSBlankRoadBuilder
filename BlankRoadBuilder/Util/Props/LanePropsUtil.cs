@@ -157,7 +157,7 @@ public partial class LanePropsUtil
 		foreach (var prop in GetMedianProps())
 			yield return prop;
 
-		var stopType = ThumbnailMakerUtil.GetStopType(Lane.Type, Lane, Road, out var forward);
+		var stopType = ThumbnailMakerUtil.GetStopType(Lane.Type, Lane, Road, Elevation, out var forward);
 
 		if (forward == null)
 			yield break;
@@ -166,7 +166,7 @@ public partial class LanePropsUtil
 		{
 			var busStopLarge = GetProp(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? Prop.BusStopLarge : Prop.BusStopSmall);
 			var stopDiff = Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F
-				: (float)Math.Round(Math.Abs(Lane.Position - ThumbnailMakerUtil.GetLanePosition(Lane.Type, Lane, Road)) - 0.2F, 3);
+				: (float)Math.Round(Math.Abs(Lane.Position - ThumbnailMakerUtil.GetLanePosition(Lane.Type, Lane, Road, Elevation)) - 0.2F, 3);
 
 			yield return new NetLaneProps.Prop
 			{

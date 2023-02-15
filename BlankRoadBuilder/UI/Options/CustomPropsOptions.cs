@@ -34,6 +34,8 @@ internal class CustomPropsOptions : OptionsPanelBase
 		resetButton.SetIcon("I_Undo.png");
 		resetButton.eventClicked += ResetButton_eventClicked;
 
+		PropUtil.SavePaused = true;
+
 		foreach (var grp in values.GroupBy(x => x.Value.Category).OrderBy(x => x.Key))
 		{
 			if (grp.Key == PropCategory.None)
@@ -82,6 +84,8 @@ internal class CustomPropsOptions : OptionsPanelBase
 		}
 
 		GenerateBlockPanel();
+
+		PropUtil.SavePaused = false;
 	}
 
 	private void GenerateBlockPanel()

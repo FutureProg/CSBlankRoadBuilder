@@ -2,6 +2,7 @@
 using BlankRoadBuilder.ThumbnailMaker;
 
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace BlankRoadBuilder.Util.Markings;

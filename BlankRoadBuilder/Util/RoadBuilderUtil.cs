@@ -10,6 +10,7 @@ using BlankRoadBuilder.Util.Props;
 using BlankRoadBuilder.Util.Props.Templates;
 
 using ColossalFramework.IO;
+using ColossalFramework.UI;
 
 using System;
 using System.Collections.Generic;
@@ -57,8 +58,6 @@ public static class RoadBuilderUtil
 		try
 		{
 			info = GetNetInfo(roadInfo);
-
-			GenerateLaneWidthsAndPositions(roadInfo);
 		}
 		catch (Exception ex)
 		{
@@ -93,6 +92,17 @@ public static class RoadBuilderUtil
 				var netInfo = netElelvations[elevation];
 
 				roadInfo.Lanes = new List<LaneInfo>(lanes);
+
+				if (elevation != ElevationType.Basic)
+				{
+					if (ModOptions.GroundOnlyGrass)
+						roadInfo.Lanes.Where(x => x.Decorations.HasFlag(LaneDecoration.Grass)).ForEach(x => x.Decorations = LaneDecoration.Pavement | (x.Decorations & ~LaneDecoration.Grass));
+
+					if (ModOptions.GroundOnlyParking)
+						roadInfo.Lanes.RemoveAll(x => x.Type == LaneType.Parking);
+				}
+
+				GenerateLaneWidthsAndPositions(roadInfo);
 
 				if (elevation is ElevationType.Elevated or ElevationType.Bridge || !roadInfo.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier)))
 				{
@@ -209,6 +219,17 @@ public static class RoadBuilderUtil
 		netInfo.m_enableBendingNodes = roadInfo.LeftPavementWidth == roadInfo.RightPavementWidth;
 		netInfo.m_tags = GetTags(roadInfo, elevation).ToArray();
 
+		if (roadInfo.RoadType == RoadType.Road)
+		{
+			var itemClass = ScriptableObject.CreateInstance<ItemClass>();
+			itemClass.m_layer = ItemClass.Layer.Default;
+			itemClass.m_service = ItemClass.Service.Road;
+			itemClass.m_subService = ItemClass.SubService.None;
+			itemClass.m_level = (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 16));
+			itemClass.name = ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 16))).ToString().FormatWords();
+			netInfo.m_class = itemClass;
+		}
+
 		RoadUtils.SetNetAi(netInfo, "m_constructionCost", GetCost(roadInfo, elevation, false));
 		RoadUtils.SetNetAi(netInfo, "m_maintenanceCost", GetCost(roadInfo, elevation, true));
 		RoadUtils.SetNetAi(netInfo, "m_noiseAccumulation", (int)(netInfo.m_halfWidth / 3));
@@ -267,7 +288,7 @@ public static class RoadBuilderUtil
 
 		metadata.RenameCustomFlag(RoadUtils.Flags.S_LowCurbOnTheRight, "Low curb on the right");
 		metadata.RenameCustomFlag(RoadUtils.Flags.S_LowCurbOnTheLeft, "Low curb on the left");
-		metadata.RenameCustomFlag(RoadUtils.Flags.S_AddRoadDamage, "Add road damage");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_AddRoadDamage, (ModOptions.HideRoadDamage ? "Show" : "Remove") + " road damage");
 		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveRoadClutter, (ModOptions.HideRoadClutter ? "Show" : "Remove") + " road clutter");
 		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
 		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
@@ -556,7 +577,7 @@ public static class RoadBuilderUtil
 
 		static NetInfo.Lane getLane(int index, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation) => new()
 		{
-			m_position = ThumbnailMakerUtil.GetLanePosition(type, lane, road),
+			m_position = ThumbnailMakerUtil.GetLanePosition(type, lane, road, elevation),
 			m_width = Math.Max(0.1F, lane.LaneWidth),
 			m_verticalOffset = ThumbnailMakerUtil.GetLaneVerticalOffset(lane, road),
 			m_speedLimit = ThumbnailMakerUtil.GetLaneSpeedLimit(type, lane, road),
@@ -564,7 +585,7 @@ public static class RoadBuilderUtil
 			m_vehicleType = ThumbnailMakerUtil.GetVehicleType(type, lane),
 			m_vehicleCategoryPart1 = ThumbnailMakerUtil.GetVehicleCategory1(type),
 			m_vehicleCategoryPart2 = ThumbnailMakerUtil.GetVehicleCategory2(type),
-			m_stopType = ThumbnailMakerUtil.GetStopType(type, lane, road, out _),
+			m_stopType = ThumbnailMakerUtil.GetStopType(type, lane, road, elevation, out _),
 			m_direction = ThumbnailMakerUtil.GetLaneDirection(lane),
 			m_finalDirection = ThumbnailMakerUtil.GetLaneDirection(lane),
 			m_laneProps = GetLaneProps(index, type, lane, road, elevation),

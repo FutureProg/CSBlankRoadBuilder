@@ -1,5 +1,7 @@
 ﻿using BlankRoadBuilder.Util.Props;
 using System;
+using System.ComponentModel;
+using System.Globalization;
 
 using UnityEngine;
 
@@ -49,5 +51,16 @@ public struct CustomVector3 : ICustomPropProperty
 		return new();
 	}
 
-	public object AsPrimitive() => (string)this;
+	public object AsPrimitive() => $"{X};{Y};{Z}";
+	public void FromPrimitive(object primiteValue)
+	{
+		var splits = primiteValue?.ToString()?.Split(';');
+
+		if (splits?.Length == 3)
+		{
+			X = float.Parse(splits[0]);
+			Y = float.Parse(splits[1]);
+			Z = float.Parse(splits[2]);
+		}
+	}
 }

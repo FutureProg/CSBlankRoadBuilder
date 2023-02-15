@@ -1,6 +1,7 @@
 ﻿using BlankRoadBuilder.ThumbnailMaker;
 
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace BlankRoadBuilder.Util.Markings;
@@ -39,6 +40,7 @@ public class FillerMarking
 			}
 		}
 	}
+	public float SurfaceElevation => Lanes.Min(x => x.SurfaceElevation);
 
 	private MarkingStyleUtil.FillerInfo? GetHelperInfo()
 	{
@@ -49,6 +51,33 @@ public class FillerMarking
 		};
 	}
 
-	public MarkingStyleUtil.FillerInfo? AN_Info => Helper ? GetHelperInfo() : MarkingStyleUtil.GetFillerMarkingInfo(Lanes.First().Type, MarkingType.AN);
-	public MarkingStyleUtil.FillerInfo? IMT_Info => MarkingStyleUtil.GetFillerMarkingInfo(Lanes.First().Type, MarkingType.IMT);
+	public MarkingStyleUtil.FillerInfo? AN_Info => Helper ? GetHelperInfo() : MarkingStyleUtil.GetFillerMarkingInfo(GetFillerLaneType(), MarkingType.AN);
+	public MarkingStyleUtil.FillerInfo? IMT_Info => MarkingStyleUtil.GetFillerMarkingInfo(GetFillerLaneType(), MarkingType.IMT);
+
+	private LaneType GetFillerLaneType()
+	{
+		return Lanes
+			.First()
+			.Type
+			.GetValues()
+			.OrderBy(LaneTypeImportance)
+			.FirstOrDefault();
+	}
+
+	private static int LaneTypeImportance(LaneType type)
+	{
+		return type switch
+		{
+			LaneType.Train => 21,
+			LaneType.Tram => 20,
+			LaneType.Emergency => 19,
+			LaneType.Trolley => 18,
+			LaneType.Bus => 17,
+			LaneType.Car => 16,
+			LaneType.Bike => 15,
+			LaneType.Parking => 14,
+			LaneType.Pedestrian => 13,
+			_ => 0,
+		};
+	}
 }

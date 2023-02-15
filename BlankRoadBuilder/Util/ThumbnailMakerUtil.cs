@@ -196,9 +196,12 @@ public static class ThumbnailMakerUtil
 			};
 	}
 
-	public static VehicleInfo.VehicleType GetStopType(LaneType type, LaneInfo lane, RoadInfo road, out bool? forward)
+	public static VehicleInfo.VehicleType GetStopType(LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation, out bool? forward)
 	{
 		forward = null;
+
+		if (elevation != ElevationType.Basic && ModOptions.GroundOnlyStops)
+			return VehicleInfo.VehicleType.None;
 
 		switch (type)
 		{
@@ -311,14 +314,14 @@ public static class ThumbnailMakerUtil
 		return 0F;
 	}
 
-	public static float GetLanePosition(LaneType type, LaneInfo lane, RoadInfo road)
+	public static float GetLanePosition(LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
 	{
 		if (type != LaneType.Pedestrian || !lane.Tags.HasFlag(LaneTag.Asphalt))
 		{
 			return lane.Position;
 		}
 
-		var stopType = GetStopType(type, lane, road, out var forward);
+		var stopType = GetStopType(type, lane, road, elevation, out var forward);
 
 		if (stopType != VehicleInfo.VehicleType.None && forward != null)
 		{

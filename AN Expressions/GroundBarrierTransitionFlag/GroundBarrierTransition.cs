@@ -16,7 +16,7 @@ namespace GroundBarrierTransitionFlag
 			return sameDirection &&
 				Node.SegmentIDs.Length == 2 && // twoSegments
 				(SegmentA.m_flags & NetSegment.Flags.Invert) == (SegmentD.m_flags & NetSegment.Flags.Invert) &&
-				laneInfoA.m_position == laneInfoD.m_position &&
+				(laneInfoA.m_position >= 0) == (laneInfoD.m_position >= 0) &&
 				laneInfoA.m_finalDirection == laneInfoD.m_finalDirection &&
 				laneInfoA.m_laneType == laneInfoD.m_laneType &&
 				laneInfoA.m_vehicleType == laneInfoD.m_vehicleType &&

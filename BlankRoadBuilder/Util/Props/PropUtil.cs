@@ -14,6 +14,8 @@ public class PropUtil
 {
     private static Dictionary<Prop, PropTemplate>? cachedTemplates;
 
+    public static bool SavePaused { get; set; }
+
     public static PropTemplate GetProp(Prop prop)
     {
         cachedTemplates ??= LoadTemplates();
@@ -23,6 +25,9 @@ public class PropUtil
 
     public static void SaveTemplate(Prop prop, PropTemplate? template)
     {
+        if (SavePaused)
+            return;
+
         cachedTemplates ??= LoadTemplates();
 
         cachedTemplates[prop] = template ?? GetDefaultProp(prop);
