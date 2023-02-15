@@ -8,6 +8,7 @@ public enum PropCategory
 	Arrows,
 	LaneDecals,
 	Stops,
+	TramPoles,
 	LevelCrossingBarriers,
 	RoadSigns,
 	SpeedSigns,

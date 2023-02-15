@@ -1,5 +1,6 @@
 ﻿using AdaptiveRoads.Manager;
 
+using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Props.Templates;
@@ -120,15 +121,19 @@ public partial class LanePropsUtil
 		{
 			var parkingMeter = GetProp(Prop.ParkingMeter);
 
+			if (parkingMeter is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+				yield break;
+
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = parkingMeter,
 				m_tree = parkingMeter,
-				m_angle = 90,
+				m_angle = parkingMeter.Angle,
 				m_minLength = 22,
-				m_segmentOffset = -0.65F,
-				m_probability = 100,
-				m_position = new Vector3((float)Math.Round((Lane.LaneWidth - (Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / -2, 3), 0, 4F),
+				m_segmentOffset = parkingMeter.SegmentOffset,
+				m_probability = parkingMeter.Probability,
+				m_repeatDistance = parkingMeter.RepeatInterval,
+				m_position = new Vector3((float)Math.Round((Lane.LaneWidth - (Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / -2, 3), 0, 0) + parkingMeter.Position,
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -140,15 +145,19 @@ public partial class LanePropsUtil
 		{
 			var parkingMeter = GetProp(Prop.ParkingMeter);
 
+			if (parkingMeter is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+				yield break;
+
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = parkingMeter,
 				m_tree = parkingMeter,
-				m_angle = 270,
+				m_angle = parkingMeter.Angle + 180,
 				m_minLength = 22,
-				m_segmentOffset = 0.65F,
-				m_probability = 100,
-				m_position = new Vector3((float)Math.Round((Lane.LaneWidth - (Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / 2, 3), 0, -4F),
+				m_segmentOffset = -parkingMeter.SegmentOffset,
+				m_probability = parkingMeter.Probability,
+				m_repeatDistance = parkingMeter.RepeatInterval,
+				m_position = new Vector3((float)Math.Round((Lane.LaneWidth - (Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / 2, 3), 0, 0) - parkingMeter.Position,
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags

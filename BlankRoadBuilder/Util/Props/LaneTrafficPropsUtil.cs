@@ -379,7 +379,7 @@ public partial class LanePropsUtil
 
 	private NetLaneProps.Prop SpeedSign()
 	{
-		PropTemplate sign = ((int)Math.Round(Road.SpeedLimit * (Road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10) switch
+		var sign = ((int)Math.Round(Road.SpeedLimit * (Road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10) switch
 		{
 			10 => GetProp(Prop.SpeedSign10),
 			20 => GetProp(Prop.SpeedSign20),
@@ -406,10 +406,10 @@ public partial class LanePropsUtil
 			m_flagsForbidden = NetLane.Flags.Inverted,
 			m_minLength = 15F,
 			m_repeatDistance = 0,
-			m_segmentOffset = -0.65F,
-			m_angle = 340F,
-			m_probability = 100,
-			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, -1F),
+			m_segmentOffset = sign.SegmentOffset,
+			m_angle = sign.Angle,
+			m_probability = sign.Probability,
+			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 0) + sign.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags

@@ -2,11 +2,11 @@
 using BlankRoadBuilder.Domain.Options;
 
 namespace BlankRoadBuilder.Util.Props.Templates;
-public class ArrowProp : PropTemplate
+public class TramPoleProp : PropTemplate
 {
-	public override PropCategory Category => PropCategory.Arrows;
+	public override PropCategory Category => PropCategory.TramPoles;
 
-	public ArrowProp(string propName) : base(propName) { }
+	public TramPoleProp(string propName) : base(propName) { }
 
 	[PropOption("Angle", "Used to compensate for a custom prop's different base angle", 0, 360, 1, "°")]
 	public float StartAngle { get => Angle; set => Angle = value; }

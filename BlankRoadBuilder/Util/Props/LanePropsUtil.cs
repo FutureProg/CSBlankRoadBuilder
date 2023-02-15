@@ -173,9 +173,9 @@ public partial class LanePropsUtil
 				m_prop = busStopLarge,
 				m_tree = busStopLarge,
 				m_flagsRequired = NetLane.Flags.Stop,
-				m_angle = 90,
+				m_angle = busStopLarge.Angle,
 				m_probability = 100,
-				m_position = new Vector3(stopDiff, 0, Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.Tags.HasFlag(LaneTag.CenterMedian) ? 5F : 3F),
+				m_position = busStopLarge.Position + new Vector3(stopDiff, 0, Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.Tags.HasFlag(LaneTag.CenterMedian) ? 2F : 0F),
 			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
 		}
 
@@ -188,9 +188,9 @@ public partial class LanePropsUtil
 				m_prop = tramStopLarge,
 				m_tree = tramStopLarge,
 				m_flagsRequired = NetLane.Flags.Stop2,
-				m_angle = 90,
+				m_angle = tramStopLarge.Angle,
 				m_probability = 100,
-				m_position = new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F : 0.1F, 0, Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.Tags.HasFlag(LaneTag.CenterMedian) ? -5F : -3F)
+				m_position = tramStopLarge.Position + new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F : 0.1F, 0, Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.Tags.HasFlag(LaneTag.CenterMedian) ? -2F : 0F)
 			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
 		}
 
@@ -204,9 +204,9 @@ public partial class LanePropsUtil
 				m_prop = sightSeeingProp,
 				m_tree = sightSeeingProp,
 				m_flagsRequired = NetLane.Flags.Stops,
-				m_angle = 90,
+				m_angle = sightSeeingProp.Angle,
 				m_probability = 100,
-				m_position = new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? -0.75F : -0.5F, 0, -2F)
+				m_position = sightSeeingProp.Position + new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? -0.75F : -0.5F, 0, 0)
 			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
 
 			yield return new NetLaneProps.Prop
@@ -215,9 +215,9 @@ public partial class LanePropsUtil
 				m_tree = trolleyStop,
 				m_flagsRequired = NetLane.Flags.Stop2,
 				m_flagsForbidden = NetLane.Flags.Stop,
-				m_angle = 90,
+				m_angle = trolleyStop.Angle,
 				m_probability = 100,
-				m_position = new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? -0.75F : -0.5F, 0, -2F)
+				m_position = trolleyStop.Position + new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? -0.75F : -0.5F, 0, 0)
 			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
 		}
 	}

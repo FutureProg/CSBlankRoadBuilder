@@ -122,6 +122,7 @@ internal class CustomPropsOptions : OptionsPanelBase
 			PropCategory.Decorations => "I_Decorations.png",
 			PropCategory.LevelCrossingBarriers => "I_LevelBarrier.png",
 			PropCategory.LaneDecals => "I_Paint.png",
+			PropCategory.TramPoles => "I_TramPole.png",
 			_ => ""
 		};
 	}

@@ -6,7 +6,7 @@ public class RoadSignProp : PropTemplate
 {
 	public override PropCategory Category => PropCategory.RoadSigns;
 
-	public RoadSignProp(string propName, bool isTree = false, bool isBuilding = false) : base(propName, isTree, isBuilding) { }
+	public RoadSignProp(string propName) : base(propName) { }
 
 	[PropOption("Angle", "Used to compensate for a custom prop's different base angle", 0, 360, 1, "°")]
 	public float StartAngle { get => Angle; set => Angle = value; }

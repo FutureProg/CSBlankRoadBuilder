@@ -9,7 +9,7 @@ public class DecorationProp : PropTemplate
 {
 	public override PropCategory Category => PropCategory.Decorations;
 
-	public DecorationProp(string propName, bool isTree = false, bool isBuilding = false) : base(propName, isTree, isBuilding) { }
+	public DecorationProp(string propName) : base(propName) { }
 
 	[PropOption("Use Trees", "Uses a tree instead of a prop")]
 	public bool UseTree { get => IsTree; set => IsTree = value; }
@@ -28,4 +28,7 @@ public class DecorationProp : PropTemplate
 
 	[PropOption("Probability", "Determines the chance of this prop showing up on a segment", 0, 100, 1, "%")]
 	public int Chance { get => Probability; set => Probability = value; }
+
+	[PropOption("Only generate on ground", "Skips this prop when generating levels other than the ground one")]
+	public bool OnlyOnGround { get; set; }
 }
