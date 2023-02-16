@@ -1,8 +1,6 @@
 ﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 
-using System.Xml.Serialization;
-
 namespace BlankRoadBuilder.Util.Props.Templates;
 
 public class DecorationProp : PropTemplate

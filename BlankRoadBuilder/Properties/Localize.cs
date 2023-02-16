@@ -74,4 +74,9 @@ public class Localize
 	/// [NEW] Added a better status filter in the build panel.
 	/// </summary>
 	public static string Mod_WhatsNewMessage1_2_5 => LocaleManager.GetString("Mod_WhatsNewMessage1_2_5", Culture);
+
+	/// <summary>
+	/// [NEW] Added a new section in the mod’s settings to completely customise the props, trees & pillars u
+	/// </summary>
+	public static string Mod_WhatsNewMessage1_3_0 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_0", Culture);
 }

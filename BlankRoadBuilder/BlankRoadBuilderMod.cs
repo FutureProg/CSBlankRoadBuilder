@@ -41,6 +41,7 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	protected override LocalizeManager LocalizeManager { get; } = new LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	public override List<ModVersion> Versions { get; } = new List<ModVersion>
 	{
+		new ModVersion(new Version("1.3.0"), new DateTime(2023, 2, 16)),
 		new ModVersion(new Version("1.2.5"), new DateTime(2023, 2, 12)),
 		new ModVersion(new Version("1.2.4"), new DateTime(2023, 2, 10)),
 		new ModVersion(new Version("1.2.3"), new DateTime(2023, 2, 9)),

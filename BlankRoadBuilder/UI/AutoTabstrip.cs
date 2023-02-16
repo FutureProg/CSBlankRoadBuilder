@@ -8,18 +8,16 @@ namespace BlankRoadBuilder.UI;
 
 public class AutoTabstrip : UITabstrip
 {
-	private float _tabHeight;
-
-	public float TabHeight => _tabHeight;
+	public float TabHeight { get; private set; }
 
 	public static TTabstrip AddTabstrip<TTabstrip>(UIComponent parent, float posX, float posY, float width, float height, out UITabContainer container, float tabHeight) where TTabstrip : UITabstrip
 	{
-		TTabstrip val = parent.AddUIComponent<TTabstrip>();
+		var val = parent.AddUIComponent<TTabstrip>();
 		val.relativePosition = new Vector2(posX, posY);
 		val.width = width;
 		val.height = height;
 		val.clipChildren = false;
-		UITabContainer uITabContainer = parent.AddUIComponent<UITabContainer>();
+		var uITabContainer = parent.AddUIComponent<UITabContainer>();
 		uITabContainer.name = "TabContainer";
 		uITabContainer.relativePosition = new Vector2(posX, posY + tabHeight + 5f);
 		uITabContainer.width = width;
@@ -32,15 +30,15 @@ public class AutoTabstrip : UITabstrip
 
 	public static AutoTabstrip AddTabstrip(UIComponent parent, float posX, float posY, float width, float height, out UITabContainer container, float tabHeight = 25f)
 	{
-		AutoTabstrip autoTabstrip = AddTabstrip<AutoTabstrip>(parent, posX, posY, width, height, out container, tabHeight);
-		autoTabstrip._tabHeight = tabHeight;
+		var autoTabstrip = AddTabstrip<AutoTabstrip>(parent, posX, posY, width, height, out container, tabHeight);
+		autoTabstrip.TabHeight = tabHeight;
 		return autoTabstrip;
 	}
 
 	public void EqualizeTabs()
 	{
-		float num = Mathf.Floor(base.width / (float)base.tabCount);
-		foreach (UIButton item in m_ChildComponents.OfType<UIButton>())
+		var num = Mathf.Floor(base.width / tabCount);
+		foreach (var item in m_ChildComponents.OfType<UIButton>())
 		{
 			item.width = num;
 		}
@@ -49,16 +47,15 @@ public class AutoTabstrip : UITabstrip
 	protected override void OnComponentAdded(UIComponent child)
 	{
 		base.OnComponentAdded(child);
-		UIButton uIButton = child as UIButton;
-		if ((object)uIButton == null)
+		if (child is not UIButton uIButton)
 		{
 			return;
 		}
 
-		uIButton.height = _tabHeight;
+		uIButton.height = TabHeight;
 		uIButton.wordWrap = true;
-		float num = Mathf.Floor(base.width / (float)base.tabCount);
-		foreach (UIButton item in m_ChildComponents.OfType<UIButton>())
+		var num = Mathf.Floor(base.width / tabCount);
+		foreach (var item in m_ChildComponents.OfType<UIButton>())
 		{
 			item.width = num;
 		}

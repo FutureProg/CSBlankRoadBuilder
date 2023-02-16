@@ -25,14 +25,23 @@ using static AdaptiveRoads.Manager.NetInfoExtionsion;
 namespace BlankRoadBuilder.Util;
 public static class RoadBuilderUtil
 {
-	public static RoadInfo? CurrentRoad { get; private set; }
+	private static Dictionary<ElevationType, NetInfo>? netElelvations;
+	private static Dictionary<NetInfo?, RoadInfo> currentRoadDictionary = new();
+
 	public static bool IsBuilding { get; private set; }
+	public static RoadInfo? GetRoad(ElevationType elevation)
+	{
+		return netElelvations?.TryGetValue(elevation, out var net) ?? false ? GetRoad(net) : null;
+	}
+
+	public static RoadInfo? GetRoad(NetInfo? net)
+	{
+		return currentRoadDictionary.TryGetValue(net, out var road) ? road : null;
+	}
 
 	public static IEnumerable<StateInfo> Build(RoadInfo? roadInfo)
 	{
 		IsBuilding = true;
-
-		ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
 
 		if (roadInfo == null)
 		{
@@ -75,8 +84,8 @@ public static class RoadBuilderUtil
 			yield break;
 		}
 
-		var netElelvations = info.GetElevations();
-		var lanes = roadInfo.Lanes;
+		netElelvations = info.GetElevations();
+		currentRoadDictionary = new();
 
 		foreach (var elevation in netElelvations.Keys)
 		{
@@ -87,57 +96,9 @@ public static class RoadBuilderUtil
 
 			yield return new StateInfo($"Generating the {(elevation == ElevationType.Basic ? "Ground" : elevation.ToString())} level..", elevation);
 
-			try
-			{
-				var netInfo = netElelvations[elevation];
+			var generatedInfo = GenerateRoadElevation(roadInfo, netElelvations[elevation], elevation, out exception);
 
-				roadInfo.Lanes = new List<LaneInfo>(lanes);
-
-				if (elevation != ElevationType.Basic)
-				{
-					if (ModOptions.GroundOnlyGrass)
-						roadInfo.Lanes.Where(x => x.Decorations.HasFlag(LaneDecoration.Grass)).ForEach(x => x.Decorations = LaneDecoration.Pavement | (x.Decorations & ~LaneDecoration.Grass));
-
-					if (ModOptions.GroundOnlyParking)
-						roadInfo.Lanes.RemoveAll(x => x.Type == LaneType.Parking);
-				}
-
-				GenerateLaneWidthsAndPositions(roadInfo);
-
-				if (elevation is ElevationType.Elevated or ElevationType.Bridge || !roadInfo.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier)))
-				{
-					AddBridgeBarriersAndPillar(netInfo, roadInfo);
-				}
-
-				netInfo.m_lanes = roadInfo.Lanes.SelectMany(x =>
-				{
-					x.NetLanes = GenerateLanes(x, roadInfo, elevation).ToList();
-
-					return x.NetLanes;
-				}).ToArray();
-
-				if (netInfo.m_lanes.Length > 250)
-				{
-					throw new Exception("This road has too many lanes and will not work in-game, then road generation can not continue.");
-				}
-
-				FillNetInfo(roadInfo, elevation, netInfo);
-
-				try
-				{
-					MeshUtil.UpdateMeshes(roadInfo, netInfo, elevation);
-				}
-				catch (Exception ex)
-				{
-					exception = ex;
-
-					Debug.LogError($"Failed to update mesh for {elevation} elevation: \r\n{ex}");
-				}
-			}
-			catch (Exception ex)
-			{
-				exception = ex;
-			}
+			currentRoadDictionary[netElelvations[elevation]] = generatedInfo;
 		}
 
 		if (exception != null)
@@ -150,8 +111,6 @@ public static class RoadBuilderUtil
 
 		try
 		{
-			CurrentRoad = roadInfo;
-
 			ToolsModifierControl.toolController.m_editPrefabInfo = info;
 			AdaptiveNetworksUtil.Refresh();
 			IsBuilding = false;
@@ -170,12 +129,89 @@ public static class RoadBuilderUtil
 		}
 	}
 
-	private static NetInfo GetNetInfo(RoadInfo? roadInfo)
+	private static RoadInfo GenerateRoadElevation(RoadInfo roadInfo, NetInfo netInfo, ElevationType elevation, out Exception? exception)
+	{
+		try
+		{
+			exception = null;
+
+			roadInfo = roadInfo.DeepCopy()!;
+
+			ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
+
+			if (elevation != ElevationType.Basic)
+			{
+				if (ModOptions.GroundOnlyGrass)
+					roadInfo.Lanes.Where(x => x.Decorations.HasFlag(LaneDecoration.Grass)).ForEach(x => x.Decorations = LaneDecoration.Pavement | (x.Decorations & ~LaneDecoration.Grass));
+
+				if (ModOptions.GroundOnlyParking)
+					roadInfo.Lanes.RemoveAll(x => x.Type == LaneType.Parking);
+			}
+
+			GenerateLaneWidthsAndPositions(roadInfo);
+
+			if (elevation is ElevationType.Elevated or ElevationType.Bridge || !roadInfo.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier)))
+			{
+				AddBridgeBarriersAndPillar(netInfo, roadInfo);
+			}
+
+			netInfo.m_lanes = roadInfo.Lanes.SelectMany(x =>
+			{
+				x.NetLanes = GenerateLanes(x, roadInfo, elevation).ToList();
+
+				return x.NetLanes;
+			}).ToArray();
+
+			if (netInfo.m_lanes.Length > 250)
+			{
+				throw new Exception("This road has too many lanes and will not work in-game, then road generation can not continue.");
+			}
+
+			FillNetInfo(roadInfo, elevation, netInfo);
+
+			try
+			{
+				MeshUtil.UpdateMeshes(roadInfo, netInfo, elevation);
+			}
+			catch (Exception ex)
+			{
+				exception = ex;
+
+				Debug.LogError($"Failed to update mesh for {elevation} elevation: \r\n{ex}");
+			}
+		}
+		catch (Exception ex)
+		{
+			exception = ex;
+		}
+
+		return roadInfo;
+	}
+
+	private static NetInfo GetNetInfo(RoadInfo roadInfo)
 	{
 		if (AssetDataExtension.WasLastLoaded != false)
 			return (NetInfo)ToolsModifierControl.toolController.m_editPrefabInfo;
 
-		var template = PrefabCollection<NetInfo>.FindLoaded(roadInfo?.RoadType switch { RoadType.Highway or RoadType.Flat => "Highway", RoadType.Pedestrian => "Small Pedestrian Street 01", _ => "Basic Road" });
+		NetInfo template;
+
+		if (roadInfo.RoadType is RoadType.Highway or RoadType.Flat)
+		{
+			template = PrefabCollection<NetInfo>.FindLoaded("Highway");
+		}
+		else if (roadInfo.RoadType is RoadType.Pedestrian)
+		{
+			template = PrefabCollection<NetInfo>.FindLoaded("Small Pedestrian Street 01");
+		}
+		else
+		{
+			template = PrefabCollection<NetInfo>.FindLoaded((int)Math.Min(3, Math.Ceiling(roadInfo.TotalRoadWidth / 8) - 1) switch
+			{
+				(int)RoadClass.LargeRoad => "Large Road",
+				(int)RoadClass.MediumRoad => "Medium Road",
+				_ => "Basic Road"
+			});
+		}
 
 		if (template.m_netAI is RoadAI roadAI)
 		{
@@ -225,8 +261,8 @@ public static class RoadBuilderUtil
 			itemClass.m_layer = ItemClass.Layer.Default;
 			itemClass.m_service = ItemClass.Service.Road;
 			itemClass.m_subService = ItemClass.SubService.None;
-			itemClass.m_level = (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 16));
-			itemClass.name = ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 16))).ToString().FormatWords();
+			itemClass.m_level = (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8));
+			itemClass.name = ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords();
 			netInfo.m_class = itemClass;
 		}
 
@@ -415,7 +451,7 @@ public static class RoadBuilderUtil
 			}
 
 			var template = PropUtil.GetProp(p.Value);
-			var pillar = (BuildingInfo)template;
+			var pillar = (BuildingInfo?)template;
 
 			if (pillar != null)
 			{

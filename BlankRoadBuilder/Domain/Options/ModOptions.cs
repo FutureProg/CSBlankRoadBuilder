@@ -28,7 +28,7 @@ public static class ModOptions
 
 	[ModOptions(DESIGN, false, "Remove curb on Flat Roads", "Removes the curb texture on the edge of the asphalt of flat roads")]
 	public static bool RemoveCurbOnFlatRoads { get => _flatRoadsHaveNoCurb; set => _flatRoadsHaveNoCurb.value = value; }
-	
+
 	[ModOptions(DESIGN, false, "Disable low curbs on nodes", "Only allows the high curb to appear on a node")]
 	public static bool OnlyUseHighCurb { get => _onlyUseHighCurb; set => _onlyUseHighCurb.value = value; }
 

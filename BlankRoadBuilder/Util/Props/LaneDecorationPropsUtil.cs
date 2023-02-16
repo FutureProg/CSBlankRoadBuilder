@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
-using static PathUnit;
 
 namespace BlankRoadBuilder.Util.Props;
 

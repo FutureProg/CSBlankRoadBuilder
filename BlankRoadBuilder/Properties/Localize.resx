@@ -337,4 +337,20 @@
 [UPDATED] Added IMT API compatibility to ensure constant compatibility with both IMT Stable &amp; Beta.
 [FIXED] Fixed the color preview for markings not updating on the reset and not taking alpha in consideration.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_3_0" xml:space="preserve">
+    <value>[NEW] Added a new section in the mod’s settings to completely customise the props, trees &amp; pillars used by the mod.
+[NEW] Added the option to show road damage by default.
+[NEW] Added the option to remove parking lanes on non-ground levels, off by default.
+[NEW] Added the option to remove transit stops on non-ground levels, off by default.
+[NEW] Added the option to swap grass lanes to pavement on non-ground levels, off by default.
+[NEW] Added “Parking” to the automated tags.
+[NEW] Added “Do Not Enter” &amp; “One Way Ends” signs for one-way roads.
+[UPDATED] Lane Fillers for shared lanes now use the vehicle with the highest priority’s marking settings instead of not showing anything at all.
+[UPDATED] Pedestrian lanes on the sidewalk no longer stop for busses and trams if they’re further than 3m of the nearest stopping lane.
+[UPDATED] Custom text is now rendered above lane decorations such as trees in the thumbnail.
+[FIXED] Fixed normal roads always being categorized as small roads. This fix only works on “new”-ly generated roads.
+[FIXED] Fixed the close button not working if you had no roads yet.
+[FIXED] Reverted hiding grass lanes with transit stops if the lane is not at surface level.
+[REMOVED] General options related to light distance, tree distance &amp; generating trees on ground level were moved to the new prop settings. Your previous settings will be lost.</value>
+  </data>
 </root>

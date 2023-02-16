@@ -1,6 +1,4 @@
-﻿using AdaptiveRoads.UI.VBSTool;
-
-using BlankRoadBuilder.Domain;
+﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util;

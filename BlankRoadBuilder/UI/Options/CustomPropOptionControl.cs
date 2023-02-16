@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 
 using UnityEngine;
 
@@ -22,7 +21,7 @@ internal class CustomPropOptionControl : UISprite
 	private const float Margin = 5F;
 	private const float ITEM_HEIGHT = 30;
 
-	private readonly List<Action> _setDataProperties=new();
+	private readonly List<Action> _setDataProperties = new();
 	private SelectPropProperty? propSelectButton;
 	private SelectTreeProperty? treeSelectButton;
 	private SelectPillarProperty? pillarSelectButton;
@@ -60,7 +59,7 @@ internal class CustomPropOptionControl : UISprite
 		clearButton.SetIcon("I_Cancel.png");
 		clearButton.text = " ";
 		clearButton.tooltip = "Clears this prop so it does not get generated with your roads";
-		clearButton.relativePosition = new Vector2(undoButton.relativePosition.x -2 *Margin - 22, 6);
+		clearButton.relativePosition = new Vector2(undoButton.relativePosition.x - (2 * Margin) - 22, 6);
 		clearButton.eventClick += ClearButton_eventClick;
 
 		propSelectButton = AddUIComponent<SelectPropProperty>();
@@ -76,18 +75,18 @@ internal class CustomPropOptionControl : UISprite
 		pillarSelectButton.relativePosition = new Vector2(width - pillarSelectButton.width - Margin, 30 + (2 * Margin));
 
 		var label = propSelectButton.AddLabel("Prop", SpriteAlignment.LeftCenter, 0.8F);
-		label.relativePosition = new Vector2(-propSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
+		label.relativePosition = new Vector2(-propSelectButton.relativePosition.x + (2 * Margin), label.relativePosition.y);
 		label = treeSelectButton.AddLabel("Tree", SpriteAlignment.LeftCenter, 0.8F);
-		label.relativePosition = new Vector2(-treeSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
+		label.relativePosition = new Vector2(-treeSelectButton.relativePosition.x + (2 * Margin), label.relativePosition.y);
 		label = pillarSelectButton.AddLabel("Pillar", SpriteAlignment.LeftCenter, 0.8F);
-		label.relativePosition = new Vector2(-pillarSelectButton.relativePosition.x + 2 * Margin, label.relativePosition.y);
+		label.relativePosition = new Vector2(-pillarSelectButton.relativePosition.x + (2 * Margin), label.relativePosition.y);
 
 		yPos = propSelectButton.relativePosition.y + propSelectButton.height + Margin;
 
 		var properties = value.GetType()
 			.GetProperties(BindingFlags.Public | BindingFlags.Instance)
 			.ToDictionary(x => x, x => Attribute.GetCustomAttribute(x, typeof(PropOptionAttribute)) as PropOptionAttribute);
-		
+
 		foreach (var item in properties.Where(x => x.Value != null && !x.Value.Serialization))
 		{
 			var seperator = AddUIComponent<UISprite>();
@@ -142,13 +141,26 @@ internal class CustomPropOptionControl : UISprite
 		propSelectButton!.Prefab = null;
 		treeSelectButton!.Prefab = null;
 		pillarSelectButton!.Prefab = null;
+		Value!.PropName = string.Empty;
+
+		PropUtil.SaveTemplate(Prop, Value);
 	}
 
 	public void UpdateData(PropTemplate value)
 	{
 		Value = value;
 
-		if (Value.IsTree)
+		UpdateVisibility();
+
+		foreach (var item in _setDataProperties)
+		{
+			item();
+		}
+	}
+
+	private void UpdateVisibility()
+	{
+		if (Value!.IsTree)
 		{
 			propSelectButton!.isVisible = pillarSelectButton!.isVisible = false;
 			treeSelectButton!.isVisible = true;
@@ -165,11 +177,6 @@ internal class CustomPropOptionControl : UISprite
 			treeSelectButton!.isVisible = pillarSelectButton!.isVisible = false;
 			propSelectButton!.isVisible = true;
 			propSelectButton!.Prefab = Value!;
-		}
-
-		foreach (var item in _setDataProperties)
-		{
-			item();
 		}
 	}
 
@@ -211,7 +218,7 @@ internal class CustomPropOptionControl : UISprite
 			checkbox.eventCheckChanged += (s, v) => setSettingValue(property, v);
 
 			_setDataProperties.Add(() => checkbox.isChecked = getValue<bool>(property));
-			
+
 			return;
 		}
 
@@ -239,16 +246,16 @@ internal class CustomPropOptionControl : UISprite
 
 		if (property.PropertyType == typeof(CustomVector3))
 		{
-			var zTB = AddPositionFloatField("Z", info.MinValue, info.MaxValue,false);
-			var yTB = AddPositionFloatField("Y", info.MinValue, info.MaxValue,false);
-			var xTB = AddPositionFloatField("X", info.MinValue, info.MaxValue,true);
+			var zTB = AddPositionFloatField("Z", info.MinValue, info.MaxValue, false);
+			var yTB = AddPositionFloatField("Y", info.MinValue, info.MaxValue, false);
+			var xTB = AddPositionFloatField("X", info.MinValue, info.MaxValue, true);
 
 			yTB.relativePosition = new Vector3(zTB.relativePosition.x - 65, yTB.relativePosition.y);
 			xTB.relativePosition = new Vector3(yTB.relativePosition.x - 65, xTB.relativePosition.y);
 
 			var label = xTB.AddLabel(info.Name, SpriteAlignment.LeftCenter, 0.8F);
 
-			label.relativePosition = new Vector2(-xTB.relativePosition.x + 2 * Margin, label.relativePosition.y);
+			label.relativePosition = new Vector2(-xTB.relativePosition.x + (2 * Margin), label.relativePosition.y);
 
 			zTB.OnValueChanged += (v) => setSettingValue(property, new CustomVector3(xTB.Value, yTB.Value, zTB.Value));
 			yTB.OnValueChanged += (v) => setSettingValue(property, new CustomVector3(xTB.Value, yTB.Value, zTB.Value));
@@ -268,7 +275,9 @@ internal class CustomPropOptionControl : UISprite
 		void setSettingValue(PropertyInfo property, object value)
 		{
 			property.SetValue(Value, property.PropertyType.IsEnum ? Enum.ToObject(property.PropertyType, value) : Convert.ChangeType(value, property.PropertyType), null);
-			
+
+			UpdateVisibility();
+
 			PropUtil.SaveTemplate(Prop, Value);
 		}
 	}
@@ -283,8 +292,8 @@ internal class CustomPropOptionControl : UISprite
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
-		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + ((ITEM_HEIGHT - ctrl.height) / 2));
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + (2 * Margin), label.relativePosition.y);
 
 		yPos += ITEM_HEIGHT;
 
@@ -303,8 +312,8 @@ internal class CustomPropOptionControl : UISprite
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
-		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + ((ITEM_HEIGHT - ctrl.height) / 2));
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + (2 * Margin), label.relativePosition.y);
 
 		if (!string.IsNullOrEmpty(measurementUnit))
 		{
@@ -328,8 +337,8 @@ internal class CustomPropOptionControl : UISprite
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
-		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + ((ITEM_HEIGHT - ctrl.height) / 2));
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + (2 * Margin), label.relativePosition.y);
 
 		if (!string.IsNullOrEmpty(measurementUnit))
 		{
@@ -340,7 +349,7 @@ internal class CustomPropOptionControl : UISprite
 
 		return ctrl;
 	}
-		
+
 	private FloatUITextField AddPositionFloatField(string labelKey, float minValue, float maxValue, bool advanceYpos)
 	{
 		var ctrl = AddUIComponent<FloatUITextField>();
@@ -353,7 +362,7 @@ internal class CustomPropOptionControl : UISprite
 
 		ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + ((ITEM_HEIGHT - ctrl.height) / 2));
 
 		if (advanceYpos)
 			yPos += ITEM_HEIGHT;
@@ -371,8 +380,8 @@ internal class CustomPropOptionControl : UISprite
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
-		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + ((ITEM_HEIGHT - ctrl.height) / 2));
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + (2 * Margin), label.relativePosition.y);
 
 		yPos = ctrl.height + ctrl.relativePosition.y;
 
@@ -385,8 +394,8 @@ internal class CustomPropOptionControl : UISprite
 
 		var label = ctrl.AddLabel(labelKey, SpriteAlignment.LeftCenter, 0.8F);
 
-		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + (ITEM_HEIGHT - ctrl.height) / 2);
-		label.relativePosition = new Vector2(-ctrl.relativePosition.x + 2 * Margin, label.relativePosition.y - 1);
+		ctrl.relativePosition = new Vector2(width - ctrl.width - Margin, yPos + ((ITEM_HEIGHT - ctrl.height) / 2));
+		label.relativePosition = new Vector2(-ctrl.relativePosition.x + (2 * Margin), label.relativePosition.y - 1);
 
 		yPos += ITEM_HEIGHT;
 

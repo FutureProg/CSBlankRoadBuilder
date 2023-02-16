@@ -126,7 +126,7 @@ internal abstract class CustomMarkingOptionControl<DropDown, EnumType> : UISprit
 		lineWidthTB.SetDefaultStyle();
 		dashWidthTB.SetDefaultStyle();
 		dashSpaceTB.SetDefaultStyle();
-		rTB.color = gTB.color = bTB.color = aTB.color = lineWidthTB.color = dashWidthTB.color = dashSpaceTB.color 
+		rTB.color = gTB.color = bTB.color = aTB.color = lineWidthTB.color = dashWidthTB.color = dashSpaceTB.color
 			= new Color32(162, 168, 178, 255);
 
 		rTB.OnValueChanged += SetColorR;

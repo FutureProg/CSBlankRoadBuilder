@@ -24,7 +24,7 @@ public class SavePanelPatch
 {
 	public static bool IsAssetLoaded => !ModOptions.DisableAutoFillInTheSavePanel && LastLoadedRoad != null;
 	public static bool IsAssetNew => AssetDataExtension.WasLastLoaded == false;
-	public static RoadInfo? LastLoadedRoad => RoadBuilderUtil.CurrentRoad;
+	public static RoadInfo? LastLoadedRoad => RoadBuilderUtil.GetRoad(ElevationType.Basic);
 
 	public static void Postfix(SaveAssetPanel __instance)
 	{

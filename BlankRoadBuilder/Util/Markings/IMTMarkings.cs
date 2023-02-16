@@ -18,17 +18,21 @@ public class IMTMarkings
 {
 	public void ApplyMarkings(ushort segmentId)
 	{
-		if (!ModOptions.MarkingsGenerated.HasFlag(Domain.MarkingsSource.IMTMarkings))
+		if (!ToolsModifierControl.isAssetEditor
+			|| !NetUtil.IsSegmentValid(segmentId)
+			|| !ModOptions.MarkingsGenerated.HasFlag(Domain.MarkingsSource.IMTMarkings))
 		{
 			return;
 		}
 
-		if (!NetUtil.IsSegmentValid(segmentId) || RoadBuilderUtil.CurrentRoad == null || !(ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo net && net.GetElevations().Any(x => x.Value == segmentId.GetSegment().Info)))
+		var roadInfo = RoadBuilderUtil.GetRoad(segmentId.GetSegment().Info);
+
+		if (roadInfo == null)
 		{
 			return;
 		}
 
-		var markings = MarkingsUtil.GenerateMarkings(RoadBuilderUtil.CurrentRoad);
+		var markings = MarkingsUtil.GenerateMarkings(roadInfo);
 		var provider = Helper.GetProvider(nameof(BlankRoadBuilder));
 		var markup = provider?.GetOrCreateSegmentMarking(segmentId);
 

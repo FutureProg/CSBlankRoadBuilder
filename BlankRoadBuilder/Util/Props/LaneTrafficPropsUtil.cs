@@ -60,6 +60,19 @@ public partial class LanePropsUtil
 			}
 		}
 
+		if (Road.RoadType != RoadType.Highway && ThumbnailMakerUtil.IsOneWay(Road.Lanes) == true)
+		{
+			if (Lane.TrafficLight.LeftForwardSpace >= 2.5F)
+			{
+				yield return OneWayEndsSign(propPosition);
+			}
+
+			if (Lane.TrafficLight.RightForwardSpace >= 2.5F)
+			{
+				yield return DoNotEnterSign(-propPosition);
+			}
+		}
+
 		if (Lane.TrafficLight.RightBackwardSpace >= 2F)
 		{
 			yield return RailwayCrossing(Lane.TrafficLight.LeftForwardSpace, propPosition).ToggleForwardBackward();
@@ -265,6 +278,50 @@ public partial class LanePropsUtil
 				Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
 			}
 		});
+	}
+
+	private NetLaneProps.Prop DoNotEnterSign(float propPosition)
+	{
+		var sign = GetProp(Prop.DoNotEnterSign);
+
+		return new NetLaneProps.Prop
+		{
+			m_prop = sign,
+			m_tree = sign,
+			m_flagsForbidden = NetLane.Flags.Inverted,
+			m_startFlagsRequired = NetNode.Flags.None,
+			m_startFlagsForbidden = NetNode.Flags.None,
+			m_endFlagsRequired = NetNode.Flags.OneWayOut | NetNode.Flags.Junction,
+			m_endFlagsForbidden = NetNode.Flags.None,
+			m_minLength = 0,
+			m_repeatDistance = 0,
+			m_segmentOffset = sign.SegmentOffset,
+			m_angle = sign.Angle,
+			m_probability = sign.Probability,
+			m_position = new Vector3(propPosition, 0, 0) + sign.Position,
+		};
+	}
+
+	private NetLaneProps.Prop OneWayEndsSign(float propPosition)
+	{
+		var sign = GetProp(Prop.EndOfOneWaySign);
+
+		return new NetLaneProps.Prop
+		{
+			m_prop = sign,
+			m_tree = sign,
+			m_flagsForbidden = NetLane.Flags.Inverted,
+			m_startFlagsRequired = NetNode.Flags.None,
+			m_startFlagsForbidden = NetNode.Flags.None,
+			m_endFlagsRequired = NetNode.Flags.OneWayIn | NetNode.Flags.Junction,
+			m_endFlagsForbidden = NetNode.Flags.None,
+			m_minLength = 0,
+			m_repeatDistance = 0,
+			m_segmentOffset = sign.SegmentOffset,
+			m_angle = sign.Angle,
+			m_probability = sign.Probability,
+			m_position = new Vector3(propPosition, 0, 0) + sign.Position,
+		};
 	}
 
 	private NetLaneProps.Prop StopSign(float propPosition)

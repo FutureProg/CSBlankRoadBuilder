@@ -231,7 +231,7 @@ public static class ThumbnailMakerUtil
 				if ((l.Type & stoppableVehicleLanes) == 0)
 					return false;
 
-				var distance = Math.Abs(l.Position - lane.Position) - (lane.LaneWidth + l.LaneWidth) / 2;
+				var distance = Math.Abs(l.Position - lane.Position) - ((lane.LaneWidth + l.LaneWidth) / 2);
 
 				return distance <= 3F;
 			}))
@@ -239,8 +239,8 @@ public static class ThumbnailMakerUtil
 				forward = lane.Position > 0;
 			}
 			else
-			{ 
-				forward = null; 
+			{
+				forward = null;
 			}
 		}
 		else if (lane.Tags.HasFlag(LaneTag.StoppableVehicleOnLeft))
@@ -455,6 +455,11 @@ public static class ThumbnailMakerUtil
 		if (road?.Lanes == null)
 		{
 			yield break;
+		}
+
+		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Parking)))
+		{
+			yield return "Parking";
 		}
 
 		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Tram)))

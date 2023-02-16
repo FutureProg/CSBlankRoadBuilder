@@ -7,10 +7,8 @@ using ColossalFramework.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace BlankRoadBuilder.UI.Options;
 internal class CustomPropsOptions : OptionsPanelBase
@@ -108,7 +106,7 @@ internal class CustomPropsOptions : OptionsPanelBase
 
 		_panel.parent.eventVisibilityChanged += (s, v) =>
 		{
-			blockPanel.isVisible = false;//!Utilities.InGame;
+			blockPanel.isVisible = !Utilities.InGame;
 		};
 	}
 

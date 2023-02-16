@@ -75,4 +75,6 @@ public enum Prop
 	HighwayEndSign,
 	LampPost,
 	Flowers,
+	DoNotEnterSign,
+	EndOfOneWaySign,
 }

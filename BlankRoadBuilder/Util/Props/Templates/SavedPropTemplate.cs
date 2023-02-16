@@ -40,7 +40,7 @@ public class SavedPropTemplate
 							else if (property.PropertyType.GetInterface(nameof(ICustomPropProperty)) != null)
 							{
 								var customProp = Activator.CreateInstance(property.PropertyType) as ICustomPropProperty;
-								
+
 								customProp!.FromPrimitive(prop.PropertyValues[i]);
 
 								property.SetValue(template, customProp, null);
@@ -48,7 +48,7 @@ public class SavedPropTemplate
 							else
 								property.SetValue(template, prop.PropertyValues[i], null);
 						}
-						catch (Exception ex) 
+						catch (Exception ex)
 						{ Debug.LogError($"FAILED TO SET {type.Name}.{prop.PropertyKeys[i]} : {prop.PropertyValues[i]}\r\n{ex.Message}"); }
 					}
 				}

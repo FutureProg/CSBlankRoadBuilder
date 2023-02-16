@@ -1,8 +1,6 @@
 ﻿using BlankRoadBuilder.Domain.Options;
 
-using System;
 using System.Linq;
-using System.Xml.Serialization;
 
 namespace BlankRoadBuilder.ThumbnailMaker;
 public partial class LaneInfo
@@ -17,9 +15,6 @@ public partial class LaneInfo
 	public float? Elevation { get; set; }
 	public float? CustomWidth { get; set; }
 	public float? SpeedLimit { get; set; }
-
-	[XmlIgnore] public RoadInfo? Road { get; set; }
-	[XmlIgnore] public float LaneWidth => (float)Math.Round((CustomWidth ?? DefaultLaneWidth()) + (Type == LaneType.Curb ? (Road?.BufferWidth ?? 0F) : 0F), 3);
 
 	public float DefaultLaneWidth()
 	{
