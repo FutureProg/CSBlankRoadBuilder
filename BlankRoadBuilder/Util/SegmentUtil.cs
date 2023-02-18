@@ -74,8 +74,8 @@ public static partial class SegmentUtil
 			}
 			else if (item.Key == ElevationType.Elevated)
 			{
-				netManager.CreateNode(out var node3, ref randomizer, item.Value, new Vector3(i, elevation - 8F, 90), 3);
-				netManager.CreateNode(out var node4, ref randomizer, item.Value, new Vector3(i, elevation - 8F, 150), 4);
+				netManager.CreateNode(out var node3, ref randomizer, item.Value, new Vector3(i, elevation - 12F, 90), 3);
+				netManager.CreateNode(out var node4, ref randomizer, item.Value, new Vector3(i, elevation - 12F, 150), 4);
 				netManager.CreateNode(out var node5, ref randomizer, item.Value, new Vector3(i, elevation, -128), 5);
 				netManager.CreateNode(out var node6, ref randomizer, item.Value, new Vector3(i - 48 - 32 - (float)Math.Floor(item.Value.m_halfWidth / 8F) * 8, elevation, -32), 6);
 				netManager.CreateNode(out var node7, ref randomizer, item.Value, new Vector3(i - 48 - 32 - (float)Math.Floor(item.Value.m_halfWidth / 8F) * 8, elevation, 16), 7);

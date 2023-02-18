@@ -224,7 +224,7 @@ public static class ThumbnailMakerUtil
 
 		if (lane.Tags.HasFlag(LaneTag.Sidewalk))
 		{
-			var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram;
+			var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram | LaneType.Parking;
 
 			if (road.Lanes.Any(l =>
 			{

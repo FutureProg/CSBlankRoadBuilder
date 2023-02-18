@@ -329,6 +329,7 @@ public static class RoadBuilderUtil
 		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveTramSupports, "Remove tram/trolley wires & supports");
 		metadata.RenameCustomFlag(RoadUtils.Flags.S_RemoveMarkings, ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? "Show AN markings & fillers" : "Remove AN markings & fillers");
 		metadata.RenameCustomFlag(RoadUtils.Flags.S_Curbless, "Make curb-less");
+		metadata.RenameCustomFlag(RoadUtils.Flags.S_ToggleGrassMedian, "Switch grass medians to pavement");
 
 		metadata.RenameCustomFlag(RoadUtils.Flags.N_FullLowCurb, "Full low curb");
 		metadata.RenameCustomFlag(RoadUtils.Flags.N_ForceHighCurb, "Force high curb");

@@ -84,5 +84,10 @@ namespace BlankRoadBuilder
 		/// [NEW] Added a pillar offset option for bridge pillars.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_1 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_1", Culture);
+
+		/// <summary>
+		/// [UPDATED] Minimum distance to a transit stop now takes in consideration parking lanes.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_2 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_2", Culture);
 	}
 }

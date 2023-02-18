@@ -361,4 +361,10 @@
 [UPDATED] Improved one-way ends &amp; do not enter signs so they don’t show on two-segments and level crossings.
 [FIXED] Fixed lane filler of shared lanes not choosing the correct lane type.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_3_2" xml:space="preserve">
+    <value>[UPDATED] Minimum distance to a transit stop now takes in consideration parking lanes.
+[FIXED] Fixed the Grass toggle being named Custom6.
+[FIXED] Fixed pavement fillers from the Grass toggle always having a slope at intersections.
+</value>
+  </data>
 </root>

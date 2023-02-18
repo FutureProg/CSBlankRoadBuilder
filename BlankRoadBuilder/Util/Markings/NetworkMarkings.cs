@@ -47,7 +47,7 @@ public static class NetworkMarkings
 						Elevation = item.Elevation,
 						LeftPoint = item.LeftPoint,
 						RightPoint = item.RightPoint
-					}, true).ToList();
+					}, transitStop ? true : null).ToList();
 
 					foreach (var p in pavementFiller)
 					{
