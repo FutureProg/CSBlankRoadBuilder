@@ -37,32 +37,46 @@ public static class NetworkMarkings
 			else
 			{
 				var filler = GetFillers(item).ToList();
-
-				if (item.Type != LaneDecoration.Pavement && item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop)))
+				var transitStop = item.Type != LaneDecoration.Pavement && item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop));
+				
+				if (item.Lanes.Any(x => !x.Tags.HasFlag(LaneTag.Sidewalk)) || item.Elevation == item.SurfaceElevation)
 				{
-					if (item.Lanes.Any(x => !x.Tags.HasFlag(LaneTag.Sidewalk)) || item.Elevation == item.SurfaceElevation)
+					var pavementFiller = GetFillers(new FillerMarking
 					{
-						var pavementFiller = GetFillers(new FillerMarking
-						{
-							Type = LaneDecoration.Pavement,
-							Elevation = item.Elevation,
-							LeftPoint = item.LeftPoint,
-							RightPoint = item.RightPoint
-						}, true).ToList();
+						Type = LaneDecoration.Pavement,
+						Elevation = item.Elevation,
+						LeftPoint = item.LeftPoint,
+						RightPoint = item.RightPoint
+					}, true).ToList();
 
-						foreach (var p in pavementFiller)
+					foreach (var p in pavementFiller)
+					{
+						if (transitStop)
 						{
 							p.MetaData.Forward.Required |= RoadUtils.Flags.S_AnyStop;
 							p.MetaData.Backward.Required |= RoadUtils.Flags.S_AnyStop;
 						}
-
-						fillers.AddRange(pavementFiller);
+						else
+						{
+							p.MetaData.Forward.Required |= RoadUtils.Flags.S_ToggleGrassMedian;
+							p.MetaData.Backward.Required |= RoadUtils.Flags.S_ToggleGrassMedian;
+						}
 					}
 
-					foreach (var f in filler)
+					fillers.AddRange(pavementFiller);
+				}
+
+				foreach (var f in filler)
+				{
+					if (transitStop)
 					{
 						f.Mesh.m_forwardForbidden |= NetSegment.Flags.StopAll;
 						f.Mesh.m_backwardForbidden |= NetSegment.Flags.StopAll;
+					}
+					else
+					{
+						f.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_ToggleGrassMedian;
+						f.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_ToggleGrassMedian;
 					}
 				}
 
@@ -594,9 +608,9 @@ public static class NetworkMarkings
 								}
 							}
 							else if (yPos == -0.3F)
-								yPos = -0.01F + fillerMarking.SurfaceElevation;
+								yPos = -0.02F + fillerMarking.SurfaceElevation;
 							else if (!transition)
-								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.005F : 0.011F);
+								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.02F : 0.011F);
 							else
 							{
 								var start = fillerMarking.Elevation;
@@ -606,7 +620,7 @@ public static class NetworkMarkings
 							}
 
 							if (fillerMarking.Type == LaneDecoration.Filler && originalFile.Contains("_lod.obj"))
-								yPos = Math.Max(0.0025F, yPos);
+								yPos = Math.Max(0.1F, yPos);
 						}
 						else if (lineMarking != null)
 						{
@@ -619,10 +633,10 @@ public static class NetworkMarkings
 								xPos = -lineMarking.Point.X + (lineWidth / 2F);
 							}
 
-							yPos = 0.0075F + lineMarking.Elevation;
+							yPos = 0.025F + lineMarking.Elevation;
 
 							if (originalFile.Contains("_lod.obj"))
-								yPos = Math.Max(0.01F, yPos);
+								yPos = Math.Max(0.15F, yPos);
 						}
 						else if (crosswalkMarking != null)
 						{

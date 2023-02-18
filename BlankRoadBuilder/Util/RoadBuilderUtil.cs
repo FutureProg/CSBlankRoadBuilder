@@ -453,10 +453,10 @@ public static class RoadBuilderUtil
 			var template = PropUtil.GetProp(p.Value);
 			var pillar = (BuildingInfo?)template;
 
-			if (pillar != null)
+			if (pillar != null && template is BridgePillarProp pillarProp)
 			{
 				bridgeAI.m_bridgePillarInfo = pillar;
-				bridgeAI.m_bridgePillarOffset = 0.7F;
+				bridgeAI.m_bridgePillarOffset = pillarProp.PillarOffset;
 				bridgeAI.m_middlePillarInfo = null;
 				bridgeAI.m_middlePillarOffset = 0F;
 				break;

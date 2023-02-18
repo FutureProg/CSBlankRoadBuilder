@@ -384,12 +384,16 @@ public partial class LanePropsUtil
 	public IEnumerable<NetLaneProps.Prop> GetGrassProps()
 	{
 		var prop = GetProp(Prop.Grass);
-		var numLines = Math.Max((int)Math.Ceiling(Lane.LaneWidth) - 1, 1);
-		var odd = numLines % 2 == 1;
-		var pos = numLines == 1 ? 0 : (1 - (Lane.LaneWidth / 2));
 
 		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
 			yield break;
+
+		var numLines = Math.Max((int)Math.Ceiling(Lane.LaneWidth) - 1, 1);
+		var odd = numLines % 2 == 1;
+		var pos = numLines == 1 ? 0 : (1 - (Lane.LaneWidth / 2));
+		var transitStop = Lane.Decorations.HasFlag(LaneDecoration.TransitStop);
+		var imtMarkings = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings);
+		var hiddenMarkings = ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings);
 
 		for (var i = 0; i < numLines; i++)
 		{
@@ -411,12 +415,13 @@ public partial class LanePropsUtil
 			{
 				VanillaSegmentFlags = new VanillaSegmentInfoFlags
 				{
-					Forbidden = Lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None
+					Forbidden = transitStop ? NetSegment.Flags.StopAll : NetSegment.Flags.None
 				},
 				SegmentFlags = new SegmentInfoFlags
 				{
-					Required = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) && ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None,
-					Forbidden = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) && !ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Required = !imtMarkings && hiddenMarkings ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Forbidden = (!imtMarkings && !hiddenMarkings ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None)
+											| (transitStop ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_ToggleGrassMedian),
 				}
 			});
 		}
@@ -430,6 +435,8 @@ public partial class LanePropsUtil
 
 		if (tree is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
 			yield break;
+
+		var transitStop = Lane.Decorations.HasFlag(LaneDecoration.TransitStop);
 
 		if (ModOptions.VanillaTreePlacement)
 		{
@@ -474,7 +481,9 @@ public partial class LanePropsUtil
 			LaneFlags = new LaneInfoFlags
 			{ Forbidden = RoadUtils.Flags.L_RemoveTrees },
 			VanillaSegmentFlags = new VanillaSegmentInfoFlags
-			{ Forbidden = Lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None }
+			{ Forbidden = transitStop ? NetSegment.Flags.StopAll : NetSegment.Flags.None },
+			SegmentFlags = new SegmentInfoFlags 
+			{ Forbidden = transitStop ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_ToggleGrassMedian }
 		});
 	}
 

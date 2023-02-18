@@ -528,4 +528,21 @@ public static class ThumbnailMakerUtil
 
 		return (float)Math.Round(totalWidth, 2);
 	}
+
+	public static int LaneTypeImportance(LaneType type)
+	{
+		return type switch
+		{
+			LaneType.Train => 21,
+			LaneType.Tram => 20,
+			LaneType.Emergency => 19,
+			LaneType.Trolley => 18,
+			LaneType.Bus => 17,
+			LaneType.Bike => 16,
+			LaneType.Car => 15,
+			LaneType.Parking => 14,
+			LaneType.Pedestrian => 13,
+			_ => 0,
+		};
+	}
 }

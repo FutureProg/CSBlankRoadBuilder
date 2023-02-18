@@ -353,4 +353,12 @@
 [FIXED] Reverted hiding grass lanes with transit stops if the lane is not at surface level.
 [REMOVED] General options related to light distance, tree distance &amp; generating trees on ground level were moved to the new prop settings. Your previous settings will be lost.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_3_1" xml:space="preserve">
+    <value>[NEW] Added a pillar offset option for bridge pillars.
+[NEW] Added an AN toggle that switches all grass medians on a segment to pavement.
+[NEW] Added Trolley &amp; Tram lane decal props.
+[UPDATED] Added vanilla road and train tracks to the template of roads generated in the editor and aligned the roads to the grid so you can easily see how your road will align with the zoning.
+[UPDATED] Improved one-way ends &amp; do not enter signs so they don’t show on two-segments and level crossings.
+[FIXED] Fixed lane filler of shared lanes not choosing the correct lane type.</value>
+  </data>
 </root>

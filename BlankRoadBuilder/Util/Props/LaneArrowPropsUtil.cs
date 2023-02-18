@@ -5,6 +5,7 @@ using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Props.Templates;
 
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 
@@ -12,64 +13,51 @@ namespace BlankRoadBuilder.Util.Props;
 
 public partial class LanePropsUtil
 {
-	private IEnumerable<NetLaneProps.Prop> GetBikeLaneProps()
+	private IEnumerable<NetLaneProps.Prop> GetLaneDecalProps()
 	{
 		if (!ModOptions.AddLaneDecals)
 		{
 			yield break;
 		}
 
-		var bikeLane = GetProp(Lane.LaneWidth < 2F ? Prop.BicycleLaneDecalSmall : Prop.BicycleLaneDecal);
-		var prop = new NetLaneProps.Prop()
-		{
-			m_prop = bikeLane,
-			m_tree = bikeLane,
-			m_startFlagsRequired = bikeLane is LaneDecalProp laneDecalProp && !laneDecalProp.OnlyShowAtIntersections ? NetNode.Flags.None : NetNode.Flags.Junction,
-			m_angle = bikeLane.Angle,
-			m_minLength = 10,
-			m_segmentOffset = bikeLane.SegmentOffset,
-			m_repeatDistance = bikeLane.RepeatInterval,
-			m_probability = 100,
-			m_position = bikeLane.Position,
-		};
-
-		yield return prop;
-	}
-
-	private IEnumerable<NetLaneProps.Prop> GetBusLaneProps()
-	{
-		if (!Lane.Type.HasFlag(LaneType.Car))
-		{
-			foreach (var prop in GetLaneArrowProps())
+		var validProps = Lane.Type.GetValues()
+			.OrderByDescending(ThumbnailMakerUtil.LaneTypeImportance)
+			.Select(x => x switch
 			{
-				yield return prop;
-			}
-		}
+				LaneType.Tram => Prop.TramLaneDecal,
+				LaneType.Trolley => Prop.TrolleyLaneDecal,
+				LaneType.Bus => Prop.BusLaneDecal,
+				LaneType.Bike => Lane.LaneWidth < 2F ? Prop.BicycleLaneDecalSmall : Prop.BicycleLaneDecal,
+				_ => Prop.None
+			}).Select(GetProp);
 
-		if (!ModOptions.AddLaneDecals)
+		var index = 0;
+
+		foreach (var prop in validProps)
 		{
-			yield break;
+			if ((PropInfo?)prop == null)
+				continue;
+
+			yield return new NetLaneProps.Prop()
+			{
+				m_prop = prop,
+				m_tree = prop,
+				m_startFlagsRequired = prop is LaneDecalProp laneDecalProp && !laneDecalProp.OnlyShowAtIntersections ? NetNode.Flags.None : NetNode.Flags.Junction,
+				m_angle = prop.Angle,
+				m_minLength = 10,
+				m_segmentOffset = prop.SegmentOffset,
+				m_repeatDistance = prop.RepeatInterval,
+				m_probability = 100,
+				m_position = prop.Position + new Vector3(0, 0, index),
+			};
+
+			index += 6;
 		}
-
-		var busLane = GetProp(Prop.BusLaneDecal);
-
-		yield return new NetLaneProps.Prop()
-		{
-			m_prop = busLane,
-			m_tree = busLane,
-			m_startFlagsRequired = busLane is LaneDecalProp laneDecalProp && !laneDecalProp.OnlyShowAtIntersections ? NetNode.Flags.None : NetNode.Flags.Junction,
-			m_angle = busLane.Angle,
-			m_minLength = 10,
-			m_segmentOffset = busLane.SegmentOffset,
-			m_repeatDistance = busLane.RepeatInterval,
-			m_probability = 100,
-			m_position = new Vector3(0, 0, (Lane.Type & LaneType.Bike) == LaneType.Bike ? 10 : 0) + busLane.Position,
-		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetLaneArrowProps()
 	{
-		if (!ModOptions.AddLaneArrows)
+		if (!ModOptions.AddLaneArrows || !Lane.Type.HasAnyFlag(LaneType.Car, LaneType.Bus, LaneType.Trolley, LaneType.Emergency))
 		{
 			yield break;
 		}

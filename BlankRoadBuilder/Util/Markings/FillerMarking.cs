@@ -59,24 +59,7 @@ public class FillerMarking
 			.First()
 			.Type
 			.GetValues()
-			.OrderBy(LaneTypeImportance)
+			.OrderByDescending(ThumbnailMakerUtil.LaneTypeImportance)
 			.FirstOrDefault();
-	}
-
-	private static int LaneTypeImportance(LaneType type)
-	{
-		return type switch
-		{
-			LaneType.Train => 21,
-			LaneType.Tram => 20,
-			LaneType.Emergency => 19,
-			LaneType.Trolley => 18,
-			LaneType.Bus => 17,
-			LaneType.Car => 16,
-			LaneType.Bike => 15,
-			LaneType.Parking => 14,
-			LaneType.Pedestrian => 13,
-			_ => 0,
-		};
 	}
 }

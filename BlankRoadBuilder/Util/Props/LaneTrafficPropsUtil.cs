@@ -292,14 +292,14 @@ public partial class LanePropsUtil
 			m_startFlagsRequired = NetNode.Flags.None,
 			m_startFlagsForbidden = NetNode.Flags.None,
 			m_endFlagsRequired = NetNode.Flags.OneWayOut | NetNode.Flags.Junction,
-			m_endFlagsForbidden = NetNode.Flags.None,
+			m_endFlagsForbidden = NetNode.Flags.LevelCrossing,
 			m_minLength = 0,
 			m_repeatDistance = 0,
 			m_segmentOffset = sign.SegmentOffset,
 			m_angle = sign.Angle,
 			m_probability = sign.Probability,
 			m_position = new Vector3(propPosition, 0, 0) + sign.Position,
-		};
+		}.Extend(prop => new(prop) { EndNodeFlags = new() { Forbidden = NetNodeExt.Flags.TwoSegments } });
 	}
 
 	private NetLaneProps.Prop OneWayEndsSign(float propPosition)
@@ -314,14 +314,14 @@ public partial class LanePropsUtil
 			m_startFlagsRequired = NetNode.Flags.None,
 			m_startFlagsForbidden = NetNode.Flags.None,
 			m_endFlagsRequired = NetNode.Flags.OneWayIn | NetNode.Flags.Junction,
-			m_endFlagsForbidden = NetNode.Flags.None,
+			m_endFlagsForbidden = NetNode.Flags.LevelCrossing,
 			m_minLength = 0,
 			m_repeatDistance = 0,
 			m_segmentOffset = sign.SegmentOffset,
 			m_angle = sign.Angle,
 			m_probability = sign.Probability,
 			m_position = new Vector3(propPosition, 0, 0) + sign.Position,
-		};
+		}.Extend(prop => new(prop) { EndNodeFlags = new() { Forbidden = NetNodeExt.Flags.TwoSegments } });
 	}
 
 	private NetLaneProps.Prop StopSign(float propPosition)

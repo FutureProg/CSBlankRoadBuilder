@@ -18,6 +18,8 @@ public enum Prop
 	BicycleLaneDecal,
 	BicycleLaneDecalSmall,
 	BusLaneDecal,
+	TrolleyLaneDecal,
+	TramLaneDecal,
 	ArrowForward,
 	ArrowLeft,
 	ArrowRight,

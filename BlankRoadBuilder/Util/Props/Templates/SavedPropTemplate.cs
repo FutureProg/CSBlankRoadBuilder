@@ -1,5 +1,9 @@
-﻿using System;
+﻿using BlankRoadBuilder.Domain.Options;
+
+using System;
+using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
 
 using UnityEngine;
 
@@ -50,6 +54,20 @@ public class SavedPropTemplate
 						}
 						catch (Exception ex)
 						{ Debug.LogError($"FAILED TO SET {type.Name}.{prop.PropertyKeys[i]} : {prop.PropertyValues[i]}\r\n{ex.Message}"); }
+					}
+
+					var defaultProp = PropUtil.GetDefaultProp(prop.Prop);
+					var properties = type
+						.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+						.Where(x => (Attribute.GetCustomAttribute(x, typeof(PropOptionAttribute)) as PropOptionAttribute) != null)
+						.Where(x => (Attribute.GetCustomAttribute(x, typeof(XmlIgnoreAttribute)) as XmlIgnoreAttribute) == null);
+
+					foreach (var item in properties)
+					{
+						if (!prop.PropertyKeys.Contains(item.Name))
+						{
+							item.SetValue(template, item.GetValue(defaultProp, null), null);
+						}
 					}
 				}
 

@@ -121,7 +121,7 @@ public class PropUtil
 		return list.ToArray();
 	}
 
-	private static PropTemplate GetDefaultProp(Prop prop)
+	public static PropTemplate GetDefaultProp(Prop prop)
 	{
 		return prop switch
 		{
@@ -147,6 +147,8 @@ public class PropUtil
 			Prop.BicycleLaneDecalSmall => new LaneDecalProp("Bike Lane Narrow") { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
 			Prop.FireHydrant => new DecorationProp("Fire Hydrant") { StartAngle = 90, Chance = 70, SegmentSnapping = PropSegmentSnapping.SnapHalfwayToFront, RelativePosition = new(0, 0, 0.15F) },
 			Prop.BusLaneDecal => new LaneDecalProp("Bus Lane") { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
+			Prop.TrolleyLaneDecal => new LaneDecalProp("Bus Only Lane") { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
+			Prop.TramLaneDecal => new LaneDecalProp(string.Empty) { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
 			Prop.ArrowForward => new ArrowProp("Road Arrow F") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
 			Prop.ArrowLeft => new ArrowProp("Road Arrow L") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
 			Prop.ArrowRight => new ArrowProp("Road Arrow R") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
@@ -190,11 +192,11 @@ public class PropUtil
 			Prop.SpeedSign120 => new SpeedSignProp($"100 Speed Limit") { StartAngle = 340, SegmentSnapping = PropSegmentSnapping.SnapHalfwayToBack, RelativePosition = new(0, 0, -1) },
 			Prop.SpeedSign130 => new SpeedSignProp($"100 Speed Limit") { StartAngle = 340, SegmentSnapping = PropSegmentSnapping.SnapHalfwayToBack, RelativePosition = new(0, 0, -1) },
 			Prop.SpeedSign140 => new SpeedSignProp($"100 Speed Limit") { StartAngle = 340, SegmentSnapping = PropSegmentSnapping.SnapHalfwayToBack, RelativePosition = new(0, 0, -1) },
-			Prop.PillarSmall => new BridgePillarProp($"760289402.R69 Middle 1c_Data"),
-			Prop.Pillar16m => new BridgePillarProp($"760276148.R69 Middle 2c_Data"),
-			Prop.Pillar24m => new BridgePillarProp($"760276468.R69 Middle 3c_Data"),
-			Prop.Pillar30m => new BridgePillarProp($"760277420.R69 Over 3c_Data"),
-			Prop.Pillar38m => new BridgePillarProp($"760278365.R69 Over 4c_Data"),
+			Prop.PillarSmall => new BridgePillarProp($"760289402.R69 Middle 1c_Data") { PillarOffset = 0.7F },
+			Prop.Pillar16m => new BridgePillarProp($"760276148.R69 Middle 2c_Data") { PillarOffset = 0.7F },
+			Prop.Pillar24m => new BridgePillarProp($"760276468.R69 Middle 3c_Data") { PillarOffset = 0.7F },
+			Prop.Pillar30m => new BridgePillarProp($"760277420.R69 Over 3c_Data") { PillarOffset = 0.7F },
+			Prop.Pillar38m => new BridgePillarProp($"760278365.R69 Over 4c_Data") { PillarOffset = 0.7F },
 			Prop.LampPost => new LightProp($"StreetLamp02") { RepeatDistance = 12F },
 			Prop.Flowers => new DecorationProp($"2355034951.Wildflower_Yellow_Data") { UseTree = true, OnlyOnGround = true, Chance = 85, RepeatDistance = 1.25F },
 			_ => new(""),

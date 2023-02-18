@@ -71,39 +71,27 @@ public partial class LanePropsUtil
 				{
 					yield return prop;
 				}
+
+				foreach (var prop in GetLaneDecalProps())
+				{
+					yield return prop;
+				}
+
+				foreach (var prop in GetLaneArrowProps())
+				{
+					yield return prop;
+				}
 			}
 
 			switch (Type)
 			{
 				case LaneType.Pedestrian:
 					foreach (var prop in GetPedestrianLaneProps())
+					{
 						yield return prop;
-
+					}
 					break;
-				case LaneType.Bike:
-					foreach (var prop in GetBikeLaneProps())
-						yield return prop;
 
-					break;
-				case LaneType.Bus:
-				case LaneType.Trolley:
-					foreach (var prop in GetBusLaneProps())
-						yield return prop;
-
-					break;
-				case LaneType.Emergency:
-					if (Lane.Type.HasFlag(LaneType.Car))
-						yield break;
-
-					foreach (var prop in GetLaneArrowProps())
-						yield return prop;
-
-					break;
-				case LaneType.Car:
-					foreach (var prop in GetLaneArrowProps())
-						yield return prop;
-
-					break;
 				case LaneType.Curb:
 				case LaneType.Filler:
 					if ((Type == LaneType.Curb ? (Lane.LaneWidth - Road.BufferWidth) : Lane.LaneWidth) < 0.25F)
@@ -117,7 +105,9 @@ public partial class LanePropsUtil
 					}
 
 					foreach (var prop in GetMedianProps())
+					{
 						yield return prop;
+					}
 
 					break;
 			}
@@ -155,12 +145,16 @@ public partial class LanePropsUtil
 	private IEnumerable<NetLaneProps.Prop> GetPedestrianLaneProps()
 	{
 		foreach (var prop in GetMedianProps())
+		{
 			yield return prop;
+		}
 
 		var stopType = ThumbnailMakerUtil.GetStopType(Lane.Type, Lane, Road, Elevation, out var forward);
 
 		if (forward == null)
+		{
 			yield break;
+		}
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Car))
 		{
