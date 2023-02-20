@@ -37,9 +37,9 @@ public static class NetworkMarkings
 			else
 			{
 				var filler = GetFillers(item).ToList();
-				var transitStop = item.Type != LaneDecoration.Pavement && item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop));
+				var transitStop = item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop));
 				
-				if (item.Lanes.Any(x => !x.Tags.HasFlag(LaneTag.Sidewalk)) || item.Elevation == item.SurfaceElevation)
+				if (item.Type != LaneDecoration.Pavement && (item.Lanes.Any(x => !x.Tags.HasFlag(LaneTag.Sidewalk)) || item.Elevation != item.SurfaceElevation))
 				{
 					var pavementFiller = GetFillers(new FillerMarking
 					{
@@ -51,6 +51,9 @@ public static class NetworkMarkings
 
 					foreach (var p in pavementFiller)
 					{
+						p.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
+						p.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
+
 						if (transitStop)
 						{
 							p.MetaData.Forward.Required |= RoadUtils.Flags.S_AnyStop;
@@ -610,13 +613,13 @@ public static class NetworkMarkings
 							else if (yPos == -0.3F)
 								yPos = -0.02F + fillerMarking.SurfaceElevation;
 							else if (!transition)
-								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.02F : 0.011F);
+								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.02F : 0.021F);
 							else
 							{
 								var start = fillerMarking.Elevation;
 								var end = fillerMarking.SurfaceElevation;
 
-								yPos = Math.Max(end - 0.1F, Math.Abs(float.Parse(data[1])) == 0.5 ? -1 : (start + ((end - start) / 0.32F) + (float.Parse(data[3]) * (end - start) / 32F / 0.32F)));
+								yPos = Math.Max(end - 0.2F, Math.Abs(float.Parse(data[1])) == 0.5 ? -1 : (start + ((end - start) / 0.32F) + (float.Parse(data[3]) * (end - start) / 32F / 0.32F)));
 							}
 
 							if (fillerMarking.Type == LaneDecoration.Filler && originalFile.Contains("_lod.obj"))
@@ -651,7 +654,7 @@ public static class NetworkMarkings
 							yPos = (crosswalkMarking.Road.RoadType == RoadType.Road ? -0.3F : 0) + 0.015F;
 
 							if (originalFile.Contains("_lod.obj"))
-								yPos = Math.Max(0.1F, yPos);
+								yPos = Math.Max(0.15F, yPos);
 						}
 
 						data[1] = xPos.ToString("0.00000000");

@@ -94,7 +94,7 @@ public partial class LanePropsUtil
 
 				case LaneType.Curb:
 				case LaneType.Filler:
-					if ((Type == LaneType.Curb ? (Lane.LaneWidth - Road.BufferWidth) : Lane.LaneWidth) < 0.25F)
+					if (Lane.GetLaneWidth(true) < 0.25F)
 					{
 						foreach (var prop in GetLights())
 						{
@@ -149,18 +149,20 @@ public partial class LanePropsUtil
 			yield return prop;
 		}
 
-		var stopType = ThumbnailMakerUtil.GetStopType(Lane.Type, Lane, Road, Elevation, out var forward);
+		var stopType = ThumbnailMakerUtil.GetStopType(Lane.Type, Lane, Road, Elevation, out var stopDirection);
 
-		if (forward == null)
+		if (stopDirection == LaneDirection.None)
 		{
 			yield break;
 		}
 
+		var largeStop = Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.LaneWidth >= 3;
+		var stopDiff = (float)((largeStop ? Math.Min(0, -Lane.LaneWidth / 2 + 0.75F) : 0)
+			+ Math.Round(Math.Abs(Lane.Position - ThumbnailMakerUtil.GetLanePosition(Lane.Type, Lane, Road, Elevation)), 3));
+
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Car))
 		{
-			var busStopLarge = GetProp(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? Prop.BusStopLarge : Prop.BusStopSmall);
-			var stopDiff = Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F
-				: (float)Math.Round(Math.Abs(Lane.Position - ThumbnailMakerUtil.GetLanePosition(Lane.Type, Lane, Road, Elevation)) - 0.2F, 3);
+			var busStopLarge = GetProp(largeStop ? Prop.BusStopLarge : Prop.BusStopSmall);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -169,13 +171,13 @@ public partial class LanePropsUtil
 				m_flagsRequired = NetLane.Flags.Stop,
 				m_angle = busStopLarge.Angle,
 				m_probability = 100,
-				m_position = busStopLarge.Position + new Vector3(stopDiff, 0, Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.Tags.HasFlag(LaneTag.CenterMedian) ? 2F : 0F),
-			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
+				m_position = busStopLarge.Position + new Vector3(stopDiff, 0, Lane.Tags.HasAnyFlag(LaneTag.Sidewalk, LaneTag.CenterMedian) ? 2F : 0F),
+			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
 		}
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Tram))
 		{
-			var tramStopLarge = GetProp(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? Prop.TramStopLarge : Prop.TramStopSmall);
+			var tramStopLarge = GetProp(largeStop ? Prop.TramStopLarge : Prop.TramStopSmall);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -184,8 +186,8 @@ public partial class LanePropsUtil
 				m_flagsRequired = NetLane.Flags.Stop2,
 				m_angle = tramStopLarge.Angle,
 				m_probability = 100,
-				m_position = tramStopLarge.Position + new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F : 0.1F, 0, Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.Tags.HasFlag(LaneTag.CenterMedian) ? -2F : 0F)
-			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
+				m_position = tramStopLarge.Position + new Vector3(stopDiff, 0, Lane.Tags.HasAnyFlag(LaneTag.Sidewalk, LaneTag.CenterMedian) ? -2F : 0F)
+			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
 		}
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Trolleybus))
@@ -200,8 +202,8 @@ public partial class LanePropsUtil
 				m_flagsRequired = NetLane.Flags.Stops,
 				m_angle = sightSeeingProp.Angle,
 				m_probability = 100,
-				m_position = sightSeeingProp.Position + new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? -0.75F : -0.5F, 0, 0)
-			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
+				m_position = sightSeeingProp.Position + new Vector3(stopDiff, 0, 0)
+			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -211,8 +213,8 @@ public partial class LanePropsUtil
 				m_flagsForbidden = NetLane.Flags.Stop,
 				m_angle = trolleyStop.Angle,
 				m_probability = 100,
-				m_position = trolleyStop.Position + new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? -0.75F : -0.5F, 0, 0)
-			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
+				m_position = trolleyStop.Position + new Vector3(stopDiff, 0, 0)
+			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
 		}
 	}
 

@@ -17,6 +17,7 @@ internal class CustomPropsOptions : OptionsPanelBase
 
 	private readonly List<CustomPropOptionControl> Controls = new();
 	private UILabel blockPanel;
+	private bool firstSetupDone;
 
 	public CustomPropsOptions(UITabstrip tabStrip, int tabIndex, int tabCount) : base(tabStrip, tabIndex, tabCount)
 	{
@@ -59,7 +60,7 @@ internal class CustomPropsOptions : OptionsPanelBase
 			foreach (var option in grp.OrderBy(x => (int)x.Key))
 			{
 				var ctrl = _panel.AddUIComponent<CustomPropOptionControl>();
-				ctrl.Init(option.Key, option.Value);
+				ctrl.Init(option.Key, option.Value.GetType());
 
 				Controls.Add(ctrl);
 
@@ -107,6 +108,13 @@ internal class CustomPropsOptions : OptionsPanelBase
 		_panel.parent.eventVisibilityChanged += (s, v) =>
 		{
 			blockPanel.isVisible = !Utilities.InGame;
+
+			if (!firstSetupDone && v && Utilities.InGame)
+			{
+				Controls.ForEach(control => control.UpdateData(PropUtil.GetProp(control.Prop)));
+				
+				firstSetupDone = true;
+			}
 		};
 	}
 

@@ -89,5 +89,10 @@ namespace BlankRoadBuilder
 		/// [UPDATED] Minimum distance to a transit stop now takes in consideration parking lanes.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_2 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_2", Culture);
+
+		/// <summary>
+		/// [NEW] Added the option to customize the minimum distance for a stop value.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_3 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_3", Culture);
 	}
 }

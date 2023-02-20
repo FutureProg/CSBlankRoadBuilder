@@ -31,7 +31,7 @@ internal class CustomPropOptionControl : UISprite
 	public Prop Prop { get; private set; }
 	public PropTemplate? Value { get; private set; }
 
-	internal void Init(Prop prop, PropTemplate value)
+	internal void Init(Prop prop, Type propType)
 	{
 		Prop = prop;
 		size = new Vector2(345, 155);
@@ -83,7 +83,7 @@ internal class CustomPropOptionControl : UISprite
 
 		yPos = propSelectButton.relativePosition.y + propSelectButton.height + Margin;
 
-		var properties = value.GetType()
+		var properties = propType
 			.GetProperties(BindingFlags.Public | BindingFlags.Instance)
 			.ToDictionary(x => x, x => Attribute.GetCustomAttribute(x, typeof(PropOptionAttribute)) as PropOptionAttribute);
 
@@ -101,8 +101,6 @@ internal class CustomPropOptionControl : UISprite
 
 		height = Margin + components.Max(x => x.height + x.relativePosition.y);
 
-		UpdateData(value);
-
 		propSelectButton.OnValueChanged += DropDown_OnValueChanged;
 		treeSelectButton.OnValueChanged += DropDown_OnValueChanged;
 		pillarSelectButton.OnValueChanged += DropDown_OnValueChanged;
@@ -110,21 +108,30 @@ internal class CustomPropOptionControl : UISprite
 
 	private void DropDown_OnValueChanged(PropInfo obj)
 	{
-		Value!.PropName = obj.name;
+		if (Value == null)
+			return;
+
+		Value.PropName = obj.name;
 
 		PropUtil.SaveTemplate(Prop, Value);
 	}
 
 	private void DropDown_OnValueChanged(TreeInfo obj)
 	{
-		Value!.PropName = obj.name;
+		if (Value == null)
+			return;
+
+		Value.PropName = obj.name;
 
 		PropUtil.SaveTemplate(Prop, Value);
 	}
 
 	private void DropDown_OnValueChanged(BuildingInfo obj)
 	{
-		Value!.PropName = obj.name;
+		if (Value == null)
+			return;
+
+		Value.PropName = obj.name;
 
 		PropUtil.SaveTemplate(Prop, Value);
 	}
@@ -138,10 +145,13 @@ internal class CustomPropOptionControl : UISprite
 
 	private void ClearButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
 	{
+		if (Value == null)
+			return;
+
 		propSelectButton!.Prefab = null;
 		treeSelectButton!.Prefab = null;
 		pillarSelectButton!.Prefab = null;
-		Value!.PropName = string.Empty;
+		Value.PropName = string.Empty;
 
 		PropUtil.SaveTemplate(Prop, Value);
 	}
@@ -160,7 +170,10 @@ internal class CustomPropOptionControl : UISprite
 
 	private void UpdateVisibility()
 	{
-		if (Value!.IsTree)
+		if (Value == null)
+			return;
+
+		if (Value.IsTree)
 		{
 			propSelectButton!.isVisible = pillarSelectButton!.isVisible = false;
 			treeSelectButton!.isVisible = true;

@@ -117,6 +117,9 @@ public partial class LanePropsUtil
 
 	private IEnumerable<NetLaneProps.Prop> GetParkingProps()
 	{
+		if (Lane.GetLaneWidth(true) < 0.75F)
+			yield break;
+
 		if (Lane.LeftLane?.Type == LaneType.Parking)
 		{
 			var parkingMeter = GetProp(Prop.ParkingMeter);
@@ -133,7 +136,7 @@ public partial class LanePropsUtil
 				m_segmentOffset = parkingMeter.SegmentOffset,
 				m_probability = parkingMeter.Probability,
 				m_repeatDistance = parkingMeter.RepeatInterval,
-				m_position = new Vector3((float)Math.Round((Lane.LaneWidth - (Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1F : 1.4F)) / -2, 3), 0, 0) + parkingMeter.Position,
+				m_position = new Vector3((float)Math.Round((Lane.LaneWidth - (Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 1.2F : 1.4F)) / -2, 3), 0, 0) + parkingMeter.Position,
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags

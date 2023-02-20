@@ -367,4 +367,15 @@
 [FIXED] Fixed pavement fillers from the Grass toggle always having a slope at intersections.
 </value>
   </data>
+  <data name="Mod_WhatsNewMessage1_3_3" xml:space="preserve">
+    <value>[NEW] Added the option to customize the minimum distance for a stop value.
+[UPDATED] Parking meters no longer appear on lanes smaller than 0.75m.
+[UPDATED] Changed how the mod handles a valid stop &amp; how that affects the stop’s prop, mainly this means that a stop is only added if a lane is withing the minimum distance for a stop, and only the stops for those valid lanes are added.
+[FIXED] Fixed some props not showing correctly in the prop settings.
+[FIXED] Fixed grass medians showing as pavement on bend nodes.
+[FIXED] Fixed Thumbnail Maker being blurry on zoom-enabled computers.
+[FIXED] Fixed grass sprites not spreading out over a large median.
+[FIXED] Fixed various props’ position not flipping when they’re on the left side.
+[FIXED] Fixed speed signs showing next to bike lanes if there’s a median &amp; car lanes next to it.</value>
+  </data>
 </root>

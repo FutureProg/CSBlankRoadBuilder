@@ -129,7 +129,7 @@ public partial class LanePropsUtil
 			m_repeatDistance = prop.RepeatInterval,
 			m_angle = PropAngle() * prop.Angle,
 			m_segmentOffset = prop.SegmentOffset,
-			m_position = new Vector3(0, 0, -PropAngle() * Lane.LaneWidth / 2) + prop.Position
+			m_position = new Vector3(0, 0, -PropAngle() * Lane.LaneWidth / 2) + PropPosition(prop)
 		};
 	}
 
@@ -148,7 +148,7 @@ public partial class LanePropsUtil
 			m_probability = 100,
 			m_angle = PropAngle() * 90,
 			m_repeatDistance = Lane.Decorations.HasFlag(LaneDecoration.Benches) ? bench.RepeatInterval : prop.RepeatInterval,
-			m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.Benches) ? -6F : 0) + prop.Position + (Lane.Decorations.HasFlag(LaneDecoration.Benches) ? bench.Position : new())
+			m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.Benches) ? -6F : 0) + PropPosition(prop) + (Lane.Decorations.HasFlag(LaneDecoration.Benches) ? PropAngle() * bench.Position : new())
 		};
 	}
 
@@ -167,7 +167,7 @@ public partial class LanePropsUtil
 			m_probability = prop.Probability,
 			m_angle = PropAngle() * prop.Angle,
 			m_repeatDistance = prop.RepeatInterval,
-			m_position = prop.Position
+			m_position = PropPosition(prop)
 		};
 	}
 
@@ -187,7 +187,7 @@ public partial class LanePropsUtil
 			m_probability = prop.Probability,
 			m_angle = PropAngle() * prop.Angle,
 			m_repeatDistance = prop.RepeatInterval,
-			m_position = prop.Position + new Vector3(hasOtherDecos ? PropAngle() * Lane.LaneWidth / 2 : 0, 0, 0)
+			m_position = PropPosition(prop) + new Vector3(hasOtherDecos ? PropAngle() * Lane.LaneWidth / 2 : 0, 0, 0)
 		};
 	}
 
@@ -241,7 +241,7 @@ public partial class LanePropsUtil
 			m_probability = prop.Probability,
 			m_angle = PropAngle() * prop.Angle,
 			m_repeatDistance = prop.RepeatInterval,
-			m_position = prop.Position + new Vector3(position, 0, 0)
+			m_position = PropPosition(prop) + new Vector3(position, 0, 0)
 		};
 	}
 
@@ -268,7 +268,7 @@ public partial class LanePropsUtil
 			m_probability = prop.Probability,
 			m_angle = PropAngle() * prop.Angle,
 			m_repeatDistance = prop.RepeatInterval,
-			m_position = prop.Position + new Vector3(position, 0, 0)
+			m_position = PropPosition(prop) + new Vector3(position, 0, 0)
 		};
 	}
 
@@ -288,7 +288,7 @@ public partial class LanePropsUtil
 			m_probability = prop.Probability,
 			m_angle = PropAngle() * prop.Angle,
 			m_repeatDistance = prop.RepeatInterval,
-			m_position = prop.Position + new Vector3(hasOtherDecos ? PropAngle() * Lane.LaneWidth / -2 : 0, 0, 0)
+			m_position = PropPosition(prop) + new Vector3(hasOtherDecos ? PropAngle() * Lane.LaneWidth / -2 : 0, 0, 0)
 		};
 	}
 
@@ -311,7 +311,7 @@ public partial class LanePropsUtil
 				m_probability = prop.Probability,
 				m_angle = PropAngle() * prop.Angle,
 				m_repeatDistance = bench.RepeatInterval,
-				m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.TrashBin) ? 2.75F : 2F) + prop.Position + bench.Position
+				m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.TrashBin) ? 2.75F : 2F) + PropPosition(prop) + PropPosition(bench)
 			};
 
 			yield return new NetLaneProps.Prop
@@ -322,7 +322,7 @@ public partial class LanePropsUtil
 				m_probability = prop.Probability,
 				m_angle = PropAngle() * prop.Angle,
 				m_repeatDistance = bench.RepeatInterval,
-				m_position = new Vector3(0, 0, -2F) + prop.Position + bench.Position
+				m_position = new Vector3(0, 0, -2F) + PropPosition(prop) + PropPosition(bench)
 			};
 
 			yield break;
@@ -336,7 +336,7 @@ public partial class LanePropsUtil
 			m_probability = prop.Probability,
 			m_angle = PropAngle() * prop.Angle,
 			m_repeatDistance = prop.RepeatInterval,
-			m_position = prop.Position
+			m_position = PropPosition(prop)
 		};
 	}
 
@@ -365,7 +365,7 @@ public partial class LanePropsUtil
 				m_angle = prop.IsTree ? (((float)_random.NextDouble() * 360) - 180) : (PropAngle() * prop.Angle),
 				m_repeatDistance = prop.RepeatInterval,
 				m_segmentOffset = prop.SegmentOffset,
-				m_position = new Vector3(pos, 0, (float)Math.Round(_random.NextDouble() * 3, 2)) + prop.Position
+				m_position = new Vector3(pos, 0, (float)Math.Round(_random.NextDouble() * 3, 2)) + PropPosition(prop)
 			}.Extend(prop => new LaneProp(prop)
 			{
 				VanillaSegmentFlags = new VanillaSegmentInfoFlags
@@ -410,7 +410,7 @@ public partial class LanePropsUtil
 				m_probability = prop.Probability,
 				m_angle = prop.IsTree ? (((float)_random.NextDouble() * 360) - 180) : (PropAngle() * prop.Angle),
 				m_repeatDistance = prop.RepeatInterval,
-				m_position = prop.Position
+				m_position = PropPosition(prop) + new Vector3(pos, 0, 0)
 			}.Extend(prop => new LaneProp(prop)
 			{
 				VanillaSegmentFlags = new VanillaSegmentInfoFlags
@@ -485,6 +485,11 @@ public partial class LanePropsUtil
 			SegmentFlags = new SegmentInfoFlags 
 			{ Forbidden = transitStop ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_ToggleGrassMedian }
 		});
+	}
+
+	private Vector3 PropPosition(PropTemplate prop, int multiplier = 0)
+	{
+		return new Vector3(prop.Position.x * (multiplier == 0 ? PropAngle() : multiplier), prop.Position.y, prop.Position.z);
 	}
 
 	private int PropAngle()

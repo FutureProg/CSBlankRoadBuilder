@@ -50,6 +50,9 @@ public static class ModOptions
 	[ModOptions(DESIGN, false, "Disable transit stops on non-ground levels", "")]
 	public static bool GroundOnlyStops { get => _groundOnlyStops; set => _groundOnlyStops.value = value; }
 
+	[ModOptions(DESIGN, 3, "Minimum distance to stop", "Determines the minimum distance between a pedestrian and vehicle lane in order for a stop to appear.", 0.1F, 12, 0.1F, "m")]
+	public static float MinimumStopDistance { get => _minimumStopDistance; set => _minimumStopDistance.value = value; }
+
 	[ModOptions(DESIGN, (int)TramTracks.Rev0, "Default Tram tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
 	public static TramTracks TramTracks { get => (TramTracks)_tramTracks.value; set => _tramTracks.value = (int)value; }
 
@@ -90,6 +93,8 @@ public static class ModOptions
 	private static readonly SavedBool _addGrassPropsToGrassLanes = new(nameof(_addGrassPropsToGrassLanes), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _alwaysAddGhostLanes = new(nameof(_alwaysAddGhostLanes), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _hideRoadDamage = new(nameof(_hideRoadDamage), nameof(BlankRoadBuilder), true);
+
+	private static readonly SavedFloat _minimumStopDistance = new(nameof(_minimumStopDistance), nameof(BlankRoadBuilder), 3F);
 
 	private static readonly SavedInt _markingsStyle = new(nameof(_markingsStyle), nameof(BlankRoadBuilder), (int)MarkingStyle.Vanilla);
 	private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);

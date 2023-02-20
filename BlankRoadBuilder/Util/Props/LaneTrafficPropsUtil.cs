@@ -26,7 +26,7 @@ public partial class LanePropsUtil
 			yield return prop;
 		}
 
-		foreach (var prop in GetBikeSignProps())
+		foreach (var prop in GetBikeSignProps(propPosition))
 		{
 			yield return prop;
 		}
@@ -48,7 +48,7 @@ public partial class LanePropsUtil
 				yield return StopSign(propPosition);
 				yield return YieldSign(propPosition);
 
-				foreach (var prop in GetWarningSigns())
+				foreach (var prop in GetWarningSigns(propPosition))
 				{
 					yield return prop;
 				}
@@ -56,7 +56,7 @@ public partial class LanePropsUtil
 
 			if (!GetSideLanes(Lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
-				yield return SpeedSign();
+				yield return SpeedSign(propPosition);
 			}
 		}
 
@@ -82,7 +82,7 @@ public partial class LanePropsUtil
 				yield return StopSign(propPosition).ToggleForwardBackward();
 				yield return YieldSign(propPosition).ToggleForwardBackward();
 
-				foreach (var prop in GetWarningSigns())
+				foreach (var prop in GetWarningSigns(propPosition))
 				{
 					yield return prop.ToggleForwardBackward();
 				}
@@ -90,7 +90,7 @@ public partial class LanePropsUtil
 
 			if (!GetSideLanes(Lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
-				yield return SpeedSign().ToggleForwardBackward();
+				yield return SpeedSign(propPosition).ToggleForwardBackward();
 			}
 		}
 
@@ -143,6 +143,9 @@ public partial class LanePropsUtil
 				if (lane.Direction == (forward ? LaneDirection.Backwards : LaneDirection.Forward))
 					break;
 
+				if (lane.Type is LaneType.Filler or LaneType.Curb)
+					break;
+
 				yield return lane;
 			}
 			else
@@ -150,7 +153,7 @@ public partial class LanePropsUtil
 		}
 	}
 
-	private IEnumerable<NetLaneProps.Prop> GetBikeSignProps()
+	private IEnumerable<NetLaneProps.Prop> GetBikeSignProps(float propPosition)
 	{
 		var bikeProp = GetProp(Prop.BicycleSign);
 
@@ -177,7 +180,7 @@ public partial class LanePropsUtil
 				m_segmentOffset = -bikeProp.SegmentOffset,
 				m_angle = bikeProp.Angle + 180,
 				m_probability = bikeProp.Probability,
-				m_position = new Vector3((Lane.LaneWidth / 2F) - 0.3F, 0, 0) + bikeProp.Position,
+				m_position = new Vector3(propPosition, 0, 0) + PropPosition(bikeProp, -1),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -208,7 +211,7 @@ public partial class LanePropsUtil
 				m_segmentOffset = bikeProp.SegmentOffset,
 				m_angle = bikeProp.Angle,
 				m_probability = bikeProp.Probability,
-				m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.3F, 0, 0) + bikeProp.Position,
+				m_position = new Vector3(-propPosition, 0, 0) + PropPosition(bikeProp, 1),
 			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 			{
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -222,7 +225,7 @@ public partial class LanePropsUtil
 		}
 	}
 
-	private IEnumerable<NetLaneProps.Prop> GetWarningSigns()
+	private IEnumerable<NetLaneProps.Prop> GetWarningSigns(float propPosition)
 	{
 		var railroadCrossingProp = GetProp(Prop.RailwayCrossingAheadSign);
 		var signalAheadProp = GetProp(Prop.TrafficLightAheadSign);
@@ -243,7 +246,7 @@ public partial class LanePropsUtil
 			m_segmentOffset = railroadCrossingProp.SegmentOffset,
 			m_angle = railroadCrossingProp.Angle,
 			m_probability = railroadCrossingProp.Probability,
-			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 2F) + railroadCrossingProp.Position,
+			m_position = new Vector3(propPosition, 0, 2F) + railroadCrossingProp.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -269,7 +272,7 @@ public partial class LanePropsUtil
 			m_segmentOffset = signalAheadProp.SegmentOffset,
 			m_angle = signalAheadProp.Angle,
 			m_probability = signalAheadProp.Probability,
-			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 2F) + signalAheadProp.Position,
+			m_position = new Vector3(propPosition, 0, 2F) + signalAheadProp.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
@@ -434,7 +437,7 @@ public partial class LanePropsUtil
 		});
 	}
 
-	private NetLaneProps.Prop SpeedSign()
+	private NetLaneProps.Prop SpeedSign(float propPosition)
 	{
 		var sign = ((int)Math.Round(Road.SpeedLimit * (Road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10) switch
 		{
@@ -466,7 +469,7 @@ public partial class LanePropsUtil
 			m_segmentOffset = sign.SegmentOffset,
 			m_angle = sign.Angle,
 			m_probability = sign.Probability,
-			m_position = new Vector3((-Lane.LaneWidth / 2F) + 0.4F, 0, 0) + sign.Position,
+			m_position = new Vector3(propPosition, 0, 0) + sign.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags

@@ -19,8 +19,10 @@ public partial class LaneInfo
 	[XmlIgnore, CloneIgnore] public float LaneElevation { get; set; }
 	[XmlIgnore, CloneIgnore] public float SurfaceElevation { get; set; }
 	[XmlIgnore, CloneIgnore] public RoadInfo? Road { get; set; }
-	[XmlIgnore, CloneIgnore] public float LaneWidth => (float)Math.Round((CustomWidth ?? DefaultLaneWidth()) + (Type == LaneType.Curb ? (Road?.BufferWidth ?? 0F) : 0F), 3);
+	[XmlIgnore, CloneIgnore] public float LaneWidth => GetLaneWidth();
 
+	public float GetLaneWidth(bool actual = false) => (float)Math.Round((CustomWidth ?? DefaultLaneWidth()) + (!actual && Type == LaneType.Curb ? (Road?.BufferWidth ?? 0F) : 0F), 3);
+	
 	public LaneVehicleCategory GetVehicleCategory()
 	{
 		if (Type is LaneType.Filler or LaneType.Curb)
