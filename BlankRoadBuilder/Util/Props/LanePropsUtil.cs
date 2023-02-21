@@ -12,16 +12,16 @@ namespace BlankRoadBuilder.Util.Props;
 
 public partial class LanePropsUtil
 {
-	public LanePropsUtil(int index, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
+	public LanePropsUtil(LaneInfo mainLane, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
 	{
-		Index = index;
+		MainLane = mainLane;
 		Type = type;
 		Lane = lane;
 		Road = road;
 		Elevation = elevation;
 	}
 
-	public int Index { get; }
+	public LaneInfo MainLane { get; }
 	public LaneType Type { get; }
 	public LaneInfo Lane { get; }
 	public RoadInfo Road { get; }
@@ -65,7 +65,7 @@ public partial class LanePropsUtil
 				yield break;
 			}
 
-			if (Index == 0)
+			if (MainLane == Lane)
 			{
 				foreach (var prop in GetDecorationProps())
 				{
@@ -156,9 +156,9 @@ public partial class LanePropsUtil
 			yield break;
 		}
 
-		var largeStop = Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.LaneWidth >= 3;
-		var stopDiff = (float)((largeStop ? Math.Min(0, -Lane.LaneWidth / 2 + 0.75F) : 0)
-			+ Math.Round(Math.Abs(Lane.Position - ThumbnailMakerUtil.GetLanePosition(Lane.Type, Lane, Road, Elevation)), 3));
+		var largeStop = MainLane.Tags.HasFlag(LaneTag.Sidewalk) || MainLane.LaneWidth >= 3;
+		var stopDiff = (float)Math.Round((largeStop ? Math.Min(0, -Lane.LaneWidth / 2 + 0.75F) : 0)
+			+ Math.Abs(Lane.Position - MainLane.Position), 3);
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Car))
 		{

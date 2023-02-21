@@ -50,8 +50,11 @@ public static class ModOptions
 	[ModOptions(DESIGN, false, "Disable transit stops on non-ground levels", "")]
 	public static bool GroundOnlyStops { get => _groundOnlyStops; set => _groundOnlyStops.value = value; }
 
-	[ModOptions(DESIGN, 3, "Minimum distance to stop", "Determines the minimum distance between a pedestrian and vehicle lane in order for a stop to appear.", 0.1F, 12, 0.1F, "m")]
-	public static float MinimumStopDistance { get => _minimumStopDistance; set => _minimumStopDistance.value = value; }
+	[ModOptions(DESIGN, 3, "Maximum distance to a stop", "Determines the maximum allowed distance between a pedestrian and vehicle lane in order for a stop to appear.", 0.1F, 12, 0.1F, "m")]
+	public static float MaximumStopDistance { get => _minimumStopDistance; set => _minimumStopDistance.value = value; }
+
+	[ModOptions(DESIGN, 3, "Minimum crossing distance for pedestrian traffic light", "Determines the minimum crossing distance needed for a pedestrian traffic light to appear, non-inclusive.", 0F, 24, 0.1F, "m")]
+	public static float MinimumDistanceForPedLight { get => _minimumDistanceForPedLight; set => _minimumDistanceForPedLight.value = value; }
 
 	[ModOptions(DESIGN, (int)TramTracks.Rev0, "Default Tram tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
 	public static TramTracks TramTracks { get => (TramTracks)_tramTracks.value; set => _tramTracks.value = (int)value; }
@@ -95,6 +98,7 @@ public static class ModOptions
 	private static readonly SavedBool _hideRoadDamage = new(nameof(_hideRoadDamage), nameof(BlankRoadBuilder), true);
 
 	private static readonly SavedFloat _minimumStopDistance = new(nameof(_minimumStopDistance), nameof(BlankRoadBuilder), 3F);
+	private static readonly SavedFloat _minimumDistanceForPedLight = new(nameof(_minimumDistanceForPedLight), nameof(BlankRoadBuilder), 3F);
 
 	private static readonly SavedInt _markingsStyle = new(nameof(_markingsStyle), nameof(BlankRoadBuilder), (int)MarkingStyle.Vanilla);
 	private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);

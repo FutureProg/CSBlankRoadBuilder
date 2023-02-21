@@ -1,5 +1,4 @@
-﻿
-using BlankRoadBuilder.Domain;
+﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
@@ -230,7 +229,7 @@ public static class ThumbnailMakerUtil
 
 			var distance = Math.Abs(l.Position - lane.Position) - ((lane.LaneWidth + l.LaneWidth) / 2);
 
-			return distance <= ModOptions.MinimumStopDistance;
+			return distance <= ModOptions.MaximumStopDistance;
 		});
 
 		var validTypes = validLanes.Aggregate(LaneType.Empty, (s, l) => s | (l.Type & stoppableVehicleLanes));
@@ -383,16 +382,16 @@ public static class ThumbnailMakerUtil
 
 	public static VehicleInfo.VehicleCategoryPart1 GetVehicleCategory1(LaneType laneType)
 	{
-		return laneType == LaneType.Bus
-			? VehicleInfo.VehicleCategoryPart1.Bus
-			: laneType == LaneType.Emergency ? VehicleInfo.VehicleCategoryPart1.None : VehicleInfo.VehicleCategoryPart1.All;
+		return laneType is LaneType.Bus
+			? VehicleInfo.VehicleCategoryPart1.Bus | VehicleInfo.VehicleCategoryPart1.Taxi
+			: laneType is LaneType.Emergency ? VehicleInfo.VehicleCategoryPart1.None : VehicleInfo.VehicleCategoryPart1.All;
 	}
 
 	public static VehicleInfo.VehicleCategoryPart2 GetVehicleCategory2(LaneType laneType)
 	{
-		return laneType == LaneType.Emergency
+		return laneType is LaneType.Emergency or LaneType.Bus
 			? VehicleInfo.VehicleCategoryPart2.Ambulance | VehicleInfo.VehicleCategoryPart2.Police | VehicleInfo.VehicleCategoryPart2.FireTruck
-			: laneType == LaneType.Bus ? VehicleInfo.VehicleCategoryPart2.None : VehicleInfo.VehicleCategoryPart2.All;
+			: VehicleInfo.VehicleCategoryPart2.All;
 	}
 
 	public static float GetLaneCost(LaneType laneType)

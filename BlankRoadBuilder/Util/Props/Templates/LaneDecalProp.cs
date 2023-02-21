@@ -23,4 +23,7 @@ public class LaneDecalProp : PropTemplate
 
 	[PropOption("Only show at intersections", "Shows the decal only when the lane starts at an intersection")]
 	public bool OnlyShowAtIntersections { get; set; }
+
+	[PropOption("Hide on shared lanes", "Only shows the decal when the lane is not made of multiple lane types")]
+	public bool HideOnSharedLanes { get; set; }
 }

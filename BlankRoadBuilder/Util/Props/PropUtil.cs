@@ -147,7 +147,7 @@ public class PropUtil
 			Prop.BicycleLaneDecalSmall => new LaneDecalProp("Bike Lane Narrow") { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
 			Prop.FireHydrant => new DecorationProp("Fire Hydrant") { StartAngle = 90, Chance = 70, SegmentSnapping = PropSegmentSnapping.SnapHalfwayToFront, RelativePosition = new(0, 0, 0.15F) },
 			Prop.BusLaneDecal => new LaneDecalProp("Bus Lane") { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
-			Prop.TrolleyLaneDecal => new LaneDecalProp("Bus Only Lane") { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
+			Prop.TrolleyLaneDecal => new LaneDecalProp("Bus Only Lane") { HideOnSharedLanes = true, StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
 			Prop.TramLaneDecal => new LaneDecalProp(string.Empty) { StartAngle = 180, SegmentSnapping = PropSegmentSnapping.SnapToBack, RelativePosition = new(0, 0, 5), OnlyShowAtIntersections = true },
 			Prop.ArrowForward => new ArrowProp("Road Arrow F") { StartAngle = 180, RelativePosition = new(0, 0, -5) },
 			Prop.ArrowLeft => new ArrowProp("Road Arrow L") { StartAngle = 180, RelativePosition = new(0, 0, -5) },

@@ -549,11 +549,9 @@ public static class RoadBuilderUtil
 
 	private static IEnumerable<NetInfo.Lane> GenerateLanes(LaneInfo lane, RoadInfo road, ElevationType elevation)
 	{
-		var index = 0;
-
 		foreach (var laneType in LaneInfo.GetLaneTypes(lane.Type))
 		{
-			yield return getLane(index++, laneType, lane, road, elevation);
+			yield return getLane(laneType, lane, road, elevation);
 		}
 
 		if (lane.Type != LaneType.Pedestrian && lane.Decorations.HasFlag(LaneDecoration.TransitStop))
@@ -571,12 +569,12 @@ public static class RoadBuilderUtil
 
 			if (leftPed.Tags.HasFlag(LaneTag.StoppableVehicleOnLeft))
 			{
-				yield return getLane(index++, LaneType.Pedestrian, leftPed, road, elevation);
+				yield return getLane(LaneType.Pedestrian, leftPed, road, elevation);
 			}
 
 			if (rightPed.Tags.HasFlag(LaneTag.StoppableVehicleOnRight))
 			{
-				yield return getLane(index++, LaneType.Pedestrian, rightPed, road, elevation);
+				yield return getLane(LaneType.Pedestrian, rightPed, road, elevation);
 			}
 
 			lane.Elevation = null;
@@ -590,7 +588,7 @@ public static class RoadBuilderUtil
 			fillerLane.Elevation = null;
 			fillerLane.CustomWidth = lane.LaneWidth;
 
-			yield return getLane(index++, LaneType.Empty, fillerLane, road, elevation);
+			yield return getLane(LaneType.Empty, fillerLane, road, elevation);
 		}
 
 		if (lane.Type.HasFlag(LaneType.Trolley))
@@ -598,8 +596,8 @@ public static class RoadBuilderUtil
 			var leftTrolley = lane.Duplicate(LaneType.Empty, lane.Direction == LaneDirection.Backwards ? 0.6F : -0.6F);
 			var rightTrolley = lane.Duplicate(LaneType.Empty, lane.Direction == LaneDirection.Backwards ? -0.6F : 0.6F);
 
-			var leftTrolleyLane = getLane(index++, LaneType.Empty, leftTrolley, road, elevation);
-			var rightTrolleyLane = getLane(index++, LaneType.Empty, rightTrolley, road, elevation);
+			var leftTrolleyLane = getLane(LaneType.Empty, leftTrolley, road, elevation);
+			var rightTrolleyLane = getLane(LaneType.Empty, rightTrolley, road, elevation);
 
 			leftTrolleyLane.m_vehicleType = VehicleInfo.VehicleType.TrolleybusLeftPole;
 			rightTrolleyLane.m_vehicleType = VehicleInfo.VehicleType.TrolleybusRightPole;
@@ -612,35 +610,35 @@ public static class RoadBuilderUtil
 			yield return rightTrolleyLane;
 		}
 
-		static NetInfo.Lane getLane(int index, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation) => new()
+		NetInfo.Lane getLane(LaneType _type, LaneInfo _lane, RoadInfo _road, ElevationType _elevation) => new()
 		{
-			m_position = ThumbnailMakerUtil.GetLanePosition(type, lane, road, elevation),
-			m_width = Math.Max(0.1F, lane.LaneWidth),
-			m_verticalOffset = ThumbnailMakerUtil.GetLaneVerticalOffset(lane, road),
-			m_speedLimit = ThumbnailMakerUtil.GetLaneSpeedLimit(type, lane, road),
-			m_laneType = ThumbnailMakerUtil.GetLaneType(type),
-			m_vehicleType = ThumbnailMakerUtil.GetVehicleType(type, lane),
-			m_vehicleCategoryPart1 = ThumbnailMakerUtil.GetVehicleCategory1(type),
-			m_vehicleCategoryPart2 = ThumbnailMakerUtil.GetVehicleCategory2(type),
-			m_stopType = ThumbnailMakerUtil.GetStopType(type, lane, road, elevation, out _),
-			m_direction = ThumbnailMakerUtil.GetLaneDirection(lane),
-			m_finalDirection = ThumbnailMakerUtil.GetLaneDirection(lane),
-			m_laneProps = GetLaneProps(index, type, lane, road, elevation),
-			m_stopOffset = ThumbnailMakerUtil.GetStopOffset(type, lane),
+			m_position = ThumbnailMakerUtil.GetLanePosition(_type, _lane, _road, _elevation),
+			m_width = Math.Max(0.1F, _lane.LaneWidth),
+			m_verticalOffset = ThumbnailMakerUtil.GetLaneVerticalOffset(_lane, _road),
+			m_speedLimit = ThumbnailMakerUtil.GetLaneSpeedLimit(_type, _lane, _road),
+			m_laneType = ThumbnailMakerUtil.GetLaneType(_type),
+			m_vehicleType = ThumbnailMakerUtil.GetVehicleType(_type, _lane),
+			m_vehicleCategoryPart1 = ThumbnailMakerUtil.GetVehicleCategory1(_type),
+			m_vehicleCategoryPart2 = ThumbnailMakerUtil.GetVehicleCategory2(_type),
+			m_stopType = ThumbnailMakerUtil.GetStopType(_type, _lane, _road, _elevation, out _),
+			m_direction = ThumbnailMakerUtil.GetLaneDirection(_lane),
+			m_finalDirection = ThumbnailMakerUtil.GetLaneDirection(_lane),
+			m_laneProps = GetLaneProps(lane, _type, _lane, _road, _elevation),
+			m_stopOffset = ThumbnailMakerUtil.GetStopOffset(_type, _lane),
 			m_elevated = false,
 			m_useTerrainHeight = false,
-			m_centerPlatform = lane.Decorations.HasFlag(LaneDecoration.TransitStop),
-			m_allowConnect = elevation == ElevationType.Basic,
+			m_centerPlatform = _lane.Decorations.HasFlag(LaneDecoration.TransitStop),
+			m_allowConnect = _elevation == ElevationType.Basic,
 			m_similarLaneCount = 1,
 			m_similarLaneIndex = 0,
 		};
 	}
 
-	private static NetLaneProps GetLaneProps(int index, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
+	private static NetLaneProps GetLaneProps(LaneInfo mainLane, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
 	{
 		var laneProps = ScriptableObject.CreateInstance<NetLaneProps>();
 
-		laneProps.m_props = new LanePropsUtil(index, type, lane, road, elevation).GetLaneProps() ?? new NetLaneProps.Prop[0];
+		laneProps.m_props = new LanePropsUtil(mainLane, type, lane, road, elevation).GetLaneProps() ?? new NetLaneProps.Prop[0];
 
 		return laneProps;
 	}
