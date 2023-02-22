@@ -94,5 +94,10 @@ namespace BlankRoadBuilder
 		/// [NEW] Added the option to customize the minimum distance for a stop value.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_3 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_3", Culture);
+
+		/// <summary>
+		/// [NEW] Added IMT marking damage, enabled by default.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_4 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_4", Culture);
 	}
 }

@@ -168,10 +168,9 @@ public static class ThumbnailMakerUtil
 	{
 		return laneType switch
 		{
-			LaneType.Car or LaneType.Bike or LaneType.Tram or LaneType.Emergency or LaneType.Trolley => NetInfo.LaneType.Vehicle,
+			LaneType.Car or LaneType.Bike or LaneType.Tram or LaneType.Bus or LaneType.Emergency or LaneType.Trolley => NetInfo.LaneType.Vehicle,
 			LaneType.Parking => NetInfo.LaneType.Parking,
 			LaneType.Pedestrian => NetInfo.LaneType.Pedestrian,
-			LaneType.Bus => NetInfo.LaneType.TransportVehicle,
 			_ => NetInfo.LaneType.None,
 		};
 	}
@@ -221,13 +220,23 @@ public static class ThumbnailMakerUtil
 				return VehicleInfo.VehicleType.None;
 		}
 
-		var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram | LaneType.Parking;
+		var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram;
 		var validLanes = road.Lanes.Where(l =>
 		{
 			if ((l.Type & stoppableVehicleLanes) == 0)
 				return false;
 
 			var distance = Math.Abs(l.Position - lane.Position) - ((lane.LaneWidth + l.LaneWidth) / 2);
+
+			if (l.Type.HasAnyFlag(LaneType.Car, LaneType.Bus))
+			{
+				var lanesBetween = road.Lanes.Where(x => x.Position.IsWithin(l.Position, lane.Position) && x.Type is LaneType.Parking or LaneType.Empty);
+				
+				foreach (var item in lanesBetween)
+				{
+					distance -= item.LaneWidth;
+				}
+			}
 
 			return distance <= ModOptions.MaximumStopDistance;
 		});
@@ -382,14 +391,14 @@ public static class ThumbnailMakerUtil
 
 	public static VehicleInfo.VehicleCategoryPart1 GetVehicleCategory1(LaneType laneType)
 	{
-		return laneType is LaneType.Bus
+		return (laneType is LaneType.Bus && !ModOptions.AllowAllVehiclesOnBusLanes)
 			? VehicleInfo.VehicleCategoryPart1.Bus | VehicleInfo.VehicleCategoryPart1.Taxi
 			: laneType is LaneType.Emergency ? VehicleInfo.VehicleCategoryPart1.None : VehicleInfo.VehicleCategoryPart1.All;
 	}
 
 	public static VehicleInfo.VehicleCategoryPart2 GetVehicleCategory2(LaneType laneType)
 	{
-		return laneType is LaneType.Emergency or LaneType.Bus
+		return laneType is LaneType.Emergency || (laneType is LaneType.Bus && !ModOptions.AllowAllVehiclesOnBusLanes)
 			? VehicleInfo.VehicleCategoryPart2.Ambulance | VehicleInfo.VehicleCategoryPart2.Police | VehicleInfo.VehicleCategoryPart2.FireTruck
 			: VehicleInfo.VehicleCategoryPart2.All;
 	}

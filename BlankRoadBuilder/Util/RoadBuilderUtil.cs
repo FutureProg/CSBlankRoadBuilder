@@ -137,8 +137,6 @@ public static class RoadBuilderUtil
 
 			roadInfo = roadInfo.DeepCopy()!;
 
-			ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
-
 			if (elevation != ElevationType.Basic)
 			{
 				if (ModOptions.GroundOnlyGrass)
@@ -147,6 +145,8 @@ public static class RoadBuilderUtil
 				if (ModOptions.GroundOnlyParking)
 					roadInfo.Lanes.RemoveAll(x => x.Type == LaneType.Parking);
 			}
+
+			ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);
 
 			GenerateLaneWidthsAndPositions(roadInfo);
 

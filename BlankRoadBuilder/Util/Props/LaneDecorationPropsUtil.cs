@@ -23,7 +23,7 @@ public partial class LanePropsUtil
 			switch (deco)
 			{
 				case LaneDecoration.Grass:
-					if (Lane.LaneWidth >= 2 && ModOptions.AddGrassPropsToGrassLanes)
+					if (Lane.GetLaneWidth(true) >= 2)
 					{
 						foreach (var prop in GetGrassProps())
 						{
@@ -343,18 +343,31 @@ public partial class LanePropsUtil
 	private IEnumerable<NetLaneProps.Prop> GetFlowers()
 	{
 		var prop = GetProp(Prop.Flowers);
-		var numLines = Math.Max((int)Math.Ceiling(Lane.LaneWidth / 0.75) - 1, 1);
-		var odd = numLines % 2 == 1;
-		var pos = numLines == 1 ? 0 : numLines * 0.75F * -0.5F;
 
 		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
 			yield break;
+
+		var numLines = Math.Max((int)Math.Ceiling(Lane.GetLaneWidth(true) / 0.75) - 1, 1);
+		var odd = numLines % 2 == 1;
+		var pos = numLines == 1 ? 0 : numLines * 0.75F * -0.5F;
+
+		if (Lane.Type is LaneType.Curb)
+		{
+			if (Lane.Direction is LaneDirection.Backwards)
+			{
+				pos += (Lane.LaneWidth - Lane.GetLaneWidth(true)) / 2;
+			}
+			else
+			{
+				pos -= (Lane.LaneWidth - Lane.GetLaneWidth(true)) / 2;
+			}
+		}
 
 		for (var i = 0; i < numLines; i++)
 		{
 			if (i > 0)
 			{
-				pos += (Lane.LaneWidth - 2) / (numLines - 1);
+				pos += (Lane.GetLaneWidth(true) - 2) / (numLines - 1);
 			}
 
 			yield return new NetLaneProps.Prop
@@ -388,18 +401,30 @@ public partial class LanePropsUtil
 		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
 			yield break;
 
-		var numLines = Math.Max((int)Math.Ceiling(Lane.LaneWidth) - 1, 1);
+		var numLines = Math.Max((int)Math.Ceiling(Lane.GetLaneWidth(true)) - 1.1F, 1);
 		var odd = numLines % 2 == 1;
-		var pos = numLines == 1 ? 0 : (1 - (Lane.LaneWidth / 2));
+		var pos = numLines == 1 ? 0 : (1.1F - (Lane.GetLaneWidth(true) / 2));
 		var transitStop = Lane.Decorations.HasFlag(LaneDecoration.TransitStop);
 		var imtMarkings = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings);
 		var hiddenMarkings = ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings);
+
+		if (Lane.Type is LaneType.Curb)
+		{
+			if (Lane.Direction is LaneDirection.Backwards)
+			{
+				pos += (Lane.LaneWidth - Lane.GetLaneWidth(true)) / 2;
+			}
+			else
+			{
+				pos -= (Lane.LaneWidth - Lane.GetLaneWidth(true)) / 2;
+			}
+		}
 
 		for (var i = 0; i < numLines; i++)
 		{
 			if (i > 0)
 			{
-				pos += (Lane.LaneWidth - 2) / (numLines - 1);
+				pos += (Lane.GetLaneWidth(true) - 2) / (numLines - 1);
 			}
 
 			yield return new NetLaneProps.Prop

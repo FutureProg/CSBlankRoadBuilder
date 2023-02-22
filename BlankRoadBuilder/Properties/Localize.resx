@@ -378,4 +378,19 @@
 [FIXED] Fixed various props’ position not flipping when they’re on the left side.
 [FIXED] Fixed speed signs showing next to bike lanes if there’s a median &amp; car lanes next to it.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_3_4" xml:space="preserve">
+    <value>[NEW] Added IMT marking damage, enabled by default.
+[NEW] Added an option to hide lane decals on shared lanes.
+[NEW] Added an option to allow all vehicles on a bus lane.
+[NEW] Added the option to change the minimum crossing distance required for pedestrian traffic lights to show up.
+[UPDATED] Bus lanes will now allow emergency and taxi vehicles to drive in them, they are also categorized as “Vehicle” lanes instead of “Transport Vehicle”.
+[UPDATED] Changed the name of the “Minimum distance to stop” to “Maximum distance to a stop”.
+[UPDATED] Thumbnail Maker will now show you a popup when you’re trying to export a road with no lanes on the asphalt.
+[UPDATED] Moved the option to remove grass sprites to the props settings of the grass prop.
+[FIXED] Fixed curb grass medians not automatically snapping to the curb of the road.
+[FIXED] Fixed unusual fillers &amp; missing markings when removing parking on elevated levels.
+[FIXED] Fixed large stop props not showing on large enough fillers with a transit stop addon.
+[FIXED] Fixed bus stops not being generated when there’s a parking between it and the pedestrian lane.
+[FIXED] Fixed UI inconsistencies with high dpi displays.</value>
+  </data>
 </root>

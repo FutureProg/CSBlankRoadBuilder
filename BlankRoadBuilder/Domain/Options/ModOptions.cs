@@ -14,6 +14,9 @@ public static class ModOptions
 	[ModOptions(MARKINGS, (int)CrosswalkStyle.Zebra, "Vanilla crosswalks style", "Changes how the vanilla crosswalks are generated")]
 	public static CrosswalkStyle VanillaCrosswalkStyle { get => (CrosswalkStyle)_vanillaCrosswalkStyle.value; set => _vanillaCrosswalkStyle.value = (int)value; }
 
+	[ModOptions(DESIGN, true, "Damaged IMT Markings", "Automatically adds cracks and voids to IMT markings")]
+	public static bool DamagedImtMarkings { get => _damagedImtMarkings; set => _damagedImtMarkings.value = value; }
+
 	[ModOptions(PROPS, false, "Place traffic lights on the opposite side of the junction", "Traffic lights' positions will be at the start of the lanes instead of at the end")]
 	public static bool FlipTrafficLights { get => _flipTrafficLights; set => _flipTrafficLights.value = value; }
 
@@ -23,8 +26,8 @@ public static class ModOptions
 	[ModOptions(PROPS, true, "Add lane decals", "Generates lane decals like bus & bike decals with the road")]
 	public static bool AddLaneDecals { get => _addLaneDecals; set => _addLaneDecals.value = value; }
 
-	[ModOptions(PROPS, true, "Add grass props to grass lanes", "Enabling this adds repeating grass props to any lane with grass decorations on top of the generated filler")]
-	public static bool AddGrassPropsToGrassLanes { get => _addGrassPropsToGrassLanes; set => _addGrassPropsToGrassLanes.value = value; }
+	[ModOptions(DESIGN, false, "Allow all vehicles on bus lanes", "")]
+	public static bool AllowAllVehiclesOnBusLanes { get => _allowAllVehiclesOnBusLanes; set => _allowAllVehiclesOnBusLanes.value = value; }
 
 	[ModOptions(DESIGN, false, "Remove curb on Flat Roads", "Removes the curb texture on the edge of the asphalt of flat roads")]
 	public static bool RemoveCurbOnFlatRoads { get => _flatRoadsHaveNoCurb; set => _flatRoadsHaveNoCurb.value = value; }
@@ -90,12 +93,14 @@ public static class ModOptions
 	private static readonly SavedBool _groundOnlyGrass = new(nameof(_groundOnlyGrass), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _groundOnlyStops = new(nameof(_groundOnlyStops), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _onlyUseHighCurb = new(nameof(_onlyUseHighCurb), nameof(BlankRoadBuilder), false);
+	private static readonly SavedBool _allowAllVehiclesOnBusLanes = new(nameof(_allowAllVehiclesOnBusLanes), nameof(BlankRoadBuilder), false);
 
 	private static readonly SavedBool _addLaneDecals = new(nameof(_addLaneDecals), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _addLaneArrows = new(nameof(_addLaneArrows), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _addGrassPropsToGrassLanes = new(nameof(_addGrassPropsToGrassLanes), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _alwaysAddGhostLanes = new(nameof(_alwaysAddGhostLanes), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _hideRoadDamage = new(nameof(_hideRoadDamage), nameof(BlankRoadBuilder), true);
+	private static readonly SavedBool _damagedImtMarkings = new(nameof(_damagedImtMarkings), nameof(BlankRoadBuilder), true);
 
 	private static readonly SavedFloat _minimumStopDistance = new(nameof(_minimumStopDistance), nameof(BlankRoadBuilder), 3F);
 	private static readonly SavedFloat _minimumDistanceForPedLight = new(nameof(_minimumDistanceForPedLight), nameof(BlankRoadBuilder), 3F);

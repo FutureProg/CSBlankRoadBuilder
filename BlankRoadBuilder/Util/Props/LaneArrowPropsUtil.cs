@@ -35,8 +35,15 @@ public partial class LanePropsUtil
 
 		foreach (var prop in validProps)
 		{
-			if ((PropInfo?)prop == null)
+			if (prop is LaneDecalProp laneDecal && laneDecal.HideOnSharedLanes && Lane.Type.GetValues().Count() > 1)
+			{
 				continue;
+			}
+
+			if ((PropInfo?)prop == null)
+			{
+				continue;
+			}
 
 			yield return new NetLaneProps.Prop()
 			{

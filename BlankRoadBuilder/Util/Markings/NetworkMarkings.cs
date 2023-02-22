@@ -568,20 +568,20 @@ public static class NetworkMarkings
 								xPos = inverted ? fillerMarking.LeftPoint.X :
 									(-fillerMarking.RightPoint.X + (fillerMarking.Helper ? 0 : (xPos + 0.5F)));
 
-								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
-									xPos += fillerMarking.Lanes.First().Type is LaneType.Curb ? -0.01F : 0.2F;
-								else if (fillerMarking.Lanes.First().Type is LaneType.Curb)
-									xPos -= 0.01F;
+								if (fillerMarking.Lanes.First().Type is LaneType.Curb)
+									xPos -= 0.01F - fillerMarking.Lanes.Last().Road!.BufferWidth;
+								else if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
+									xPos += 0.2F;
 							}
 							else if (xPos >= 0.05)
 							{
 								xPos = inverted ? fillerMarking.RightPoint.X :
 									(-fillerMarking.LeftPoint.X + (fillerMarking.Helper ? 0 : (xPos - 0.5F)));
 
-								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
-									xPos -= fillerMarking.Lanes.Last().Type is LaneType.Curb ? -0.01F : 0.2F;
-								else if (fillerMarking.Lanes.Last().Type is LaneType.Curb)
-									xPos += 0.01F;
+								if (fillerMarking.Lanes.Last().Type is LaneType.Curb)
+									xPos += 0.01F - fillerMarking.Lanes.Last().Road!.BufferWidth;
+								else if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
+									xPos -= 0.2F;
 							}
 
 							if ((fillerMarking.TransitionForward && (int)float.Parse(data[3]) >= (int)ModOptions.StepTransition)
