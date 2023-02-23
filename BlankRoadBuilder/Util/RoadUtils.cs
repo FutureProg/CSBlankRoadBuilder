@@ -16,6 +16,7 @@ public class AnFlags
 	public NetSegmentExt.Flags S_RemoveRoadClutter = NetSegmentExt.Flags.Custom3;
 	public NetSegmentExt.Flags S_RemoveTramSupports = NetSegmentExt.Flags.Custom4;
 	public NetSegmentExt.Flags S_RemoveMarkings = NetSegmentExt.Flags.Custom5;
+	public NetSegmentExt.Flags S_ToggleGrassMedian = NetSegmentExt.Flags.Custom6;
 	public NetSegmentExt.Flags S_Curbless = NetSegmentExt.Flags.Custom7;
 
 	public NetNodeExt.Flags N_FullLowCurb = NetNodeExt.Flags.Custom0;

@@ -1,6 +1,4 @@
-﻿using AlgernonCommons;
-
-using BlankRoadBuilder.Domain;
+﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Util;
 
 using ColossalFramework.UI;
@@ -154,7 +152,7 @@ public class GenerationPanel : UIPanel
 		}
 		catch (Exception exception)
 		{
-			Logging.LogException(exception, "exception creating standalone panel of type ", typeof(TerrainPanel).Name);
+			Debug.LogException(exception);
 		}
 	}
 

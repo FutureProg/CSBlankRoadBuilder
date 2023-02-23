@@ -23,7 +23,7 @@ public partial class LanePropsUtil
 			switch (deco)
 			{
 				case LaneDecoration.Grass:
-					if (Lane.LaneWidth >= 2 && ModOptions.AddGrassPropsToGrassLanes)
+					if (Lane.GetLaneWidth(true) >= 2)
 					{
 						foreach (var prop in GetGrassProps())
 						{
@@ -68,7 +68,7 @@ public partial class LanePropsUtil
 
 					break;
 				case LaneDecoration.LampPost:
-					foreach (var prop in GetLampPost())
+					foreach (var prop in GetStreetLights(LaneDecoration.LampPost))
 					{
 						yield return prop;
 					}
@@ -118,45 +118,57 @@ public partial class LanePropsUtil
 	{
 		var prop = GetProp(Prop.FireHydrant);
 
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
+
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
-			m_probability = 70,
-			m_angle = PropAngle() * 90,
-			m_segmentOffset = 0.60F,
-			m_position = new Vector3(0, 0, -PropAngle() * Lane.LaneWidth / 2)
+			m_tree = prop,
+			m_probability = prop.Probability,
+			m_repeatDistance = prop.RepeatInterval,
+			m_angle = PropAngle() * prop.Angle,
+			m_segmentOffset = prop.SegmentOffset,
+			m_position = new Vector3(0, 0, -PropAngle() * Lane.LaneWidth / 2) + PropPosition(prop)
 		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetBikeParking()
 	{
 		var prop = GetProp(Prop.BicycleParking);
+		var bench = GetProp(Prop.Bench);
+
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
 
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
+			m_tree = prop,
 			m_probability = 100,
 			m_angle = PropAngle() * 90,
-			m_repeatDistance = Lane.Decorations.HasFlag(LaneDecoration.Benches) ? 15F : 30F,
-			m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.Benches) ? -5F : 1F)
-		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
+			m_repeatDistance = Lane.Decorations.HasFlag(LaneDecoration.Benches) ? bench.RepeatInterval : prop.RepeatInterval,
+			m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.Benches) ? -6F : 0) + PropPosition(prop) + (Lane.Decorations.HasFlag(LaneDecoration.Benches) ? PropAngle() * bench.Position : new())
+		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetTrashBin()
 	{
 		var prop = GetProp(Prop.TrashBin);
 
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
+
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
-			m_probability = 100,
-			m_angle = PropAngle() * 90,
-			m_repeatDistance = 15F,
-			m_position = new Vector3(0, 0, 1.5F)
-		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
+			m_tree = prop,
+			m_segmentOffset = prop.SegmentOffset,
+			m_probability = prop.Probability,
+			m_angle = PropAngle() * prop.Angle,
+			m_repeatDistance = prop.RepeatInterval,
+			m_position = PropPosition(prop)
+		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetStreetAds()
@@ -164,53 +176,24 @@ public partial class LanePropsUtil
 		var prop = GetProp(Prop.StreetAd);
 		var hasOtherDecos = Lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots);
 
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
+
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
-			m_probability = 100,
-			m_angle = 0,
-			m_repeatDistance = 25F,
-			m_position = new Vector3(hasOtherDecos ? PropAngle() * Lane.LaneWidth / 2 : 0, 0, 0)
-		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 5F });
-	}
-
-	private IEnumerable<NetLaneProps.Prop> GetLampPost()
-	{
-		var lightProp = GetProp(Prop.LampPost);
-		var xPos = (-Lane.LaneWidth / 2) + 0.5F;
-
-		yield return getLight(Road.ContainsWiredLanes ? (PropAngle() * 2F) : 0F);
-
-		if (ModOptions.VanillaStreetLightPlacement)
-		{
-			yield break;
-		}
-
-		for (var i = ModOptions.LightRepeatDistance / 2; i <= 96; i += ModOptions.LightRepeatDistance / 2)
-		{
-			yield return getLight(i);
-			yield return getLight(-i);
-		}
-
-		NetLaneProps.Prop getLight(float position) => new NetLaneProps.Prop
-		{
-			m_prop = lightProp,
-			m_finalProp = lightProp,
-			m_minLength = ModOptions.VanillaStreetLightPlacement ? 10 : (Math.Abs(position) * 1.95F),
-			m_repeatDistance = ModOptions.VanillaStreetLightPlacement ? (ModOptions.LightRepeatDistance / 2) : 0,
-			m_probability = 100,
-			m_position = new Vector3(xPos, 0, position)
-		}.Extend(prop => new LaneProp(prop)
-		{
-			LaneFlags = new LaneInfoFlags
-			{ Forbidden = RoadUtils.Flags.L_RemoveStreetLights }
-		}).ToggleForwardBackward(PropAngle() < 0);
+			m_tree = prop,
+			m_segmentOffset = prop.SegmentOffset,
+			m_probability = prop.Probability,
+			m_angle = PropAngle() * prop.Angle,
+			m_repeatDistance = prop.RepeatInterval,
+			m_position = PropPosition(prop) + new Vector3(hasOtherDecos ? PropAngle() * Lane.LaneWidth / 2 : 0, 0, 0)
+		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetStreetLights(LaneDecoration decoration)
 	{
-		var lightProp = GetProp(decoration == LaneDecoration.DoubleStreetLight ? Prop.DoubleStreetLight : Prop.SingleStreetLight);
+		var lightProp = GetProp(decoration switch { LaneDecoration.LampPost => Prop.LampPost, LaneDecoration.DoubleStreetLight => Prop.DoubleStreetLight, _ => Prop.SingleStreetLight });
 		var xPos = decoration == LaneDecoration.DoubleStreetLight ? 0 : (-Lane.LaneWidth / 2) + 0.5F;
 
 		yield return getLight(Road.ContainsWiredLanes ? (PropAngle() * 2F) : 0F);
@@ -220,7 +203,7 @@ public partial class LanePropsUtil
 			yield break;
 		}
 
-		for (var i = ModOptions.LightRepeatDistance; i <= 96; i += ModOptions.LightRepeatDistance)
+		for (var i = lightProp.RepeatInterval; i <= 96; i += lightProp.RepeatInterval)
 		{
 			yield return getLight(i);
 			yield return getLight(-i);
@@ -229,11 +212,12 @@ public partial class LanePropsUtil
 		NetLaneProps.Prop getLight(float position) => new NetLaneProps.Prop
 		{
 			m_prop = lightProp,
-			m_finalProp = lightProp,
+			m_tree = lightProp,
+			m_angle = lightProp.Angle,
 			m_minLength = ModOptions.VanillaStreetLightPlacement ? 10 : (Math.Abs(position) * 1.95F),
-			m_repeatDistance = ModOptions.VanillaStreetLightPlacement ? ModOptions.LightRepeatDistance : 0,
+			m_repeatDistance = ModOptions.VanillaStreetLightPlacement ? lightProp.RepeatInterval : 0,
 			m_probability = 100,
-			m_position = new Vector3(xPos, 0, position)
+			m_position = new Vector3(xPos, 0, position) + lightProp.Position
 		}.Extend(prop => new LaneProp(prop)
 		{
 			LaneFlags = new LaneInfoFlags
@@ -246,21 +230,28 @@ public partial class LanePropsUtil
 		var position = Lane.Type != LaneType.Curb ? 0 : Lane.Direction == LaneDirection.Both && Lane.Position < 0 ? -0.25F : 0.25F;
 		var prop = GetProp(Prop.Bench);
 
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
+
 		yield return new NetLaneProps.Prop
 		{
 			m_prop = prop,
-			m_finalProp = prop,
-			m_probability = 100,
-			m_angle = PropAngle() * 90,
-			m_repeatDistance = 15F,
-			m_position = new Vector3(position, 0, 0)
-		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
+			m_tree = prop,
+			m_segmentOffset = prop.SegmentOffset,
+			m_probability = prop.Probability,
+			m_angle = PropAngle() * prop.Angle,
+			m_repeatDistance = prop.RepeatInterval,
+			m_position = PropPosition(prop) + new Vector3(position, 0, 0)
+		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetHedge()
 	{
 		var position = PropAngle() * 0.05F;
 		var prop = GetProp(Prop.Hedge);
+
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
 
 		if (Lane.Decorations != LaneDecoration.Hedge)
 		{
@@ -271,14 +262,14 @@ public partial class LanePropsUtil
 
 		yield return new NetLaneProps.Prop
 		{
-			m_tree = prop,
-			m_finalTree = prop,
 			m_prop = prop,
-			m_finalProp = prop,
-			m_probability = 100,
-			m_repeatDistance = 3.25F,
-			m_position = new Vector3(position, 0, 0)
-		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 3.25F });
+			m_tree = prop,
+			m_segmentOffset = prop.SegmentOffset,
+			m_probability = prop.Probability,
+			m_angle = PropAngle() * prop.Angle,
+			m_repeatDistance = prop.RepeatInterval,
+			m_position = PropPosition(prop) + new Vector3(position, 0, 0)
+		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetBollards()
@@ -286,87 +277,110 @@ public partial class LanePropsUtil
 		var prop = GetProp(Prop.Bollard);
 		var hasOtherDecos = Lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots, LaneDecoration.StreetAds, LaneDecoration.BikeParking);
 
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
+
 		yield return new NetLaneProps.Prop
 		{
-			m_tree = prop,
-			m_finalTree = prop,
 			m_prop = prop,
-			m_finalProp = prop,
-			m_probability = 100,
-			m_repeatDistance = 2F,
-			m_position = new Vector3(hasOtherDecos ? PropAngle() * Lane.LaneWidth / -2 : 0, 0.01F, 0)
-		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 2F });
+			m_tree = prop,
+			m_segmentOffset = prop.SegmentOffset,
+			m_probability = prop.Probability,
+			m_angle = PropAngle() * prop.Angle,
+			m_repeatDistance = prop.RepeatInterval,
+			m_position = PropPosition(prop) + new Vector3(hasOtherDecos ? PropAngle() * Lane.LaneWidth / -2 : 0, 0, 0)
+		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetFlowerPots()
 	{
 		var prop = GetProp(Prop.FlowerPot);
 
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
+
 		if (Lane.Decorations.HasFlag(LaneDecoration.Benches))
 		{
-			yield return new NetLaneProps.Prop
-			{
-				m_prop = prop,
-				m_finalProp = prop,
-				m_probability = 100,
-				m_angle = PropAngle() * 90,
-				m_repeatDistance = 15F,
-				m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.TrashBin) ? 2.75F : 2F)
-			}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
+			var bench = GetProp(Prop.Bench);
 
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = prop,
-				m_finalProp = prop,
-				m_probability = 100,
-				m_angle = PropAngle() * 90,
-				m_repeatDistance = 15F,
-				m_position = new Vector3(0, 0, -2F)
-			}.Extend(prop => new LaneProp(prop) { JunctionDistance = 15F });
+				m_tree = prop,
+				m_segmentOffset = bench.SegmentOffset,
+				m_probability = prop.Probability,
+				m_angle = PropAngle() * prop.Angle,
+				m_repeatDistance = bench.RepeatInterval,
+				m_position = new Vector3(0, 0, Lane.Decorations.HasFlag(LaneDecoration.TrashBin) ? 2.75F : 2F) + PropPosition(prop) + PropPosition(bench)
+			};
+
+			yield return new NetLaneProps.Prop
+			{
+				m_prop = prop,
+				m_tree = prop,
+				m_segmentOffset = bench.SegmentOffset,
+				m_probability = prop.Probability,
+				m_angle = PropAngle() * prop.Angle,
+				m_repeatDistance = bench.RepeatInterval,
+				m_position = new Vector3(0, 0, -2F) + PropPosition(prop) + PropPosition(bench)
+			};
 
 			yield break;
 		}
 
 		yield return new NetLaneProps.Prop
 		{
-			m_tree = prop,
-			m_finalTree = prop,
 			m_prop = prop,
-			m_finalProp = prop,
-			m_probability = 100,
-			m_angle = PropAngle() * 90,
-			m_repeatDistance = 5F,
-			m_position = new Vector3(0, 0, 0)
-		}.Extend(prop => new LaneProp(prop) { JunctionDistance = 5F });
+			m_tree = prop,
+			m_segmentOffset = prop.SegmentOffset,
+			m_probability = prop.Probability,
+			m_angle = PropAngle() * prop.Angle,
+			m_repeatDistance = prop.RepeatInterval,
+			m_position = PropPosition(prop)
+		};
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetFlowers()
 	{
 		var prop = GetProp(Prop.Flowers);
-		var numLines = Math.Max((int)Math.Ceiling(Lane.LaneWidth / 0.75) - 1, 1);
+
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
+
+		var numLines = Math.Max((int)Math.Ceiling(Lane.GetLaneWidth(true) / 0.75) - 1, 1);
 		var odd = numLines % 2 == 1;
 		var pos = numLines == 1 ? 0 : numLines * 0.75F * -0.5F;
+
+		if (Lane.Type is LaneType.Curb)
+		{
+			if (Lane.Direction is LaneDirection.Backwards)
+			{
+				pos += (Lane.LaneWidth - Lane.GetLaneWidth(true)) / 2;
+			}
+			else
+			{
+				pos -= (Lane.LaneWidth - Lane.GetLaneWidth(true)) / 2;
+			}
+		}
 
 		for (var i = 0; i < numLines; i++)
 		{
 			if (i > 0)
 			{
-				pos += (Lane.LaneWidth - 2) / (numLines - 1);
+				pos += (Lane.GetLaneWidth(true) - 2) / (numLines - 1);
 			}
 
 			yield return new NetLaneProps.Prop
 			{
-				m_tree = prop,
-				m_finalTree = prop,
 				m_prop = prop,
-				m_finalProp = prop,
-				m_probability = 85,
-				m_angle = ((float)_random.NextDouble() * 360) - 180,
-				m_repeatDistance = 1.25F,
-				m_position = new Vector3(pos, 0, (float)Math.Round(_random.NextDouble() * 3, 2))
+				m_tree = prop,
+				m_probability = prop.Probability,
+				m_angle = prop.IsTree ? (((float)_random.NextDouble() * 360) - 180) : (PropAngle() * prop.Angle),
+				m_repeatDistance = prop.RepeatInterval,
+				m_segmentOffset = prop.SegmentOffset,
+				m_position = new Vector3(pos, 0, (float)Math.Round(_random.NextDouble() * 3, 2)) + PropPosition(prop)
 			}.Extend(prop => new LaneProp(prop)
 			{
-				JunctionDistance = 2.5F,
 				VanillaSegmentFlags = new VanillaSegmentInfoFlags
 				{
 					Forbidden = Lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None
@@ -383,37 +397,56 @@ public partial class LanePropsUtil
 	public IEnumerable<NetLaneProps.Prop> GetGrassProps()
 	{
 		var prop = GetProp(Prop.Grass);
-		var numLines = Math.Max((int)Math.Ceiling(Lane.LaneWidth) - 1, 1);
+
+		if (prop is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
+
+		var numLines = Math.Max((int)Math.Ceiling(Lane.GetLaneWidth(true)) - 1.1F, 1);
 		var odd = numLines % 2 == 1;
-		var pos = numLines == 1 ? 0 : (1 - (Lane.LaneWidth / 2));
+		var pos = numLines == 1 ? 0 : (1.1F - (Lane.GetLaneWidth(true) / 2));
+		var transitStop = Lane.Decorations.HasFlag(LaneDecoration.TransitStop);
+		var imtMarkings = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings);
+		var hiddenMarkings = ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings);
+
+		if (Lane.Type is LaneType.Curb)
+		{
+			if (Lane.Direction is LaneDirection.Backwards)
+			{
+				pos += (Lane.LaneWidth - Lane.GetLaneWidth(true)) / 2;
+			}
+			else
+			{
+				pos -= (Lane.LaneWidth - Lane.GetLaneWidth(true)) / 2;
+			}
+		}
 
 		for (var i = 0; i < numLines; i++)
 		{
 			if (i > 0)
 			{
-				pos += (Lane.LaneWidth - 2) / (numLines - 1);
+				pos += (Lane.GetLaneWidth(true) - 2) / (numLines - 1);
 			}
 
 			yield return new NetLaneProps.Prop
 			{
-				m_tree = prop,
-				m_finalTree = prop,
 				m_prop = prop,
-				m_finalProp = prop,
-				m_probability = 100,
-				m_repeatDistance = 1.25F,
-				m_position = new Vector3(pos, -0.4F, 0)
+				m_tree = prop,
+				m_segmentOffset = prop.SegmentOffset,
+				m_probability = prop.Probability,
+				m_angle = prop.IsTree ? (((float)_random.NextDouble() * 360) - 180) : (PropAngle() * prop.Angle),
+				m_repeatDistance = prop.RepeatInterval,
+				m_position = PropPosition(prop) + new Vector3(pos, 0, 0)
 			}.Extend(prop => new LaneProp(prop)
 			{
-				JunctionDistance = 2.5F,
 				VanillaSegmentFlags = new VanillaSegmentInfoFlags
 				{
-					Forbidden = Lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None
+					Forbidden = transitStop ? NetSegment.Flags.StopAll : NetSegment.Flags.None
 				},
 				SegmentFlags = new SegmentInfoFlags
 				{
-					Required = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) && ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None,
-					Forbidden = !ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.MeshFillers, MarkingsSource.IMTMarkings) && !ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings) ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Required = !imtMarkings && hiddenMarkings ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None,
+					Forbidden = (!imtMarkings && !hiddenMarkings ? RoadUtils.Flags.S_RemoveMarkings : NetSegmentExt.Flags.None)
+											| (transitStop ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_ToggleGrassMedian),
 				}
 			});
 		}
@@ -421,46 +454,48 @@ public partial class LanePropsUtil
 
 	public IEnumerable<NetLaneProps.Prop> GetTrees()
 	{
-		if (ModOptions.GroundOnlyTrees && Elevation != ElevationType.Basic)
-			yield break;
-
 		var tree = GetProp(Prop.Tree);
 		var planter = GetProp(Prop.TreePlanter);
 		var hasOtherDecos = Lane.Decorations.HasAnyFlag(LaneDecoration.Benches, LaneDecoration.FlowerPots);
 
+		if (tree is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			yield break;
+
+		var transitStop = Lane.Decorations.HasFlag(LaneDecoration.TransitStop);
+
 		if (ModOptions.VanillaTreePlacement)
 		{
-			yield return getTree(2);
+			yield return getProp(2, tree);
 
 			if (planter != null && !Lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel))
-				yield return getPlanter(2);
+				yield return getProp(2, planter);
 
 			yield break;
 		}
 
-		for (var i = ModOptions.TreeRepeatDistance / 2; i <= 96; i += ModOptions.TreeRepeatDistance)
+		for (var i = tree.RepeatInterval / 2; i <= 96; i += tree.RepeatInterval)
 		{
-			var pos1 = i + (float)(ModOptions.RandomizeTreeDistance ? ((_random.NextDouble() * ModOptions.TreeRepeatDistance / 2) - (ModOptions.TreeRepeatDistance / 4)) : 0);
-			var pos2 = -i + (float)(ModOptions.RandomizeTreeDistance ? ((_random.NextDouble() * ModOptions.TreeRepeatDistance / 2) - (ModOptions.TreeRepeatDistance / 4)) : 0);
+			var pos1 = i + (float)(ModOptions.RandomizeTreeDistance ? ((_random.NextDouble() * tree.RepeatInterval / 2) - (tree.RepeatInterval / 4)) : 0);
+			var pos2 = -i + (float)(ModOptions.RandomizeTreeDistance ? ((_random.NextDouble() * tree.RepeatInterval / 2) - (tree.RepeatInterval / 4)) : 0);
 
-			yield return getTree(pos1);
-			yield return getTree(pos2);
+			yield return getProp(pos1, tree);
+			yield return getProp(pos2, tree);
 
 			if (planter != null && !Lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel))
 			{
-				yield return getPlanter(pos1);
-				yield return getPlanter(pos2);
+				yield return getProp(pos1, planter);
+				yield return getProp(pos2, planter);
 			}
 		}
 
-		NetLaneProps.Prop getTree(float position) => new NetLaneProps.Prop
+		NetLaneProps.Prop getProp(float position, PropTemplate prop) => new NetLaneProps.Prop
 		{
-			m_tree = tree,
-			m_finalTree = tree,
+			m_tree = prop,
+			m_prop = prop,
 			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
 			m_upgradable = true,
 			m_probability = 100,
-			m_repeatDistance = ModOptions.VanillaTreePlacement ? ModOptions.TreeRepeatDistance : 0,
+			m_repeatDistance = ModOptions.VanillaTreePlacement ? tree.RepeatInterval : 0,
 			m_position = new Vector3(hasOtherDecos ? PropAngle() * -Math.Min(1, Lane.LaneWidth / 2) : 0, 0, position)
 		}.Extend(prop => new LaneProp(prop)
 		{
@@ -471,29 +506,15 @@ public partial class LanePropsUtil
 			LaneFlags = new LaneInfoFlags
 			{ Forbidden = RoadUtils.Flags.L_RemoveTrees },
 			VanillaSegmentFlags = new VanillaSegmentInfoFlags
-			{ Forbidden = Lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None }
+			{ Forbidden = transitStop ? NetSegment.Flags.StopAll : NetSegment.Flags.None },
+			SegmentFlags = new SegmentInfoFlags 
+			{ Forbidden = transitStop ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_ToggleGrassMedian }
 		});
+	}
 
-		NetLaneProps.Prop getPlanter(float position) => new NetLaneProps.Prop
-		{
-			m_prop = planter,
-			m_finalProp = planter,
-			m_minLength = ModOptions.VanillaTreePlacement ? 10 : (Math.Abs(position) * 1.95F),
-			m_upgradable = true,
-			m_probability = 100,
-			m_repeatDistance = ModOptions.VanillaTreePlacement ? ModOptions.TreeRepeatDistance : 0,
-			m_position = new Vector3((hasOtherDecos ? PropAngle() * -Math.Min(1, Lane.LaneWidth / 2) : 0) + (PropAngle() * 0.01F), 0, position)
-		}.Extend(prop => new LaneProp(prop)
-		{
-			EndNodeFlags = new NodeInfoFlags
-			{ Forbidden = position > 0 && Lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.Flags.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
-			StartNodeFlags = new NodeInfoFlags
-			{ Forbidden = position < 0 && Lane.Tags.HasFlag(LaneTag.Asphalt) && !ModOptions.VanillaTreePlacement ? RoadUtils.Flags.N_HideTreesCloseToIntersection : NetNodeExt.Flags.None },
-			LaneFlags = new LaneInfoFlags
-			{ Forbidden = RoadUtils.Flags.L_RemoveTrees },
-			VanillaSegmentFlags = new VanillaSegmentInfoFlags
-			{ Forbidden = Lane.Decorations.HasFlag(LaneDecoration.TransitStop) ? NetSegment.Flags.StopAll : NetSegment.Flags.None }
-		});
+	private Vector3 PropPosition(PropTemplate prop, int multiplier = 0)
+	{
+		return new Vector3(prop.Position.x * (multiplier == 0 ? PropAngle() : multiplier), prop.Position.y, prop.Position.z);
 	}
 
 	private int PropAngle()

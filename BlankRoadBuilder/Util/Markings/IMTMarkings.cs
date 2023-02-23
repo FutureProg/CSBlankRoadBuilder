@@ -18,17 +18,26 @@ public class IMTMarkings
 {
 	public void ApplyMarkings(ushort segmentId)
 	{
-		if (!ModOptions.MarkingsGenerated.HasFlag(Domain.MarkingsSource.IMTMarkings))
+		if (!ToolsModifierControl.isAssetEditor
+			|| !NetUtil.IsSegmentValid(segmentId)
+			|| !ModOptions.MarkingsGenerated.HasFlag(Domain.MarkingsSource.IMTMarkings))
 		{
 			return;
 		}
 
-		if (!NetUtil.IsSegmentValid(segmentId) || RoadBuilderUtil.CurrentRoad == null || !(ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo net && net.GetElevations().Any(x => x.Value == segmentId.GetSegment().Info)))
+		var roadInfo = RoadBuilderUtil.GetRoad(segmentId.GetSegment().Info);
+
+		if (roadInfo == null)
 		{
 			return;
 		}
 
-		var markings = MarkingsUtil.GenerateMarkings(RoadBuilderUtil.CurrentRoad);
+		foreach (var item in roadInfo.Lanes)
+		{
+			Debug.LogError($"{item}    LEFT:{item.LeftLane}    RIGHT:{item.RightLane}");
+		}
+
+		var markings = MarkingsUtil.GenerateMarkings(roadInfo);
 		var provider = Helper.GetProvider(nameof(BlankRoadBuilder));
 		var markup = provider?.GetOrCreateSegmentMarking(segmentId);
 
@@ -68,13 +77,13 @@ public class IMTMarkings
 
 		if (!pointsA.ContainsKey(item.LeftPoint.X) || !pointsB.ContainsKey(item.LeftPoint.X))
 		{
-			Debug.LogError("Point Not Found: " + item.LeftPoint.X);
+			Debug.LogError($"Left Point Not Found: {item.LeftPoint.X} for lanes: {string.Join(", ", item.Lanes.Select(x => x.ToString()).ToArray())}");
 			return;
 		}
 
 		if (!pointsA.ContainsKey(item.RightPoint.X) || !pointsB.ContainsKey(item.RightPoint.X))
 		{
-			Debug.LogError("Point Not Found: " + item.RightPoint.X);
+			Debug.LogError($"Right Point Not Found: {item.RightPoint.X} for lanes: {string.Join(", ", item.Lanes.Select(x => x.ToString()).ToArray())}");
 			return;
 		}
 
@@ -82,6 +91,13 @@ public class IMTMarkings
 
 		if (style == null)
 			return;
+
+		if (ModOptions.DamagedImtMarkings && style is IEffectStyleData effectStyle)
+		{
+			effectStyle.Texture = 0.25F;
+			effectStyle.Cracks = new(0.1F, 1F);
+			effectStyle.Voids = new(0.5F, 0.25F);
+		}
 
 		if (item.Type == LaneDecoration.Filler && item.IMT_Info?.MarkingStyle != Domain.MarkingFillerType.Filled && style is IGuidedFillerStyleData guidedFiller)
 		{
@@ -216,7 +232,7 @@ public class IMTMarkings
 	{
 		if (!pointsA.ContainsKey(item.Point.X) || !pointsB.ContainsKey(item.Point.X))
 		{
-			Debug.LogError("Point Not Found: " + item.Point.X);
+			Debug.LogError($"Point Not Found: {item.Point.X} for lanes: {item.Point.LeftLane}, {item.Point.RightLane}");
 			return;
 		}
 
@@ -225,6 +241,13 @@ public class IMTMarkings
 		if (style == null)
 		{
 			return;
+		}
+
+		if (ModOptions.DamagedImtMarkings && style is IEffectStyleData effectStyle)
+		{
+			effectStyle.Texture = 0.25F;
+			effectStyle.Cracks = new(0.15F, 0.75F);
+			effectStyle.Voids = new(0.75F, 0.15F);
 		}
 
 		markup.AddRegularLine(pointsA[item.Point.X], pointsB[item.Point.X], style);

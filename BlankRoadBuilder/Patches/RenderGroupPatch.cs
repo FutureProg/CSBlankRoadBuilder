@@ -11,7 +11,7 @@ public class RenderGroupPatch_UpdateMeshData
 {
 	public static bool Prefix()
 	{
-		return ToolsModifierControl.isAssetEditor || !RoadBuilderUtil.IsBuilding;
+		return !ToolsModifierControl.isAssetEditor || !RoadBuilderUtil.IsBuilding;
 	}
 }
 
@@ -20,6 +20,15 @@ public class NetToolPatch_SimulationStep
 {
 	public static bool Prefix()
 	{
-		return ToolsModifierControl.isAssetEditor || !RoadBuilderUtil.IsBuilding;
+		return !ToolsModifierControl.isAssetEditor || !RoadBuilderUtil.IsBuilding;
+	}
+}
+
+[HarmonyPatch(typeof(ToolManager), "SimulationStepImpl", new Type[] { typeof(int) })]
+public class ToolManagerPatch_SimulationStepImpl
+{
+	public static bool Prefix()
+	{
+		return !ToolsModifierControl.isAssetEditor || !RoadBuilderUtil.IsBuilding;
 	}
 }

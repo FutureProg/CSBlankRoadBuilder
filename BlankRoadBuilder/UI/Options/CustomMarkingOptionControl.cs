@@ -1,6 +1,4 @@
-﻿using AlgernonCommons.UI;
-
-using BlankRoadBuilder.Util;
+﻿using BlankRoadBuilder.Util;
 
 using ColossalFramework.UI;
 
@@ -30,7 +28,7 @@ internal abstract class CustomMarkingOptionControl<DropDown, EnumType> : UISprit
 	protected void Init(string title, string description, Color32 color, EnumType value, float lineWidth, float dashWidth, float dashSpace)
 	{
 		size = new Vector2(355, 155);
-		atlas = ResourceUtil.GetAtlas("MarkingOptionBack.png");
+		atlas = ResourceUtil.GetAtlas("MarkingOptionBack.png", border: 5);
 		spriteName = "normal";
 
 		titleLabel = AddUIComponent<UILabel>();
@@ -49,14 +47,14 @@ internal abstract class CustomMarkingOptionControl<DropDown, EnumType> : UISprit
 		descLabel.autoSize = false;
 		descLabel.autoHeight = false;
 		descLabel.textAlignment = UIHorizontalAlignment.Right;
-		descLabel.relativePosition = new Vector2(width - (3 * Margin) - 140, 27 + (3 * Margin));
+		descLabel.relativePosition = new Vector2(width - (3 * Margin) - 140, 22 + (3 * Margin));
 
 		var undoButton = AddUIComponent<SlickButton>();
-		undoButton.size = new Vector2(30, 30);
+		undoButton.size = new Vector2(22, 22);
 		undoButton.SetIcon("I_Undo.png");
 		undoButton.text = " ";
 		undoButton.tooltip = "Reset this marking option";
-		undoButton.relativePosition = new Vector2(width - 30 - Margin, Margin);
+		undoButton.relativePosition = new Vector2(width - 22 - 6, 6);
 		undoButton.eventClick += UndoButton_eventClick;
 
 		dropDown = AddUIComponent<DropDown>();
@@ -128,6 +126,8 @@ internal abstract class CustomMarkingOptionControl<DropDown, EnumType> : UISprit
 		lineWidthTB.SetDefaultStyle();
 		dashWidthTB.SetDefaultStyle();
 		dashSpaceTB.SetDefaultStyle();
+		rTB.color = gTB.color = bTB.color = aTB.color = lineWidthTB.color = dashWidthTB.color = dashSpaceTB.color
+			= new Color32(162, 168, 178, 255);
 
 		rTB.OnValueChanged += SetColorR;
 		gTB.OnValueChanged += SetColorG;

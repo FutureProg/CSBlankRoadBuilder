@@ -1,5 +1,4 @@
-﻿
-using BlankRoadBuilder.Domain;
+﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 
@@ -169,10 +168,9 @@ public static class ThumbnailMakerUtil
 	{
 		return laneType switch
 		{
-			LaneType.Car or LaneType.Bike or LaneType.Tram or LaneType.Emergency or LaneType.Trolley => NetInfo.LaneType.Vehicle,
+			LaneType.Car or LaneType.Bike or LaneType.Tram or LaneType.Bus or LaneType.Emergency or LaneType.Trolley => NetInfo.LaneType.Vehicle,
 			LaneType.Parking => NetInfo.LaneType.Parking,
 			LaneType.Pedestrian => NetInfo.LaneType.Pedestrian,
-			LaneType.Bus => NetInfo.LaneType.TransportVehicle,
 			_ => NetInfo.LaneType.None,
 		};
 	}
@@ -196,9 +194,12 @@ public static class ThumbnailMakerUtil
 			};
 	}
 
-	public static VehicleInfo.VehicleType GetStopType(LaneType type, LaneInfo lane, RoadInfo road, out bool? forward)
+	public static VehicleInfo.VehicleType GetStopType(LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation, out LaneDirection stoppableDirection)
 	{
-		forward = null;
+		stoppableDirection = LaneDirection.None;
+
+		if (elevation != ElevationType.Basic && ModOptions.GroundOnlyStops)
+			return VehicleInfo.VehicleType.None;
 
 		switch (type)
 		{
@@ -219,55 +220,49 @@ public static class ThumbnailMakerUtil
 				return VehicleInfo.VehicleType.None;
 		}
 
-		if (lane.Tags.HasFlag(LaneTag.Sidewalk))
+		var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram;
+		var validLanes = road.Lanes.Where(l =>
 		{
-			forward = lane.Position > 0;
+			if ((l.Type & stoppableVehicleLanes) == 0)
+				return false;
 
-			//if (forward == true && (road.Options?.DisableRightSidewalkStop ?? false))
-			//	forward = null;
+			var distance = Math.Abs(l.Position - lane.Position) - ((lane.LaneWidth + l.LaneWidth) / 2);
 
-			//if (forward == false && (road.Options?.DisableLeftSidewalkStop ?? false))
-			//	forward = null;
-		}
-		else if (lane.Tags.HasFlag(LaneTag.StoppableVehicleOnLeft))
-		{
-			if (lane.Tags.HasFlag(LaneTag.StoppableVehicleOnRight))
+			if (l.Type.HasAnyFlag(LaneType.Car, LaneType.Bus))
 			{
-				if (lane.LeftLane?.Direction != LaneDirection.Backwards)
+				var lanesBetween = road.Lanes.Where(x => x.Position.IsWithin(l.Position, lane.Position) && x.Type is LaneType.Parking or LaneType.Empty);
+				
+				foreach (var item in lanesBetween)
 				{
-					forward = true;
-				}
-				else if (lane.RightLane?.Direction != LaneDirection.Forward)
-				{
-					forward = false;
+					distance -= item.LaneWidth;
 				}
 			}
-			else
-			{
-				forward = true;
-			}
-		}
-		else if (lane.Tags.HasFlag(LaneTag.StoppableVehicleOnRight))
-		{
-			forward = false;
-		}
 
-		if (forward == null)
+			return distance <= ModOptions.MaximumStopDistance;
+		});
+
+		var validTypes = validLanes.Aggregate(LaneType.Empty, (s, l) => s | (l.Type & stoppableVehicleLanes));
+
+		if (validTypes == LaneType.Empty)
 		{
 			return VehicleInfo.VehicleType.None;
 		}
 
-		var stopType = VehicleInfo.VehicleType.Car;
+		stoppableDirection =
+			validLanes.Any(x => x.Direction == LaneDirection.Both) || (validLanes.Any(x => x.Direction == LaneDirection.Backwards) && validLanes.Any(x => x.Direction == LaneDirection.Forward)) ? LaneDirection.Both :
+			validLanes.Any(x => x.Direction == LaneDirection.Backwards) ? LaneDirection.Backwards :
+			validLanes.Any(x => x.Direction == LaneDirection.Forward) ? LaneDirection.Forward : LaneDirection.None;
 
-		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Trolley)))
-		{
+		var stopType = VehicleInfo.VehicleType.None;
+
+		if (validTypes.HasFlag(LaneType.Trolley))
 			stopType |= VehicleInfo.VehicleType.Trolleybus;
-		}
 
-		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Tram)))
-		{
+		if (validTypes.HasFlag(LaneType.Tram))
 			stopType |= VehicleInfo.VehicleType.Tram;
-		}
+
+		if (validTypes.HasAnyFlag(LaneType.Bus, LaneType.Car, LaneType.Parking))
+			stopType |= VehicleInfo.VehicleType.Car;
 
 		return stopType;
 	}
@@ -300,27 +295,27 @@ public static class ThumbnailMakerUtil
 		return 0F;
 	}
 
-	public static float GetLanePosition(LaneType type, LaneInfo lane, RoadInfo road)
+	public static float GetLanePosition(LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
 	{
 		if (type != LaneType.Pedestrian || !lane.Tags.HasFlag(LaneTag.Asphalt))
 		{
 			return lane.Position;
 		}
 
-		var stopType = GetStopType(type, lane, road, out var forward);
+		var stopType = GetStopType(type, lane, road, elevation, out var stopDirection);
 
-		if (stopType != VehicleInfo.VehicleType.None && forward != null)
+		if (stopType != VehicleInfo.VehicleType.None && stopDirection is LaneDirection.Forward or LaneDirection.Backwards)
 		{
-			var stoppingLane = (bool)forward ? lane.LeftLane : lane.RightLane;
+			var stoppingLane = stopDirection is LaneDirection.Forward ? lane.LeftLane : lane.RightLane;
 
 			if (stoppingLane?.Type.HasFlag(LaneType.Bus) ?? false)
 			{
-				return (float)Math.Round(lane.Position + ((bool)forward ? -0.3F : 0.3F), 3);
+				return (float)Math.Round(lane.Position + (stopDirection is LaneDirection.Forward ? -0.3F : 0.3F), 3);
 			}
 
 			if (stoppingLane?.Type.HasFlag(LaneType.Car) ?? false)
 			{
-				return (float)Math.Round(lane.Position + ((bool)forward ? -0.1F : 0.1F), 3);
+				return (float)Math.Round(lane.Position + (stopDirection is LaneDirection.Forward ? -0.1F : 0.1F), 3);
 			}
 		}
 
@@ -396,16 +391,16 @@ public static class ThumbnailMakerUtil
 
 	public static VehicleInfo.VehicleCategoryPart1 GetVehicleCategory1(LaneType laneType)
 	{
-		return laneType == LaneType.Bus
-			? VehicleInfo.VehicleCategoryPart1.Bus
-			: laneType == LaneType.Emergency ? VehicleInfo.VehicleCategoryPart1.None : VehicleInfo.VehicleCategoryPart1.All;
+		return (laneType is LaneType.Bus && !ModOptions.AllowAllVehiclesOnBusLanes)
+			? VehicleInfo.VehicleCategoryPart1.Bus | VehicleInfo.VehicleCategoryPart1.Taxi
+			: laneType is LaneType.Emergency ? VehicleInfo.VehicleCategoryPart1.None : VehicleInfo.VehicleCategoryPart1.All;
 	}
 
 	public static VehicleInfo.VehicleCategoryPart2 GetVehicleCategory2(LaneType laneType)
 	{
-		return laneType == LaneType.Emergency
+		return laneType is LaneType.Emergency || (laneType is LaneType.Bus && !ModOptions.AllowAllVehiclesOnBusLanes)
 			? VehicleInfo.VehicleCategoryPart2.Ambulance | VehicleInfo.VehicleCategoryPart2.Police | VehicleInfo.VehicleCategoryPart2.FireTruck
-			: laneType == LaneType.Bus ? VehicleInfo.VehicleCategoryPart2.None : VehicleInfo.VehicleCategoryPart2.All;
+			: VehicleInfo.VehicleCategoryPart2.All;
 	}
 
 	public static float GetLaneCost(LaneType laneType)
@@ -441,6 +436,11 @@ public static class ThumbnailMakerUtil
 		if (road?.Lanes == null)
 		{
 			yield break;
+		}
+
+		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Parking)))
+		{
+			yield return "Parking";
 		}
 
 		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Tram)))
@@ -508,5 +508,22 @@ public static class ThumbnailMakerUtil
 		}
 
 		return (float)Math.Round(totalWidth, 2);
+	}
+
+	public static int LaneTypeImportance(LaneType type)
+	{
+		return type switch
+		{
+			LaneType.Train => 21,
+			LaneType.Tram => 20,
+			LaneType.Emergency => 19,
+			LaneType.Trolley => 18,
+			LaneType.Bus => 17,
+			LaneType.Bike => 16,
+			LaneType.Car => 15,
+			LaneType.Parking => 14,
+			LaneType.Pedestrian => 13,
+			_ => 0,
+		};
 	}
 }

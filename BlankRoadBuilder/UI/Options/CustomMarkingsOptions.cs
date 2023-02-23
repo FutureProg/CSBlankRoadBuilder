@@ -1,6 +1,4 @@
-﻿using AlgernonCommons.UI;
-
-using ColossalFramework.UI;
+﻿using ColossalFramework.UI;
 
 namespace BlankRoadBuilder.UI.Options;
 internal class IMTOptionsPanel : OptionsPanelBase

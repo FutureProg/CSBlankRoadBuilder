@@ -1,6 +1,4 @@
-﻿using AlgernonCommons;
-
-using BlankRoadBuilder.Util;
+﻿using BlankRoadBuilder.Util;
 
 using ColossalFramework;
 using ColossalFramework.UI;
@@ -125,7 +123,7 @@ public class EditorPanel : UIPanel
 		}
 		catch (Exception exception)
 		{
-			Logging.LogException(exception, "exception creating standalone panel of type ", typeof(TerrainPanel).Name);
+			UnityEngine.Debug.LogException(exception);
 		}
 	}
 

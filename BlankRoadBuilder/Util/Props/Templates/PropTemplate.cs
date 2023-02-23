@@ -1,19 +1,22 @@
-﻿namespace BlankRoadBuilder.Util.Props.Templates;
+﻿using UnityEngine;
+namespace BlankRoadBuilder.Util.Props.Templates;
 
 public class PropTemplate
 {
 	public virtual PropCategory Category { get; }
 	public string PropName { get; set; }
-	public bool IsTree { get; set; }
-	public bool IsBuilding { get; set; }
+	public bool IsTree { get; protected set; }
+	public bool IsBuilding { get; protected set; }
 
 	public float Angle { get; protected set; }
+	public float RepeatInterval { get; protected set; }
+	public float SegmentOffset { get; protected set; }
+	public int Probability { get; protected set; } = 100;
+	public Vector3 Position { get; protected set; }
 
-	public PropTemplate(string propName, bool isTree = false, bool isBuilding = false)
+	public PropTemplate(string propName)
 	{
 		PropName = propName;
-		IsTree = isTree;
-		IsBuilding = isBuilding;
 	}
 
 	public static implicit operator PropInfo?(PropTemplate prop)

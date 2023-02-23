@@ -39,6 +39,7 @@ public class FillerMarking
 			}
 		}
 	}
+	public float SurfaceElevation => Lanes.Min(x => x.SurfaceElevation);
 
 	private MarkingStyleUtil.FillerInfo? GetHelperInfo()
 	{
@@ -49,6 +50,16 @@ public class FillerMarking
 		};
 	}
 
-	public MarkingStyleUtil.FillerInfo? AN_Info => Helper ? GetHelperInfo() : MarkingStyleUtil.GetFillerMarkingInfo(Lanes.First().Type, MarkingType.AN);
-	public MarkingStyleUtil.FillerInfo? IMT_Info => MarkingStyleUtil.GetFillerMarkingInfo(Lanes.First().Type, MarkingType.IMT);
+	public MarkingStyleUtil.FillerInfo? AN_Info => Helper ? GetHelperInfo() : MarkingStyleUtil.GetFillerMarkingInfo(GetFillerLaneType(), MarkingType.AN);
+	public MarkingStyleUtil.FillerInfo? IMT_Info => MarkingStyleUtil.GetFillerMarkingInfo(GetFillerLaneType(), MarkingType.IMT);
+
+	private LaneType GetFillerLaneType()
+	{
+		return Lanes
+			.First()
+			.Type
+			.GetValues()
+			.OrderByDescending(ThumbnailMakerUtil.LaneTypeImportance)
+			.FirstOrDefault();
+	}
 }

@@ -68,4 +68,18 @@ public class CustomCheckbox : UICheckBox
 	{
 		_backgroundSprite.isVisible = !value;
 	}
+
+	protected override void OnMouseEnter(UIMouseEventParameter p)
+	{
+		base.OnMouseEnter(p);
+
+		color = new Color32(220, 220, 220, 255);
+	}
+
+	protected override void OnMouseLeave(UIMouseEventParameter p)
+	{
+		base.OnMouseLeave(p);
+
+		color = Color.white;
+	}
 }

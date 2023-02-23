@@ -40,30 +40,30 @@ internal class ResourceUtil
 
 	internal static UITextureAtlas? GetAtlas(string name, UITextureAtlas.SpriteInfo[] sprites)
 	{
-		return GetAtlas(name, null, sprites);
+		return GetAtlas(name, null, sprites: sprites);
 	}
 
-	internal static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal")
+	internal static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal", int border = 0)
 	{
-		return GetAtlas(name, spriteName, null);
+		return GetAtlas(name, spriteName, border, null);
 	}
 
-	private static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal", UITextureAtlas.SpriteInfo[]? sprites = null)
+	private static UITextureAtlas? GetAtlas(string name, string? spriteName = "normal", int border = 0, UITextureAtlas.SpriteInfo[]? sprites = null)
 	{
-		return GetAtlas(GetImage(name)?.CreateTexture(), spriteName, sprites);
+		return GetAtlas(GetImage(name)?.CreateTexture(), spriteName, border, sprites);
 	}
 
 	internal static UITextureAtlas? GetAtlas(Texture2D? texture2D, UITextureAtlas.SpriteInfo[] sprites)
 	{
-		return GetAtlas(texture2D, null, sprites);
+		return GetAtlas(texture2D, null, 0, sprites);
 	}
 
-	internal static UITextureAtlas? GetAtlas(Texture2D? texture2D, string? spriteName = "normal")
+	internal static UITextureAtlas? GetAtlas(Texture2D? texture2D, string? spriteName = "normal", int border = 0)
 	{
-		return GetAtlas(texture2D, spriteName, null);
+		return GetAtlas(texture2D, spriteName, border, null);
 	}
 
-	private static UITextureAtlas? GetAtlas(Texture2D? texture2D, string? spriteName = "normal", UITextureAtlas.SpriteInfo[]? sprites = null)
+	private static UITextureAtlas? GetAtlas(Texture2D? texture2D, string? spriteName = "normal", int border = 0, UITextureAtlas.SpriteInfo[]? sprites = null)
 	{
 		if (texture2D == null)
 			return null;
@@ -72,6 +72,7 @@ internal class ResourceUtil
 		uITextureAtlas.name = Guid.NewGuid().ToString();
 		uITextureAtlas.material = UnityEngine.Object.Instantiate(UIView.GetAView().defaultAtlas.material);
 		uITextureAtlas.material.mainTexture = texture2D;
+		uITextureAtlas.padding = border;
 
 		if (sprites != null)
 		{
@@ -83,7 +84,8 @@ internal class ResourceUtil
 			{
 				name = spriteName,
 				texture = texture2D,
-				region = new Rect(0f, 0f, 1f, 1f)
+				border = new(border, border, border, border),
+				region = new(0f, 0f, 1f, 1f)
 			});
 		}
 
