@@ -1,5 +1,7 @@
 ﻿using BlankRoadBuilder.Util;
 
+using ColossalFramework.UI;
+
 using ModsCommon.UI;
 
 using System;
@@ -21,11 +23,25 @@ public class EnumDropDown<EnumType> : CustomUIDropDown<EnumType> where EnumType 
 	}
 }
 
-public class OptionDropDown : CustomUIDropDown<string>
+public class GenericDropDown : CustomUIDropDown<string>
 {
-	public OptionDropDown() : base(new Vector2(360, 28))
+	public GenericDropDown() : base(new Vector2(360, 28))
 	{
 		textScale = 0.9F;
+	}
+}
+
+public class SmallGenericDropDown : CustomUIDropDown<string>
+{
+	public SmallGenericDropDown() : base(new Vector2(170, 22))
+	{
+		textScale = 0.7F;
+		textFieldPadding = itemPadding = new RectOffset(10, 10, 4, 0);
+	}
+
+	protected override Vector2 GetForegroundRenderSize(UITextureAtlas.SpriteInfo spriteInfo)
+	{
+		return new Vector2(16, 16);
 	}
 }
 
@@ -42,8 +58,7 @@ public class CustomUIDropDown<ValueType> : UIDropDown<ValueType>
 		listHeight = (int)height * 10;
 		itemHeight = (int)height;
 		clampListToScreen = true;
-		textFieldPadding =
-		itemPadding = new RectOffset(10, 10, 7, 0);
+		textFieldPadding = itemPadding = new RectOffset(10, 10, 7, 0);
 		color = Color.white;
 		hoveredBgColor = new Color32(200, 200, 200, 255);
 		normalFgColor = new Color32(60, 60, 60, 255);
@@ -62,11 +77,12 @@ public class CustomUIDropDown<ValueType> : UIDropDown<ValueType>
 
 	public void UseWhiteStyle()
 	{
-		normalFgColor = new Color32(100, 100, 100, 255);
-		hoveredFgColor = new Color32(80, 80, 80, 255);
-		focusedFgColor = new Color32(100, 100, 100, 255);
-		pressedFgColor = new Color32(80, 80, 80, 255);
+		normalFgColor = focusedFgColor = new Color32(178, 192, 202, 255);
+		hoveredFgColor = pressedFgColor = new Color32(155, 164, 170, 255);
 		textColor = Color.white;
 		popupTextColor = Color.white;
+		popupColor = color = new Color32(162, 168, 178, 255);
+		focusedBgColor = new Color32(162, 168, 178, 255);
+		hoveredBgColor = new Color32(179, 188, 203, 255);
 	}
 }

@@ -3,6 +3,8 @@ using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Props.Templates;
 
+using System;
+
 namespace BlankRoadBuilder.Util;
 public class TrafficLightsUtil
 {
@@ -13,7 +15,8 @@ public class TrafficLightsUtil
 			if (lane.Type != LaneType.Curb && !lane.Tags.HasFlag(LaneTag.Asphalt))
 				continue;
 
-			var minimumSpace = lane.Type == LaneType.Curb ? 0.24F : 3F;
+			var minimumSpace = Math.Min(lane.Type == LaneType.Curb ? 0.24F : 24, ModOptions.MinimumDistanceForPedLight);
+
 			var tl = new TrafficLight
 			{
 				LeftForwardSpace = GetDrivableArea(lane, true, true),

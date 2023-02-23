@@ -1,10 +1,6 @@
-﻿using AlgernonCommons.UI;
-
-using ColossalFramework.UI;
+﻿using ColossalFramework.UI;
 
 using ModsCommon;
-
-using System.IO;
 
 using UnityEngine;
 
@@ -29,11 +25,5 @@ public class UIManager : MonoBehaviour
 		gameObject.transform.parent = UIView.GetAView().transform;
 		currentPanel = gameObject.AddComponent<EditorPanel>();
 		SingletonMod<BlankRoadBuilderMod>.Instance.ShowWhatsNew();
-	}
-
-	public static UITextureAtlas GetIcon(string icon)
-	{
-		return UITextures.LoadSprite(Path.Combine(Path.Combine(BlankRoadBuilderMod.ModFolder, "Icons"), icon));
-		;
 	}
 }

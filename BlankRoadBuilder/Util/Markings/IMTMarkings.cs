@@ -16,27 +16,36 @@ using UnityEngine;
 namespace BlankRoadBuilder.Util.Markings;
 public class IMTMarkings
 {
-	private IDataProviderV1 Provider { get; }
-
-	public IMTMarkings()
-	{
-		Provider = Helper.GetProvider(nameof(BlankRoadBuilder));
-	}
-
 	public void ApplyMarkings(ushort segmentId)
 	{
-		if (!ModOptions.MarkingsGenerated.HasFlag(Domain.MarkingsSource.IMTMarkings))
+		if (!ToolsModifierControl.isAssetEditor
+			|| !NetUtil.IsSegmentValid(segmentId)
+			|| !ModOptions.MarkingsGenerated.HasFlag(Domain.MarkingsSource.IMTMarkings))
 		{
 			return;
 		}
 
-		if (!NetUtil.IsSegmentValid(segmentId) || RoadBuilderUtil.CurrentRoad == null || !(ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo net && net.GetElevations().Any(x => x.Value == segmentId.GetSegment().Info)))
+		var roadInfo = RoadBuilderUtil.GetRoad(segmentId.GetSegment().Info);
+
+		if (roadInfo == null)
 		{
 			return;
 		}
 
-		var markings = MarkingsUtil.GenerateMarkings(RoadBuilderUtil.CurrentRoad);
-		var markup = Provider.GetOrCreateSegmentMarking(segmentId);
+		foreach (var item in roadInfo.Lanes)
+		{
+			Debug.LogError($"{item}    LEFT:{item.LeftLane}    RIGHT:{item.RightLane}");
+		}
+
+		var markings = MarkingsUtil.GenerateMarkings(roadInfo);
+		var provider = Helper.GetProvider(nameof(BlankRoadBuilder));
+		var markup = provider?.GetOrCreateSegmentMarking(segmentId);
+
+		if (markup == null || markings == null)
+		{
+			Debug.LogError(provider == null ? "IMT provider is missing" : "Failed to get the Markup information");
+			return;
+		}
 
 		markup.ClearMarkings();
 		markup.ResetPointOffsets();
@@ -68,13 +77,13 @@ public class IMTMarkings
 
 		if (!pointsA.ContainsKey(item.LeftPoint.X) || !pointsB.ContainsKey(item.LeftPoint.X))
 		{
-			Debug.LogError("Point Not Found: " + item.LeftPoint.X);
+			Debug.LogError($"Left Point Not Found: {item.LeftPoint.X} for lanes: {string.Join(", ", item.Lanes.Select(x => x.ToString()).ToArray())}");
 			return;
 		}
 
 		if (!pointsA.ContainsKey(item.RightPoint.X) || !pointsB.ContainsKey(item.RightPoint.X))
 		{
-			Debug.LogError("Point Not Found: " + item.RightPoint.X);
+			Debug.LogError($"Right Point Not Found: {item.RightPoint.X} for lanes: {string.Join(", ", item.Lanes.Select(x => x.ToString()).ToArray())}");
 			return;
 		}
 
@@ -82,6 +91,13 @@ public class IMTMarkings
 
 		if (style == null)
 			return;
+
+		if (ModOptions.DamagedImtMarkings && style is IEffectStyleData effectStyle)
+		{
+			effectStyle.Texture = 0.25F;
+			effectStyle.Cracks = new(0.1F, 1F);
+			effectStyle.Voids = new(0.5F, 0.25F);
+		}
 
 		if (item.Type == LaneDecoration.Filler && item.IMT_Info?.MarkingStyle != Domain.MarkingFillerType.Filled && style is IGuidedFillerStyleData guidedFiller)
 		{
@@ -104,6 +120,8 @@ public class IMTMarkings
 
 	private IFillerStyleData? GenerateFillerStyle(FillerMarking item)
 	{
+		var provider = Helper.GetProvider(nameof(BlankRoadBuilder))!;
+
 		if (item.Type is LaneDecoration.Filler)
 		{
 			var info = item.IMT_Info;
@@ -116,14 +134,14 @@ public class IMTMarkings
 			switch (info.MarkingStyle)
 			{
 				case Domain.MarkingFillerType.Filled:
-					var solidFiller = Provider.SolidFillerStyle;
+					var solidFiller = provider.SolidFillerStyle;
 
 					solidFiller.Color = info.Color;
 
 					return solidFiller;
 
 				case Domain.MarkingFillerType.Dashed:
-					var dashedFiller = Provider.StripeFillerStyle;
+					var dashedFiller = provider.StripeFillerStyle;
 
 					dashedFiller.Color = info.Color;
 					dashedFiller.Width = info.DashLength;
@@ -133,7 +151,7 @@ public class IMTMarkings
 					return dashedFiller;
 
 				case Domain.MarkingFillerType.Striped:
-					var stripeFiller = Provider.StripeFillerStyle;
+					var stripeFiller = provider.StripeFillerStyle;
 
 					stripeFiller.Color = info.Color;
 					stripeFiller.Width = info.DashLength;
@@ -144,7 +162,7 @@ public class IMTMarkings
 					return stripeFiller;
 
 				case Domain.MarkingFillerType.Arrows:
-					var arrowFiller = Provider.ChevronFillerStyle;
+					var arrowFiller = provider.ChevronFillerStyle;
 
 					arrowFiller.Color = info.Color;
 					arrowFiller.Width = info.DashLength;
@@ -172,20 +190,20 @@ public class IMTMarkings
 		switch (item.Type)
 		{
 			case LaneDecoration.Grass:
-				var grass = Provider.GrassFillerStyle;
+				var grass = provider.GrassFillerStyle;
 				grass.Elevation = getElevation() + 0.01F;
 				grass.LineOffset = leftPadded || rightPadded ? 0F : 0.2F;
 				grass.CurbSize = 0.3F;
 				return grass;
 
 			case LaneDecoration.Pavement:
-				var pavement = Provider.PavementFillerStyle;
+				var pavement = provider.PavementFillerStyle;
 				pavement.Elevation = getElevation() + 0.01F;
 				pavement.LineOffset = leftPadded || rightPadded ? 0F : 0.2F;
 				return pavement;
 
 			case LaneDecoration.Gravel:
-				var gravel = Provider.GravelFillerStyle;
+				var gravel = provider.GravelFillerStyle;
 				gravel.Elevation = getElevation() + 0.01F;
 				gravel.LineOffset = leftPadded || rightPadded ? 0F : 0.2F;
 				gravel.CurbSize = item.Elevation == item.Lanes.Min(x => x.SurfaceElevation) ? 0F : 0.3F;
@@ -214,7 +232,7 @@ public class IMTMarkings
 	{
 		if (!pointsA.ContainsKey(item.Point.X) || !pointsB.ContainsKey(item.Point.X))
 		{
-			Debug.LogError("Point Not Found: " + item.Point.X);
+			Debug.LogError($"Point Not Found: {item.Point.X} for lanes: {item.Point.LeftLane}, {item.Point.RightLane}");
 			return;
 		}
 
@@ -225,17 +243,25 @@ public class IMTMarkings
 			return;
 		}
 
+		if (ModOptions.DamagedImtMarkings && style is IEffectStyleData effectStyle)
+		{
+			effectStyle.Texture = 0.25F;
+			effectStyle.Cracks = new(0.15F, 0.75F);
+			effectStyle.Voids = new(0.75F, 0.15F);
+		}
+
 		markup.AddRegularLine(pointsA[item.Point.X], pointsB[item.Point.X], style);
 	}
 
 	private IRegularLineStyleData? GetLineStyle(LineMarking item)
 	{
 		var info = item.IMT_Info;
+		var provider = Helper.GetProvider(nameof(BlankRoadBuilder))!;
 
 		switch (info?.MarkingStyle)
 		{
 			case Domain.MarkingLineType.Solid:
-				var solidline = Provider.SolidLineStyle;
+				var solidline = provider.SolidLineStyle;
 
 				solidline.Color = info.Color;
 				solidline.Width = info.LineWidth;
@@ -243,7 +269,7 @@ public class IMTMarkings
 				return solidline;
 
 			case Domain.MarkingLineType.SolidDouble:
-				var doubleSolidLine = Provider.DoubleSolidLineStyle;
+				var doubleSolidLine = provider.DoubleSolidLineStyle;
 
 				doubleSolidLine.Color = info.Color;
 				doubleSolidLine.Width = info.LineWidth;
@@ -252,7 +278,7 @@ public class IMTMarkings
 				return doubleSolidLine;
 
 			case Domain.MarkingLineType.Dashed:
-				var dashedLine = Provider.DashedLineStyle;
+				var dashedLine = provider.DashedLineStyle;
 
 				dashedLine.Color = info.Color;
 				dashedLine.Width = info.LineWidth;
@@ -262,7 +288,7 @@ public class IMTMarkings
 				return dashedLine;
 
 			case Domain.MarkingLineType.DashedDouble:
-				var doubleDashedLine = Provider.DoubleDashedLineStyle;
+				var doubleDashedLine = provider.DoubleDashedLineStyle;
 
 				doubleDashedLine.Color = info.Color;
 				doubleDashedLine.Width = info.LineWidth;
@@ -274,7 +300,7 @@ public class IMTMarkings
 
 			case Domain.MarkingLineType.SolidDashed:
 			case Domain.MarkingLineType.DashedSolid:
-				var solidDashedLine = Provider.SolidAndDashedLineStyle;
+				var solidDashedLine = provider.SolidAndDashedLineStyle;
 
 				solidDashedLine.Color = info.Color;
 				solidDashedLine.Width = info.LineWidth;
@@ -304,7 +330,7 @@ public class IMTMarkings
 	{
 		public bool Equals(float x, float y)
 		{
-			return x.ToString() == y.ToString();
+			return Mathf.Approximately(x, y);
 		}
 
 		public int GetHashCode(float obj)

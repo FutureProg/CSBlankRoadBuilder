@@ -1,93 +1,127 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	<TargetFramework>net3.5</TargetFramework>  
-	<Deterministic>false</Deterministic>
-	<AssemblyTitle>Road Builder</AssemblyTitle>
-	<Product>Road Builder</Product>
-	<Description>A Cities: Skylines mod.</Description>
-	<LangVersion>latest</LangVersion>
-	<ImplicitUsings>disable</ImplicitUsings>
-	<Nullable>enable</Nullable>
-	<Version>1.2.5</Version>
-	<FileVersion>1.2.5</FileVersion>
-	<AssemblyVersion>1.2.5</AssemblyVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net3.5</TargetFramework>
+		<Deterministic>false</Deterministic>
+		<AssemblyTitle>Road Builder</AssemblyTitle>
+		<Product>Road Builder</Product>
+		<Description>A Cities: Skylines mod.</Description>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<Version>1.3.4</Version>
+		<FileVersion>1.3.4</FileVersion>
+		<AssemblyVersion>1.3.4</AssemblyVersion>
+		<Configurations>Stable Debug;Stable Release</Configurations>
+	</PropertyGroup>
 
-  <PropertyGroup>
-	<ManagedDLLPath>../dependencies</ManagedDLLPath>
-	<SteamPath>~/Library/Application Support/Steam/</SteamPath>
-	<CSPath>/steamapps/common/Cities_Skylines</CSPath>
-	
-	<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(ProgramFiles)/Steam</SteamPath>
-	<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(Registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)</SteamPath>
-	<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">E:\SteamLibrary</SteamPath>
-	<ManagedDLLPath Condition="!  Exists ('$(ManagedDLLPath)')">$(SteamPath)$(CSPath)/Cities_Data/Managed</ManagedDLLPath>
-	
-	<AssemblySearchPaths>
-	  $(AssemblySearchPaths);
-	  $(ManagedDLLPath);
-	  $(CitiesSkylinesBinaries);
-	  ../libs/
-	</AssemblySearchPaths>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Stable Release|AnyCPU'">
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<Optimize>true</Optimize>
+		<DebugType>pdbonly</DebugType>
+		<DefineConstants />
+	</PropertyGroup>
 
-  <PropertyGroup>
-	<OutputPath>Build</OutputPath>
-	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Stable Debug|AnyCPU'">
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<Optimize>false</Optimize>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<DefineConstants>DEBUG</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Expressions\**" />
-    <EmbeddedResource Include="Expressions\**" />
-    <EmbeddedResource Include="Properties\Icons\*.png" />
-  </ItemGroup>
+	<PropertyGroup>
+		<ManagedDLLPath>$(SolutionDir)/libs</ManagedDLLPath>
+		<SteamPath>~/Library/Application Support/Steam/</SteamPath>
+		<CSPath>/steamapps/common/Cities_Skylines</CSPath>
 
-  <ItemGroup>
-	<PackageReference Include="CitiesHarmony.API" Version="2.1.0" />
-	<PackageReference Include="IMT.API" Version="1.0.2" />
-	<PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
-  </ItemGroup>
+		<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(ProgramFiles)/Steam</SteamPath>
+		<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">$(Registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)</SteamPath>
+		<SteamPath Condition="! Exists ('$(SteamPath)$(CSPath)')">E:\SteamLibrary</SteamPath>
+		<ManagedDLLPath Condition="! Exists ('$(ManagedDLLPath)')">$(SteamPath)$(CSPath)/Cities_Data/Managed</ManagedDLLPath>
 
-  <ItemGroup>
-	<Reference Include="AlgernonCommons.Patching">
-	  <HintPath>..\libs\AlgernonCommons.Patching.dll</HintPath>
-	</Reference>
-	<Reference Include="Assembly-CSharp">
-	  <HintPath>$(MangedDLLPath)\Assembly-CSharp.dll</HintPath>
-	  <Private>False</Private>
-	</Reference>
-	<Reference Include="ColossalManaged">
-	  <HintPath>$(MangedDLLPath)\ColossalManaged.dll</HintPath>
-	  <Private>False</Private>
-	</Reference>
-	<Reference Include="ICities">
-	  <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
-	  <Private>False</Private>
-	</Reference>
-	<Reference Include="NodeControllerRenewal">
-		<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2472062376\NodeControllerRenewal.dll</HintPath>
-		<Private>False</Private>
-		<Aliases>NC</Aliases>
-	</Reference>
-	<Reference Include="AdaptiveRoads">
-	  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\AdaptiveRoads.dll</HintPath>
-	  <Private>False</Private>
-	</Reference>
-	<Reference Include="PrefabMetadata">
-	  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\PrefabMetadata.dll</HintPath>
-	  <Private>False</Private>
-	</Reference>
-	<Reference Include="PrefabMetadataAPI">
-	  <HintPath>$(SteamPath)\steamapps\workshop\content\255710\2669938594\PrefabMetadataAPI.dll</HintPath>
-	  <Private>False</Private>
-	</Reference>
-	<Reference Include="System.Net" />
-	<Reference Include="UnityEngine">
-	  <HintPath>$(MangedDLLPath)\UnityEngine.dll</HintPath>
-	  <Private>False</Private>
-	</Reference>
-  </ItemGroup>
+		<AssemblySearchPaths>
+			$(AssemblySearchPaths);
+			$(ManagedDLLPath);
+			$(CitiesSkylinesBinaries);
+			$(SteamPath)/steamapps/workshop/content/255710/2669938594/;
+			$(SolutionDir)/libs/
+		</AssemblySearchPaths>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="Expressions\**" />
+		<EmbeddedResource Include="Expressions\**" />
+		<EmbeddedResource Include="Properties\Icons\*.png" />
+		<None Include="ModContents\**">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CitiesHarmony.API" Version="2.1.0" />
+		<PackageReference Include="IMT.API" Version="1.0.3" />
+		<PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="Assembly-CSharp">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="ColossalManaged">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="ICities">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="AdaptiveRoads">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="PrefabMetadata">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="PrefabMetadataAPI">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="NodeControllerRenewal">
+			<HintPath>$(SteamPath)\steamapps\workshop\content\255710\2472062376\NodeControllerRenewal.dll</HintPath>
+			<Private>False</Private>
+			<Aliases>NC</Aliases>
+		</Reference>
+	</ItemGroup>
+
+	<Import Project="..\ModsCommon\ModShared\ModsCommonShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\ToolShared\ModsToolShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\UIShared\ModsUIShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\HeaderShared\HeaderShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\LoadExtensionShared\LoadExtensionShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\MessageBoxShared\MessageBoxShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\PropertyPanelShared\PropertyPanelShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\ObjectMapShared\ObjectMapShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\TrajectoryShared\TrajectoryShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\PropertyValueShared\PropertyValueShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\RenderExtension\RenderExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\XmlExtension\XmlExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\NetExtension\NetExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\MathExtension\MathExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\PluginsShared\PluginsShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\DependencyShared\DependencyShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\LoggerShared\LoggerShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\SingletonShared\SingletonShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\AutoLayoutPanelShared\AutoLayoutPanelShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\SimpleMessageBoxShared\SimpleMessageBoxShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\WhatsNewMessageBoxShared\WhatsNewMessageBoxShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\NetObjectMapShared\NetObjectMapShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\NetAssetDataExtension\NetAssetDataExtension.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\ColorsShared\ColorsShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\ToolPanelShared\ToolPanelShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\TriangulatorShared\Triangulator.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\LocalizeShared\LocalizeShared.projitems" Label="Shared" />
+	<Import Project="..\ModsCommon\LocalizeShared\LocalizeManager\LocalizeManager.projitems" Label="Shared" />
 
 	<ItemGroup>
 		<EmbeddedResource Remove="Properties\Localize.en-GB.resx" />
@@ -125,51 +159,39 @@
 		</ItemGroup>
 		<Move SourceFiles="@(LocalizeToMove)" DestinationFiles="@(LocalizeToMove->'$(OutDir)Localize\%(Filename)%(Extension)')" />
 		<RemoveDir Directories="$(OutDir)Properties" />
+		<RemoveDir Directories="$(OutDir)en-GB" />
 
 		<ItemGroup>
 			<CommonLocalizeToMove Include="$(OutDir)*.resx" />
 		</ItemGroup>
 		<Move SourceFiles="@(CommonLocalizeToMove)" DestinationFiles="@(CommonLocalizeToMove->'$(OutDir)Localize\%(Filename)%(Extension)')" />
+
+		<ItemGroup>
+			<ContentsToMove Include="$(OutDir)\ModContents\**" />
+		</ItemGroup>
+		<Move SourceFiles="@(ContentsToMove)" DestinationFiles="@(ContentsToMove->'$(OutDir)\%(RecursiveDir)\%(Filename)%(Extension)')" />
 	</Target>
 	
-	<Import Project="..\ModsCommon\ModShared\ModsCommonShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\ToolShared\ModsToolShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\UIShared\ModsUIShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\HeaderShared\HeaderShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\LoadExtensionShared\LoadExtensionShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\MessageBoxShared\MessageBoxShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\PropertyPanelShared\PropertyPanelShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\ObjectMapShared\ObjectMapShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\TrajectoryShared\TrajectoryShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\PropertyValueShared\PropertyValueShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\RenderExtension\RenderExtension.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\XmlExtension\XmlExtension.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\NetExtension\NetExtension.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\MathExtension\MathExtension.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\PluginsShared\PluginsShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\DependencyShared\DependencyShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\LoggerShared\LoggerShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\SingletonShared\SingletonShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\AutoLayoutPanelShared\AutoLayoutPanelShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\SimpleMessageBoxShared\SimpleMessageBoxShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\WhatsNewMessageBoxShared\WhatsNewMessageBoxShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\NetObjectMapShared\NetObjectMapShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\NetAssetDataExtension\NetAssetDataExtension.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\ColorsShared\ColorsShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\ToolPanelShared\ToolPanelShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\TriangulatorShared\Triangulator.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\LocalizeShared\LocalizeShared.projitems" Label="Shared" />
-	<Import Project="..\ModsCommon\LocalizeShared\LocalizeManager\LocalizeManager.projitems" Label="Shared" />
+	<PropertyGroup Condition="'$(Configuration)' == 'Stable Release' OR '$(Configuration)' == 'Stable Debug'">
+		<WorkshopId>2891132324</WorkshopId>
+		<Type>Stable</Type>
+		<LocalDir>$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods\$(MSBuildProjectName)$(Type)</LocalDir>
+		<WorkshopDir>C:\Program Files (x86)\Steam\steamapps\workshop\content\255710\$(WorkshopId)</WorkshopDir>
+	</PropertyGroup>
 
-  <PropertyGroup>
-	<PostBuildEvent>
-	  rmdir /s /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-	  mkdir "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-	  xcopy /y /e /q "../$(OutputPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-	  xcopy /y /e /q "../ModContents" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder"
-	  del /f /q "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\BlankRoadBuilder\*.pdb"
-	</PostBuildEvent>
-	<BaseOutputPath>Output</BaseOutputPath>
-  </PropertyGroup>
-  
+	<Target Name="DeployToLocal" AfterTargets="PdbToMdb">
+		<Message Text="Deploy to local $(LocalDir)" Importance="high" />
+		<RemoveDir Directories="$(LocalDir)" />
+		<ItemGroup>
+			<FilesToCopy Include="$(OutDir)\**\*.*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(LocalDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+	</Target>
+
+	<Target Name="DeployToWorkshop" AfterTargets="PdbToMdb" Condition="'$(Configuration)' == 'Stable Release' OR '$(Configuration)' == 'Beta Release'">
+		<Message Text="Deploy to workshop $(WorkshopDir)" Importance="high" />
+		<RemoveDir Directories="$(WorkshopDir)" />
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(WorkshopDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="$(ProjectDir)PreviewImage$(Type).png" DestinationFiles="$(WorkshopDir)\PreviewImage.png" />
+	</Target>
 </Project>

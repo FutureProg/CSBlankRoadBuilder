@@ -1,6 +1,4 @@
-﻿using AlgernonCommons.UI;
-
-using BlankRoadBuilder.Domain;
+﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util;
@@ -82,14 +80,14 @@ public class RoadBuilderPanel : UIPanel
 				region = new Rect(0f, 0f, 0.5f, 0.5f)
 			},
 		});
-		var uIButton = AddUIComponent<UIButton>();
-		uIButton.size = new Vector2(30, 30);
-		uIButton.relativePosition = new Vector2(width - 35f, 5f);
-		uIButton.atlas = closeAtlas;
-		uIButton.normalBgSprite = "normal";
-		uIButton.hoveredBgSprite = "hovered";
-		uIButton.pressedBgSprite = "pressed";
-		uIButton.eventClick += delegate
+		var closeButton = AddUIComponent<UIButton>();
+		closeButton.size = new Vector2(30, 30);
+		closeButton.relativePosition = new Vector2(width - 35f, 5f);
+		closeButton.atlas = closeAtlas;
+		closeButton.normalBgSprite = "normal";
+		closeButton.hoveredBgSprite = "hovered";
+		closeButton.pressedBgSprite = "pressed";
+		closeButton.eventClick += delegate
 		{
 			EventClose?.Invoke();
 		};
@@ -101,25 +99,7 @@ public class RoadBuilderPanel : UIPanel
 		_scrollPanel.clipChildren = true;
 		_scrollPanel.builtinKeyNavigation = true;
 		_scrollPanel.scrollWheelDirection = UIOrientation.Vertical;
-		_scrollBar = UIScrollbars.AddScrollbar(this, _scrollPanel);
-		(_scrollBar.thumbObject as UISlicedSprite)!.atlas =
-		(_scrollBar.trackObject as UISlicedSprite)!.atlas = ResourceUtil.GetAtlas("Scrollbar.png", new UITextureAtlas.SpriteInfo[]
-		{
-			new()
-			{
-				name = "bar",
-				region = new Rect(0F, 0F, 0.5F, 1F)
-			},
-			new()
-			{
-				name = "thumb",
-				region = new Rect(0.5F, 0F, 0.5F, 1F)
-			},
-		});
-		(_scrollBar.thumbObject as UISlicedSprite)!.spriteName = "thumb";
-		(_scrollBar.trackObject as UISlicedSprite)!.spriteName = "bar";
-		_scrollBar.thumbObject.eventMouseDown += (s, _) => (s as UISlicedSprite)!.color = new Color32(39, 130, 224, 255);
-		_scrollBar.thumbObject.eventMouseUp += (s, _) => (s as UISlicedSprite)!.color = Color.white;
+		_scrollBar = CustomScrollBar.AddScrollbar(this, _scrollPanel);
 
 		_continueButton = AddUIComponent<SlickButton>();
 		_continueButton.relativePosition = new Vector2(width - _continueButton.width - 10, height - 40);
@@ -174,6 +154,8 @@ public class RoadBuilderPanel : UIPanel
 
 		RefreshView();
 
+		uIDragHandle.BringToFront();
+		closeButton.BringToFront();
 		_searchTextBox.Focus();
 	}
 
@@ -278,6 +260,23 @@ public class RoadBuilderPanel : UIPanel
 
 				_scrollPanel.ScrollIntoView(road);
 			}
+		}
+
+		if (listData.Count == 0)
+		{
+			var infoLabel = AddUIComponent<UILabel>();
+			infoLabel.text = "Seems like you haven't got any roads yet.\r\n\r\nDon't worry, just open Thumbnail Maker to get started with your first road.";
+			infoLabel.textScale = 1.4F;
+			infoLabel.textAlignment = UIHorizontalAlignment.Center;
+			infoLabel.verticalAlignment = UIVerticalAlignment.Middle;
+			infoLabel.textColor = new(229, 155, 49, 255);
+			infoLabel.padding = new RectOffset(50, 50, 100, 100);
+			infoLabel.wordWrap = true;
+			infoLabel.autoSize = false;
+			infoLabel.autoHeight = false;
+			infoLabel.size = size;
+			infoLabel.relativePosition = Vector3.zero;
+			infoLabel.SendToBack();
 		}
 	}
 

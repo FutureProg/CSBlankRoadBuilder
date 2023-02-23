@@ -337,4 +337,60 @@
 [UPDATED] Added IMT API compatibility to ensure constant compatibility with both IMT Stable &amp; Beta.
 [FIXED] Fixed the color preview for markings not updating on the reset and not taking alpha in consideration.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_3_0" xml:space="preserve">
+    <value>[NEW] Added a new section in the mod’s settings to completely customise the props, trees &amp; pillars used by the mod.
+[NEW] Added the option to show road damage by default.
+[NEW] Added the option to remove parking lanes on non-ground levels, off by default.
+[NEW] Added the option to remove transit stops on non-ground levels, off by default.
+[NEW] Added the option to swap grass lanes to pavement on non-ground levels, off by default.
+[NEW] Added “Parking” to the automated tags.
+[NEW] Added “Do Not Enter” &amp; “One Way Ends” signs for one-way roads.
+[UPDATED] Lane Fillers for shared lanes now use the vehicle with the highest priority’s marking settings instead of not showing anything at all.
+[UPDATED] Pedestrian lanes on the sidewalk no longer stop for busses and trams if they’re further than 3m of the nearest stopping lane.
+[UPDATED] Custom text is now rendered above lane decorations such as trees in the thumbnail.
+[FIXED] Fixed normal roads always being categorized as small roads. This fix only works on “new”-ly generated roads.
+[FIXED] Fixed the close button not working if you had no roads yet.
+[FIXED] Reverted hiding grass lanes with transit stops if the lane is not at surface level.
+[REMOVED] General options related to light distance, tree distance &amp; generating trees on ground level were moved to the new prop settings. Your previous settings will be lost.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_3_1" xml:space="preserve">
+    <value>[NEW] Added a pillar offset option for bridge pillars.
+[NEW] Added an AN toggle that switches all grass medians on a segment to pavement.
+[NEW] Added Trolley &amp; Tram lane decal props.
+[UPDATED] Added vanilla road and train tracks to the template of roads generated in the editor and aligned the roads to the grid so you can easily see how your road will align with the zoning.
+[UPDATED] Improved one-way ends &amp; do not enter signs so they don’t show on two-segments and level crossings.
+[FIXED] Fixed lane filler of shared lanes not choosing the correct lane type.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_3_2" xml:space="preserve">
+    <value>[UPDATED] Minimum distance to a transit stop now takes in consideration parking lanes.
+[FIXED] Fixed the Grass toggle being named Custom6.
+[FIXED] Fixed pavement fillers from the Grass toggle always having a slope at intersections.
+</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_3_3" xml:space="preserve">
+    <value>[NEW] Added the option to customize the minimum distance for a stop value.
+[UPDATED] Parking meters no longer appear on lanes smaller than 0.75m.
+[UPDATED] Changed how the mod handles a valid stop &amp; how that affects the stop’s prop, mainly this means that a stop is only added if a lane is withing the minimum distance for a stop, and only the stops for those valid lanes are added.
+[FIXED] Fixed some props not showing correctly in the prop settings.
+[FIXED] Fixed grass medians showing as pavement on bend nodes.
+[FIXED] Fixed Thumbnail Maker being blurry on zoom-enabled computers.
+[FIXED] Fixed grass sprites not spreading out over a large median.
+[FIXED] Fixed various props’ position not flipping when they’re on the left side.
+[FIXED] Fixed speed signs showing next to bike lanes if there’s a median &amp; car lanes next to it.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_3_4" xml:space="preserve">
+    <value>[NEW] Added IMT marking damage, enabled by default.
+[NEW] Added an option to hide lane decals on shared lanes.
+[NEW] Added an option to allow all vehicles on a bus lane.
+[NEW] Added the option to change the minimum crossing distance required for pedestrian traffic lights to show up.
+[UPDATED] Bus lanes will now allow emergency and taxi vehicles to drive in them, they are also categorized as “Vehicle” lanes instead of “Transport Vehicle”.
+[UPDATED] Changed the name of the “Minimum distance to stop” to “Maximum distance to a stop”.
+[UPDATED] Thumbnail Maker will now show you a popup when you’re trying to export a road with no lanes on the asphalt.
+[UPDATED] Moved the option to remove grass sprites to the props settings of the grass prop.
+[FIXED] Fixed curb grass medians not automatically snapping to the curb of the road.
+[FIXED] Fixed unusual fillers &amp; missing markings when removing parking on elevated levels.
+[FIXED] Fixed large stop props not showing on large enough fillers with a transit stop addon.
+[FIXED] Fixed bus stops not being generated when there’s a parking between it and the pedestrian lane.
+[FIXED] Fixed UI inconsistencies with high dpi displays.</value>
+  </data>
 </root>

@@ -37,32 +37,49 @@ public static class NetworkMarkings
 			else
 			{
 				var filler = GetFillers(item).ToList();
-
-				if (item.Type != LaneDecoration.Pavement && item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop)))
+				var transitStop = item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop));
+				
+				if (item.Type != LaneDecoration.Pavement && (item.Lanes.Any(x => !x.Tags.HasFlag(LaneTag.Sidewalk)) || item.Elevation != item.SurfaceElevation))
 				{
-					if (item.Lanes.Any(x => !x.Tags.HasFlag(LaneTag.Sidewalk)))
+					var pavementFiller = GetFillers(new FillerMarking
 					{
-						var pavementFiller = GetFillers(new FillerMarking
-						{
-							Type = LaneDecoration.Pavement,
-							Elevation = item.Elevation,
-							LeftPoint = item.LeftPoint,
-							RightPoint = item.RightPoint
-						}, true).ToList();
+						Type = LaneDecoration.Pavement,
+						Elevation = item.Elevation,
+						LeftPoint = item.LeftPoint,
+						RightPoint = item.RightPoint
+					}, transitStop ? true : null).ToList();
 
-						foreach (var p in pavementFiller)
+					foreach (var p in pavementFiller)
+					{
+						p.Mesh.m_forwardForbidden |= NetSegment.Flags.Bend;
+						p.Mesh.m_backwardForbidden |= NetSegment.Flags.Bend;
+
+						if (transitStop)
 						{
 							p.MetaData.Forward.Required |= RoadUtils.Flags.S_AnyStop;
 							p.MetaData.Backward.Required |= RoadUtils.Flags.S_AnyStop;
 						}
-
-						fillers.AddRange(pavementFiller);
+						else
+						{
+							p.MetaData.Forward.Required |= RoadUtils.Flags.S_ToggleGrassMedian;
+							p.MetaData.Backward.Required |= RoadUtils.Flags.S_ToggleGrassMedian;
+						}
 					}
 
-					foreach (var f in filler)
+					fillers.AddRange(pavementFiller);
+				}
+
+				foreach (var f in filler)
+				{
+					if (transitStop)
 					{
 						f.Mesh.m_forwardForbidden |= NetSegment.Flags.StopAll;
 						f.Mesh.m_backwardForbidden |= NetSegment.Flags.StopAll;
+					}
+					else
+					{
+						f.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_ToggleGrassMedian;
+						f.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_ToggleGrassMedian;
 					}
 				}
 
@@ -489,7 +506,7 @@ public static class NetworkMarkings
 		if (type != null && (type.MarkingStyle == MarkingLineType.SolidDouble || type.MarkingStyle == MarkingLineType.SolidDashed || type.MarkingStyle == MarkingLineType.DashedDouble || type.MarkingStyle == MarkingLineType.DashedSolid))
 			lineWidth *= 3;
 
-		var file = crosswalkMarking != null ? "Crosswalk" : fillerMarking == null ? "Marking" : (fillerMarking.Helper || fillerMarking.Type == LaneDecoration.Filler || (fillerMarking.Type != LaneDecoration.Grass && fillerMarking.Elevation == fillerMarking.Lanes.Min(x => x.SurfaceElevation))) ? "Platform" : fillerMarking.Type == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
+		var file = crosswalkMarking != null ? "Crosswalk" : fillerMarking == null ? "Marking" : (fillerMarking.Helper || fillerMarking.Type == LaneDecoration.Filler || (fillerMarking.Type != LaneDecoration.Grass && fillerMarking.Elevation == fillerMarking.SurfaceElevation)) ? "Platform" : fillerMarking.Type == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
 
 		var guid = Guid.NewGuid().ToString();
 
@@ -551,26 +568,26 @@ public static class NetworkMarkings
 								xPos = inverted ? fillerMarking.LeftPoint.X :
 									(-fillerMarking.RightPoint.X + (fillerMarking.Helper ? 0 : (xPos + 0.5F)));
 
-								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
-									xPos += fillerMarking.Lanes.First().Type is LaneType.Curb ? -0.01F : 0.2F;
-								else if (fillerMarking.Lanes.First().Type is LaneType.Curb)
-									xPos -= 0.01F;
+								if (fillerMarking.Lanes.First().Type is LaneType.Curb)
+									xPos -= 0.01F - fillerMarking.Lanes.Last().Road!.BufferWidth;
+								else if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
+									xPos += 0.2F;
 							}
 							else if (xPos >= 0.05)
 							{
 								xPos = inverted ? fillerMarking.RightPoint.X :
 									(-fillerMarking.LeftPoint.X + (fillerMarking.Helper ? 0 : (xPos - 0.5F)));
 
-								if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
-									xPos -= fillerMarking.Lanes.Last().Type is LaneType.Curb ? -0.01F : 0.2F;
-								else if (fillerMarking.Lanes.Last().Type is LaneType.Curb)
-									xPos += 0.01F;
+								if (fillerMarking.Lanes.Last().Type is LaneType.Curb)
+									xPos += 0.01F - fillerMarking.Lanes.Last().Road!.BufferWidth;
+								else if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
+									xPos -= 0.2F;
 							}
 
 							if ((fillerMarking.TransitionForward && (int)float.Parse(data[3]) >= (int)ModOptions.StepTransition)
 								|| (fillerMarking.TransitionBackward && -(int)float.Parse(data[3]) >= (int)ModOptions.StepTransition))
 							{
-								var surface = fillerMarking.Lanes.Min(x => x.SurfaceElevation);
+								var surface = fillerMarking.SurfaceElevation;
 								var elevation = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.0025F : 0.01F);
 
 								if (yPos == -0.3F)
@@ -594,19 +611,19 @@ public static class NetworkMarkings
 								}
 							}
 							else if (yPos == -0.3F)
-								yPos = -0.01F + fillerMarking.Lanes.Min(x => x.SurfaceElevation);
+								yPos = -0.02F + fillerMarking.SurfaceElevation;
 							else if (!transition)
-								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.005F : 0.011F);
+								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.02F : 0.021F);
 							else
 							{
 								var start = fillerMarking.Elevation;
-								var end = fillerMarking.Lanes.Min(x => x.SurfaceElevation);
+								var end = fillerMarking.SurfaceElevation;
 
-								yPos = Math.Max(end - 0.1F, Math.Abs(float.Parse(data[1])) == 0.5 ? -1 : (start + ((end - start) / 0.32F) + (float.Parse(data[3]) * (end - start) / 32F / 0.32F)));
+								yPos = Math.Max(end - 0.2F, Math.Abs(float.Parse(data[1])) == 0.5 ? -1 : (start + ((end - start) / 0.32F) + (float.Parse(data[3]) * (end - start) / 32F / 0.32F)));
 							}
 
 							if (fillerMarking.Type == LaneDecoration.Filler && originalFile.Contains("_lod.obj"))
-								yPos = Math.Max(0.0025F, yPos);
+								yPos = Math.Max(0.1F, yPos);
 						}
 						else if (lineMarking != null)
 						{
@@ -619,10 +636,10 @@ public static class NetworkMarkings
 								xPos = -lineMarking.Point.X + (lineWidth / 2F);
 							}
 
-							yPos = 0.0075F + lineMarking.Elevation;
+							yPos = 0.025F + lineMarking.Elevation;
 
 							if (originalFile.Contains("_lod.obj"))
-								yPos = Math.Max(0.01F, yPos);
+								yPos = Math.Max(0.15F, yPos);
 						}
 						else if (crosswalkMarking != null)
 						{
@@ -637,7 +654,7 @@ public static class NetworkMarkings
 							yPos = (crosswalkMarking.Road.RoadType == RoadType.Road ? -0.3F : 0) + 0.015F;
 
 							if (originalFile.Contains("_lod.obj"))
-								yPos = Math.Max(0.1F, yPos);
+								yPos = Math.Max(0.15F, yPos);
 						}
 
 						data[1] = xPos.ToString("0.00000000");

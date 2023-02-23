@@ -12,16 +12,16 @@ namespace BlankRoadBuilder.Util.Props;
 
 public partial class LanePropsUtil
 {
-	public LanePropsUtil(int index, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
+	public LanePropsUtil(LaneInfo mainLane, LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
 	{
-		Index = index;
+		MainLane = mainLane;
 		Type = type;
 		Lane = lane;
 		Road = road;
 		Elevation = elevation;
 	}
 
-	public int Index { get; }
+	public LaneInfo MainLane { get; }
 	public LaneType Type { get; }
 	public LaneInfo Lane { get; }
 	public RoadInfo Road { get; }
@@ -65,9 +65,19 @@ public partial class LanePropsUtil
 				yield break;
 			}
 
-			if (Index == 0)
+			if (MainLane == Lane)
 			{
 				foreach (var prop in GetDecorationProps())
+				{
+					yield return prop;
+				}
+
+				foreach (var prop in GetLaneDecalProps())
+				{
+					yield return prop;
+				}
+
+				foreach (var prop in GetLaneArrowProps())
 				{
 					yield return prop;
 				}
@@ -77,36 +87,14 @@ public partial class LanePropsUtil
 			{
 				case LaneType.Pedestrian:
 					foreach (var prop in GetPedestrianLaneProps())
+					{
 						yield return prop;
-
+					}
 					break;
-				case LaneType.Bike:
-					foreach (var prop in GetBikeLaneProps())
-						yield return prop;
 
-					break;
-				case LaneType.Bus:
-				case LaneType.Trolley:
-					foreach (var prop in GetBusLaneProps())
-						yield return prop;
-
-					break;
-				case LaneType.Emergency:
-					if (Lane.Type.HasFlag(LaneType.Car))
-						yield break;
-
-					foreach (var prop in GetLaneArrowProps())
-						yield return prop;
-
-					break;
-				case LaneType.Car:
-					foreach (var prop in GetLaneArrowProps())
-						yield return prop;
-
-					break;
 				case LaneType.Curb:
 				case LaneType.Filler:
-					if (Lane.LaneWidth - Road.BufferWidth < 0.25F)
+					if (Lane.GetLaneWidth(true) < 0.25F)
 					{
 						foreach (var prop in GetLights())
 						{
@@ -117,7 +105,9 @@ public partial class LanePropsUtil
 					}
 
 					foreach (var prop in GetMedianProps())
+					{
 						yield return prop;
+					}
 
 					break;
 			}
@@ -155,43 +145,49 @@ public partial class LanePropsUtil
 	private IEnumerable<NetLaneProps.Prop> GetPedestrianLaneProps()
 	{
 		foreach (var prop in GetMedianProps())
+		{
 			yield return prop;
+		}
 
-		var stopType = ThumbnailMakerUtil.GetStopType(Lane.Type, Lane, Road, out var forward);
+		var stopType = ThumbnailMakerUtil.GetStopType(Lane.Type, Lane, Road, Elevation, out var stopDirection);
 
-		if (forward == null)
+		if (stopDirection == LaneDirection.None)
+		{
 			yield break;
+		}
+
+		var largeStop = MainLane.Tags.HasFlag(LaneTag.Sidewalk) || MainLane.LaneWidth >= 3;
+		var stopDiff = (float)Math.Round((largeStop ? Math.Min(0, -Lane.LaneWidth / 2 + 0.75F) : 0)
+			+ Math.Abs(Lane.Position - MainLane.Position), 3);
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Car))
 		{
-			var busStopLarge = GetProp(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? Prop.BusStopLarge : Prop.BusStopSmall);
-			var stopDiff = Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F
-				: (float)Math.Round(Math.Abs(Lane.Position - ThumbnailMakerUtil.GetLanePosition(Lane.Type, Lane, Road)) - 0.2F, 3);
+			var busStopLarge = GetProp(largeStop ? Prop.BusStopLarge : Prop.BusStopSmall);
 
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = busStopLarge,
-				m_finalProp = busStopLarge,
+				m_tree = busStopLarge,
 				m_flagsRequired = NetLane.Flags.Stop,
-				m_angle = 90,
+				m_angle = busStopLarge.Angle,
 				m_probability = 100,
-				m_position = new Vector3(stopDiff, 0, Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.Tags.HasFlag(LaneTag.CenterMedian) ? 5F : 3F),
-			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
+				m_position = busStopLarge.Position + new Vector3(stopDiff, 0, Lane.Tags.HasAnyFlag(LaneTag.Sidewalk, LaneTag.CenterMedian) ? 2F : 0F),
+			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
 		}
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Tram))
 		{
-			var tramStopLarge = GetProp(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? Prop.TramStopLarge : Prop.TramStopSmall);
+			var tramStopLarge = GetProp(largeStop ? Prop.TramStopLarge : Prop.TramStopSmall);
 
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = tramStopLarge,
-				m_finalProp = tramStopLarge,
+				m_tree = tramStopLarge,
 				m_flagsRequired = NetLane.Flags.Stop2,
-				m_angle = 90,
+				m_angle = tramStopLarge.Angle,
 				m_probability = 100,
-				m_position = new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? 0.5F : 0.1F, 0, Lane.Tags.HasFlag(LaneTag.Sidewalk) || Lane.Tags.HasFlag(LaneTag.CenterMedian) ? -5F : -3F)
-			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
+				m_position = tramStopLarge.Position + new Vector3(stopDiff, 0, Lane.Tags.HasAnyFlag(LaneTag.Sidewalk, LaneTag.CenterMedian) ? -2F : 0F)
+			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
 		}
 
 		if (stopType.HasFlag(VehicleInfo.VehicleType.Trolleybus))
@@ -202,23 +198,23 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = sightSeeingProp,
-				m_finalProp = sightSeeingProp,
+				m_tree = sightSeeingProp,
 				m_flagsRequired = NetLane.Flags.Stops,
-				m_angle = 90,
+				m_angle = sightSeeingProp.Angle,
 				m_probability = 100,
-				m_position = new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? -0.75F : -0.5F, 0, -2F)
-			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
+				m_position = sightSeeingProp.Position + new Vector3(stopDiff, 0, 0)
+			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
 
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = trolleyStop,
-				m_finalProp = trolleyStop,
+				m_tree = trolleyStop,
 				m_flagsRequired = NetLane.Flags.Stop2,
 				m_flagsForbidden = NetLane.Flags.Stop,
-				m_angle = 90,
+				m_angle = trolleyStop.Angle,
 				m_probability = 100,
-				m_position = new Vector3(Lane.Tags.HasFlag(LaneTag.Sidewalk) ? -0.75F : -0.5F, 0, -2F)
-			}.ToggleForwardBackward((bool)forward && Lane.Direction != LaneDirection.Backwards);
+				m_position = trolleyStop.Position + new Vector3(stopDiff, 0, 0)
+			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
 		}
 	}
 

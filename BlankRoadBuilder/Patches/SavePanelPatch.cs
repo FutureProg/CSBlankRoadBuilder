@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
+using UnityEngine;
+
 namespace BlankRoadBuilder.Patches;
 
 [HarmonyPatch(typeof(SaveAssetPanel), "Awake", new Type[] { })]
@@ -24,13 +26,11 @@ public class SavePanelPatch
 {
 	public static bool IsAssetLoaded => !ModOptions.DisableAutoFillInTheSavePanel && LastLoadedRoad != null;
 	public static bool IsAssetNew => AssetDataExtension.WasLastLoaded == false;
-	public static RoadInfo? LastLoadedRoad => RoadBuilderUtil.CurrentRoad;
+	public static RoadInfo? LastLoadedRoad => RoadBuilderUtil.GetRoad(ElevationType.Basic);
 
 	public static void Postfix(SaveAssetPanel __instance)
 	{
-		if (typeof(SaveAssetPanel)
-			.GetField("m_SnapShotSprite", BindingFlags.Instance | BindingFlags.NonPublic)
-			.GetValue(__instance) is UITextureSprite m_SnapShotSprite)
+		if (__instance.Find<UITextureSprite>("SnapShot") is UITextureSprite m_SnapShotSprite)
 		{
 			m_SnapShotSprite.relativePosition = new UnityEngine.Vector3(m_SnapShotSprite.relativePosition.x + ((m_SnapShotSprite.width - m_SnapShotSprite.height) / 2), m_SnapShotSprite.relativePosition.y, m_SnapShotSprite.relativePosition.z);
 			m_SnapShotSprite.width = m_SnapShotSprite.height;
@@ -79,6 +79,12 @@ public class SavePanelPatch_FetchSnapshots
 
 		SavePanelPatch.PatchThumbnails(m_StagingPath);
 		SavePanelPatch.PatchThumbnails(snapShotPath);
+
+		if (__instance.Find<UILabel>("CurrentThumb") is UILabel m_CurrentThumbshotLabel)
+			m_CurrentThumbshotLabel.text = "1 / 1";
+
+		if (__instance.Find<UILabel>("CurrentTooltip") is UILabel m_CurrentTooltipLabel)
+			m_CurrentTooltipLabel.text = "1 / 1";
 	}
 }
 

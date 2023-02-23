@@ -18,14 +18,13 @@ public class SlickButton : UIButton
 		focusedBgSprite = "normal";
 		pressedBgSprite = "normal";
 		disabledBgSprite = "normal";
-		color = Color.white;
-		focusedColor = Color.white;
+		color = focusedColor = new(240, 240, 240, 255);
 		textColor = new(50, 50, 50, 255);
 		focusedTextColor = new(50, 50, 50, 255);
 		disabledTextColor = Color.grey;
-		hoveredColor = new Color32(197, 216, 235, 255);
+		hoveredColor = new Color32(216, 227, 239, 255);
 		hoveredTextColor = new Color32(30, 37, 44, 255);
-		pressedColor = new Color32(39, 130, 224, 255);
+		pressedColor = new Color32(51, 140, 229, 255);
 		pressedTextColor = new Color32(255, 255, 255, 255);
 		textScale = 0.9F;
 		textPadding = new RectOffset(0, 6, 4, 0);

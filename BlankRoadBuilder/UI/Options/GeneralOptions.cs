@@ -1,6 +1,4 @@
-﻿using AlgernonCommons.UI;
-
-using BlankRoadBuilder.Domain.Options;
+﻿using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.Util;
 
 using ColossalFramework.UI;
@@ -97,7 +95,7 @@ internal class GeneralOptions : OptionsPanelBase
 
 			textfield.eventTextChanged += (s, v) => setSettingValue(setting.Property, v);
 
-			textfield.parent.relativePosition = new Vector2(textfield.parent.relativePosition.x + 40, textfield.parent.relativePosition.y);
+			textfield.relativePosition = new Vector2(textfield.relativePosition.x + 40, textfield.relativePosition.y);
 
 			ResetActions.Add(() => textfield.text = (string)setting.Info.DefaultValue);
 

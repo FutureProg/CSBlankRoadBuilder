@@ -1,4 +1,5 @@
 ﻿using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.Util;
 
 using System;
 using System.Collections.Generic;
@@ -9,15 +10,19 @@ namespace BlankRoadBuilder.ThumbnailMaker;
 
 public partial class LaneInfo
 {
-	[XmlIgnore] public float Position { get; set; }
-	[XmlIgnore] public LaneTag Tags { get; set; } = LaneTag.Asphalt;
-	[XmlIgnore] public LaneInfo? LeftLane { get; set; }
-	[XmlIgnore] public LaneInfo? RightLane { get; set; }
-	[XmlIgnore] public TrafficLight TrafficLight { get; set; }
-	[XmlIgnore] public List<NetInfo.Lane> NetLanes { get; set; } = new();
-	[XmlIgnore] public float LaneElevation { get; set; }
-	[XmlIgnore] public float SurfaceElevation { get; set; }
+	[XmlIgnore, CloneIgnore] public float Position { get; set; }
+	[XmlIgnore, CloneIgnore] public LaneTag Tags { get; set; } = LaneTag.Asphalt;
+	[XmlIgnore, CloneIgnore] public LaneInfo? LeftLane { get; set; }
+	[XmlIgnore, CloneIgnore] public LaneInfo? RightLane { get; set; }
+	[XmlIgnore, CloneIgnore] public TrafficLight TrafficLight { get; set; }
+	[XmlIgnore, CloneIgnore] public List<NetInfo.Lane> NetLanes { get; set; } = new();
+	[XmlIgnore, CloneIgnore] public float LaneElevation { get; set; }
+	[XmlIgnore, CloneIgnore] public float SurfaceElevation { get; set; }
+	[XmlIgnore, CloneIgnore] public RoadInfo? Road { get; set; }
+	[XmlIgnore, CloneIgnore] public float LaneWidth => GetLaneWidth();
 
+	public float GetLaneWidth(bool actual = false) => (float)Math.Round((CustomWidth ?? DefaultLaneWidth()) + (!actual && Type == LaneType.Curb ? (Road?.BufferWidth ?? 0F) : 0F), 3);
+	
 	public LaneVehicleCategory GetVehicleCategory()
 	{
 		if (Type is LaneType.Filler or LaneType.Curb)

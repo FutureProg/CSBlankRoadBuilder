@@ -1,5 +1,6 @@
 ﻿using AdaptiveRoads.Manager;
 
+using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
 using BlankRoadBuilder.Util.Props.Templates;
 
@@ -55,7 +56,7 @@ public partial class LanePropsUtil
 			yield return new NetLaneProps.Prop
 			{
 				m_prop = propTemplate,
-				m_finalProp = propTemplate,
+				m_tree = propTemplate,
 				m_minLength = prop.Key + 4F,
 				m_repeatDistance = (prop.Key + 4) * 2F,
 				m_angle = angle ?? _random.Next(0, 360),
@@ -65,7 +66,10 @@ public partial class LanePropsUtil
 			{
 				SeedIndex = _random.Next(),
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
-				{ Required = RoadUtils.Flags.S_AddRoadDamage }
+				{
+					Required = ModOptions.HideRoadDamage ? RoadUtils.Flags.S_AddRoadDamage : NetSegmentExt.Flags.None,
+					Forbidden = !ModOptions.HideRoadDamage ? RoadUtils.Flags.S_AddRoadDamage : NetSegmentExt.Flags.None
+				}
 			});
 
 			propsReturned++;

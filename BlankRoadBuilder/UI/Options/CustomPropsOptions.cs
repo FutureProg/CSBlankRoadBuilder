@@ -1,6 +1,5 @@
-﻿using AlgernonCommons.UI;
-
-using BlankRoadBuilder.Util;
+﻿using BlankRoadBuilder.Util;
+using BlankRoadBuilder.Util.Props;
 using BlankRoadBuilder.Util.Props.Templates;
 
 using ColossalFramework.UI;
@@ -17,23 +16,29 @@ internal class CustomPropsOptions : OptionsPanelBase
 	public override string TabName { get; } = "Custom Props";
 
 	private readonly List<CustomPropOptionControl> Controls = new();
+	private UILabel blockPanel;
+	private bool firstSetupDone;
 
 	public CustomPropsOptions(UITabstrip tabStrip, int tabIndex, int tabCount) : base(tabStrip, tabIndex, tabCount)
 	{
-		var first = true;
 		var props = Enum.GetValues(typeof(Prop));
 		var values = props.Cast<Prop>().ToDictionary(x => x, PropUtil.GetProp);
 
-		foreach (var grp in values.GroupBy(x => x.Value.Category))
+		yPos += 7;
+
+		var resetButton = _panel.AddUIComponent<SlickButton>();
+		resetButton.size = new Vector2(230, 30);
+		resetButton.relativePosition = new Vector2(_panel.width - resetButton.width - Margin, yPos + ((30 - 32) / 2));
+		resetButton.text = "Reset all prop settings";
+		resetButton.SetIcon("I_Undo.png");
+		resetButton.eventClicked += ResetButton_eventClicked;
+
+		PropUtil.SavePaused = true;
+
+		foreach (var grp in values.GroupBy(x => x.Value.Category).OrderBy(x => x.Key))
 		{
-			if (first)
-			{
-				first = false;
-			}
-			else
-			{
-				yPos += 7;
-			}
+			if (grp.Key == PropCategory.None)
+				continue;
 
 			var icon = _panel.AddUIComponent<UISprite>();
 			icon.atlas = ResourceUtil.GetAtlas(GetIcon(grp.Key));
@@ -51,33 +56,66 @@ internal class CustomPropsOptions : OptionsPanelBase
 			yPos += 50;
 
 			var ind = 0;
-			foreach (var option in grp)
+			var heldPosition = 0F;
+			foreach (var option in grp.OrderBy(x => (int)x.Key))
 			{
 				var ctrl = _panel.AddUIComponent<CustomPropOptionControl>();
-				ctrl.Init(option.Key, option.Value);
+				ctrl.Init(option.Key, option.Value.GetType());
 
 				Controls.Add(ctrl);
 
 				if (ind % 2 == 0)
 				{
 					ctrl.relativePosition = new Vector2(40, yPos);
+					heldPosition = ctrl.height + Margin;
 				}
 				else
 				{
 					ctrl.relativePosition = new Vector2(40 + Margin + ctrl.width, yPos);
 					yPos += ctrl.height + Margin;
+					heldPosition = 0;
 				}
 
 				ind++;
 			}
+
+			yPos += heldPosition + Margin;
 		}
 
-		var resetButton = _panel.AddUIComponent<SlickButton>();
-		resetButton.size = new Vector2(230, 30);
-		resetButton.relativePosition = new Vector2(32 + (2 * Margin), yPos - 50);
-		resetButton.text = "Reset all General settings";
-		resetButton.SetIcon("I_Undo.png");
-		resetButton.eventClicked += ResetButton_eventClicked;
+		GenerateBlockPanel();
+
+		PropUtil.SavePaused = false;
+	}
+
+	private void GenerateBlockPanel()
+	{
+		blockPanel = _panel.parent.AddUIComponent<UILabel>();
+		blockPanel.text = "This section only works while in the editor or in-game";
+		blockPanel.textScale = 1.4F;
+		blockPanel.textAlignment = UIHorizontalAlignment.Center;
+		blockPanel.textColor = new(229, 155, 49, 255);
+		blockPanel.padding = new RectOffset(50, 50, 100, 100);
+		blockPanel.wordWrap = true;
+		blockPanel.autoSize = false;
+		blockPanel.autoHeight = false;
+		blockPanel.size = _panel.parent.size;
+		blockPanel.relativePosition = Vector3.zero;
+		blockPanel.atlas = ResourceUtil.GetAtlas("I_Seperator.png");
+		blockPanel.backgroundSprite = "normal";
+		blockPanel.color = Color.black;
+		blockPanel.BringToFront();
+
+		_panel.parent.eventVisibilityChanged += (s, v) =>
+		{
+			blockPanel.isVisible = !Utilities.InGame;
+
+			if (!firstSetupDone && v && Utilities.InGame)
+			{
+				Controls.ForEach(control => control.UpdateData(PropUtil.GetProp(control.Prop)));
+				
+				firstSetupDone = true;
+			}
+		};
 	}
 
 	private string GetIcon(PropCategory key)
@@ -85,6 +123,16 @@ internal class CustomPropsOptions : OptionsPanelBase
 		return key switch
 		{
 			PropCategory.TrafficLights => "I_TrafficLights.png",
+			PropCategory.Arrows => "I_Arrows.png",
+			PropCategory.RoadSigns => "I_TrafficSigns.png",
+			PropCategory.SpeedSigns => "I_SpeedSigns.png",
+			PropCategory.BridgePillars => "I_Pillar.png",
+			PropCategory.Lights => "I_Props.png",
+			PropCategory.Stops => "I_BusStop.png",
+			PropCategory.Decorations => "I_Decorations.png",
+			PropCategory.LevelCrossingBarriers => "I_LevelBarrier.png",
+			PropCategory.LaneDecals => "I_Paint.png",
+			PropCategory.TramPoles => "I_TramPole.png",
 			_ => ""
 		};
 	}
