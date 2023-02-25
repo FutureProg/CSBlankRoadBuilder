@@ -104,5 +104,10 @@ namespace BlankRoadBuilder
 		/// [NEW] Reworked how stop lanes are calculated, the mod will now analyze and map out your road to accu
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_5 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_5", Culture);
+
+		/// <summary>
+		/// [UPDATED] Added an information label advising users to use Fillers over Pedestrian lanes for Transit
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_6 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_6", Culture);
 	}
 }

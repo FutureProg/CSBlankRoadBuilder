@@ -194,7 +194,7 @@ public static class ThumbnailMakerUtil
 				processVehicleLane(item);
 		}
 
-		foreach (var grp in roadInfo.Lanes.GroupBy(x => x.Stops.CanStopAt))
+		foreach (var grp in roadInfo.Lanes.GroupBy(x => new { Lane = x.Stops.CanStopAt, Left = x.Stops.CanStopAt?.Position < x.Position }))
 		{
 			foreach (var item in grp.OrderBy(x => x.Stops.Distance).Skip(1))
 			{

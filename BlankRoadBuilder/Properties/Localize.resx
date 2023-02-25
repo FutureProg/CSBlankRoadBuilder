@@ -403,4 +403,10 @@
 [FIXED] Fixed pavement fillers with transit stops disappearing when a stop is present.
 [FIXED] Fixedsome  stop shelters not facing the correct direction.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_3_6" xml:space="preserve">
+    <value>[UPDATED] Added an information label advising users to use Fillers over Pedestrian lanes for Transit Stops in Thumbnail Maker.
+[FIXED] Fixed center platforms not generating a stop for the lane on the right.
+[FIXED] Fixed textures not loading for some users.
+</value>
+  </data>
 </root>

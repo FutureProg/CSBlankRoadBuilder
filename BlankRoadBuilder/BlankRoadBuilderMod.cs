@@ -41,6 +41,7 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	protected override LocalizeManager LocalizeManager { get; } = new LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	public override List<ModVersion> Versions { get; } = new List<ModVersion>
 	{
+		new ModVersion(new Version("1.3.6"), new DateTime(2023, 2, 25)),
 		new ModVersion(new Version("1.3.5"), new DateTime(2023, 2, 24)),
 		new ModVersion(new Version("1.3.4"), new DateTime(2023, 2, 21)),
 		new ModVersion(new Version("1.3.3"), new DateTime(2023, 2, 20)),
@@ -93,9 +94,14 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 		try
 		{
 			CopyThumbnailMaker();
+		}
+		catch (Exception ex) { Debug.LogException(ex); }
+		
+		try
+		{
 			DeleteAll(ImportFolder);
 		}
-		catch { }
+		catch (Exception ex) { Debug.LogException(ex); }
 
 		base.Enable();
 	}
@@ -143,19 +149,10 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 		var thumbnailMakerFolder = ThumbnailMakerFolder;
 
 		Directory.CreateDirectory(thumbnailMakerFolder);
-		Directory.CreateDirectory(Path.Combine(thumbnailMakerFolder, "Resources"));
 
 		foreach (var item in Directory.GetFiles(currentMakerFolde))
 		{
 			File.Copy(item, Path.Combine(thumbnailMakerFolder, Path.GetFileName(item).Replace("_", ".")), true);
-		}
-
-		foreach (var item in Directory.GetFiles(Path.Combine(currentMakerFolde, "Resources")))
-		{
-			var target = new FileInfo(Path.Combine(Path.Combine(thumbnailMakerFolder, "Resources"), Path.GetFileName(item)));
-
-			if (!target.Exists || target.LastWriteTime < new FileInfo(item).LastWriteTime)
-				File.Copy(item, Path.Combine(Path.Combine(thumbnailMakerFolder, "Resources"), Path.GetFileName(item)), true);
 		}
 	}
 
