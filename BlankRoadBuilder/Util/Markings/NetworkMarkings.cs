@@ -38,7 +38,7 @@ public static class NetworkMarkings
 			{
 				var filler = GetFillers(item).ToList();
 				var transitStop = item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop));
-				
+
 				if (item.Type != LaneDecoration.Pavement && (item.Lanes.Any(x => !x.Tags.HasFlag(LaneTag.Sidewalk)) || item.Elevation != item.SurfaceElevation))
 				{
 					var pavementFiller = GetFillers(new FillerMarking
@@ -67,19 +67,19 @@ public static class NetworkMarkings
 					}
 
 					fillers.AddRange(pavementFiller);
-				}
 
-				foreach (var f in filler)
-				{
-					if (transitStop)
+					foreach (var f in filler)
 					{
-						f.Mesh.m_forwardForbidden |= NetSegment.Flags.StopAll;
-						f.Mesh.m_backwardForbidden |= NetSegment.Flags.StopAll;
-					}
-					else
-					{
-						f.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_ToggleGrassMedian;
-						f.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_ToggleGrassMedian;
+						if (transitStop)
+						{
+							f.Mesh.m_forwardForbidden |= NetSegment.Flags.StopAll;
+							f.Mesh.m_backwardForbidden |= NetSegment.Flags.StopAll;
+						}
+						else
+						{
+							f.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_ToggleGrassMedian;
+							f.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_ToggleGrassMedian;
+						}
 					}
 				}
 

@@ -26,4 +26,7 @@ public class LaneDecalProp : PropTemplate
 
 	[PropOption("Hide on shared lanes", "Only shows the decal when the lane is not made of multiple lane types")]
 	public bool HideOnSharedLanes { get; set; }
+
+	[PropOption("Show on two-way lanes", "")]
+	public bool ShowOnTwoWayLanes { get; set; }
 }

@@ -99,5 +99,10 @@ namespace BlankRoadBuilder
 		/// [NEW] Added IMT marking damage, enabled by default.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_4 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_4", Culture);
+
+		/// <summary>
+		/// [NEW] Reworked how stop lanes are calculated, the mod will now analyze and map out your road to accu
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_5 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_5", Culture);
 	}
 }

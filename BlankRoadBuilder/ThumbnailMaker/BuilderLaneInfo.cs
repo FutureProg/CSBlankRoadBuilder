@@ -15,6 +15,7 @@ public partial class LaneInfo
 	[XmlIgnore, CloneIgnore] public LaneInfo? LeftLane { get; set; }
 	[XmlIgnore, CloneIgnore] public LaneInfo? RightLane { get; set; }
 	[XmlIgnore, CloneIgnore] public TrafficLight TrafficLight { get; set; }
+	[XmlIgnore, CloneIgnore] public StopsInfo Stops { get; set; }
 	[XmlIgnore, CloneIgnore] public List<NetInfo.Lane> NetLanes { get; set; } = new();
 	[XmlIgnore, CloneIgnore] public float LaneElevation { get; set; }
 	[XmlIgnore, CloneIgnore] public float SurfaceElevation { get; set; }
@@ -76,6 +77,8 @@ public partial class LaneInfo
 			PropAngle = PropAngle,
 			TrafficLight = TrafficLight,
 			Tags = Tags | LaneTag.StackedLane,
+			Road = Road,
+			SurfaceElevation = SurfaceElevation,
 			Position = (float)Math.Round(Position + positionDifference, 3),
 		};
 	}

@@ -437,4 +437,7 @@ public static class Extensions
 
 		return label;
 	}
+
+	public static T? FirstOrAny<T>(this IEnumerable<T>? values, Func<T, bool> predicate)
+		=> values == null ? default : values.FirstOrDefault(predicate) ?? values.FirstOrDefault();
 }

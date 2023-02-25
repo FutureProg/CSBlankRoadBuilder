@@ -393,4 +393,14 @@
 [FIXED] Fixed bus stops not being generated when there’s a parking between it and the pedestrian lane.
 [FIXED] Fixed UI inconsistencies with high dpi displays.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_3_5" xml:space="preserve">
+    <value>[NEW] Reworked how stop lanes are calculated, the mod will now analyze and map out your road to accurately decide what vehicle lanesare allowed to stop and where to stop.
+[NEW] Added an option to disable bus stops on car lanes if there’s a dedicated bus lane present, enabled by default.
+[UPDATED] Lane Arrows are no longer generated on two-way lanes.
+[UPDATED] Lane Decals are no longer generated on two-way lanes, you can customize this setting in the prop settings and if shown, are displayed on both ends of the lane.
+[UPDATED] Bus lanes are back to being categorized as TransportVehicle lanes.
+[FIXED] Fixed IMT fillers not being generated while the damage markings option is enabled.
+[FIXED] Fixed pavement fillers with transit stops disappearing when a stop is present.
+[FIXED] Fixedsome  stop shelters not facing the correct direction.</value>
+  </data>
 </root>

@@ -32,11 +32,6 @@ public class IMTMarkings
 			return;
 		}
 
-		foreach (var item in roadInfo.Lanes)
-		{
-			Debug.LogError($"{item}    LEFT:{item.LeftLane}    RIGHT:{item.RightLane}");
-		}
-
 		var markings = MarkingsUtil.GenerateMarkings(roadInfo);
 		var provider = Helper.GetProvider(nameof(BlankRoadBuilder));
 		var markup = provider?.GetOrCreateSegmentMarking(segmentId);
@@ -87,12 +82,12 @@ public class IMTMarkings
 			return;
 		}
 
-		var style = GenerateFillerStyle(item);
+		var style = GenerateFillerStyle(item, markup.DataProvider);
 
 		if (style == null)
 			return;
 
-		if (ModOptions.DamagedImtMarkings && style is IEffectStyleData effectStyle)
+		if (ModOptions.DamagedImtMarkings && item.Type == LaneDecoration.Filler && style is IEffectStyleData effectStyle)
 		{
 			effectStyle.Texture = 0.25F;
 			effectStyle.Cracks = new(0.1F, 1F);
@@ -118,10 +113,8 @@ public class IMTMarkings
 		}, style);
 	}
 
-	private IFillerStyleData? GenerateFillerStyle(FillerMarking item)
+	private IFillerStyleData? GenerateFillerStyle(FillerMarking item, IDataProviderV1 provider)
 	{
-		var provider = Helper.GetProvider(nameof(BlankRoadBuilder))!;
-
 		if (item.Type is LaneDecoration.Filler)
 		{
 			var info = item.IMT_Info;
@@ -236,7 +229,7 @@ public class IMTMarkings
 			return;
 		}
 
-		var style = GetLineStyle(item);
+		var style = GetLineStyle(item, markup.DataProvider);
 
 		if (style == null)
 		{
@@ -253,10 +246,9 @@ public class IMTMarkings
 		markup.AddRegularLine(pointsA[item.Point.X], pointsB[item.Point.X], style);
 	}
 
-	private IRegularLineStyleData? GetLineStyle(LineMarking item)
+	private IRegularLineStyleData? GetLineStyle(LineMarking item, IDataProviderV1 provider)
 	{
 		var info = item.IMT_Info;
-		var provider = Helper.GetProvider(nameof(BlankRoadBuilder))!;
 
 		switch (info?.MarkingStyle)
 		{

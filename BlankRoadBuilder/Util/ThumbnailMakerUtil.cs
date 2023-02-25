@@ -81,7 +81,6 @@ public static class ThumbnailMakerUtil
 
 	private static void FillLaneTags(RoadInfo roadInfo)
 	{
-		var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram;
 		var curbToggle = true;
 
 		for (var i = 0; i < roadInfo.Lanes.Count; i++)
@@ -147,16 +146,6 @@ public static class ThumbnailMakerUtil
 				lane.RightLane = right;
 			}
 
-			if (left != null && (left.Type & stoppableVehicleLanes) != 0)
-			{
-				lane.Tags |= LaneTag.StoppableVehicleOnLeft;
-			}
-
-			if (right != null && (right.Type & stoppableVehicleLanes) != 0)
-			{
-				lane.Tags |= LaneTag.StoppableVehicleOnRight;
-			}
-
 			if (lane.Type == LaneType.Filler && lane.LaneWidth >= 1.5F)
 			{
 				lane.Tags |= LaneTag.CenterMedian;
@@ -168,9 +157,10 @@ public static class ThumbnailMakerUtil
 	{
 		return laneType switch
 		{
-			LaneType.Car or LaneType.Bike or LaneType.Tram or LaneType.Bus or LaneType.Emergency or LaneType.Trolley => NetInfo.LaneType.Vehicle,
+			LaneType.Car or LaneType.Bike or LaneType.Tram or LaneType.Emergency or LaneType.Trolley => NetInfo.LaneType.Vehicle,
 			LaneType.Parking => NetInfo.LaneType.Parking,
 			LaneType.Pedestrian => NetInfo.LaneType.Pedestrian,
+			LaneType.Bus => NetInfo.LaneType.TransportVehicle,
 			_ => NetInfo.LaneType.None,
 		};
 	}
@@ -194,77 +184,175 @@ public static class ThumbnailMakerUtil
 			};
 	}
 
-	public static VehicleInfo.VehicleType GetStopType(LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation, out LaneDirection stoppableDirection)
+	public static void ProcessStopsInfo(RoadInfo roadInfo)
 	{
-		stoppableDirection = LaneDirection.None;
+		var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram;
 
-		if (elevation != ElevationType.Basic && ModOptions.GroundOnlyStops)
-			return VehicleInfo.VehicleType.None;
-
-		switch (type)
+		foreach (var item in roadInfo.Lanes)
 		{
-			case LaneType.Pedestrian:
-				break;
-
-			case LaneType.Car:
-			case LaneType.Bus:
-				return VehicleInfo.VehicleType.Car;
-
-			case LaneType.Tram:
-				return VehicleInfo.VehicleType.Tram;
-
-			case LaneType.Trolley:
-				return VehicleInfo.VehicleType.Trolleybus;
-
-			default:
-				return VehicleInfo.VehicleType.None;
+			if ((item.Type & stoppableVehicleLanes) != 0)
+				processVehicleLane(item);
 		}
 
-		var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram;
-		var validLanes = road.Lanes.Where(l =>
+		foreach (var grp in roadInfo.Lanes.GroupBy(x => x.Stops.CanStopAt))
 		{
-			if ((l.Type & stoppableVehicleLanes) == 0)
-				return false;
-
-			var distance = Math.Abs(l.Position - lane.Position) - ((lane.LaneWidth + l.LaneWidth) / 2);
-
-			if (l.Type.HasAnyFlag(LaneType.Car, LaneType.Bus))
+			foreach (var item in grp.OrderBy(x => x.Stops.Distance).Skip(1))
 			{
-				var lanesBetween = road.Lanes.Where(x => x.Position.IsWithin(l.Position, lane.Position) && x.Type is LaneType.Parking or LaneType.Empty);
-				
-				foreach (var item in lanesBetween)
+				item.Stops = new StopsInfo();
+			}
+		}
+
+		foreach (var item in roadInfo.Lanes)
+		{
+			if (item.Type is LaneType.Pedestrian || item.Decorations.HasFlag(LaneDecoration.TransitStop))
+				processPedestrianLane(item);
+		}
+
+		void processVehicleLane(LaneInfo lane)
+		{
+			if (lane.Type.HasFlag(LaneType.Car) && !lane.Type.HasFlag(LaneType.Bus) && ModOptions.DisableCarStopsWithBuses && roadInfo.Lanes.Any(x => x.Type.HasFlag(LaneType.Bus)))
+				return;
+
+			var validLanes = roadInfo.Lanes.Select(l =>
+			{
+				if (l.Type is not LaneType.Pedestrian && !l.Decorations.HasFlag(LaneDecoration.TransitStop))
+					return null;
+
+				var distance = Math.Abs(l.Position - lane.Position) - ((lane.LaneWidth + l.LaneWidth) / 2);
+
+				if (lane.Type.HasAnyFlag(LaneType.Car, LaneType.Bus))
 				{
-					distance -= item.LaneWidth;
+					var lanesBetween = roadInfo.Lanes.Where(x => 
+						x.Position.IsWithin(l.Position, lane.Position) &&
+						x.Type is LaneType.Parking or LaneType.Empty &&
+						!x.Tags.HasFlag(LaneTag.StackedLane));
+
+					foreach (var item in lanesBetween)
+					{
+						distance -= item.LaneWidth;
+					}
 				}
+
+				if (distance > ModOptions.MaximumStopDistance || distance < 0)
+					return null;
+
+				return new { Distance = distance, Lane = l };
+			})
+			.Where(x =>  x != null)
+			.OrderBy(x => x!.Distance);
+
+			if (!validLanes.Any())
+			{
+				return;
 			}
 
-			return distance <= ModOptions.MaximumStopDistance;
-		});
+			var stopType = VehicleInfo.VehicleType.None;
 
-		var validTypes = validLanes.Aggregate(LaneType.Empty, (s, l) => s | (l.Type & stoppableVehicleLanes));
+			if (lane.Type.HasFlag(LaneType.Trolley))
+				stopType |= VehicleInfo.VehicleType.Trolleybus;
 
-		if (validTypes == LaneType.Empty)
-		{
-			return VehicleInfo.VehicleType.None;
+			if (lane.Type.HasFlag(LaneType.Tram))
+				stopType |= VehicleInfo.VehicleType.Tram;
+
+			if (lane.Type.HasAnyFlag(LaneType.Bus, LaneType.Car))
+				stopType |= VehicleInfo.VehicleType.Car;
+
+			var forward = lane.Direction is LaneDirection.Forward;
+
+			var stopLane = lane.Direction switch
+			{
+				LaneDirection.Forward => validLanes.FirstOrAny(x => x!.Lane!.Position > lane.Position),
+				LaneDirection.Backwards => validLanes.FirstOrAny(x => x!.Lane!.Position < lane.Position),
+				_ => validLanes.FirstOrDefault()
+			};
+
+			if (stopLane != null)
+			{
+				lane.Stops = new StopsInfo
+				{
+					StopType = stopType,
+					CanStopAt = stopLane.Lane,
+					Distance = stopLane.Distance
+				};
+			}
 		}
 
-		stoppableDirection =
-			validLanes.Any(x => x.Direction == LaneDirection.Both) || (validLanes.Any(x => x.Direction == LaneDirection.Backwards) && validLanes.Any(x => x.Direction == LaneDirection.Forward)) ? LaneDirection.Both :
-			validLanes.Any(x => x.Direction == LaneDirection.Backwards) ? LaneDirection.Backwards :
-			validLanes.Any(x => x.Direction == LaneDirection.Forward) ? LaneDirection.Forward : LaneDirection.None;
+		void processPedestrianLane(LaneInfo lane)
+		{
+			var validLanes = roadInfo.Lanes.Where(x => x.Stops.CanStopAt == lane);
+			var validTypes = validLanes.Aggregate(LaneType.Empty, (s, l) => s | (l.Type & stoppableVehicleLanes));
 
-		var stopType = VehicleInfo.VehicleType.None;
+			if (validTypes == LaneType.Empty)
+			{
+				return;
+			}
 
-		if (validTypes.HasFlag(LaneType.Trolley))
-			stopType |= VehicleInfo.VehicleType.Trolleybus;
+			if (lane.Type is LaneType.Pedestrian)
+			{
+				lane.Stops = new StopsInfo
+				{
+					StopType = getStopType(validLanes, null),
+					BusSide = getStopSide(validLanes.Where(x => x.Type.HasAnyFlag(LaneType.Bus, LaneType.Car))),
+					TramSide = getStopSide(validLanes.Where(x => x.Type.HasFlag(LaneType.Tram))),
+					TrolleySide = getStopSide(validLanes.Where(x => x.Type.HasFlag(LaneType.Trolley))),
+				};
+			}
+			else
+			{
+				lane.Stops = new StopsInfo
+				{
+					LeftStopType = getStopType(validLanes, false),
+					RightStopType = getStopType(validLanes, true),
+					LeftBusSide = StopsInfo.Side.Left,
+					LeftTramSide = StopsInfo.Side.Left,
+					LeftTrolleySide = StopsInfo.Side.Left,
+					RightBusSide = StopsInfo.Side.Right,
+					RightTramSide = StopsInfo.Side.Right,
+					RightTrolleySide = StopsInfo.Side.Right,
+				};
+			}
 
-		if (validTypes.HasFlag(LaneType.Tram))
-			stopType |= VehicleInfo.VehicleType.Tram;
+			VehicleInfo.VehicleType getStopType(IEnumerable<LaneInfo> lanes, bool? right)
+			{
+				if (right != null)
+					lanes = lanes.Where(x => right.Value ? x.Position > lane.Position : x.Position < lane.Position);
 
-		if (validTypes.HasAnyFlag(LaneType.Bus, LaneType.Car, LaneType.Parking))
-			stopType |= VehicleInfo.VehicleType.Car;
+				var stop = VehicleInfo.VehicleType.None;
 
-		return stopType;
+				foreach (var validTypes in lanes.Select(x => x.Type))
+				{
+					if (validTypes.HasFlag(LaneType.Trolley))
+						stop |= VehicleInfo.VehicleType.Trolleybus;
+
+					if (validTypes.HasFlag(LaneType.Tram))
+						stop |= VehicleInfo.VehicleType.Tram;
+
+					if (validTypes.HasAnyFlag(LaneType.Bus, LaneType.Car, LaneType.Parking))
+						stop |= VehicleInfo.VehicleType.Car;
+				}
+
+				return stop;
+			}
+
+			StopsInfo.Side getStopSide(IEnumerable<LaneInfo> lanes) =>
+				lanes.All(x => x.Position < lane.Position) ? StopsInfo.Side.Left :
+				lanes.All(x => x.Position > lane.Position) ? StopsInfo.Side.Right :
+				StopsInfo.Side.Both;
+		}
+	}
+
+	public static VehicleInfo.VehicleType GetStopType(LaneInfo lane, LaneType type)
+	{
+		if (type is LaneType.Car or LaneType.Bus)
+			return lane.Stops.StopType & VehicleInfo.VehicleType.Car;
+
+		if (type is LaneType.Tram)
+			return lane.Stops.StopType & VehicleInfo.VehicleType.Tram;
+
+		if (type is LaneType.Trolley)
+			return lane.Stops.StopType & VehicleInfo.VehicleType.Trolleybus;
+
+		return lane.Stops.StopType;
 	}
 
 	public static float GetStopOffset(LaneType type, LaneInfo lane)
@@ -293,33 +381,6 @@ public static class ThumbnailMakerUtil
 		}
 
 		return 0F;
-	}
-
-	public static float GetLanePosition(LaneType type, LaneInfo lane, RoadInfo road, ElevationType elevation)
-	{
-		if (type != LaneType.Pedestrian || !lane.Tags.HasFlag(LaneTag.Asphalt))
-		{
-			return lane.Position;
-		}
-
-		var stopType = GetStopType(type, lane, road, elevation, out var stopDirection);
-
-		if (stopType != VehicleInfo.VehicleType.None && stopDirection is LaneDirection.Forward or LaneDirection.Backwards)
-		{
-			var stoppingLane = stopDirection is LaneDirection.Forward ? lane.LeftLane : lane.RightLane;
-
-			if (stoppingLane?.Type.HasFlag(LaneType.Bus) ?? false)
-			{
-				return (float)Math.Round(lane.Position + (stopDirection is LaneDirection.Forward ? -0.3F : 0.3F), 3);
-			}
-
-			if (stoppingLane?.Type.HasFlag(LaneType.Car) ?? false)
-			{
-				return (float)Math.Round(lane.Position + (stopDirection is LaneDirection.Forward ? -0.1F : 0.1F), 3);
-			}
-		}
-
-		return lane.Position;
 	}
 
 	public static float GetLaneSpeedLimit(LaneType type, LaneInfo lane, RoadInfo road)

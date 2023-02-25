@@ -150,6 +150,9 @@ public static class RoadBuilderUtil
 
 			GenerateLaneWidthsAndPositions(roadInfo);
 
+			if (elevation == ElevationType.Basic || !ModOptions.GroundOnlyStops)
+				ThumbnailMakerUtil.ProcessStopsInfo(roadInfo);
+
 			if (elevation is ElevationType.Elevated or ElevationType.Bridge || !roadInfo.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier)))
 			{
 				AddBridgeBarriersAndPillar(netInfo, roadInfo);
@@ -556,24 +559,25 @@ public static class RoadBuilderUtil
 
 		if (lane.Type != LaneType.Pedestrian && lane.Decorations.HasFlag(LaneDecoration.TransitStop))
 		{
-			var leftPed = lane.Duplicate(LaneType.Pedestrian, (lane.LaneWidth - 2.1F) / -2F);
-			var rightPed = lane.Duplicate(LaneType.Pedestrian, (lane.LaneWidth - 2.1F) / 2F);
-
-			leftPed.CustomWidth = 2F;
-			leftPed.Tags &= ~LaneTag.StoppableVehicleOnRight;
-			leftPed.RightLane = null;
-
-			rightPed.CustomWidth = 2F;
-			rightPed.Tags &= ~LaneTag.StoppableVehicleOnLeft;
-			rightPed.LeftLane = null;
-
-			if (leftPed.Tags.HasFlag(LaneTag.StoppableVehicleOnLeft))
+			if (lane.Stops.LeftStopType != VehicleInfo.VehicleType.None)
 			{
+				var leftPed = lane.Duplicate(LaneType.Pedestrian, (lane.LaneWidth - 2.1F) / -2F);
+
+				leftPed.CustomWidth = 2F;
+				leftPed.RightLane = null;
+				leftPed.Stops = lane.Stops.AsLeft();
+
 				yield return getLane(LaneType.Pedestrian, leftPed, road, elevation);
 			}
 
-			if (rightPed.Tags.HasFlag(LaneTag.StoppableVehicleOnRight))
+			if (lane.Stops.RightStopType != VehicleInfo.VehicleType.None)
 			{
+				var rightPed = lane.Duplicate(LaneType.Pedestrian, (lane.LaneWidth - 2.1F) / 2F);
+
+				rightPed.CustomWidth = 2F;
+				rightPed.LeftLane = null;
+				rightPed.Stops = lane.Stops.AsRight();
+
 				yield return getLane(LaneType.Pedestrian, rightPed, road, elevation);
 			}
 
@@ -612,7 +616,7 @@ public static class RoadBuilderUtil
 
 		NetInfo.Lane getLane(LaneType _type, LaneInfo _lane, RoadInfo _road, ElevationType _elevation) => new()
 		{
-			m_position = ThumbnailMakerUtil.GetLanePosition(_type, _lane, _road, _elevation),
+			m_position = _lane.Position,
 			m_width = Math.Max(0.1F, _lane.LaneWidth),
 			m_verticalOffset = ThumbnailMakerUtil.GetLaneVerticalOffset(_lane, _road),
 			m_speedLimit = ThumbnailMakerUtil.GetLaneSpeedLimit(_type, _lane, _road),
@@ -620,7 +624,7 @@ public static class RoadBuilderUtil
 			m_vehicleType = ThumbnailMakerUtil.GetVehicleType(_type, _lane),
 			m_vehicleCategoryPart1 = ThumbnailMakerUtil.GetVehicleCategory1(_type),
 			m_vehicleCategoryPart2 = ThumbnailMakerUtil.GetVehicleCategory2(_type),
-			m_stopType = ThumbnailMakerUtil.GetStopType(_type, _lane, _road, _elevation, out _),
+			m_stopType = ThumbnailMakerUtil.GetStopType(_lane, _type),
 			m_direction = ThumbnailMakerUtil.GetLaneDirection(_lane),
 			m_finalDirection = ThumbnailMakerUtil.GetLaneDirection(_lane),
 			m_laneProps = GetLaneProps(lane, _type, _lane, _road, _elevation),

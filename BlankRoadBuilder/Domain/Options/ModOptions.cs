@@ -29,6 +29,9 @@ public static class ModOptions
 	[ModOptions(DESIGN, false, "Allow all vehicles on bus lanes", "")]
 	public static bool AllowAllVehiclesOnBusLanes { get => _allowAllVehiclesOnBusLanes; set => _allowAllVehiclesOnBusLanes.value = value; }
 
+	[ModOptions(DESIGN, true, "Disable stops for car lanes when a bus lane is present", "")]
+	public static bool DisableCarStopsWithBuses { get => _disableCarStopsWithBuses; set => _disableCarStopsWithBuses.value = value; }
+
 	[ModOptions(DESIGN, false, "Remove curb on Flat Roads", "Removes the curb texture on the edge of the asphalt of flat roads")]
 	public static bool RemoveCurbOnFlatRoads { get => _flatRoadsHaveNoCurb; set => _flatRoadsHaveNoCurb.value = value; }
 
@@ -101,6 +104,7 @@ public static class ModOptions
 	private static readonly SavedBool _alwaysAddGhostLanes = new(nameof(_alwaysAddGhostLanes), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _hideRoadDamage = new(nameof(_hideRoadDamage), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _damagedImtMarkings = new(nameof(_damagedImtMarkings), nameof(BlankRoadBuilder), true);
+	private static readonly SavedBool _disableCarStopsWithBuses = new(nameof(_disableCarStopsWithBuses), nameof(BlankRoadBuilder), true);
 
 	private static readonly SavedFloat _minimumStopDistance = new(nameof(_minimumStopDistance), nameof(BlankRoadBuilder), 3F);
 	private static readonly SavedFloat _minimumDistanceForPedLight = new(nameof(_minimumDistanceForPedLight), nameof(BlankRoadBuilder), 3F);

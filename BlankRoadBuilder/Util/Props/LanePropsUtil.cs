@@ -149,20 +149,18 @@ public partial class LanePropsUtil
 			yield return prop;
 		}
 
-		var stopType = ThumbnailMakerUtil.GetStopType(Lane.Type, Lane, Road, Elevation, out var stopDirection);
-
-		if (stopDirection == LaneDirection.None)
+		if (Lane.Stops.StopType == VehicleInfo.VehicleType.None)
 		{
 			yield break;
 		}
 
-		var largeStop = MainLane.Tags.HasFlag(LaneTag.Sidewalk) || MainLane.LaneWidth >= 3;
+		var largeStop = MainLane.Tags.HasFlag(LaneTag.Sidewalk) || MainLane.LaneWidth >= 4;
 		var stopDiff = (float)Math.Round((largeStop ? Math.Min(0, -Lane.LaneWidth / 2 + 0.75F) : 0)
-			+ Math.Abs(Lane.Position - MainLane.Position), 3);
+			- Math.Abs(Lane.Position - MainLane.Position), 3);
 
-		if (stopType.HasFlag(VehicleInfo.VehicleType.Car))
+		if (Lane.Stops.StopType.HasFlag(VehicleInfo.VehicleType.Car))
 		{
-			var busStopLarge = GetProp(largeStop ? Prop.BusStopLarge : Prop.BusStopSmall);
+			var busStopLarge = GetProp(largeStop && Lane.Stops.BusSide is not StopsInfo.Side.Both ? Prop.BusStopLarge : Prop.BusStopSmall);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -172,12 +170,12 @@ public partial class LanePropsUtil
 				m_angle = busStopLarge.Angle,
 				m_probability = 100,
 				m_position = busStopLarge.Position + new Vector3(stopDiff, 0, Lane.Tags.HasAnyFlag(LaneTag.Sidewalk, LaneTag.CenterMedian) ? 2F : 0F),
-			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
+			}.ToggleForwardBackward(Lane.Stops.BusSide is StopsInfo.Side.Left && Lane.Direction != LaneDirection.Backwards);
 		}
 
-		if (stopType.HasFlag(VehicleInfo.VehicleType.Tram))
+		if (Lane.Stops.StopType.HasFlag(VehicleInfo.VehicleType.Tram))
 		{
-			var tramStopLarge = GetProp(largeStop ? Prop.TramStopLarge : Prop.TramStopSmall);
+			var tramStopLarge = GetProp(largeStop && Lane.Stops.TramSide is not StopsInfo.Side.Both ? Prop.TramStopLarge : Prop.TramStopSmall);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -187,10 +185,10 @@ public partial class LanePropsUtil
 				m_angle = tramStopLarge.Angle,
 				m_probability = 100,
 				m_position = tramStopLarge.Position + new Vector3(stopDiff, 0, Lane.Tags.HasAnyFlag(LaneTag.Sidewalk, LaneTag.CenterMedian) ? -2F : 0F)
-			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
+			}.ToggleForwardBackward(Lane.Stops.TramSide is StopsInfo.Side.Left && Lane.Direction != LaneDirection.Backwards);
 		}
 
-		if (stopType.HasFlag(VehicleInfo.VehicleType.Trolleybus))
+		if (Lane.Stops.StopType.HasFlag(VehicleInfo.VehicleType.Trolleybus))
 		{
 			var sightSeeingProp = GetProp(Prop.TrolleyStopSmall);
 			var trolleyStop = GetProp(Prop.TrolleyStopLarge);
@@ -203,7 +201,7 @@ public partial class LanePropsUtil
 				m_angle = sightSeeingProp.Angle,
 				m_probability = 100,
 				m_position = sightSeeingProp.Position + new Vector3(stopDiff, 0, 0)
-			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
+			}.ToggleForwardBackward(Lane.Stops.TrolleySide is StopsInfo.Side.Left && Lane.Direction != LaneDirection.Backwards);
 
 			yield return new NetLaneProps.Prop
 			{
@@ -214,7 +212,7 @@ public partial class LanePropsUtil
 				m_angle = trolleyStop.Angle,
 				m_probability = 100,
 				m_position = trolleyStop.Position + new Vector3(stopDiff, 0, 0)
-			}.ToggleForwardBackward(stopDirection is LaneDirection.Forward && Lane.Direction != LaneDirection.Backwards);
+			}.ToggleForwardBackward(Lane.Stops.TrolleySide is StopsInfo.Side.Left && Lane.Direction != LaneDirection.Backwards);
 		}
 	}
 
