@@ -322,12 +322,12 @@ public class IMTMarkings
 	{
 		public bool Equals(float x, float y)
 		{
-			return Mathf.Approximately(x, y);
+			return decimal.Round((decimal)x, 3) == decimal.Round((decimal)y, 3);
 		}
 
 		public int GetHashCode(float obj)
 		{
-			return obj.ToString().GetHashCode();
+			return decimal.Round((decimal)obj, 3).GetHashCode();
 		}
 	}
 }
