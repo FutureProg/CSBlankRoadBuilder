@@ -261,11 +261,14 @@ public static class RoadBuilderUtil
 		if (roadInfo.RoadType == RoadType.Road)
 		{
 			var itemClass = ScriptableObject.CreateInstance<ItemClass>();
-			itemClass.m_layer = ItemClass.Layer.Default;
-			itemClass.m_service = ItemClass.Service.Road;
-			itemClass.m_subService = ItemClass.SubService.None;
-			itemClass.m_level = (ItemClass.Level)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8));
-			itemClass.name = ((RoadClass)(int)Math.Min(3, Math.Floor(roadInfo.TotalWidth / 8))).ToString().FormatWords();
+			{
+				itemClass.m_layer = ItemClass.Layer.Default;
+				itemClass.m_service = ItemClass.Service.Road;
+				itemClass.m_subService = ItemClass.SubService.None;
+				itemClass.m_level = (ItemClass.Level)(int)Math.Min(3, Math.Max(1, Math.Floor(roadInfo.TotalWidth / 8)));
+				itemClass.name = ((RoadClass)(int)itemClass.m_level).ToString().FormatWords();
+			}
+
 			netInfo.m_class = itemClass;
 		}
 
