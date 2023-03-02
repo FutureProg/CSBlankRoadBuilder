@@ -109,5 +109,10 @@ namespace BlankRoadBuilder
 		/// [UPDATED] Added an information label advising users to use Fillers over Pedestrian lanes for Transit
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_6 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_6", Culture);
+
+		/// <summary>
+		/// [UPDATED] Large stop props on Curb lanes will now follow the same condition as Fillers for them to s
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_7 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_7", Culture);
 	}
 }

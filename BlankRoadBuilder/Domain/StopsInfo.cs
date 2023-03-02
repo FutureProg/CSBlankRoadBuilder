@@ -20,7 +20,7 @@ public struct StopsInfo
 	public Side RightTrolleySide { get; set; }
 
 	public LaneInfo? CanStopAt { get; set; }
-	public float Distance { get; internal set; }
+	public double Distance { get; internal set; }
 
 	public StopsInfo AsLeft()
 	{

@@ -154,7 +154,7 @@ public partial class LanePropsUtil
 			yield break;
 		}
 
-		var largeStop = MainLane.Tags.HasFlag(LaneTag.Sidewalk) || MainLane.LaneWidth >= 4;
+		var largeStop = (MainLane.Tags.HasFlag(LaneTag.Sidewalk) && MainLane.Type is not LaneType.Curb)|| MainLane.LaneWidth >= 4;
 		var stopDiff = (float)Math.Round((largeStop ? Math.Min(0, -Lane.LaneWidth / 2 + 0.75F) : 0)
 			- Math.Abs(Lane.Position - MainLane.Position), 3);
 

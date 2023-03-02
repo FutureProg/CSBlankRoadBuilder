@@ -151,7 +151,7 @@ public static class RoadBuilderUtil
 			GenerateLaneWidthsAndPositions(roadInfo);
 
 			if (elevation == ElevationType.Basic || !ModOptions.GroundOnlyStops)
-				ThumbnailMakerUtil.ProcessStopsInfo(roadInfo);
+				StopsUtil.ProcessStopsInfo(roadInfo);
 
 			if (elevation is ElevationType.Elevated or ElevationType.Bridge || !roadInfo.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier)))
 			{
@@ -260,13 +260,14 @@ public static class RoadBuilderUtil
 
 		if (roadInfo.RoadType == RoadType.Road)
 		{
+			var roadClass = roadInfo.TotalWidth <= 16 ? RoadClass.SmallRoad : roadInfo.TotalWidth <= 32 ? RoadClass.MediumRoad : RoadClass.LargeRoad;
 			var itemClass = ScriptableObject.CreateInstance<ItemClass>();
 			{
 				itemClass.m_layer = ItemClass.Layer.Default;
 				itemClass.m_service = ItemClass.Service.Road;
 				itemClass.m_subService = ItemClass.SubService.None;
-				itemClass.m_level = (ItemClass.Level)(int)Math.Min(3, Math.Max(1, Math.Floor(roadInfo.TotalWidth / 8)));
-				itemClass.name = ((RoadClass)(int)itemClass.m_level).ToString().FormatWords();
+				itemClass.m_level = (ItemClass.Level)(int)roadClass;
+				itemClass.name = roadClass.ToString().FormatWords();
 			}
 
 			netInfo.m_class = itemClass;
@@ -560,11 +561,11 @@ public static class RoadBuilderUtil
 			yield return getLane(laneType, lane, road, elevation);
 		}
 
-		if (lane.Type != LaneType.Pedestrian && lane.Decorations.HasFlag(LaneDecoration.TransitStop))
+		if (!lane.Type.HasFlag(LaneType.Pedestrian) && lane.Decorations.HasFlag(LaneDecoration.TransitStop))
 		{
 			if (lane.Stops.LeftStopType != VehicleInfo.VehicleType.None)
 			{
-				var leftPed = lane.Duplicate(LaneType.Pedestrian, (lane.LaneWidth - 2.1F) / -2F);
+				var leftPed = lane.Duplicate(LaneType.Pedestrian, Math.Max(0, lane.LaneWidth - 2.1F) / -2F);
 
 				leftPed.CustomWidth = 2F;
 				leftPed.RightLane = null;
@@ -575,7 +576,7 @@ public static class RoadBuilderUtil
 
 			if (lane.Stops.RightStopType != VehicleInfo.VehicleType.None)
 			{
-				var rightPed = lane.Duplicate(LaneType.Pedestrian, (lane.LaneWidth - 2.1F) / 2F);
+				var rightPed = lane.Duplicate(LaneType.Pedestrian, Math.Max(0, lane.LaneWidth - 2.1F) / 2F);
 
 				rightPed.CustomWidth = 2F;
 				rightPed.LeftLane = null;
@@ -627,11 +628,11 @@ public static class RoadBuilderUtil
 			m_vehicleType = ThumbnailMakerUtil.GetVehicleType(_type, _lane),
 			m_vehicleCategoryPart1 = ThumbnailMakerUtil.GetVehicleCategory1(_type),
 			m_vehicleCategoryPart2 = ThumbnailMakerUtil.GetVehicleCategory2(_type),
-			m_stopType = ThumbnailMakerUtil.GetStopType(_lane, _type),
+			m_stopType = StopsUtil.GetStopType(_lane, _type),
 			m_direction = ThumbnailMakerUtil.GetLaneDirection(_lane),
 			m_finalDirection = ThumbnailMakerUtil.GetLaneDirection(_lane),
 			m_laneProps = GetLaneProps(lane, _type, _lane, _road, _elevation),
-			m_stopOffset = ThumbnailMakerUtil.GetStopOffset(_type, _lane),
+			m_stopOffset = StopsUtil.GetStopOffset(_type, _lane),
 			m_elevated = false,
 			m_useTerrainHeight = false,
 			m_centerPlatform = _lane.Decorations.HasFlag(LaneDecoration.TransitStop),

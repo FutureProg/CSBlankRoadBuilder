@@ -75,7 +75,7 @@ public partial class LanePropsUtil
 
 		if (Lane.TrafficLight.RightBackwardSpace >= 2F)
 		{
-			yield return RailwayCrossing(Lane.TrafficLight.LeftForwardSpace, propPosition).ToggleForwardBackward();
+			yield return RailwayCrossing(Lane.TrafficLight.RightBackwardSpace, propPosition).ToggleForwardBackward();
 
 			if (!GetSideLanes(Lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
 			{
