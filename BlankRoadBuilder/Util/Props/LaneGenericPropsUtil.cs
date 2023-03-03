@@ -101,7 +101,7 @@ public partial class LanePropsUtil
 			m_segmentOffset = segment,
 			m_angle = angle,
 			m_probability = 100,
-			m_position = new Vector3(position, verticalOffset, 0)
+			m_position = new Vector3(position, verticalOffset, 0) + poleProp.Position
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags { Forbidden = RoadUtils.Flags.S_RemoveTramSupports }
