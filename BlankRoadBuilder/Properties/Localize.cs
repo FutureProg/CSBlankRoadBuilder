@@ -114,5 +114,10 @@ namespace BlankRoadBuilder
 		/// [UPDATED] Large stop props on Curb lanes will now follow the same condition as Fillers for them to s
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_7 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_7", Culture);
+
+		/// <summary>
+		/// [NEW] Loading into a save-game is now disabled while Road Builder is active, disable road builder to
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_8 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_8", Culture);
 	}
 }

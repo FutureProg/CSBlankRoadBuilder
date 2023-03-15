@@ -24,7 +24,16 @@ public static class MeshUtil
 	public static void UpdateMeshes(RoadInfo roadInfo, NetInfo netInfo, ElevationType elevation)
 	{
 		if (elevation > ElevationType.Bridge)
-			return;
+		{
+			if (ModOptions.EnableTunnels)
+			{
+				elevation = ElevationType.Bridge;
+			}
+			else
+			{
+				return;
+			}
+		}
 
 		var segments = GetSegments(elevation, roadInfo);
 		var nodes = GetNodes(elevation, roadInfo);
@@ -129,14 +138,18 @@ public static class MeshUtil
 		list.AddRange(filteredNodes(false));
 
 		if (noAsphaltTransition)
+		{
 			list.AddRange(filteredNodes(false, true));
+		}
 
 		if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
 		{
 			list.AddRange(filteredNodes(true));
 
 			if (noAsphaltTransition)
+			{
 				list.AddRange(filteredNodes(true, true));
+			}
 		}
 
 		IEnumerable<NetInfo.Node> filteredNodes(bool inverted, bool asTransition = false)

@@ -216,7 +216,7 @@ public static class RoadBuilderUtil
 			});
 		}
 
-		if (template.m_netAI is RoadAI roadAI)
+		if (!ModOptions.EnableTunnels && template.m_netAI is RoadAI roadAI)
 		{
 			roadAI.m_slopeInfo = null;
 			roadAI.m_tunnelInfo = null;
@@ -257,6 +257,7 @@ public static class RoadBuilderUtil
 		netInfo.m_createRuining = elevation == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
 		netInfo.m_enableBendingNodes = roadInfo.LeftPavementWidth == roadInfo.RightPavementWidth;
 		netInfo.m_tags = GetTags(roadInfo, elevation).ToArray();
+		netInfo.m_canCrossLanes = false;
 
 		if (roadInfo.RoadType == RoadType.Road)
 		{

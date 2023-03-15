@@ -83,6 +83,9 @@ public static class ModOptions
 	[ModOptions(OTHER, false, "Disable the auto-fill of information and thumbnails in the save panel")]
 	public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }
 
+	[ModOptions(OTHER, false, "Generate Tunnels", "Generate tunnels with the bridge mesh")]
+	public static bool EnableTunnels { get => _enableTunnels; set => _enableTunnels.value = value; }
+
 	public static LaneSizeOptions LaneSizes { get; } = new LaneSizeOptions();
 
 	private static readonly SavedBool _disableAutoFillInTheSavePanel = new(nameof(_disableAutoFillInTheSavePanel), nameof(BlankRoadBuilder), false);
@@ -96,6 +99,7 @@ public static class ModOptions
 	private static readonly SavedBool _groundOnlyGrass = new(nameof(_groundOnlyGrass), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _groundOnlyStops = new(nameof(_groundOnlyStops), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _onlyUseHighCurb = new(nameof(_onlyUseHighCurb), nameof(BlankRoadBuilder), false);
+	private static readonly SavedBool _enableTunnels = new(nameof(_enableTunnels), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _allowAllVehiclesOnBusLanes = new(nameof(_allowAllVehiclesOnBusLanes), nameof(BlankRoadBuilder), false);
 
 	private static readonly SavedBool _addLaneDecals = new(nameof(_addLaneDecals), nameof(BlankRoadBuilder), true);

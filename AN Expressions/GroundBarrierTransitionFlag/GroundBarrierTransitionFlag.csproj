@@ -2,9 +2,9 @@
 
 	<PropertyGroup>
 		<TargetFramework>net3.5</TargetFramework>
-		<Version>1.3.7</Version>
-		<FileVersion>1.3.7</FileVersion>
-		<AssemblyVersion>1.3.7</AssemblyVersion>
+		<Version>1.3.8</Version>
+		<FileVersion>1.3.8</FileVersion>
+		<AssemblyVersion>1.3.8</AssemblyVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>
