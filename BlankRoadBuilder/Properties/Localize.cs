@@ -119,5 +119,10 @@ namespace BlankRoadBuilder
 		/// [NEW] Loading into a save-game is now disabled while Road Builder is active, disable road builder to
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_8 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_8", Culture);
+
+		/// <summary>
+		/// [FIXED] Compatibility with Patch 1.16.1-f2.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_9 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_9", Culture);
 	}
 }

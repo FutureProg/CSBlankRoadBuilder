@@ -222,7 +222,7 @@ public static class RoadBuilderUtil
 			roadAI.m_tunnelInfo = null;
 		}
 
-		var info = (NetInfo)(ToolsModifierControl.toolController.m_editPrefabInfo = AssetEditorRoadUtils.InstantiatePrefab(template));
+		var info = (NetInfo)(ToolsModifierControl.toolController.m_editPrefabInfo = AssetEditorRoadUtils.InstantiatePrefab(template, true));
 		return info;
 	}
 

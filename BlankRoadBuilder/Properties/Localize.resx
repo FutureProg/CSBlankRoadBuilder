@@ -427,4 +427,8 @@
 [UPDATED] Disabled the "Can Cross Lanes" option in generated lanes.
 </value>
   </data>
+  <data name="Mod_WhatsNewMessage1_3_9" xml:space="preserve">
+    <value>[FIXED] Compatibility with Patch 1.16.1-f2.
+</value>
+  </data>
 </root>
