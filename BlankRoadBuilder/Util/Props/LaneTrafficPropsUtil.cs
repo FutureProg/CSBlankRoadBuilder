@@ -237,6 +237,7 @@ public partial class LanePropsUtil
 	{
 		var railroadCrossingProp = GetProp(Prop.RailwayCrossingAheadSign);
 		var signalAheadProp = GetProp(Prop.TrafficLightAheadSign);
+		var pedCrossing = GetProp(Prop.PedestrianCrossingSign);
 
 		yield return new NetLaneProps.Prop
 		{
@@ -283,6 +284,33 @@ public partial class LanePropsUtil
 			m_position = new Vector3(propPosition, 0, 2F) + signalAheadProp.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
+			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
+			{
+				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+				Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+			}
+		});
+
+		yield return new NetLaneProps.Prop
+		{
+			m_prop = pedCrossing,
+			m_tree = pedCrossing,
+			m_flagsRequired = NetLane.Flags.None,
+			m_flagsForbidden = NetLane.Flags.JoinedJunctionInverted,
+			m_endFlagsForbidden = NetNode.Flags.LevelCrossing | NetNode.Flags.End | NetNode.Flags.TrafficLights | NetNode.Flags.Middle | NetNode.Flags.Bend | NetNode.Flags.Underground,
+			m_cornerAngle = 0,
+			m_minLength = 20F,
+			m_repeatDistance = 0,
+			m_segmentOffset = pedCrossing.SegmentOffset,
+			m_angle = pedCrossing.Angle,
+			m_probability = pedCrossing.Probability,
+			m_position = new Vector3(propPosition, 0, 0) + pedCrossing.Position,
+		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
+		{
+			SegmentEndFlags = new NetInfoExtionsion.SegmentEndInfoFlags
+			{
+				Required = NetSegmentEnd.Flags.ZebraCrossing,
+			},
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 			{
 				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,

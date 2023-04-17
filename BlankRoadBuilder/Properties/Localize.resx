@@ -444,11 +444,16 @@
 [UPDATED] Traffic Light/Level Crossing Ahead signs will no longer appear if the previous node already has traffic lights/a level crossing.
 [UPDATED] Speed signs are now dynamic and adjust based on TM:PE settings.
 [UPDATED] Built-in bridge barriers are now generated on nodes.
-[UPDATED] Added a hotkey [Ctrl+Tab] to open/hide the roads section in Thumbnail Maker.
+[UPDATED] Added a hotkey (Ctrl+Tab) to open/hide the roads section in Thumbnail Maker.
 [UPDATED] Updated the template layout to have less overlaps with the segments.
 [UPDATED] Changed the wording on editor buttons to improve clarity.
 [FIXED] Fixed LODs having a white stripe at the edge of the road.
 [FIXED] Fixed tram poles not using their relative position settings.
 [FIXED] Fixed text boxes selecting all text when tooltips pop up.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_4_1" xml:space="preserve">
+    <value>[NEW] Added an option to autmatically remove pedestrian lanes from non-ground levels.
+[NEW] Added a pedestrian crossing sign.
+[FIXED] Fixed Vents showing on the slope before tunnels.</value>
   </data>
 </root>

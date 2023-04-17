@@ -129,5 +129,10 @@ namespace BlankRoadBuilder
 		/// [NEW] Tunnels can now be generated in the editor.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_4_0 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_0", Culture);
+
+		/// <summary>
+		/// [NEW] Added an option to autmatically remove pedestrian lanes from non-ground levels.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_1 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_1", Culture);
 	}
 }

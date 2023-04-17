@@ -47,10 +47,10 @@ public static class ModOptions
 	[ModOptions(DESIGN, true, "Hide road damage by default", "Road damage are random decals scattered around your road. They can still be shown using their AN toggle")]
 	public static bool HideRoadDamage { get => _hideRoadDamage; set => _hideRoadDamage.value = value; }
 
-	[ModOptions(DESIGN, true, "Allow Trolley Buses on neighboring lanes", "Allows trolley buses to move on car lanes that are directly next to the trolley's lane")]
+	[ModOptions(DESIGN, false, "Allow Trolley Buses on neighboring lanes", "Allows trolley buses to move on car lanes that are directly next to the trolley's lane")]
 	public static bool AllowTrolleysOnNextLane { get => _allowTrolleysOnNextLane; set => _allowTrolleysOnNextLane.value = value; }
 
-	[ModOptions(DESIGN, (int)BridgeBarrierStyle.ConcreteBarrier, "Default Tram tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
+	[ModOptions(DESIGN, (int)BridgeBarrierStyle.ConcreteBarrier, "Bridge Barriers", "Change the generated barriers for the bridge elevations")]
 	public static BridgeBarrierStyle BridgeBarriers { get => (BridgeBarrierStyle)_bridgeBarriers.value; set => _bridgeBarriers.value = (int)value; }
 
 	[ModOptions(DESIGN, false, "Remove parking lanes on non-ground levels", "Warning, results might vary based on your road's settings")]
@@ -62,13 +62,16 @@ public static class ModOptions
 	[ModOptions(DESIGN, false, "Disable transit stops on non-ground levels", "")]
 	public static bool GroundOnlyStops { get => _groundOnlyStops; set => _groundOnlyStops.value = value; }
 
-	[ModOptions(DESIGN, 75, "Bus bay size factor", "A percentage of the road which the bus bay's flat side occupies.", 5, 100, 1, "%")]
+	[ModOptions(DESIGN, false, "Disable pedestrian lanes non-ground levels", "")]
+	public static bool GroundOnlyPeds { get => _groundOnlyPeds; set => _groundOnlyPeds.value = value; }
+
+	[ModOptions(DESIGN, 75F, "Bus bay size factor", "A percentage of the road which the bus bay's flat side occupies.", 5, 100, 1, "%")]
 	public static float BusBaySize { get => _busBaySize; set => _busBaySize.value = value; }
 
-	[ModOptions(DESIGN, 3, "Maximum distance to a stop", "Determines the maximum allowed distance between a pedestrian and vehicle lane in order for a stop to appear.", 0.1F, 12, 0.1F, "m")]
+	[ModOptions(DESIGN, 3F, "Maximum distance to a stop", "Determines the maximum allowed distance between a pedestrian and vehicle lane in order for a stop to appear.", 0.1F, 12, 0.1F, "m")]
 	public static float MaximumStopDistance { get => _minimumStopDistance; set => _minimumStopDistance.value = value; }
 
-	[ModOptions(DESIGN, 3, "Minimum crossing distance for pedestrian traffic light", "Determines the minimum crossing distance needed for a pedestrian traffic light to appear, non-inclusive.", 0F, 24, 0.1F, "m")]
+	[ModOptions(DESIGN, 3F, "Minimum crossing distance for pedestrian traffic light", "Determines the minimum crossing distance needed for a pedestrian traffic light to appear, non-inclusive.", 0F, 24, 0.1F, "m")]
 	public static float MinimumDistanceForPedLight { get => _minimumDistanceForPedLight; set => _minimumDistanceForPedLight.value = value; }
 
 	[ModOptions(DESIGN, (int)TramTracks.Rev0, "Default Tram tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
@@ -105,6 +108,7 @@ public static class ModOptions
 	private static readonly SavedBool _groundOnlyGrass = new(nameof(_groundOnlyGrass), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _groundOnlyStops = new(nameof(_groundOnlyStops), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _onlyUseHighCurb = new(nameof(_onlyUseHighCurb), nameof(BlankRoadBuilder), false);
+	private static readonly SavedBool _groundOnlyPeds = new(nameof(_groundOnlyPeds), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _allowTrolleysOnNextLane = new(nameof(_allowTrolleysOnNextLane), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _enableTunnels = new(nameof(_enableTunnels), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _allowAllVehiclesOnBusLanes = new(nameof(_allowAllVehiclesOnBusLanes), nameof(BlankRoadBuilder), false);

@@ -139,11 +139,17 @@ public static class RoadBuilderUtil
 
 			if (elevation != ElevationType.Basic)
 			{
-				if (ModOptions.GroundOnlyGrass)
+				if (ModOptions.GroundOnlyGrass || elevation >= ElevationType.Slope)
 					roadInfo.Lanes.Where(x => x.Decorations.HasFlag(LaneDecoration.Grass)).ForEach(x => x.Decorations = LaneDecoration.Pavement | (x.Decorations & ~LaneDecoration.Grass));
 
 				if (ModOptions.GroundOnlyParking)
 					roadInfo.Lanes.RemoveAll(x => x.Type == LaneType.Parking);
+
+				if (ModOptions.GroundOnlyPeds)
+				{
+					roadInfo.Lanes.RemoveAll(x => x.Type == LaneType.Pedestrian);
+					roadInfo.Lanes.ForEach(x => x.Decorations &= ~LaneDecoration.TransitStop);
+				}
 			}
 
 			ThumbnailMakerUtil.ProcessRoadInfo(roadInfo);

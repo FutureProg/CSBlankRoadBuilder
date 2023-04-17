@@ -217,7 +217,7 @@ public partial class LanePropsUtil
 			yield break;
 		}
 
-		if (Lane.Type is LaneType.Curb)
+		if (Elevation is ElevationType.Tunnel && Lane.Type is LaneType.Curb)
 		{
 			var ventProp = GetProp(Prop.TunnelVent);
 

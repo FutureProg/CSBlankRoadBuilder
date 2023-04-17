@@ -83,4 +83,5 @@ public enum Prop
 	TunnelLight,
 	TunnelExitProp,
 	TunnelVent,
+	PedestrianCrossingSign,
 }
