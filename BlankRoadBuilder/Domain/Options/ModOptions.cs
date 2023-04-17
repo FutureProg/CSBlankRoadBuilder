@@ -47,6 +47,12 @@ public static class ModOptions
 	[ModOptions(DESIGN, true, "Hide road damage by default", "Road damage are random decals scattered around your road. They can still be shown using their AN toggle")]
 	public static bool HideRoadDamage { get => _hideRoadDamage; set => _hideRoadDamage.value = value; }
 
+	[ModOptions(DESIGN, true, "Allow Trolley Buses on neighboring lanes", "Allows trolley buses to move on car lanes that are directly next to the trolley's lane")]
+	public static bool AllowTrolleysOnNextLane { get => _allowTrolleysOnNextLane; set => _allowTrolleysOnNextLane.value = value; }
+
+	[ModOptions(DESIGN, (int)BridgeBarrierStyle.ConcreteBarrier, "Default Tram tracks", "Changes the default style of tracks used for Trams, other options will remain available with AN toggles")]
+	public static BridgeBarrierStyle BridgeBarriers { get => (BridgeBarrierStyle)_bridgeBarriers.value; set => _bridgeBarriers.value = (int)value; }
+
 	[ModOptions(DESIGN, false, "Remove parking lanes on non-ground levels", "Warning, results might vary based on your road's settings")]
 	public static bool GroundOnlyParking { get => _groundOnlyParking; set => _groundOnlyParking.value = value; }
 
@@ -55,6 +61,9 @@ public static class ModOptions
 
 	[ModOptions(DESIGN, false, "Disable transit stops on non-ground levels", "")]
 	public static bool GroundOnlyStops { get => _groundOnlyStops; set => _groundOnlyStops.value = value; }
+
+	[ModOptions(DESIGN, 75, "Bus bay size factor", "A percentage of the road which the bus bay's flat side occupies.", 5, 100, 1, "%")]
+	public static float BusBaySize { get => _busBaySize; set => _busBaySize.value = value; }
 
 	[ModOptions(DESIGN, 3, "Maximum distance to a stop", "Determines the maximum allowed distance between a pedestrian and vehicle lane in order for a stop to appear.", 0.1F, 12, 0.1F, "m")]
 	public static float MaximumStopDistance { get => _minimumStopDistance; set => _minimumStopDistance.value = value; }
@@ -83,9 +92,6 @@ public static class ModOptions
 	[ModOptions(OTHER, false, "Disable the auto-fill of information and thumbnails in the save panel")]
 	public static bool DisableAutoFillInTheSavePanel { get => _disableAutoFillInTheSavePanel; set => _disableAutoFillInTheSavePanel.value = value; }
 
-	[ModOptions(OTHER, false, "Generate Tunnels", "Generate tunnels with the bridge mesh")]
-	public static bool EnableTunnels { get => _enableTunnels; set => _enableTunnels.value = value; }
-
 	public static LaneSizeOptions LaneSizes { get; } = new LaneSizeOptions();
 
 	private static readonly SavedBool _disableAutoFillInTheSavePanel = new(nameof(_disableAutoFillInTheSavePanel), nameof(BlankRoadBuilder), false);
@@ -99,6 +105,7 @@ public static class ModOptions
 	private static readonly SavedBool _groundOnlyGrass = new(nameof(_groundOnlyGrass), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _groundOnlyStops = new(nameof(_groundOnlyStops), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _onlyUseHighCurb = new(nameof(_onlyUseHighCurb), nameof(BlankRoadBuilder), false);
+	private static readonly SavedBool _allowTrolleysOnNextLane = new(nameof(_allowTrolleysOnNextLane), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _enableTunnels = new(nameof(_enableTunnels), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _allowAllVehiclesOnBusLanes = new(nameof(_allowAllVehiclesOnBusLanes), nameof(BlankRoadBuilder), false);
 
@@ -107,15 +114,18 @@ public static class ModOptions
 	private static readonly SavedBool _addGrassPropsToGrassLanes = new(nameof(_addGrassPropsToGrassLanes), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _alwaysAddGhostLanes = new(nameof(_alwaysAddGhostLanes), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _hideRoadDamage = new(nameof(_hideRoadDamage), nameof(BlankRoadBuilder), true);
+	private static readonly SavedBool _addBarriersToBridge = new(nameof(_addBarriersToBridge), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _damagedImtMarkings = new(nameof(_damagedImtMarkings), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _disableCarStopsWithBuses = new(nameof(_disableCarStopsWithBuses), nameof(BlankRoadBuilder), true);
 
 	private static readonly SavedFloat _minimumStopDistance = new(nameof(_minimumStopDistance), nameof(BlankRoadBuilder), 3F);
 	private static readonly SavedFloat _minimumDistanceForPedLight = new(nameof(_minimumDistanceForPedLight), nameof(BlankRoadBuilder), 3F);
+	private static readonly SavedFloat _busBaySize = new(nameof(_busBaySize), nameof(BlankRoadBuilder), 9);
 
 	private static readonly SavedInt _markingsStyle = new(nameof(_markingsStyle), nameof(BlankRoadBuilder), (int)MarkingStyle.Vanilla);
 	private static readonly SavedInt _tramTracks = new(nameof(_tramTracks), nameof(BlankRoadBuilder), (int)TramTracks.Rev0);
 	private static readonly SavedInt _markings = new(nameof(_markings), nameof(BlankRoadBuilder), (int)MarkingsSource.IMTWithMeshFillers);
 	private static readonly SavedInt _stepTransition = new(nameof(_stepTransition), nameof(BlankRoadBuilder), (int)StepSteepness.ModerateSlope);
 	private static readonly SavedInt _vanillaCrosswalkStyle = new(nameof(_vanillaCrosswalkStyle), nameof(BlankRoadBuilder), (int)CrosswalkStyle.Zebra);
+	private static readonly SavedInt _bridgeBarriers = new(nameof(_bridgeBarriers), nameof(BlankRoadBuilder), (int)BridgeBarrierStyle.ConcreteBarrier);
 }

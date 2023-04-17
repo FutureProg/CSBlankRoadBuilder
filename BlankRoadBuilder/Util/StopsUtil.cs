@@ -201,11 +201,11 @@ public static class StopsUtil
 			return type == LaneType.Bus ? 0.3F : 0.1F;
 		}
 
-		if (lane.RightLane?.Type is LaneType.Parking or LaneType.Empty)
+		if (lane.RightLane?.Type is LaneType.Parking or LaneType.Empty || (lane.RightLane?.Decorations.HasFlag(LaneDecoration.BusBay) ?? false))
 		{
 			return lane.RightLane.LaneWidth;
 		}
-		else if (lane.LeftLane?.Type is LaneType.Parking or LaneType.Empty)
+		else if (lane.LeftLane?.Type is LaneType.Parking or LaneType.Empty || (lane.LeftLane?.Decorations.HasFlag(LaneDecoration.BusBay) ?? false))
 		{
 			return -lane.LeftLane.LaneWidth;
 		}

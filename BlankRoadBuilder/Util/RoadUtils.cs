@@ -53,7 +53,6 @@ public class AnFlags
 
 	public LaneTransition.Flags T_Markings = LaneTransition.Flags.Expression0;
 	public LaneTransition.Flags T_TrolleyWires = LaneTransition.Flags.Expression1;
-	public LaneTransition.Flags T_GroundBarriers = LaneTransition.Flags.Expression2;
 
 	public NetNodeExt.Flags N_FlatTransition = NetNodeExt.Flags.Expression0;
 }

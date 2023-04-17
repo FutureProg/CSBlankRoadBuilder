@@ -7,6 +7,7 @@ using BlankRoadBuilder.Util.Markings;
 
 using PrefabMetadata.Helpers;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,35 +17,36 @@ namespace BlankRoadBuilder.Util;
 
 public static class MeshUtil
 {
-	private static AssetModel GetModel(CurbType id, RoadAssetType type, RoadInfo roadInfo, ElevationType elevation, string name, bool inverted = false, bool noAsphaltTransition = false)
+	private static AssetModel GetModel(CurbType id, RoadAssetType type, RoadInfo roadInfo, ElevationType elevation, string name, bool inverted = false, bool noAsphaltTransition = false, bool bridgeShader = false)
 	{
-		return AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, name + (inverted ? " Inverted" : "") + (noAsphaltTransition ? " Asphalt" : ""), inverted, noAsphaltTransition);
+		return AssetUtil.ImportAsset(roadInfo, MeshType.Road, elevation, type, id, name + (inverted ? " Inverted" : "") + (noAsphaltTransition ? " Asphalt" : ""), inverted, noAsphaltTransition, bridgeShader);
 	}
 
 	public static void UpdateMeshes(RoadInfo roadInfo, NetInfo netInfo, ElevationType elevation)
 	{
-		if (elevation > ElevationType.Bridge)
+		var segments = GetSegments(elevation, roadInfo);
+		var nodes = new List<NetInfo.Node>();
+
+		if (elevation is ElevationType.Tunnel or ElevationType.Slope)
 		{
-			if (ModOptions.EnableTunnels)
-			{
-				elevation = ElevationType.Bridge;
-			}
-			else
-			{
-				return;
-			}
+			nodes.AddRange(GetNodes(ElevationType.Basic, roadInfo, true));
+
+			nodes.AddRange(GetNodes(ElevationType.Tunnel, roadInfo));
+		}
+		else
+		{
+			nodes.AddRange(GetNodes(elevation, roadInfo));
 		}
 
-		var segments = GetSegments(elevation, roadInfo);
-		var nodes = GetNodes(elevation, roadInfo);
+		AddBridgeBarriers(nodes, segments, roadInfo, elevation);
 
 		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.VanillaMarkings, MarkingsSource.HiddenVanillaMarkings, MarkingsSource.MeshFillers))
 		{
 			var markings = MarkingsUtil.GenerateMarkings(roadInfo);
 
-			segments.AddRange(NetworkMarkings.Markings(markings));
+			segments.AddRange(NetworkMarkings.Markings(markings, elevation));
 
-			segments.AddRange(NetworkMarkings.IMTHelpers(roadInfo));
+			segments.AddRange(NetworkMarkings.IMTHelpers(roadInfo, elevation));
 		}
 
 		if (ModOptions.MarkingsGenerated.HasAnyFlag(MarkingsSource.VanillaMarkings) && ModOptions.VanillaCrosswalkStyle != CrosswalkStyle.None)
@@ -69,14 +71,46 @@ public static class MeshUtil
 		data.TrackLaneCount = tracks.Count;
 	}
 
+	private static void AddBridgeBarriers(List<NetInfo.Node> nodes, List<NetInfo.Segment> segments, RoadInfo roadInfo, ElevationType elevation)
+	{
+		if (elevation is ElevationType.Slope or ElevationType.Tunnel or ElevationType.Basic || ModOptions.BridgeBarriers is BridgeBarrierStyle.None)
+			return;
+
+		var name = ModOptions.BridgeBarriers is BridgeBarrierStyle.ConcreteBarrier ? "Concrete Barrier.obj" : "Soundwall.obj";
+		var meshLeft = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, name, offset: -((roadInfo.TotalWidth / 2) - 0.45F + 0.8F));
+		var meshRight = AssetUtil.ImportAsset(ShaderType.Bridge, MeshType.Barriers, name, offset: (roadInfo.TotalWidth / 2) - 0.45F + 0.8F);
+
+		var nodeLeft = new MeshInfo<NetInfo.Node, Node>(meshLeft);
+		var nodeRight = new MeshInfo<NetInfo.Node, Node>(meshRight);
+
+		nodes.Add(nodeLeft);
+		nodes.Add(nodeRight);
+
+		var segmentLeft = new MeshInfo<NetInfo.Segment, Segment>(meshLeft);
+		var segmentRight = new MeshInfo<NetInfo.Segment, Segment>(meshRight);
+		
+		segments.Add(segmentLeft);
+		segments.Add(segmentRight);
+	}
+
 	private static List<NetInfo.Segment> GetSegments(ElevationType elevation, RoadInfo roadInfo)
 	{
 		var list = new List<MeshInfo<NetInfo.Segment, Segment>>();
+		var isTunnel = elevation is ElevationType.Slope or ElevationType.Tunnel;
 
-		MeshInfo<NetInfo.Segment, Segment> highCurb, lowCurb, fullLowCurb, curbless;
+		if (isTunnel)
+		{
+			var mesh = new MeshInfo<NetInfo.Segment, Segment>(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, elevation.ToString()));
 
-		highCurb = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "High Curb"));
-		curbless = new(GetModel(CurbType.Curbless, RoadAssetType.Segment, roadInfo, elevation, "Curbless"));
+			list.Add(mesh);
+
+			elevation = ElevationType.Basic;
+		}
+
+		MeshInfo<NetInfo.Segment, Segment> highCurb, lowCurb, fullLowCurb, curbless, baySingle, bayFull;
+
+		highCurb = new(GetModel(CurbType.HC, RoadAssetType.Segment, roadInfo, elevation, "High Curb", bridgeShader: isTunnel));
+		curbless = new(GetModel(CurbType.Curbless, RoadAssetType.Segment, roadInfo, elevation, "Curbless", bridgeShader: isTunnel));
 
 		highCurb.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert;
 		highCurb.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
@@ -92,10 +126,15 @@ public static class MeshUtil
 		list.Add(highCurb);
 		list.Add(curbless);
 
-		if (elevation == ElevationType.Basic && roadInfo.RoadType == RoadType.Road)
+		if (elevation != ElevationType.Basic || isTunnel)
 		{
-			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Segment, roadInfo, elevation, "Low Curb"));
-			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Segment, roadInfo, elevation, "Full Low Curb"));
+			return list.Select(x => x.Mesh).ToList();
+		}
+
+		if (roadInfo.RoadType == RoadType.Road)
+		{
+			lowCurb = new(GetModel(CurbType.LCS, RoadAssetType.Segment, roadInfo, elevation, "Low Curb", bridgeShader: isTunnel));
+			fullLowCurb = new(GetModel(CurbType.LCF, RoadAssetType.Segment, roadInfo, elevation, "Full Low Curb", bridgeShader: isTunnel));
 
 			highCurb.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_LowCurbOnTheRight | RoadUtils.Flags.S_LowCurbOnTheLeft;
 			highCurb.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_LowCurbOnTheRight | RoadUtils.Flags.S_LowCurbOnTheLeft;
@@ -116,11 +155,35 @@ public static class MeshUtil
 			list.Add(fullLowCurb);
 		}
 
-		if (elevation == ElevationType.Basic)
+		if (roadInfo.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.BusBay)))
 		{
-			list.ForEach(x => x.MetaData.Tiling = 2);
+			foreach (var item in list)
+			{
+				item.Mesh.m_forwardForbidden |= NetSegment.Flags.StopBoth;
+				item.Mesh.m_backwardForbidden |= NetSegment.Flags.StopBoth;
+			}
+
+			baySingle = new(GetModel(CurbType.BaySingle, RoadAssetType.Segment, roadInfo, elevation, "Single Bus Bay", bridgeShader: isTunnel));
+
+			baySingle.Mesh.m_forwardRequired |= NetSegment.Flags.StopLeft;
+			baySingle.Mesh.m_forwardForbidden |= NetSegment.Flags.StopRight;
+			baySingle.Mesh.m_backwardRequired |= NetSegment.Flags.StopRight;
+			baySingle.Mesh.m_backwardForbidden |= NetSegment.Flags.StopLeft;
+
+			list.Add(baySingle);
+
+			if (roadInfo.Lanes.Count(x => x.Decorations.HasFlag(LaneDecoration.BusBay)) == 2)
+			{
+				bayFull = new(GetModel(CurbType.BayFull, RoadAssetType.Segment, roadInfo, elevation, "Double Bus Bays", bridgeShader: isTunnel));
+
+				bayFull.Mesh.m_forwardRequired |= NetSegment.Flags.StopBoth;
+				bayFull.Mesh.m_backwardRequired |= NetSegment.Flags.StopBoth;
+
+				list.Add(bayFull);
+			}
 		}
 
+		list.ForEach(x => x.MetaData.Tiling = 2);
 		//if (roadInfo.LeftPavementWidth != roadInfo.RightPavementWidth)
 		//{
 		//	highCurb.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_Asym | RoadUtils.Flags.S_AsymInverted;
@@ -130,7 +193,7 @@ public static class MeshUtil
 		return list.Select(x => x.Mesh).ToList();
 	}
 
-	private static List<NetInfo.Node> GetNodes(ElevationType elevation, RoadInfo roadInfo)
+	private static List<NetInfo.Node> GetNodes(ElevationType elevation, RoadInfo roadInfo, bool bridgeShader = false)
 	{
 		var list = new List<NetInfo.Node>();
 		var noAsphaltTransition = roadInfo.AsphaltStyle == AsphaltStyle.None && !(elevation == ElevationType.Basic ? (roadInfo.SideTexture == TextureType.Asphalt) : elevation <= ElevationType.Bridge && (roadInfo.BridgeSideTexture == BridgeTextureType.Asphalt));
@@ -195,9 +258,17 @@ public static class MeshUtil
 		{
 			MeshInfo<NetInfo.Node, Node> highCurb, lowCurb, fullLowCurb, transition;
 
-			highCurb = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "High Curb", inverted, noAsphaltTransition: asTransition));
+			highCurb = new(GetModel(CurbType.HC, RoadAssetType.Node, roadInfo, elevation, "High Curb", inverted, noAsphaltTransition: asTransition, bridgeShader: bridgeShader));
+
+			if (elevation is ElevationType.Slope or ElevationType.Tunnel)
+				highCurb.Mesh.flagsRequired |= NetNode.FlagsLong.Underground;
 
 			yield return highCurb;
+
+			if (elevation is ElevationType.Slope or ElevationType.Tunnel || bridgeShader)
+			{
+				yield break;
+			}
 
 			if (roadInfo.RoadType != RoadType.Road)
 			{
@@ -255,8 +326,10 @@ public static class MeshUtil
 
 	private static IEnumerable<Track> GenerateBarriers(NetInfo netInfo, RoadInfo road, ElevationType elevation)
 	{
-		var hidden = elevation == ElevationType.Basic && !road.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.Barrier) && !x.Tags.HasFlag(LaneTag.StackedLane));
 		var lanes = road.Lanes.Where(x => x.Decorations.HasFlag(LaneDecoration.Barrier)).Select(x => x.NetLanes[0]).ToArray();
+
+		if (lanes.Length == 0)
+			yield break;
 
 		var barriers = new AssetModel[]
 		{
@@ -275,11 +348,11 @@ public static class MeshUtil
 			m_lodMaterial = x.m_lodMaterial,
 			TreatBendAsSegment = true,
 			RenderNode = true,
-			RenderSegment = !hidden,
+			//RenderSegment = !hidden,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lanes),
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.Flags.L_RemoveBarrier },
 			LaneTags = new LaneTagsT(new[] { "RoadBuilderBarrierLane" }),
-			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = hidden ? RoadUtils.Flags.T_GroundBarriers : RoadUtils.Flags.T_Markings }
+			//LaneTransitionFlags = new LaneTransitionInfoFlags { Required = hidden ? RoadUtils.Flags.T_GroundBarriers : RoadUtils.Flags.T_Markings }
 		}).ToList();
 
 		for (var i = 0; i < tracks.Count; i++)

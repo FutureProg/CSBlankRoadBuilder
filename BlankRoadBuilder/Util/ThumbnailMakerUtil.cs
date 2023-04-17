@@ -52,6 +52,9 @@ public static class ThumbnailMakerUtil
 			return null;
 		}
 
+		if (roadInfo.Version < 2 && roadInfo.RoadType == RoadType.Highway)
+			roadInfo.HighwayRules = true;
+
 		roadInfo.ContainsWiredLanes = roadInfo.Lanes.Any(x => (x.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
 
 		roadInfo.Lanes.Insert(0, new LaneInfo // Add damage & markings lanes
@@ -172,7 +175,7 @@ public static class ThumbnailMakerUtil
 			return VehicleInfo.VehicleType.None;
 		}
 
-		return laneType == LaneType.Curb && !(ModOptions.AlwaysAddGhostLanes || ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.IMTMarkings))
+		var value = laneType == LaneType.Curb && !(ModOptions.AlwaysAddGhostLanes || ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.IMTMarkings))
 			? VehicleInfo.VehicleType.None
 			: laneType switch
 			{
@@ -182,6 +185,17 @@ public static class ThumbnailMakerUtil
 				LaneType.Trolley => VehicleInfo.VehicleType.Trolleybus,
 				_ => VehicleInfo.VehicleType.Car,
 			};
+
+		if (ModOptions.AllowTrolleysOnNextLane && laneType is LaneType.Car or LaneType.Bus && !lane.Type.HasFlag(LaneType.Trolley))
+		{
+			if ((lane.LeftLane?.Type.HasFlag(LaneType.Trolley) ?? false) && lane.LeftLane.Direction == lane.Direction)
+				value |= VehicleInfo.VehicleType.Trolleybus;
+
+			else if ((lane.RightLane?.Type.HasFlag(LaneType.Trolley) ?? false) && lane.RightLane.Direction == lane.Direction)
+				value |= VehicleInfo.VehicleType.Trolleybus;
+		}
+
+		return value;
 	}
 
 	public static float GetLaneSpeedLimit(LaneType type, LaneInfo lane, RoadInfo road)

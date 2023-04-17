@@ -431,4 +431,24 @@
     <value>[FIXED] Compatibility with Patch 1.16.1-f2.
 </value>
   </data>
+  <data name="Mod_WhatsNewMessage1_4_0" xml:space="preserve">
+    <value>[NEW] Tunnels can now be generated in the editor.
+[NEW] Added a Bus Bay add-on to curbs, which automatically hides them when a bus stop is present.
+[NEW] Trolley buses can now be allowed on neighboring lanes.
+[NEW] Added a priority sign to the list of available props, which is empty by default.
+[NEW] You can now choose between concrete, sound-wall, or “no” barriers for the bridge elevations.
+[NEW] Added a new tunnel light prop setting.
+[NEW] Thumbnail Maker now allows you to disable specific elevations.
+[NEW] You can now enable or disable "Can Cross Lanes" and "Highway Rules" per-road from Thumbnail Maker.
+[NEW] Added an option to hide the sun and clouds from thumbnails.
+[UPDATED] Traffic Light/Level Crossing Ahead signs will no longer appear if the previous node already has traffic lights/a level crossing.
+[UPDATED] Speed signs are now dynamic and adjust based on TM:PE settings.
+[UPDATED] Built-in bridge barriers are now generated on nodes.
+[UPDATED] Added a hotkey [Ctrl+Tab] to open/hide the roads section in Thumbnail Maker.
+[UPDATED] Updated the template layout to have less overlaps with the segments.
+[UPDATED] Changed the wording on editor buttons to improve clarity.
+[FIXED] Fixed LODs having a white stripe at the edge of the road.
+[FIXED] Fixed tram poles not using their relative position settings.
+[FIXED] Fixed text boxes selecting all text when tooltips pop up.</value>
+  </data>
 </root>

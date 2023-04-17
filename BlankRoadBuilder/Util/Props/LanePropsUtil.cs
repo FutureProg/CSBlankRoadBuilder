@@ -81,6 +81,11 @@ public partial class LanePropsUtil
 				{
 					yield return prop;
 				}
+
+				foreach (var prop in GetTunnelProps())
+				{
+					yield return prop;
+				}
 			}
 
 			switch (Type)

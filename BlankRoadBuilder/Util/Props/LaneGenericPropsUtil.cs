@@ -11,6 +11,8 @@ using System.Linq;
 
 using UnityEngine;
 
+using static AdaptiveRoads.Manager.NetInfoExtionsion;
+
 namespace BlankRoadBuilder.Util.Props;
 
 public partial class LanePropsUtil
@@ -18,7 +20,9 @@ public partial class LanePropsUtil
 	private IEnumerable<NetLaneProps.Prop> GetWirePoleProps()
 	{
 		if (!Road.ContainsWiredLanes)
+		{
 			yield break;
+		}
 
 		getLaneTramInfo(Lane, Road, out var tramLanesAreNextToMedians, out var leftTram, out var rightTram);
 
@@ -65,7 +69,9 @@ public partial class LanePropsUtil
 				getLaneTramInfo(nextLane, Road, out _, out var l, out var r);
 
 				if ((l && r) || (l && rightTram))
+				{
 					yield break;
+				}
 			}
 
 			if (rightTram && nextLane != null && ((nextLane.Type & LaneType.Tram) != 0))
@@ -73,7 +79,9 @@ public partial class LanePropsUtil
 				var nextNextLane = leftTram ? nextLane?.LeftLane : nextLane?.RightLane;
 
 				if (nextNextLane?.Type.HasAnyFlag(LaneType.Filler, LaneType.Curb, LaneType.Pedestrian) ?? false)
+				{
 					yield break;
+				}
 			}
 
 			poleProp = GetProp(Prop.TramSidePole);
@@ -101,7 +109,7 @@ public partial class LanePropsUtil
 			m_segmentOffset = segment,
 			m_angle = angle,
 			m_probability = 100,
-			m_position = new Vector3(position, verticalOffset, 0) + poleProp.Position
+			m_position = new Vector3(position, verticalOffset, 0) + PropPosition(poleProp)
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags { Forbidden = RoadUtils.Flags.S_RemoveTramSupports }
@@ -118,14 +126,18 @@ public partial class LanePropsUtil
 	private IEnumerable<NetLaneProps.Prop> GetParkingProps()
 	{
 		if (Lane.GetLaneWidth(true) < 0.75F)
+		{
 			yield break;
+		}
 
 		if (Lane.LeftLane?.Type == LaneType.Parking)
 		{
 			var parkingMeter = GetProp(Prop.ParkingMeter);
 
 			if (parkingMeter is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			{
 				yield break;
+			}
 
 			yield return new NetLaneProps.Prop
 			{
@@ -149,7 +161,9 @@ public partial class LanePropsUtil
 			var parkingMeter = GetProp(Prop.ParkingMeter);
 
 			if (parkingMeter is DecorationProp decorationProp && decorationProp.OnlyOnGround && Elevation != ElevationType.Basic)
+			{
 				yield break;
+			}
 
 			yield return new NetLaneProps.Prop
 			{
@@ -171,8 +185,10 @@ public partial class LanePropsUtil
 
 	private IEnumerable<NetLaneProps.Prop> GetLights()
 	{
-		if (Road.Lanes.Any(x => x.Decorations.HasAnyFlag(LaneDecoration.LampPost, LaneDecoration.StreetLight, LaneDecoration.DoubleStreetLight)))
+		if (Elevation == ElevationType.Tunnel || Road.Lanes.Any(x => x.Decorations.HasAnyFlag(LaneDecoration.LampPost, LaneDecoration.StreetLight, LaneDecoration.DoubleStreetLight)))
+		{
 			return new NetLaneProps.Prop[0];
+		}
 
 		if (Lane.Tags.HasFlag(LaneTag.CenterMedian))
 		{
@@ -192,5 +208,70 @@ public partial class LanePropsUtil
 		}
 
 		return new NetLaneProps.Prop[0];
+	}
+
+	private IEnumerable<NetLaneProps.Prop> GetTunnelProps()
+	{
+		if (Elevation < ElevationType.Slope)
+		{
+			yield break;
+		}
+
+		if (Lane.Type is LaneType.Curb)
+		{
+			var ventProp = GetProp(Prop.TunnelVent);
+
+			yield return new NetLaneProps.Prop
+			{
+				m_prop = ventProp,
+				m_tree = ventProp,
+				m_segmentOffset = ventProp.SegmentOffset,
+				m_probability = ventProp.Probability,
+				m_angle = PropAngle() * ventProp.Angle,
+				m_repeatDistance = ventProp.RepeatInterval,
+				m_position = PropPosition(ventProp)
+			};
+		}
+
+		var left = Road.Lanes.Min(x => x.Position) == Lane.Position;
+		var right = Road.Lanes.Max(x => x.Position) == Lane.Position;
+
+		if (left || right)
+		{
+			var position = (Road.TotalRoadWidth / 2) - Math.Abs(Lane.Position);
+
+			var lightProp = GetProp(Prop.TunnelLight);
+			var exitProp = GetProp(Prop.TunnelExitProp);
+
+			yield return new NetLaneProps.Prop
+			{
+				m_prop = lightProp,
+				m_tree = lightProp,
+				m_angle = lightProp.Angle,
+				m_minLength = 10,
+				m_segmentOffset = Elevation is ElevationType.Slope ? left ? -0.6F : 0.6F : 0F,
+				m_repeatDistance = lightProp.RepeatInterval,
+				m_probability = 100,
+				m_position = new Vector3(position, 0, 0) + lightProp.Position
+			}.Extend(prop => new LaneProp(prop)
+			{
+				LaneFlags = new LaneInfoFlags
+				{ Forbidden = RoadUtils.Flags.L_RemoveStreetLights }
+			}).ToggleForwardBackward(left);
+
+			if (Elevation is ElevationType.Tunnel)
+			{
+				yield return new NetLaneProps.Prop
+				{
+					m_prop = exitProp,
+					m_tree = exitProp,
+					m_segmentOffset = exitProp.SegmentOffset,
+					m_probability = exitProp.Probability,
+					m_angle = PropAngle() * exitProp.Angle,
+					m_repeatDistance = exitProp.RepeatInterval,
+					m_position = PropPosition(exitProp) + new Vector3(position - 0.5F, 0, 0)
+				}.ToggleForwardBackward(left);
+			}
+		}
 	}
 }

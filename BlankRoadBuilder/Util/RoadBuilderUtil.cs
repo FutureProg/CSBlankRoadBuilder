@@ -216,10 +216,23 @@ public static class RoadBuilderUtil
 			});
 		}
 
-		if (!ModOptions.EnableTunnels && template.m_netAI is RoadAI roadAI)
+		if (roadInfo.DisabledElevations is not null && template.m_netAI is RoadAI roadAI)
 		{
-			roadAI.m_slopeInfo = null;
-			roadAI.m_tunnelInfo = null;
+			if (roadInfo.DisabledElevations.Contains(RoadElevation.Elevated))
+			{
+				roadAI.m_elevatedInfo = null;
+			}
+			
+			if (roadInfo.DisabledElevations.Contains(RoadElevation.Bridge))
+			{
+				roadAI.m_bridgeInfo = null;
+			}
+			
+			if (roadInfo.DisabledElevations.Contains(RoadElevation.Tunnel))
+			{
+				roadAI.m_slopeInfo = null;
+				roadAI.m_tunnelInfo = null;
+			}
 		}
 
 		var info = (NetInfo)(ToolsModifierControl.toolController.m_editPrefabInfo = AssetEditorRoadUtils.InstantiatePrefab(template, true));
@@ -257,7 +270,7 @@ public static class RoadBuilderUtil
 		netInfo.m_createRuining = elevation == ElevationType.Basic && TextureType.Ruined == roadInfo.SideTexture;
 		netInfo.m_enableBendingNodes = roadInfo.LeftPavementWidth == roadInfo.RightPavementWidth;
 		netInfo.m_tags = GetTags(roadInfo, elevation).ToArray();
-		netInfo.m_canCrossLanes = false;
+		netInfo.m_canCrossLanes = roadInfo.CanCrossLanes;
 
 		if (roadInfo.RoadType == RoadType.Road)
 		{
@@ -279,13 +292,20 @@ public static class RoadBuilderUtil
 		RoadUtils.SetNetAi(netInfo, "m_noiseAccumulation", (int)(netInfo.m_halfWidth / 3));
 		RoadUtils.SetNetAi(netInfo, "m_noiseRadius", (int)(netInfo.m_halfWidth * 2.5F));
 		RoadUtils.SetNetAi(netInfo, "m_trafficLights", netInfo.m_halfWidth >= 12F);
-		RoadUtils.SetNetAi(netInfo, "m_highwayRules", roadInfo.RoadType == RoadType.Highway);
+		RoadUtils.SetNetAi(netInfo, "m_highwayRules", roadInfo.HighwayRules);
 		RoadUtils.SetNetAi(netInfo, "m_enableZoning", roadInfo.RoadType != RoadType.Highway && elevation == ElevationType.Basic);
 
 		var metadata = netInfo.GetOrCreateMetaData();
 
 		metadata.PavementWidthRight = roadInfo.RightPavementWidth;
 		metadata.ParkingAngleDegrees = roadInfo.ParkingAngle switch { ParkingAngle.Horizontal => 90F, ParkingAngle.Diagonal => 60F, ParkingAngle.InvertedDiagonal => -60F, _ => 0F };
+
+		if (elevation is ElevationType.Slope or ElevationType.Tunnel)
+		{
+			metadata.PavementWidthRight += 1.5F;
+			netInfo.m_pavementWidth += 1.5F;
+			netInfo.m_halfWidth += 1.5F;
+		}
 
 		foreach (var item in roadInfo.Lanes.Where(x => x.Tags.HasFlag(LaneTag.Damage) || x.Decorations.HasFlag(LaneDecoration.Barrier)))
 		{
@@ -316,13 +336,7 @@ public static class RoadBuilderUtil
 
 		metadata.ScriptedFlags[RoadUtils.Flags.S_AnyStop] = new ExpressionWrapper(GetExpression("AnyStopFlag"), "AnyStopFlag");
 		metadata.ScriptedFlags[RoadUtils.Flags.T_Markings] = new ExpressionWrapper(GetExpression("MarkingTransitionFlag"), "MarkingTransitionFlag");
-		metadata.ScriptedFlags[RoadUtils.Flags.T_GroundBarriers] = new ExpressionWrapper(GetExpression("GroundBarrierTransitionFlag"), "GroundBarrierTransitionFlag");
-		//metadata.ScriptedFlags[RoadUtils.Flags.N_FlatTransition] = new ExpressionWrapper(GetExpression("TransitionFlag"), "TransitionFlag");
 		metadata.ScriptedFlags[RoadUtils.Flags.S_HighCurb] = new ExpressionWrapper(GetExpression("HighCurbFlag"), "HighCurbFlag");
-		//metadata.ScriptedFlags[RoadUtils.Flags.N_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
-		//metadata.ScriptedFlags[RoadUtils.Flags.N_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
-		//metadata.ScriptedFlags[RoadUtils.Flags.S_Asym] = new ExpressionWrapper(GetExpression("AsymFlag"), "AsymFlag");
-		//metadata.ScriptedFlags[RoadUtils.Flags.S_AsymInverted] = new ExpressionWrapper(GetExpression("AsymInvertedFlag"), "AsymInvertedFlag");
 		metadata.ScriptedFlags[RoadUtils.Flags.S_StepBackward] = new ExpressionWrapper(GetExpression("StepBackwardFlag"), "StepBackwardFlag");
 		metadata.ScriptedFlags[RoadUtils.Flags.S_StepForward] = new ExpressionWrapper(GetExpression("StepForwardFlag"), "StepForwardFlag");
 		metadata.ScriptedFlags[RoadUtils.Flags.S_IsTailNode] = new ExpressionWrapper(GetExpression("IsTailNodeFlag"), "IsTailNodeFlag");
@@ -421,32 +435,6 @@ public static class RoadBuilderUtil
 
 	private static void AddBridgeBarriersAndPillar(NetInfo netInfo, RoadInfo roadInfo)
 	{
-		if (!(roadInfo.Lanes.Where(x => x.Tags.HasFlag(LaneTag.Sidewalk)).FirstOrDefault()?.Decorations.HasFlag(LaneDecoration.Barrier) ?? false))
-		{
-			roadInfo.Lanes.Add(new LaneInfo
-			{
-				Type = LaneType.Empty,
-				CustomWidth = 0.1F,
-				Elevation = 0F,
-				Decorations = LaneDecoration.Barrier,
-				Position = -((roadInfo.TotalWidth / 2) - 0.45F + 0.8F),
-				Tags = LaneTag.StackedLane
-			});
-		}
-
-		if (!(roadInfo.Lanes.Where(x => x.Tags.HasFlag(LaneTag.Sidewalk)).LastOrDefault()?.Decorations.HasFlag(LaneDecoration.Barrier) ?? false))
-		{
-			roadInfo.Lanes.Add(new LaneInfo
-			{
-				Type = LaneType.Empty,
-				CustomWidth = 0.1F,
-				Elevation = 0F,
-				Decorations = LaneDecoration.Barrier,
-				Position = (roadInfo.TotalWidth / 2) - 0.45F + 0.8F,
-				Tags = LaneTag.StackedLane
-			});
-		}
-
 		if (netInfo.m_netAI is not RoadBridgeAI bridgeAI)
 		{
 			return;
@@ -545,11 +533,19 @@ public static class RoadBuilderUtil
 
 		if (roadInfo.ContainsWiredLanes)
 		{
+			var pole = PropUtil.GetProp(Prop.TramPole);
 			var leftPole = roadInfo.Lanes.FirstOrDefault(x => x.Tags.HasFlag(LaneTag.WirePoleLane)) ?? leftCurb;
 			var rightPole = roadInfo.Lanes.LastOrDefault(x => x.Tags.HasFlag(LaneTag.WirePoleLane)) ?? rightCurb;
+			var leftPolePosition = leftPole.Position + PropAngle(leftPole) * pole.Position.x;
+			var rightPolePosition = rightPole.Position + PropAngle(rightPole) * pole.Position.x;
 
-			roadInfo.Lanes[0].Position = r(leftPole.Position + ((rightPole.Position - leftPole.Position) / 2F));
-			roadInfo.Lanes[0].CustomWidth = r(rightPole.Position - leftPole.Position);
+			roadInfo.Lanes[0].Position = r(leftPolePosition + ((rightPolePosition - leftPolePosition) / 2F));
+			roadInfo.Lanes[0].CustomWidth = r(rightPolePosition - leftPolePosition);
+
+			static int PropAngle(LaneInfo Lane)
+			{
+				return (Lane.Position < 0 ? -1 : 1) * (Lane.PropAngle == ThumbnailMaker.PropAngle.Right == (Lane.Direction != LaneDirection.Backwards || Lane.Type == LaneType.Curb) ? 1 : -1);
+			}
 		}
 
 		static float r(float f) => (float)Math.Round(f, 3);

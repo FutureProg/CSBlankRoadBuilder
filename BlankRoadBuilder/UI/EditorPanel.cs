@@ -40,7 +40,7 @@ public class EditorPanel : UIPanel
 		BuildButton.textScale = 0.85F;
 		BuildButton.size = new Vector2(175, 30);
 		BuildButton.relativePosition = new Vector2(72, 15);
-		BuildButton.text = "Build Road";
+		BuildButton.text = "Generate Road";
 		BuildButton.tooltip = "Import a road you've created in Thumbnail Maker";
 		BuildButton.SetIcon("I_Tools.png");
 		BuildButton.eventClick += BuildButton_Click;
@@ -49,7 +49,7 @@ public class EditorPanel : UIPanel
 		TMButton.textScale = 0.85F;
 		TMButton.size = new Vector2(175, 30);
 		TMButton.relativePosition = new Vector2(72, 55);
-		TMButton.text = "Thumbnail Maker";
+		TMButton.text = "Design Road";
 		TMButton.tooltip = "Opens the Thumbnail Maker tool used to create road configurations";
 		TMButton.SetIcon("I_Brush.png");
 		TMButton.eventClick += TMButton_Click;

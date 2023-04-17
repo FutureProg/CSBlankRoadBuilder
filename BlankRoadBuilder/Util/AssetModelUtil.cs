@@ -19,8 +19,6 @@ public class AssetModelUtil : ImportAssetLodded
 
 	public AssetModelUtil(ShaderType shaderType, float? scale = null) : base(new GameObject(), new PreviewCamera())
 	{
-		m_LodTriangleTarget = 50;
-
 		_templateShader = shaderType switch
 		{
 			ShaderType.Bridge => Shader.Find("Custom/Net/RoadBridge"),

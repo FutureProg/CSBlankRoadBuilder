@@ -124,5 +124,10 @@ namespace BlankRoadBuilder
 		/// [FIXED] Compatibility with Patch 1.16.1-f2.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_9 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_9", Culture);
+
+		/// <summary>
+		/// [NEW] Tunnels can now be generated in the editor.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_0 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_0", Culture);
 	}
 }
