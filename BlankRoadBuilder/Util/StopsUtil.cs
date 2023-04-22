@@ -52,7 +52,7 @@ public static class StopsUtil
 				{
 					var lanesBetween = roadInfo.Lanes.Where(x =>
 						x.Position.IsWithin(l.Position, lane.Position) &&
-						x.Type is LaneType.Parking or LaneType.Empty &&
+						(x.Type is LaneType.Parking or LaneType.Empty || x.Decorations.HasFlag(LaneDecoration.BusBay)) &&
 						!x.Tags.HasFlag(LaneTag.StackedLane));
 
 					foreach (var item in lanesBetween)

@@ -242,8 +242,20 @@ public partial class LanePropsUtil
 			yield break;
 		}
 
-		var lightProp = GetProp(decoration switch { LaneDecoration.LampPost => Prop.LampPost, LaneDecoration.DoubleStreetLight => Prop.DoubleStreetLight, _ => Prop.SingleStreetLight });
+		var prop = decoration switch { LaneDecoration.LampPost => Prop.LampPost, LaneDecoration.DoubleStreetLight => Prop.DoubleStreetLight, _ => Prop.SingleStreetLight };
 		var xPos = decoration == LaneDecoration.DoubleStreetLight ? 0 : (-Lane.LaneWidth / 2) + 0.5F;
+
+		if (Elevation is ElevationType.Slope)
+		{
+			foreach (var item in GetTunnelLightProps(prop, xPos))
+			{
+				yield return item.ToggleForwardBackward(PropAngle() < 0);
+			}
+
+			yield break;
+		}
+
+		var lightProp = GetProp(prop);
 		var forbidden = !Lane.Decorations.HasFlag(LaneDecoration.BusBay) ? NetSegment.Flags.None : Lane.Position > 0 ? NetSegment.Flags.StopRight : NetSegment.Flags.StopLeft;
 		var required = NetSegment.Flags.None;
 

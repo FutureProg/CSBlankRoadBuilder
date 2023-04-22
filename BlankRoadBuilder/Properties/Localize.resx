@@ -456,4 +456,14 @@
 [NEW] Added a pedestrian crossing sign.
 [FIXED] Fixed Vents showing on the slope before tunnels.</value>
   </data>
+  <data name="Mod_WhatsNewMessage1_4_2" xml:space="preserve">
+    <value>[UPDATED] Raised the tunnels' roof.
+[UPDATED] Distance to a stop now takes bus bays in consideration.
+[FIXED] Fixed tunnel entrances' pillars facing the wrong direction on inverted nodes.
+[FIXED] Fixed tunnel entrances' lights not being in the best positions.
+[FIXED] Fixed the pavement of the road clipping on tunnel entrances.
+[FIXED] Fixed barriers not connecting properly on nodes.
+[FIXED] Fixed Highway Rules &amp; Can Cross Lanes not saving properly in TM.
+</value>
+  </data>
 </root>

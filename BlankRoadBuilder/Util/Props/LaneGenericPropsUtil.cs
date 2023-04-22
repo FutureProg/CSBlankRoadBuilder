@@ -212,11 +212,6 @@ public partial class LanePropsUtil
 
 	private IEnumerable<NetLaneProps.Prop> GetTunnelProps()
 	{
-		if (Elevation < ElevationType.Slope)
-		{
-			yield break;
-		}
-
 		if (Elevation is ElevationType.Tunnel && Lane.Type is LaneType.Curb)
 		{
 			var ventProp = GetProp(Prop.TunnelVent);
@@ -233,34 +228,37 @@ public partial class LanePropsUtil
 			};
 		}
 
-		var left = Road.Lanes.Min(x => x.Position) == Lane.Position;
-		var right = Road.Lanes.Max(x => x.Position) == Lane.Position;
-
-		if (left || right)
+		if (Elevation < ElevationType.Slope || !Lane.Tags.HasFlag(LaneTag.Damage))
 		{
-			var position = (Road.TotalRoadWidth / 2) - Math.Abs(Lane.Position);
+			yield break;
+		}
 
-			var lightProp = GetProp(Prop.TunnelLight);
-			var exitProp = GetProp(Prop.TunnelExitProp);
+		var position = (Road.TotalRoadWidth / 2) - 0.1F;
 
-			yield return new NetLaneProps.Prop
-			{
-				m_prop = lightProp,
-				m_tree = lightProp,
-				m_angle = lightProp.Angle,
-				m_minLength = 10,
-				m_segmentOffset = Elevation is ElevationType.Slope ? left ? -0.6F : 0.6F : 0F,
-				m_repeatDistance = lightProp.RepeatInterval,
-				m_probability = 100,
-				m_position = new Vector3(position, 0, 0) + lightProp.Position
-			}.Extend(prop => new LaneProp(prop)
-			{
-				LaneFlags = new LaneInfoFlags
-				{ Forbidden = RoadUtils.Flags.L_RemoveStreetLights }
-			}).ToggleForwardBackward(left);
+		for (var i = 0; i < 2; i++)
+		{
+			var left = i == 0;
 
 			if (Elevation is ElevationType.Tunnel)
 			{
+				var exitProp = GetProp(Prop.TunnelExitProp);
+				var lightProp = GetProp(Prop.TunnelLight);
+
+				yield return new NetLaneProps.Prop
+				{
+					m_prop = lightProp,
+					m_tree = lightProp,
+					m_angle = lightProp.Angle,
+					m_minLength = 10,
+					m_repeatDistance = lightProp.RepeatInterval,
+					m_probability = 100,
+					m_position = new Vector3(position, 0, 0) + lightProp.Position
+				}.Extend(prop => new LaneProp(prop)
+				{
+					LaneFlags = new LaneInfoFlags
+					{ Forbidden = RoadUtils.Flags.L_RemoveStreetLights }
+				}).ToggleForwardBackward(left);
+
 				yield return new NetLaneProps.Prop
 				{
 					m_prop = exitProp,
@@ -272,6 +270,69 @@ public partial class LanePropsUtil
 					m_position = PropPosition(exitProp) + new Vector3(position - 0.5F, 0, 0)
 				}.ToggleForwardBackward(left);
 			}
+			else
+			{
+				foreach (var item in GetTunnelLightProps(Prop.TunnelLight, position))
+				{
+					yield return item.ToggleForwardBackward(left);
+				}
+			}
 		}
+	}
+
+	private IEnumerable<NetLaneProps.Prop> GetTunnelLightProps(Prop prop, float position)
+	{
+		var lightProp = GetProp(prop);
+
+		if (prop == Prop.TunnelLight)
+		{
+			yield return new NetLaneProps.Prop
+			{
+				m_prop = lightProp,
+				m_tree = lightProp,
+				m_angle = lightProp.Angle,
+				m_minLength = 10,
+				m_probability = 100,
+				m_position = new Vector3(position, 0, 0) + lightProp.Position
+			}.Extend(prop => new LaneProp(prop)
+			{
+				LaneFlags = new LaneInfoFlags
+				{ Forbidden = RoadUtils.Flags.L_RemoveStreetLights }
+			});
+		}
+
+		yield return new NetLaneProps.Prop
+		{
+			m_prop = lightProp,
+			m_tree = lightProp,
+			m_angle = lightProp.Angle,
+			m_segmentOffset = -0.5F,
+			m_endFlagsForbidden = prop == Prop.TunnelLight ? NetNode.Flags.None : NetNode.Flags.OnGround,
+			m_startFlagsForbidden = prop == Prop.TunnelLight ? NetNode.Flags.OnGround : NetNode.Flags.None,
+			m_minLength = 10,
+			m_probability = 100,
+			m_position = new Vector3(position, 0, 0) + lightProp.Position
+		}.Extend(prop => new LaneProp(prop)
+		{
+			LaneFlags = new LaneInfoFlags
+			{ Forbidden = RoadUtils.Flags.L_RemoveStreetLights }
+		});
+
+		yield return new NetLaneProps.Prop
+		{
+			m_prop = lightProp,
+			m_tree = lightProp,
+			m_angle = lightProp.Angle,
+			m_segmentOffset = 0.5F,
+			m_endFlagsForbidden = prop == Prop.TunnelLight ? NetNode.Flags.OnGround : NetNode.Flags.None,
+			m_startFlagsForbidden = prop == Prop.TunnelLight ? NetNode.Flags.None : NetNode.Flags.OnGround,
+			m_minLength = 10,
+			m_probability = 100,
+			m_position = new Vector3(position, 0, 0) + lightProp.Position
+		}.Extend(prop => new LaneProp(prop)
+		{
+			LaneFlags = new LaneInfoFlags
+			{ Forbidden = RoadUtils.Flags.L_RemoveStreetLights }
+		});
 	}
 }

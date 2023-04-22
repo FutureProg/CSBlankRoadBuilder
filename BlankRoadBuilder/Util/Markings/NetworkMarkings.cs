@@ -13,7 +13,6 @@ using UnityEngine;
 
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static BlankRoadBuilder.Util.Markings.MarkingStyleUtil;
-using static TerrainModify;
 
 namespace BlankRoadBuilder.Util.Markings;
 public static class NetworkMarkings
@@ -39,8 +38,37 @@ public static class NetworkMarkings
 			{
 				var filler = GetFillers(item, elevation).ToList();
 				var transitStop = item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop));
+				var busBay= item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.BusBay));
 
-				if (item.Type != LaneDecoration.Pavement && (item.Lanes.Any(x => !x.Tags.HasFlag(LaneTag.Sidewalk)) || item.Elevation != item.SurfaceElevation))
+				if (elevation == ElevationType.Slope)
+				{
+					foreach (var f in filler)
+					{
+						f.Mesh.m_forwardForbidden = NetSegment.Flags.Invert;
+						f.Mesh.m_backwardRequired = NetSegment.Flags.Invert;
+						f.MetaData.Head.Forbidden = AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode;
+					}
+
+					foreach (var f in GetFillers(item, elevation, inverted: true))
+					{
+						f.Mesh.m_forwardForbidden = NetSegment.Flags.Invert;
+						f.Mesh.m_backwardRequired = NetSegment.Flags.Invert;
+						f.MetaData.Head.Required = AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode;
+
+						filler.Add(f);
+					}
+				}
+				else if (busBay)
+				{
+					var left = item.Lanes.First().Position < 0;
+
+					foreach (var f in filler)
+					{
+						f.Mesh.m_forwardForbidden |= left ? NetSegment.Flags.StopLeft : NetSegment.Flags.StopRight;
+						f.Mesh.m_backwardForbidden |= left ? NetSegment.Flags.StopLeft : NetSegment.Flags.StopRight;
+					}
+				}
+				else if (item.Type != LaneDecoration.Pavement && elevation < ElevationType.Slope && (item.Lanes.Any(x => !x.Tags.HasFlag(LaneTag.Sidewalk)) || item.Elevation != item.SurfaceElevation))
 				{
 					var pavementFiller = GetFillers(new FillerMarking
 					{
@@ -93,7 +121,9 @@ public static class NetworkMarkings
 			foreach (var item in markingInfo.Lines.Values)
 			{
 				if (GetMarking(item, elevation) is MeshInfo<NetInfo.Segment, Segment> line)
+				{
 					markings.Add(line);
+				}
 			}
 		}
 
@@ -114,28 +144,31 @@ public static class NetworkMarkings
 			}
 		}
 
-		foreach (var filler in markings)
+		foreach (var marking in markings)
 		{
 			if (ModOptions.MarkingsGenerated.HasFlag(MarkingsSource.HiddenVanillaMarkings))
 			{
-				filler.MetaData.Forward.Required |= RoadUtils.Flags.S_RemoveMarkings;
-				filler.MetaData.Backward.Required |= RoadUtils.Flags.S_RemoveMarkings;
+				marking.MetaData.Forward.Required |= RoadUtils.Flags.S_RemoveMarkings;
+				marking.MetaData.Backward.Required |= RoadUtils.Flags.S_RemoveMarkings;
 			}
 			else
 			{
-				filler.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
-				filler.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
+				marking.MetaData.Forward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
+				marking.MetaData.Backward.Forbidden |= RoadUtils.Flags.S_RemoveMarkings;
 			}
+
+			marking.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			marking.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
+			marking.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
 		}
 
-		markings.AddRange(fillers);
+		foreach (var filler in fillers)
+		{
+			yield return filler;
+		}
 
 		foreach (var item in markings)
 		{
-			item.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
-			item.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
-			item.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
-
 			yield return item;
 		}
 	}
@@ -145,10 +178,14 @@ public static class NetworkMarkings
 		foreach (var lane in roadInfo.Lanes)
 		{
 			if (lane.Elevation == null || lane.Tags.HasFlag(LaneTag.StackedLane) || lane.Decorations.HasAnyFlag(LaneDecoration.Grass, LaneDecoration.Gravel, LaneDecoration.Pavement))
+			{
 				continue;
+			}
 
 			if (lane.Elevation == (!lane.Tags.HasFlag(LaneTag.Sidewalk) && roadInfo.RoadType == RoadType.Road ? -0.3F : 0F))
+			{
 				continue;
+			}
 
 			var fillers = GetFillers(new FillerMarking
 			{
@@ -212,7 +249,7 @@ public static class NetworkMarkings
 		}
 	}
 
-	public static IEnumerable<MeshInfo<NetInfo.Segment, Segment>> GetFillers(FillerMarking fillerMarking, ElevationType elevationType, bool? addTransition = null)
+	public static IEnumerable<MeshInfo<NetInfo.Segment, Segment>> GetFillers(FillerMarking fillerMarking, ElevationType elevationType, bool? addTransition = null, bool inverted = false)
 	{
 		var filler = getFiller(false, false);
 
@@ -227,7 +264,10 @@ public static class NetworkMarkings
 		if (!addTransition.Value || fillerMarking.Type == LaneDecoration.Filler)
 		{
 			if (filler != null)
+			{
 				yield return filler.Value;
+			}
+
 			yield break;
 		}
 
@@ -272,28 +312,35 @@ public static class NetworkMarkings
 			fillerMarking.TransitionForward = forward;
 			fillerMarking.TransitionBackward = backward;
 
-			var filler = GenerateFiller(fillerMarking, elevationType);
+			var filler = GenerateFiller(fillerMarking, elevationType, inverted);
 
 			if (filler == null)
+			{
 				return null;
+			}
 
-			filler.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
-			filler.Value.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
-			filler.Value.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			if (elevationType < ElevationType.Slope)
+			{
+				filler.Value.Mesh.m_forwardForbidden |= NetSegment.Flags.Invert | NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+				filler.Value.Mesh.m_backwardRequired |= NetSegment.Flags.Invert;
+				filler.Value.Mesh.m_backwardForbidden |= NetSegment.Flags.AsymForward | NetSegment.Flags.AsymBackward;
+			}
 
 			return filler;
 		}
 	}
 
-	private static MeshInfo<NetInfo.Segment, Segment>? GenerateFiller(FillerMarking fillerMarking, ElevationType elevationType)
+	private static MeshInfo<NetInfo.Segment, Segment>? GenerateFiller(FillerMarking fillerMarking, ElevationType elevationType, bool inverted)
 	{
 		var isFiller = !fillerMarking.Helper && fillerMarking.Type != LaneDecoration.Filler;
 		var filler = fillerMarking.AN_Info;
 
 		if (!isFiller && filler == null)
+		{
 			return null;
+		}
 
-		var mesh = GenerateMesh(fillerMarking, null, null, GetName(fillerMarking), elevationType);
+		var mesh = GenerateMesh(fillerMarking, null, null, GetName(fillerMarking), elevationType, inverted: inverted);
 
 		GenerateTexture(
 			fillerMarking.Lanes.First(),
@@ -319,9 +366,13 @@ public static class NetworkMarkings
 		var segment = new MeshInfo<NetInfo.Segment, Segment>(model);
 
 		if (filler == null || fillerMarking.Type != LaneDecoration.Filler || fillerMarking.Helper)
+		{
 			segment.MetaData.Tiling = 2F;
+		}
 		else
+		{
 			segment.MetaData.Tiling = filler.MarkingStyle == MarkingFillerType.Dashed ? 20F / (filler.DashLength + filler.DashSpace) : 10F;
+		}
 
 		return segment;
 	}
@@ -329,7 +380,9 @@ public static class NetworkMarkings
 	private static string GetName(FillerMarking fillerMarking)
 	{
 		if (fillerMarking.Helper)
+		{
 			return "Elevated Step";
+		}
 
 		return fillerMarking.Type != LaneDecoration.Filler ? $"{fillerMarking.Type} Median" : $"{fillerMarking.Lanes.FirstOrDefault()?.Type} Filler";
 	}
@@ -381,9 +434,13 @@ public static class NetworkMarkings
 			else if (file.EndsWith("_a.png"))
 			{
 				if (crosswalk)
+				{
 					generateCrosswalkAlpha(file);
+				}
 				else
+				{
 					generateAlpha(file);
+				}
 			}
 			else
 			{
@@ -438,7 +495,9 @@ public static class NetworkMarkings
 						var y = i / width;
 
 						if (i >= pixels.Length / 2)
+						{
 							y = width - y;
+						}
 
 						var pointIndex = Math.Max(2, Math.Min(width - 2, 2 * (y % width)));
 
@@ -469,14 +528,18 @@ public static class NetworkMarkings
 				var y = width - (i / width);
 
 				if (y < topY || y > bottomY)
+				{
 					continue;
+				}
 
 				if (ModOptions.VanillaCrosswalkStyle.HasFlag(CrosswalkStyle.Dashed))
 				{
 					var ratioX = i % width % ratio;
 
 					if (y < topY + line || y > bottomY - line)
+					{
 						pixels[i] = ratioX < ratio * 1 / 3 || ratioX > ratio * 2 / 3 ? Color.white : Color.black;
+					}
 				}
 
 				if (ModOptions.VanillaCrosswalkStyle.HasFlag(CrosswalkStyle.Zebra))
@@ -489,7 +552,9 @@ public static class NetworkMarkings
 				if (ModOptions.VanillaCrosswalkStyle.HasFlag(CrosswalkStyle.DoubleSolid))
 				{
 					if (y < topY + line || y > bottomY - line)
+					{
 						pixels[i] = Color.white;
+					}
 				}
 			}
 
@@ -506,24 +571,43 @@ public static class NetworkMarkings
 		var lineWidth = type == null ? 0F : type.LineWidth;
 
 		if (type != null && (type.MarkingStyle == MarkingLineType.SolidDouble || type.MarkingStyle == MarkingLineType.SolidDashed || type.MarkingStyle == MarkingLineType.DashedDouble || type.MarkingStyle == MarkingLineType.DashedSolid))
+		{
 			lineWidth *= 3;
+		}
 
 		var file = string.Empty;
 
 		if (crosswalkMarking != null)
+		{
 			file = "Crosswalk";
+		}
 		else if (fillerMarking == null)
+		{
 			file = "Marking";
+		}
 		else if (fillerMarking.Helper || fillerMarking.Type == LaneDecoration.Filler || (fillerMarking.Type != LaneDecoration.Grass && fillerMarking.Elevation == fillerMarking.SurfaceElevation))
+		{
 			file = "Platform";
+		}
 		else if (elevationType is ElevationType.Tunnel)
+		{
 			file = "tunnel_pillar";
+		}
 		else if (elevationType is ElevationType.Slope)
-			file = "slope_pillar";
+		{
+			file = inverted ? "slope_pillar_inverted" : "slope_pillar";
+			inverted = false;
+		}
 		else if (fillerMarking.Type == LaneDecoration.Grass)
+		{
 			file = "GrassFiller";
+		}
 		else
+		{
 			file = "PavementFiller";
+		}
+
+		Debug.LogError(file);
 
 		var guid = Guid.NewGuid().ToString();
 
@@ -559,9 +643,13 @@ public static class NetworkMarkings
 							if (fillerMarking?.TransitionForward == true)
 							{
 								if (fillerMarking?.TransitionBackward == true)
+								{
 									name += " Double Slope";
+								}
 								else
+								{
 									name += " Forward Slope";
+								}
 							}
 							else if (fillerMarking?.TransitionBackward == true)
 							{
@@ -586,9 +674,13 @@ public static class NetworkMarkings
 									(-fillerMarking.RightPoint.X + (fillerMarking.Helper ? 0 : (xPos + 0.5F)));
 
 								if (fillerMarking.Lanes.First().Type is LaneType.Curb)
+								{
 									xPos -= 0.01F - fillerMarking.Lanes.Last().Road!.BufferWidth;
+								}
 								else if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.LeftPoint.RightLane?.FillerPadding.HasFlag(FillerPadding.Right) ?? false))
+								{
 									xPos += 0.2F;
+								}
 							}
 							else if (xPos >= 0.05)
 							{
@@ -596,12 +688,16 @@ public static class NetworkMarkings
 									(-fillerMarking.LeftPoint.X + (fillerMarking.Helper ? 0 : (xPos - 0.5F)));
 
 								if (fillerMarking.Lanes.Last().Type is LaneType.Curb)
+								{
 									xPos += 0.01F - fillerMarking.Lanes.Last().Road!.BufferWidth;
+								}
 								else if (fillerMarking.Type != LaneDecoration.Filler && !fillerMarking.Helper && !(fillerMarking.RightPoint.LeftLane?.FillerPadding.HasFlag(FillerPadding.Left) ?? false))
+								{
 									xPos -= 0.2F;
+								}
 							}
 
-							if (file is "slope_pillar" or "tunnel_pillar")
+							if (file is "slope_pillar" or "slope_pillar_inverted" or "tunnel_pillar")
 							{ }
 							else if ((fillerMarking.TransitionForward && (int)float.Parse(data[3]) >= (int)ModOptions.StepTransition)
 								|| (fillerMarking.TransitionBackward && -(int)float.Parse(data[3]) >= (int)ModOptions.StepTransition))
@@ -630,9 +726,13 @@ public static class NetworkMarkings
 								}
 							}
 							else if (yPos == -0.3F)
+							{
 								yPos = -0.02F + fillerMarking.SurfaceElevation;
+							}
 							else if (!transition)
+							{
 								yPos = fillerMarking.Elevation + (fillerMarking.Helper ? 0 : fillerMarking.Type == LaneDecoration.Filler ? 0.02F : 0.021F);
+							}
 							else
 							{
 								var start = fillerMarking.Elevation;
@@ -642,7 +742,9 @@ public static class NetworkMarkings
 							}
 
 							if (fillerMarking.Type == LaneDecoration.Filler && originalFile.Contains("_lod.obj"))
+							{
 								yPos = Math.Max(0.1F, yPos);
+							}
 						}
 						else if (lineMarking != null)
 						{
@@ -658,22 +760,32 @@ public static class NetworkMarkings
 							yPos = 0.025F + lineMarking.Elevation;
 
 							if (originalFile.Contains("_lod.obj"))
+							{
 								yPos = Math.Max(0.15F, yPos);
+							}
 						}
 						else if (crosswalkMarking != null)
 						{
 							if ((xPos < 0) == crosswalkMarking.Inverted)
+							{
 								xPos = crosswalkMarking.Road.Lanes.First(x => x.Type == LaneType.Curb).Position + (crosswalkMarking.Road.Lanes.First(x => x.Type == LaneType.Curb).LaneWidth / 2) - crosswalkMarking.Road.BufferWidth;
+							}
 							else
+							{
 								xPos = crosswalkMarking.Road.Lanes.Last(x => x.Type == LaneType.Curb).Position - (crosswalkMarking.Road.Lanes.Last(x => x.Type == LaneType.Curb).LaneWidth / 2) + crosswalkMarking.Road.BufferWidth;
+							}
 
 							if (!crosswalkMarking.Inverted)
+							{
 								xPos *= -1;
+							}
 
 							yPos = (crosswalkMarking.Road.RoadType == RoadType.Road ? -0.3F : 0) + 0.015F;
 
 							if (originalFile.Contains("_lod.obj"))
+							{
 								yPos = Math.Max(0.15F, yPos);
+							}
 						}
 
 						data[1] = xPos.ToString("0.00000000");

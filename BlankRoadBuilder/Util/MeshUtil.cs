@@ -348,11 +348,10 @@ public static class MeshUtil
 			m_lodMaterial = x.m_lodMaterial,
 			TreatBendAsSegment = true,
 			RenderNode = true,
-			//RenderSegment = !hidden,
 			LaneIndeces = AdaptiveNetworksUtil.GetLaneIndeces(netInfo, lanes),
 			LaneFlags = new LaneInfoFlags { Forbidden = RoadUtils.Flags.L_RemoveBarrier },
 			LaneTags = new LaneTagsT(new[] { "RoadBuilderBarrierLane" }),
-			//LaneTransitionFlags = new LaneTransitionInfoFlags { Required = hidden ? RoadUtils.Flags.T_GroundBarriers : RoadUtils.Flags.T_Markings }
+			LaneTransitionFlags = new LaneTransitionInfoFlags { Required = RoadUtils.Flags.T_Markings }
 		}).ToList();
 
 		for (var i = 0; i < tracks.Count; i++)
@@ -363,6 +362,7 @@ public static class MeshUtil
 			yield return tracks[i];
 		}
 	}
+
 	private static IEnumerable<Track> GenerateTracksAndWires(NetInfo netInfo, RoadInfo road)
 	{
 		if (road.Lanes.Any(x => x.Type.HasFlag(LaneType.Tram)))

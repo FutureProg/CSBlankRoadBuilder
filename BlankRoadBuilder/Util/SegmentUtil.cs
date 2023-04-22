@@ -117,8 +117,8 @@ public static partial class SegmentUtil
 				node6_.GetNode().m_flags |= NetNode.Flags.OnGround;
 				node11_.GetNode().m_flags |= NetNode.Flags.OnGround;
 
-				netManager.CreateSegment(out _, ref randomizer, item.Value, node_s1, node6_, new Vector3(-1, 1, 0), new Vector3(1, -1, 0),  2, 2, true);
-				netManager.CreateSegment(out _, ref randomizer, item.Value, node_s2, node11_, new Vector3(0, 1, 1), new Vector3(0, -1, -1),  2, 2, true);
+				netManager.CreateSegment(out _, ref randomizer, item.Value, node_s1, node6_, new Vector3(-1, 1, 0), new Vector3(1, -1, 0),  2, 2, false);
+				netManager.CreateSegment(out _, ref randomizer, item.Value, node_s2, node11_, new Vector3(0, 1, 1), new Vector3(0, -1, -1),  2, 2, false);
 			}
 			else if (item.Key == ElevationType.Tunnel)
 			{
@@ -128,8 +128,8 @@ public static partial class SegmentUtil
 				node1.GetNode().m_flags |= NetNode.Flags.Underground;
 				node2.GetNode().m_flags |= NetNode.Flags.Underground;
 
-				netManager.CreateSegment(out _, ref randomizer, item.Value, node_s1, node1, new Vector3(1, 0, 0), new Vector3(-1, 0, 0), 2, 2, false);
-				netManager.CreateSegment(out _, ref randomizer, item.Value, node_s2, node2, new Vector3(0, 0, -1), new Vector3(0, 0, 1), 2, 2, false);
+				netManager.CreateSegment(out _, ref randomizer, item.Value, node_s1, node1, new Vector3(1, 0, 0), new Vector3(-1, 0, 0), 2, 2, true);
+				netManager.CreateSegment(out _, ref randomizer, item.Value, node_s2, node2, new Vector3(0, 0, -1), new Vector3(0, 0, 1), 2, 2, true);
 			}
 
 			i += 48;

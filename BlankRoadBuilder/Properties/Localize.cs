@@ -134,5 +134,10 @@ namespace BlankRoadBuilder
 		/// [NEW] Added an option to autmatically remove pedestrian lanes from non-ground levels.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_4_1 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_1", Culture);
+
+		/// <summary>
+		/// [UPDATED] Raised the tunnels' roof.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_2 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_2", Culture);
 	}
 }
