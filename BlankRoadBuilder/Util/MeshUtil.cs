@@ -54,6 +54,12 @@ public static class MeshUtil
 			nodes.AddRange(NetworkMarkings.GetCrosswalk(roadInfo));
 		}
 
+		if (elevation >= ElevationType.Slope)
+		{
+			nodes.AddRange(netInfo.m_nodes.Where(x => x.m_layer == 14));
+			segments.AddRange(netInfo.m_segments.Where(x => x.m_layer == 14));
+		}
+
 		netInfo.m_segments = segments.ToArray();
 		netInfo.m_nodes = nodes.ToArray();
 

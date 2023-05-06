@@ -466,4 +466,9 @@
 [FIXED] Fixed Highway Rules &amp; Can Cross Lanes not saving properly in TM.
 </value>
   </data>
+  <data name="Mod_WhatsNewMessage1_4_3" xml:space="preserve">
+    <value>[UPDATED] Added an indicator on the currently being edited configuration in the list in TM.
+[FIXED] Fixed tunnels not showing up in the underground preview.
+</value>
+  </data>
 </root>

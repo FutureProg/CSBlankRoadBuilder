@@ -139,5 +139,10 @@ namespace BlankRoadBuilder
 		/// [UPDATED] Raised the tunnels' roof.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_4_2 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_2", Culture);
+
+		/// <summary>
+		/// [UPDATED] Added an indicator on the currently being edited configuration in the list in TM.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_3 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_3", Culture);
 	}
 }
