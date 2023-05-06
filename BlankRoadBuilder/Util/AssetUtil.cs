@@ -4,46 +4,48 @@ using BlankRoadBuilder.ThumbnailMaker;
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace BlankRoadBuilder.Util;
 
 public static class AssetUtil
 {
-	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb, string name, bool inverted, bool noAsphaltTransition)
+	public static AssetModel ImportAsset(RoadInfo road, MeshType meshType, ElevationType elevationType, RoadAssetType type, CurbType curb, string name, bool inverted, bool noAsphaltTransition, bool bridgeShader)
 	{
-		var curbless = curb == CurbType.Curbless;
-
-		if (curbless)
+		if (elevationType >= ElevationType.Slope)
 		{
-			curb = CurbType.HC;
+			type = RoadAssetType.Segment;
 		}
 
-		var fileName = $"{MeshName(elevationType)}_{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
-		var exportName = $"{elevationType}_{(inverted ? "inverted_" : "")}{type.ToString().ToLower()}-{(int)curb}_{curb}.obj";
+		var curbId = curb > CurbType.TR ? $"1_HC" : $"{(int)curb}_{curb}";
+		var fileName = $"{MeshName(elevationType)}_{type.ToString().ToLower()}-{curbId}.obj";
+		var exportName = $"{elevationType}_{(inverted ? "inverted_" : "")}{type.ToString().ToLower()}-{curbId}.obj";
 
-		PrepareMeshFiles(road, name, meshType, elevationType, curb, curbless, inverted, noAsphaltTransition, fileName, exportName);
+		PrepareMeshFiles(road, name, meshType, elevationType, curb, inverted, noAsphaltTransition, fileName, exportName, bridgeShader);
 
 		return ImportAsset(
-			elevationType == ElevationType.Basic ? ShaderType.Basic : ShaderType.Bridge,
+			elevationType == ElevationType.Basic && !bridgeShader ? ShaderType.Basic : ShaderType.Bridge,
 			meshType,
 			exportName,
 			filesReady: true);
 	}
 
-	public static AssetModel ImportAsset(ShaderType shaderType, MeshType meshType, string fileName, bool filesReady = false, float? scale = null)
+	public static AssetModel ImportAsset(ShaderType shaderType, MeshType meshType, string fileName, bool filesReady = false, float? scale = null, float? offset = null)
 	{
+		var outputName = filesReady ? fileName : $"{Guid.NewGuid()}{Path.GetExtension(fileName)}";
+
 		if (!filesReady)
 		{
-			PrepareFiles(meshType, fileName);
+			PrepareFiles(meshType, fileName, outputName, offset);
 		}
 
 		var assetModel = new AssetModelUtil(shaderType, scale: scale);
 
-		return assetModel.Import(fileName);
+		return assetModel.Import(outputName);
 	}
 
-	private static void PrepareFiles(MeshType meshType, string fileName)
+	private static void PrepareFiles(MeshType meshType, string fileName, string outputName, float? offset = null)
 	{
 		var baseName = Path.GetFileNameWithoutExtension(fileName);
 
@@ -51,16 +53,25 @@ public static class AssetUtil
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file)), true);
+			if (offset is null)
+			{
+				File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, replace(file)), true);
+			}
+			else
+			{
+				File.WriteAllLines(Path.Combine(BlankRoadBuilderMod.ImportFolder, replace(file)), Offset(file, offset.Value));
+			}
 		}
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, Path.GetFileName(file)), true);
+			File.Copy(file, Path.Combine(BlankRoadBuilderMod.ImportFolder, replace(file)), true);
 		}
+
+		string replace(string file) => Path.GetFileName(file).Remove(0, baseName!.Length).Insert(0, Path.GetFileNameWithoutExtension(outputName));
 	}
 
-	private static void PrepareMeshFiles(RoadInfo road, string name, MeshType meshType, ElevationType elevationType, CurbType curb, bool curbless, bool inverted, bool noAsphaltTransition, string fileName, string exportFile)
+	private static void PrepareMeshFiles(RoadInfo road, string name, MeshType meshType, ElevationType elevationType, CurbType curb, bool inverted, bool noAsphaltTransition, string fileName, string exportFile, bool tunnel)
 	{
 		Directory.CreateDirectory(BlankRoadBuilderMod.ImportFolder);
 
@@ -69,7 +80,7 @@ public static class AssetUtil
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.MeshesFolder, meshType.ToString()), $"{baseName}*"))
 		{
-			var lines = Resize(file, name, road, elevationType, curb, curbless, inverted);
+			var lines = Resize(file, name, road, elevationType, curb, inverted, tunnel);
 			var exportedFile = Path.Combine(BlankRoadBuilderMod.ImportFolder, $"{exportName}{(file.Contains("_lod") ? "_lod" : "")}.obj");
 
 			File.WriteAllLines(exportedFile, lines);
@@ -103,7 +114,7 @@ public static class AssetUtil
 		}
 	}
 
-	public static string[] Resize(string file, string name, RoadInfo road, ElevationType elevation, CurbType curb, bool curbless, bool inverted)
+	public static string[] Resize(string file, string name, RoadInfo road, ElevationType elevation, CurbType curb, bool inverted, bool tunnel)
 	{
 		var baseWidth = 8F;
 		var newWidth = road.TotalWidth;
@@ -134,7 +145,7 @@ public static class AssetUtil
 					var aPos = Math.Abs(xPos);
 					var xDiff = diff;
 
-					if (curbless && (aPos >= 1 || yPos < -0.3))
+					if (curb == CurbType.Curbless && (aPos >= 1 || yPos < -0.3))
 					{
 						if (aPos >= 1)
 						{
@@ -145,27 +156,27 @@ public static class AssetUtil
 						yPos = -0.3;
 					}
 
-					if (aPos < 4F && yPos >= -0.3)
+					if (aPos < 3.75F && yPos >= -0.3)
 					{
-						//if (sidewalkTransition)
-						//{
-						//	var start = (xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth;
-						//	var end = (xPos < 0) == inverted ? road.RightPavementWidth : road.LeftPavementWidth;
-						//	var step = (float.Parse(data[3]) + 32) / 64;
-
-						//	xDiff -= fn((2 * step) - 1, Math.Min(start, end), Math.Max(start, end)) - 3;
-
-						//	//https://www.desmos.com/calculator/5rulizhfsh
-						//	static float fn(float x, float s, float e) => ((float)(-x + Math.Pow(-x, 3)) / (4 / (e - s))) + (e / 2) + 1;
-						//}
-						//else
-						//{
 						xDiff -= ((xPos < 0) == inverted ? road.LeftPavementWidth : road.RightPavementWidth) - 3;
-						//}
+
+						if (curb is CurbType.BayFull || (curb is CurbType.BaySingle && xPos > 0))
+						{
+							var lane = road.Lanes.FirstOrDefault(x => x.Decorations.HasFlag(LaneDecoration.BusBay));
+							var step = (int)(ModOptions.BusBaySize * 12 / 100);
+							var size = decimal.Round((decimal)step * 32 / 12, 2);
+							var perc = size == 32 ? 1 : (1 - (float)Math.Max(0, Math.Min(1, (Math.Abs(decimal.Round(decimal.Parse(data[3]), 2)) - size) / (32 - size))));
+
+							xDiff += lane.LaneWidth * perc;
+						}
 					}
 					else if (elevation is ElevationType.Elevated or ElevationType.Bridge)
 					{
 						xDiff += 0.8F;
+					}
+					else if (tunnel)
+					{
+						xDiff += 1.5F;
 					}
 
 					if (aPos > 0.1F)
@@ -189,10 +200,41 @@ public static class AssetUtil
 		return lines;
 	}
 
+	public static string[] Offset(string file, float offset)
+	{
+		var lines = File.ReadAllLines(file);
+
+		for (var i = 0; i < lines.Length; i++)
+		{
+			if (lines[i].Length == 0)
+			{
+				continue;
+			}
+
+			var data = lines[i].Split(' ');
+
+			switch (data[0])
+			{
+				case "v":
+				case "V":
+					var xPos = double.Parse(data[1]) + offset;
+
+					data[1] = xPos.ToString("0.00000000");
+
+					lines[i] = string.Join(" ", data);
+					break;
+			}
+		}
+
+		return lines;
+	}
+
 	private static string MeshName(ElevationType elevationType)
 	{
 		return elevationType switch
 		{
+			ElevationType.Slope => "slope",
+			ElevationType.Tunnel => "tunnel",
 			ElevationType.Bridge or ElevationType.Elevated => "elevated",
 			_ => "basic",
 		};

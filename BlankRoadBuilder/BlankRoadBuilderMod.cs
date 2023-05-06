@@ -1,4 +1,6 @@
-﻿using BlankRoadBuilder.UI;
+﻿using AdaptiveRoads.UI.RoadEditor;
+
+using BlankRoadBuilder.UI;
 using BlankRoadBuilder.UI.Options;
 
 using ColossalFramework;
@@ -17,6 +19,7 @@ using System.IO;
 using System.Reflection;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace BlankRoadBuilder;
 public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
@@ -31,7 +34,7 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	public static string TexturesFolder => Path.Combine(ModFolder, "Textures");
 	public static string? ModFolder => PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly())?.modPath;
 
-	protected override Version RequiredGameVersion => new Version(1, 16, 0, 3);
+	protected override Version RequiredGameVersion => new Version(1, 16, 1, 2);
 	public override string NameRaw => "Road Builder";
 	public override string Description => "Tool that allows you to create roads without dealing with the tedious asset editor";
 	protected override ulong StableWorkshopId => 2891132324ul;
@@ -41,6 +44,15 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	protected override LocalizeManager LocalizeManager { get; } = new LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	public override List<ModVersion> Versions { get; } = new List<ModVersion>
 	{
+		new ModVersion(new Version("1.4.3"), new DateTime(2023, 4, 28)),
+		new ModVersion(new Version("1.4.2"), new DateTime(2023, 4, 22)),
+		new ModVersion(new Version("1.4.1"), new DateTime(2023, 4, 17)),
+		new ModVersion(new Version("1.4.0"), new DateTime(2023, 4, 17)),
+		new ModVersion(new Version("1.3.9"), new DateTime(2023, 3, 22)),
+		new ModVersion(new Version("1.3.8"), new DateTime(2023, 3, 15)),
+		new ModVersion(new Version("1.3.7"), new DateTime(2023, 3, 2)),
+		new ModVersion(new Version("1.3.6"), new DateTime(2023, 2, 25)),
+		new ModVersion(new Version("1.3.5"), new DateTime(2023, 2, 24)),
 		new ModVersion(new Version("1.3.4"), new DateTime(2023, 2, 21)),
 		new ModVersion(new Version("1.3.3"), new DateTime(2023, 2, 20)),
 		new ModVersion(new Version("1.3.2"), new DateTime(2023, 2, 19)),
@@ -87,16 +99,67 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 
 	protected override void Enable()
 	{
+		SceneManager.sceneLoaded += MainMenuLoaded;
+
+		MainMenuLoaded(default, default);
+
 		Directory.CreateDirectory(BuilderFolder);
 
 		try
 		{
 			CopyThumbnailMaker();
+		}
+		catch (Exception ex) { Debug.LogException(ex); }
+		
+		try
+		{
 			DeleteAll(ImportFolder);
 		}
-		catch { }
+		catch (Exception ex) { Debug.LogException(ex); }
 
 		base.Enable();
+	}
+
+	protected override void Disable()
+	{
+		base.Disable();
+
+		SceneManager.sceneLoaded -= MainMenuLoaded;
+
+		MainMenuLoaded(default, (LoadSceneMode)(-1));
+	}
+
+	private void MainMenuLoaded(Scene arg0, LoadSceneMode arg1)
+	{
+		var continueButton = GameObject.Find("MenuContainer")?.GetComponent<UIPanel>().Find<UISlicedSprite>("CenterPart")?.Find<UIPanel>("MenuArea")?.Find<UIPanel>("Menu")?.Find<UIButton>("Continue");
+		if (continueButton != null && continueButton.enabled)
+		{
+			if ((int)arg1 == -1)
+			{
+				continueButton.tooltip = "";
+				continueButton.Enable();
+			}
+			else
+			{
+				continueButton.tooltip = "Disable Road Builder to load into a save-game\r\nYou do not need the mod to use the roads you've generated";
+				continueButton.Disable();
+			}
+		}
+
+		var loadGameButton = GameObject.Find("MenuContainer")?.GetComponent<UIPanel>().Find<UISlicedSprite>("CenterPart")?.Find<UIPanel>("MenuArea")?.Find<UIPanel>("Menu")?.Find<UIButton>("LoadGame");
+		if (loadGameButton != null && loadGameButton.enabled)
+		{
+			if ((int)arg1 == -1)
+			{
+				loadGameButton.tooltip = "";
+				loadGameButton.Enable();
+			}
+			else
+			{
+				loadGameButton.tooltip = "Disable Road Builder to load into a save-game\r\nYou do not need the mod to use the roads you've generated";
+				loadGameButton.Disable();
+			}
+		}
 	}
 
 	protected override bool PatchProcess()
@@ -142,19 +205,10 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 		var thumbnailMakerFolder = ThumbnailMakerFolder;
 
 		Directory.CreateDirectory(thumbnailMakerFolder);
-		Directory.CreateDirectory(Path.Combine(thumbnailMakerFolder, "Resources"));
 
 		foreach (var item in Directory.GetFiles(currentMakerFolde))
 		{
 			File.Copy(item, Path.Combine(thumbnailMakerFolder, Path.GetFileName(item).Replace("_", ".")), true);
-		}
-
-		foreach (var item in Directory.GetFiles(Path.Combine(currentMakerFolde, "Resources")))
-		{
-			var target = new FileInfo(Path.Combine(Path.Combine(thumbnailMakerFolder, "Resources"), Path.GetFileName(item)));
-
-			if (!target.Exists || target.LastWriteTime < new FileInfo(item).LastWriteTime)
-				File.Copy(item, Path.Combine(Path.Combine(thumbnailMakerFolder, "Resources"), Path.GetFileName(item)), true);
 		}
 	}
 

@@ -47,6 +47,7 @@ public partial class LanePropsUtil
 			{
 				yield return StopSign(propPosition);
 				yield return YieldSign(propPosition);
+				yield return PrioritySign(propPosition);
 
 				foreach (var prop in GetWarningSigns(propPosition))
 				{
@@ -56,7 +57,10 @@ public partial class LanePropsUtil
 
 			if (!GetSideLanes(Lane, true, true).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
-				yield return SpeedSign(propPosition);
+				foreach (var prop in SpeedSigns(propPosition))
+				{
+					yield return prop;
+				}
 			}
 		}
 
@@ -75,12 +79,13 @@ public partial class LanePropsUtil
 
 		if (Lane.TrafficLight.RightBackwardSpace >= 2F)
 		{
-			yield return RailwayCrossing(Lane.TrafficLight.LeftForwardSpace, propPosition).ToggleForwardBackward();
+			yield return RailwayCrossing(Lane.TrafficLight.RightBackwardSpace, propPosition).ToggleForwardBackward();
 
 			if (!GetSideLanes(Lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike)))
 			{
 				yield return StopSign(propPosition).ToggleForwardBackward();
 				yield return YieldSign(propPosition).ToggleForwardBackward();
+				yield return PrioritySign(propPosition).ToggleForwardBackward();
 
 				foreach (var prop in GetWarningSigns(propPosition))
 				{
@@ -90,7 +95,10 @@ public partial class LanePropsUtil
 
 			if (!GetSideLanes(Lane, false, false).All(x => x.Type.HasAnyFlag(LaneType.Parking, LaneType.Bike, LaneType.Tram)))
 			{
-				yield return SpeedSign(propPosition).ToggleForwardBackward();
+				foreach (var prop in SpeedSigns(propPosition))
+				{
+					yield return prop.ToggleForwardBackward();
+				}
 			}
 		}
 
@@ -229,6 +237,7 @@ public partial class LanePropsUtil
 	{
 		var railroadCrossingProp = GetProp(Prop.RailwayCrossingAheadSign);
 		var signalAheadProp = GetProp(Prop.TrafficLightAheadSign);
+		var pedCrossing = GetProp(Prop.PedestrianCrossingSign);
 
 		yield return new NetLaneProps.Prop
 		{
@@ -237,7 +246,7 @@ public partial class LanePropsUtil
 			m_flagsRequired = NetLane.Flags.None,
 			m_flagsForbidden = NetLane.Flags.JoinedJunctionInverted,
 			m_startFlagsRequired = NetNode.Flags.None,
-			m_startFlagsForbidden = NetNode.Flags.None,
+			m_startFlagsForbidden = NetNode.Flags.LevelCrossing,
 			m_endFlagsRequired = NetNode.Flags.LevelCrossing,
 			m_endFlagsForbidden = NetNode.Flags.None,
 			m_cornerAngle = 0,
@@ -263,7 +272,7 @@ public partial class LanePropsUtil
 			m_flagsRequired = NetLane.Flags.None,
 			m_flagsForbidden = NetLane.Flags.JoinedJunctionInverted,
 			m_startFlagsRequired = NetNode.Flags.None,
-			m_startFlagsForbidden = NetNode.Flags.None,
+			m_startFlagsForbidden = NetNode.Flags.TrafficLights,
 			m_endFlagsRequired = NetNode.Flags.TrafficLights,
 			m_endFlagsForbidden = NetNode.Flags.LevelCrossing,
 			m_cornerAngle = 0,
@@ -275,6 +284,33 @@ public partial class LanePropsUtil
 			m_position = new Vector3(propPosition, 0, 2F) + signalAheadProp.Position,
 		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
 		{
+			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
+			{
+				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+				Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+			}
+		});
+
+		yield return new NetLaneProps.Prop
+		{
+			m_prop = pedCrossing,
+			m_tree = pedCrossing,
+			m_flagsRequired = NetLane.Flags.None,
+			m_flagsForbidden = NetLane.Flags.JoinedJunctionInverted,
+			m_endFlagsForbidden = NetNode.Flags.LevelCrossing | NetNode.Flags.End | NetNode.Flags.TrafficLights | NetNode.Flags.Middle | NetNode.Flags.Bend | NetNode.Flags.Underground,
+			m_cornerAngle = 0,
+			m_minLength = 20F,
+			m_repeatDistance = 0,
+			m_segmentOffset = pedCrossing.SegmentOffset,
+			m_angle = pedCrossing.Angle,
+			m_probability = pedCrossing.Probability,
+			m_position = new Vector3(propPosition, 0, 0) + pedCrossing.Position,
+		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
+		{
+			SegmentEndFlags = new NetInfoExtionsion.SegmentEndInfoFlags
+			{
+				Required = NetSegmentEnd.Flags.ZebraCrossing,
+			},
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 			{
 				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
@@ -383,6 +419,34 @@ public partial class LanePropsUtil
 		});
 	}
 
+	private NetLaneProps.Prop PrioritySign(float propPosition)
+	{
+		var prioritySign = GetProp(Prop.PrioritySign);
+
+		return new NetLaneProps.Prop
+		{
+			m_prop = prioritySign,
+			m_tree = prioritySign,
+			m_flagsForbidden = NetLane.Flags.Inverted,
+			m_startFlagsRequired = NetNode.Flags.None,
+			m_startFlagsForbidden = NetNode.Flags.None,
+			m_endFlagsRequired = NetNode.Flags.Junction,
+			m_endFlagsForbidden = NetNode.Flags.TrafficLights | NetNode.Flags.OneWayIn,
+			m_minLength = 0,
+			m_repeatDistance = 0,
+			m_segmentOffset = prioritySign.SegmentOffset,
+			m_angle = prioritySign.Angle,
+			m_probability = prioritySign.Probability,
+			m_position = new Vector3(propPosition, 0, 0) + prioritySign.Position,
+		}.Extend(p => new NetInfoExtionsion.LaneProp(p)
+		{
+			SegmentEndFlags = new NetInfoExtionsion.SegmentEndInfoFlags
+			{
+				Required = NetSegmentEnd.Flags.PriorityMain
+			}
+		});
+	}
+
 	private NetLaneProps.Prop HighwaySign(float propPosition)
 	{
 		var highwaySign = GetProp(Prop.HighwaySign);
@@ -437,49 +501,60 @@ public partial class LanePropsUtil
 		});
 	}
 
-	private NetLaneProps.Prop SpeedSign(float propPosition)
+	private IEnumerable<NetLaneProps.Prop> SpeedSigns(float propPosition)
 	{
-		var sign = ((int)Math.Round(Road.SpeedLimit * (Road.RegionType == RegionType.USA ? 1.609F : 1F) / 10D) * 10) switch
+		var signs = new Dictionary<float, PropTemplate>()
 		{
-			10 => GetProp(Prop.SpeedSign10),
-			20 => GetProp(Prop.SpeedSign20),
-			30 => GetProp(Prop.SpeedSign30),
-			40 => GetProp(Prop.SpeedSign40),
-			50 => GetProp(Prop.SpeedSign50),
-			60 => GetProp(Prop.SpeedSign60),
-			70 => GetProp(Prop.SpeedSign70),
-			80 => GetProp(Prop.SpeedSign80),
-			90 => GetProp(Prop.SpeedSign90),
-			100 => GetProp(Prop.SpeedSign100),
-			110 => GetProp(Prop.SpeedSign110),
-			120 => GetProp(Prop.SpeedSign120),
-			130 => GetProp(Prop.SpeedSign130),
-			140 => GetProp(Prop.SpeedSign140),
-			_ => new PropTemplate(string.Empty)
+			{ 10, GetProp(Prop.SpeedSign10) },
+			{ 20, GetProp(Prop.SpeedSign20) },
+			{ 30, GetProp(Prop.SpeedSign30) },
+			{ 40, GetProp(Prop.SpeedSign40) },
+			{ 50, GetProp(Prop.SpeedSign50) },
+			{ 60, GetProp(Prop.SpeedSign60) },
+			{ 70, GetProp(Prop.SpeedSign70) },
+			{ 80, GetProp(Prop.SpeedSign80) },
+			{ 90, GetProp(Prop.SpeedSign90) },
+			{ 100, GetProp(Prop.SpeedSign100) },
+			{ 110, GetProp(Prop.SpeedSign110) },
+			{ 120, GetProp(Prop.SpeedSign120) },
+			{ 130, GetProp(Prop.SpeedSign130) },
+			{ 140, GetProp(Prop.SpeedSign140) },
 		};
 
-		return new NetLaneProps.Prop
+		foreach (var grp in signs.GroupBy(x => x.Value.PropName))
 		{
-			m_prop = sign,
-			m_tree = sign,
-			m_flagsRequired = NetLane.Flags.None,
-			m_flagsForbidden = NetLane.Flags.Inverted,
-			m_minLength = 15F,
-			m_repeatDistance = 0,
-			m_segmentOffset = sign.SegmentOffset,
-			m_angle = sign.Angle,
-			m_probability = sign.Probability,
-			m_position = new Vector3(propPosition, 0, 0) + sign.Position,
-		}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
-		{
-			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
+			var sign = grp.First().Value;
+			var minSpeed = (grp.Min(x => x.Key) - 5) * (Road.RegionType == RegionType.USA ? 1.609F : 1F) / 50;
+			var maxSpeed = (grp.Max(x => x.Key) + 5) * (Road.RegionType == RegionType.USA ? 1.609F : 1F) / 50;
+
+			yield return new NetLaneProps.Prop
 			{
-				Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
-				Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
-			},
-			StartNodeFlags = new NetInfoExtionsion.NodeInfoFlags
-			{ Required = NetNodeExt.Flags.SpeedChange },
-		});
+				m_prop = sign,
+				m_tree = sign,
+				m_flagsRequired = NetLane.Flags.None,
+				m_flagsForbidden = NetLane.Flags.Inverted,
+				m_minLength = 15F,
+				m_repeatDistance = 0,
+				m_segmentOffset = sign.SegmentOffset,
+				m_angle = sign.Angle,
+				m_probability = sign.Probability,
+				m_position = new Vector3(propPosition, 0, 0) + sign.Position,
+			}.Extend(prop => new NetInfoExtionsion.LaneProp(prop)
+			{
+				ForwardSpeedLimit = new()
+				{
+					Lower = minSpeed,
+					Upper = maxSpeed,
+				},
+				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
+				{
+					Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+					Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
+				},
+				StartNodeFlags = new NetInfoExtionsion.NodeInfoFlags
+				{ Required = NetNodeExt.Flags.SpeedChange },
+			}); 
+		}
 	}
 
 	private NetLaneProps.Prop RailwayCrossing(float drivableArea, float propPosition)

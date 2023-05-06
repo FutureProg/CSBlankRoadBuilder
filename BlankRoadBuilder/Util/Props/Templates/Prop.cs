@@ -79,4 +79,9 @@ public enum Prop
 	Flowers,
 	DoNotEnterSign,
 	EndOfOneWaySign,
+	PrioritySign,
+	TunnelLight,
+	TunnelExitProp,
+	TunnelVent,
+	PedestrianCrossingSign,
 }

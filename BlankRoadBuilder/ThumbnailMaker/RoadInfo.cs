@@ -1,4 +1,5 @@
-﻿using BlankRoadBuilder.Util;
+﻿using BlankRoadBuilder.Domain;
+using BlankRoadBuilder.Util;
 
 using System;
 using System.Collections.Generic;
@@ -26,8 +27,11 @@ public class RoadInfo
 	public int SpeedLimit { get; set; }
 	public bool LHT { get; set; }
 	public bool VanillaWidth { get; set; }
+	public bool HighwayRules { get; set; }
+	public bool CanCrossLanes { get; set; }
 	public List<string> Tags { get; set; }
 	public List<LaneInfo> Lanes { get; set; }
+	public RoadElevation[] DisabledElevations { get; set; }
 	public byte[] SmallThumbnail { get; set; }
 	public byte[] LargeThumbnail { get; set; }
 	public byte[] TooltipImage { get; set; }
