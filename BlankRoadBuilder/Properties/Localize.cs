@@ -99,5 +99,50 @@ namespace BlankRoadBuilder
 		/// [NEW] Added IMT marking damage, enabled by default.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_3_4 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_4", Culture);
+
+		/// <summary>
+		/// [NEW] Reworked how stop lanes are calculated, the mod will now analyze and map out your road to accu
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_5 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_5", Culture);
+
+		/// <summary>
+		/// [UPDATED] Added an information label advising users to use Fillers over Pedestrian lanes for Transit
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_6 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_6", Culture);
+
+		/// <summary>
+		/// [UPDATED] Large stop props on Curb lanes will now follow the same condition as Fillers for them to s
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_7 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_7", Culture);
+
+		/// <summary>
+		/// [NEW] Loading into a save-game is now disabled while Road Builder is active, disable road builder to
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_8 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_8", Culture);
+
+		/// <summary>
+		/// [FIXED] Compatibility with Patch 1.16.1-f2.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_3_9 => LocaleManager.GetString("Mod_WhatsNewMessage1_3_9", Culture);
+
+		/// <summary>
+		/// [NEW] Tunnels can now be generated in the editor.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_0 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_0", Culture);
+
+		/// <summary>
+		/// [NEW] Added an option to autmatically remove pedestrian lanes from non-ground levels.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_1 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_1", Culture);
+
+		/// <summary>
+		/// [UPDATED] Raised the tunnels' roof.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_2 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_2", Culture);
+
+		/// <summary>
+		/// [UPDATED] Added an indicator on the currently being edited configuration in the list in TM.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_3 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_3", Culture);
 	}
 }

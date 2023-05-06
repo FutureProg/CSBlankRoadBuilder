@@ -35,7 +35,9 @@ public partial class LanePropsUtil
 
 		foreach (var prop in validProps)
 		{
-			if (prop is LaneDecalProp laneDecal && laneDecal.HideOnSharedLanes && Lane.Type.GetValues().Count() > 1)
+			if (prop is LaneDecalProp laneDecal 
+				&& ((laneDecal.HideOnSharedLanes && Lane.Type.GetValues().Count() > 1)
+				|| (!laneDecal.ShowOnTwoWayLanes && Lane.Direction is LaneDirection.Both)))
 			{
 				continue;
 			}
@@ -45,7 +47,7 @@ public partial class LanePropsUtil
 				continue;
 			}
 
-			yield return new NetLaneProps.Prop()
+			var netProp = new NetLaneProps.Prop()
 			{
 				m_prop = prop,
 				m_tree = prop,
@@ -58,13 +60,22 @@ public partial class LanePropsUtil
 				m_position = prop.Position + new Vector3(0, 0, index),
 			};
 
+			if (Lane.Direction is LaneDirection.Both && prop is LaneDecalProp laneDecal_ && laneDecal_.SegmentOffset is -1 or 1)
+			{
+				yield return netProp.Clone().ToggleForwardBackward();
+			}
+
+			yield return netProp;
+
 			index += 6;
 		}
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetLaneArrowProps()
 	{
-		if (!ModOptions.AddLaneArrows || !Lane.Type.HasAnyFlag(LaneType.Car, LaneType.Bus, LaneType.Trolley, LaneType.Emergency))
+		if (!ModOptions.AddLaneArrows 
+			|| !Lane.Type.HasAnyFlag(LaneType.Car, LaneType.Bus, LaneType.Trolley, LaneType.Emergency)
+			|| Lane.Direction is LaneDirection.Both)
 		{
 			yield break;
 		}
