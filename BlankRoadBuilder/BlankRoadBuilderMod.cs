@@ -34,7 +34,7 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	public static string TexturesFolder => Path.Combine(ModFolder, "Textures");
 	public static string? ModFolder => PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly())?.modPath;
 
-	protected override Version RequiredGameVersion => new Version(1, 16, 1, 2);
+	protected override Version RequiredGameVersion => new Version(1, 17, 0, 3);
 	public override string NameRaw => "Road Builder";
 	public override string Description => "Tool that allows you to create roads without dealing with the tedious asset editor";
 	protected override ulong StableWorkshopId => 2891132324ul;
@@ -44,6 +44,7 @@ public class BlankRoadBuilderMod : BasePatcherMod<BlankRoadBuilderMod>
 	protected override LocalizeManager LocalizeManager { get; } = new LocalizeManager("Localize", typeof(BlankRoadBuilderMod).Assembly);
 	public override List<ModVersion> Versions { get; } = new List<ModVersion>
 	{
+		new ModVersion(new Version("1.4.4"), new DateTime(2023, 4, 28)),
 		new ModVersion(new Version("1.4.3"), new DateTime(2023, 4, 28)),
 		new ModVersion(new Version("1.4.2"), new DateTime(2023, 4, 22)),
 		new ModVersion(new Version("1.4.1"), new DateTime(2023, 4, 17)),

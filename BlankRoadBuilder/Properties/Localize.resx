@@ -471,4 +471,7 @@
 [FIXED] Fixed tunnels not showing up in the underground preview.
 </value>
   </data>
+  <data name="Mod_WhatsNewMessage1_4_44" xml:space="preserve">
+    <value>[UPDATED] Compatibility with Patch 1.17.0-f3</value>
+  </data>
 </root>

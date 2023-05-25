@@ -144,5 +144,10 @@ namespace BlankRoadBuilder
 		/// [UPDATED] Added an indicator on the currently being edited configuration in the list in TM.
 		/// </summary>
 		public static string Mod_WhatsNewMessage1_4_3 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_3", Culture);
+
+		/// <summary>
+		/// [UPDATED] Compatibility with Patch 1.17.0-f3
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_44 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_44", Culture);
 	}
 }
