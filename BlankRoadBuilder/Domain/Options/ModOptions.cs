@@ -44,6 +44,9 @@ public static class ModOptions
 	[ModOptions(PROPS, false, "Hide road clutter by default", "Road clutter includes signs, parking meters, etc. They can still be shown using their AN toggle")]
 	public static bool HideRoadClutter { get => _hideRoadClutter; set => _hideRoadClutter.value = value; }
 
+	[ModOptions(PROPS, false, "Only show Lane Arrows when a traffic light is present", "Hides lane arrows when on a junction without traffic lights")]
+	public static bool OnlyShowArrowsOnTL { get => _onlyShowArrowsOnTL; set => _onlyShowArrowsOnTL.value = value; }
+
 	[ModOptions(DESIGN, true, "Hide road damage by default", "Road damage are random decals scattered around your road. They can still be shown using their AN toggle")]
 	public static bool HideRoadDamage { get => _hideRoadDamage; set => _hideRoadDamage.value = value; }
 
@@ -112,6 +115,7 @@ public static class ModOptions
 	private static readonly SavedBool _allowTrolleysOnNextLane = new(nameof(_allowTrolleysOnNextLane), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _enableTunnels = new(nameof(_enableTunnels), nameof(BlankRoadBuilder), false);
 	private static readonly SavedBool _allowAllVehiclesOnBusLanes = new(nameof(_allowAllVehiclesOnBusLanes), nameof(BlankRoadBuilder), false);
+	private static readonly SavedBool _onlyShowArrowsOnTL = new(nameof(_onlyShowArrowsOnTL), nameof(BlankRoadBuilder), false);
 
 	private static readonly SavedBool _addLaneDecals = new(nameof(_addLaneDecals), nameof(BlankRoadBuilder), true);
 	private static readonly SavedBool _addLaneArrows = new(nameof(_addLaneArrows), nameof(BlankRoadBuilder), true);

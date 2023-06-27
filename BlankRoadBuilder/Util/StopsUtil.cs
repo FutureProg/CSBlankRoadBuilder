@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using UnityEngine;
-
 namespace BlankRoadBuilder.Util;
 
 public static class StopsUtil
@@ -15,11 +13,14 @@ public static class StopsUtil
 	public static void ProcessStopsInfo(RoadInfo roadInfo)
 	{
 		var stoppableVehicleLanes = LaneType.Car | LaneType.Bus | LaneType.Trolley | LaneType.Tram;
+		var isForced = roadInfo.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.StoppingLane));
 
 		foreach (var item in roadInfo.Lanes)
 		{
 			if ((item.Type & stoppableVehicleLanes) != 0)
+			{
 				processVehicleLane(item);
+			}
 		}
 
 		foreach (var grp in roadInfo.Lanes.GroupBy(x => new { Lane = x.Stops.CanStopAt, Left = x.Stops.CanStopAt?.Position < x.Position }))
@@ -33,18 +34,24 @@ public static class StopsUtil
 		foreach (var item in roadInfo.Lanes)
 		{
 			if (item.Type.HasFlag(LaneType.Pedestrian) || item.Decorations.HasFlag(LaneDecoration.TransitStop))
+			{
 				processPedestrianLane(item);
+			}
 		}
 
 		void processVehicleLane(LaneInfo lane)
 		{
-			if (lane.Type.HasFlag(LaneType.Car) && !lane.Type.HasFlag(LaneType.Bus) && ModOptions.DisableCarStopsWithBuses && roadInfo.Lanes.Any(x => x.Type.HasFlag(LaneType.Bus)))
+			if (!isForced && lane.Type.HasFlag(LaneType.Car) && !lane.Type.HasFlag(LaneType.Bus) && ModOptions.DisableCarStopsWithBuses && roadInfo.Lanes.Any(x => x.Type.HasFlag(LaneType.Bus)))
+			{
 				return;
+			}
 
 			var validLanes = roadInfo.Lanes.Select(l =>
 			{
 				if (!l.Type.HasFlag(LaneType.Pedestrian) && !l.Decorations.HasFlag(LaneDecoration.TransitStop))
+				{
 					return null;
+				}
 
 				var distance = (double)Math.Abs(l.Position - lane.Position) - ((lane.LaneWidth + l.LaneWidth) / 2);
 
@@ -63,8 +70,17 @@ public static class StopsUtil
 
 				distance = Math.Round(distance, 4);
 
-				if (distance > ModOptions.MaximumStopDistance || distance < 0)
+				if (isForced)
+				{
+					if (!lane.Decorations.HasFlag(LaneDecoration.StoppingLane))
+					{
+						return null;
+					}
+				}
+				else if (distance > ModOptions.MaximumStopDistance || distance < 0)
+				{
 					return null;
+				}
 
 				return new { Distance = distance, Lane = l };
 			})
@@ -79,13 +95,19 @@ public static class StopsUtil
 			var stopType = VehicleInfo.VehicleType.None;
 
 			if (lane.Type.HasFlag(LaneType.Trolley))
+			{
 				stopType |= VehicleInfo.VehicleType.Trolleybus;
+			}
 
 			if (lane.Type.HasFlag(LaneType.Tram))
+			{
 				stopType |= VehicleInfo.VehicleType.Tram;
+			}
 
 			if (lane.Type.HasAnyFlag(LaneType.Bus, LaneType.Car))
+			{
 				stopType |= VehicleInfo.VehicleType.Car;
+			}
 
 			var forward = lane.Direction is LaneDirection.Forward;
 
@@ -145,20 +167,28 @@ public static class StopsUtil
 			VehicleInfo.VehicleType getStopType(IEnumerable<LaneInfo> lanes, bool? right)
 			{
 				if (right != null)
+				{
 					lanes = lanes.Where(x => right.Value ? x.Position > lane.Position : x.Position < lane.Position);
+				}
 
 				var stop = VehicleInfo.VehicleType.None;
 
 				foreach (var validTypes in lanes.Select(x => x.Type))
 				{
 					if (validTypes.HasFlag(LaneType.Trolley))
+					{
 						stop |= VehicleInfo.VehicleType.Trolleybus;
+					}
 
 					if (validTypes.HasFlag(LaneType.Tram))
+					{
 						stop |= VehicleInfo.VehicleType.Tram;
+					}
 
 					if (validTypes.HasAnyFlag(LaneType.Bus, LaneType.Car, LaneType.Parking))
+					{
 						stop |= VehicleInfo.VehicleType.Car;
+					}
 				}
 
 				return stop;
@@ -174,13 +204,19 @@ public static class StopsUtil
 	public static VehicleInfo.VehicleType GetStopType(LaneInfo lane, LaneType type)
 	{
 		if (type is LaneType.Car or LaneType.Bus)
+		{
 			return lane.Stops.StopType & VehicleInfo.VehicleType.Car;
+		}
 
 		if (type is LaneType.Tram)
+		{
 			return lane.Stops.StopType & VehicleInfo.VehicleType.Tram;
+		}
 
 		if (type is LaneType.Trolley)
+		{
 			return lane.Stops.StopType & VehicleInfo.VehicleType.Trolleybus;
+		}
 
 		return lane.Stops.StopType;
 	}

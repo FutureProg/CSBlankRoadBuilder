@@ -548,7 +548,7 @@ public partial class LanePropsUtil
 				},
 				SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags
 				{
-					Forbidden = ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter,
+					Forbidden = NetSegmentExt.Flags.Vanilla | (ModOptions.HideRoadClutter ? NetSegmentExt.Flags.None : RoadUtils.Flags.S_RemoveRoadClutter),
 					Required = ModOptions.HideRoadClutter ? RoadUtils.Flags.S_RemoveRoadClutter : NetSegmentExt.Flags.None
 				},
 				StartNodeFlags = new NetInfoExtionsion.NodeInfoFlags

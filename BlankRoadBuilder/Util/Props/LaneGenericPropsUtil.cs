@@ -24,7 +24,7 @@ public partial class LanePropsUtil
 			yield break;
 		}
 
-		getLaneTramInfo(Lane, Road, out var tramLanesAreNextToMedians, out var leftTram, out var rightTram);
+		GetLaneTramInfo(Lane, Road, out var tramLanesAreNextToMedians, out var leftTram, out var rightTram);
 
 		var angle = !leftTram ? 0 : 180;
 
@@ -66,7 +66,7 @@ public partial class LanePropsUtil
 
 			if (nextLane?.Type.HasAnyFlag(LaneType.Filler, LaneType.Curb, LaneType.Pedestrian) ?? false)
 			{
-				getLaneTramInfo(nextLane, Road, out _, out var l, out var r);
+				GetLaneTramInfo(nextLane, Road, out _, out var l, out var r);
 
 				if ((l && r) || (l && rightTram))
 				{
@@ -114,13 +114,13 @@ public partial class LanePropsUtil
 		{
 			SegmentFlags = new NetInfoExtionsion.SegmentInfoFlags { Forbidden = RoadUtils.Flags.S_RemoveTramSupports }
 		});
+	}
 
-		void getLaneTramInfo(LaneInfo lane, RoadInfo road, out bool tramLanesAreNextToMedians, out bool leftTram, out bool rightTram)
-		{
-			tramLanesAreNextToMedians = road.WiredLanesAreNextToMedians /*&& road.AsphaltWidth > 10F*/;
-			leftTram = tramLanesAreNextToMedians && lane.LeftLane != null && ((lane.LeftLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
-			rightTram = tramLanesAreNextToMedians && lane.RightLane != null && ((lane.RightLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
-		}
+	public static void GetLaneTramInfo(LaneInfo lane, RoadInfo road, out bool tramLanesAreNextToMedians, out bool leftTram, out bool rightTram)
+	{
+		tramLanesAreNextToMedians = road.WiredLanesAreNextToMedians /*&& road.AsphaltWidth > 10F*/;
+		leftTram = tramLanesAreNextToMedians && lane.LeftLane != null && ((lane.LeftLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
+		rightTram = tramLanesAreNextToMedians && lane.RightLane != null && ((lane.RightLane.Type & (LaneType.Tram | LaneType.Trolley)) != 0);
 	}
 
 	private IEnumerable<NetLaneProps.Prop> GetParkingProps()

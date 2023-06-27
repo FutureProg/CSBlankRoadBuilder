@@ -148,6 +148,16 @@ namespace BlankRoadBuilder
 		/// <summary>
 		/// [UPDATED] Compatibility with Patch 1.17.0-f3
 		/// </summary>
-		public static string Mod_WhatsNewMessage1_4_44 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_44", Culture);
+		public static string Mod_WhatsNewMessage1_4_4 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_4", Culture);
+
+		/// <summary>
+		/// [FIXED] Fixed tunnel medians facing the wrong direction in LHT.
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_5 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_5", Culture);
+
+		/// <summary>
+		/// [NEW] Added a new "Stopping Lane" add-on, using it will force Road Builder to use the selected vehic
+		/// </summary>
+		public static string Mod_WhatsNewMessage1_4_6Mod_WhatsNewMessage1_4_6 => LocaleManager.GetString("Mod_WhatsNewMessage1_4_6Mod_WhatsNewMessage1_4_6", Culture);
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using BlankRoadBuilder.Domain;
 using BlankRoadBuilder.Domain.Options;
 using BlankRoadBuilder.ThumbnailMaker;
+using BlankRoadBuilder.Util.Props;
 
 using ColossalFramework.Importers;
 
@@ -38,7 +39,7 @@ public static class NetworkMarkings
 			{
 				var filler = GetFillers(item, elevation).ToList();
 				var transitStop = item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.TransitStop));
-				var busBay= item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.BusBay));
+				var busBay = item.Lanes.Any(x => x.Decorations.HasFlag(LaneDecoration.BusBay));
 
 				if (elevation == ElevationType.Slope)
 				{
@@ -46,13 +47,13 @@ public static class NetworkMarkings
 					{
 						f.Mesh.m_forwardForbidden = NetSegment.Flags.Invert;
 						f.Mesh.m_backwardRequired = NetSegment.Flags.Invert;
-						f.MetaData.Head.Forbidden = AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode;
+						f.MetaData.Head.Required = AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode;
 					}
 
 					foreach (var f in GetFillers(item, elevation, inverted: true))
 					{
-						f.Mesh.m_forwardForbidden = NetSegment.Flags.Invert;
-						f.Mesh.m_backwardRequired = NetSegment.Flags.Invert;
+						f.Mesh.m_forwardRequired = NetSegment.Flags.Invert;
+						f.Mesh.m_backwardForbidden = NetSegment.Flags.Invert;
 						f.MetaData.Head.Required = AdaptiveRoads.Manager.NetSegmentEnd.Flags.IsStartNode;
 
 						filler.Add(f);
@@ -411,7 +412,35 @@ public static class NetworkMarkings
 
 	private static void GenerateTexture(LaneInfo? lane, bool filler, bool crosswalk, string name, LaneDecoration decoration, ElevationType elevationType, Color32 color = default, MarkingLineType style = default, float dashLength = 0F, float dashSpace = 0F)
 	{
-		var baseName = crosswalk ? "Crosswalk" : !filler ? "Marking" : elevationType >= ElevationType.Slope ? "tunnel_pillar" : decoration == LaneDecoration.Grass ? "GrassFiller" : "PavementFiller";
+		string baseName;
+
+		if (crosswalk)
+		{
+			baseName = "Crosswalk";
+		}
+		else if (!filler)
+		{
+			baseName = "Marking";
+		}
+		else if (lane?.Road is null)
+		{
+			baseName = decoration == LaneDecoration.Grass && elevationType < ElevationType.Slope ? "GrassFiller" : "PavementFiller";
+		}
+		else
+		{
+			LanePropsUtil.GetLaneTramInfo(lane, lane.Road!, out _, out var leftTram, out var rightTram);
+
+			Debug.Log($"{lane} - {leftTram} - {rightTram}");
+
+			if (elevationType >= ElevationType.Slope && !leftTram && !rightTram && (lane.Road.TotalRoadWidth / 2) - Math.Abs(lane.Position) - (lane.LaneWidth / 2) > 3)
+			{
+				baseName = "tunnel_pillar";
+			}
+			else
+			{
+				baseName = decoration == LaneDecoration.Grass && elevationType < ElevationType.Slope ? "GrassFiller" : "PavementFiller";
+			}
+		}
 
 		foreach (var file in Directory.GetFiles(Path.Combine(BlankRoadBuilderMod.TexturesFolder, "Markings"), $"{baseName}*"))
 		{
@@ -589,14 +618,38 @@ public static class NetworkMarkings
 		{
 			file = "Platform";
 		}
-		else if (elevationType is ElevationType.Tunnel)
+		else if (elevationType is ElevationType.Tunnel or ElevationType.Slope)
 		{
-			file = "tunnel_pillar";
-		}
-		else if (elevationType is ElevationType.Slope)
-		{
-			file = inverted ? "slope_pillar_inverted" : "slope_pillar";
-			inverted = false;
+			var noSlope = fillerMarking.Lanes.Any(lane =>
+			{
+				LanePropsUtil.GetLaneTramInfo(lane, lane.Road!, out _, out var leftTram, out var rightTram);
+
+				if (leftTram || rightTram)
+				{
+					return true;
+				}
+
+				if ((lane.Road!.TotalRoadWidth / 2) - Math.Abs(lane.Position) - (lane.LaneWidth / 2) <= 3.5)
+				{
+					return true;
+				}
+
+				return false;
+			});
+
+			if (noSlope)
+			{
+				file = "PavementFiller";
+			}
+			else if (elevationType is ElevationType.Tunnel)
+			{
+				file = "tunnel_pillar";
+			}
+			else
+			{
+				file = inverted ? "slope_pillar_inverted" : "slope_pillar";
+				inverted = false;
+			}
 		}
 		else if (fillerMarking.Type == LaneDecoration.Grass)
 		{
@@ -606,8 +659,6 @@ public static class NetworkMarkings
 		{
 			file = "PavementFiller";
 		}
-
-		Debug.LogError(file);
 
 		var guid = Guid.NewGuid().ToString();
 

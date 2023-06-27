@@ -471,7 +471,18 @@
 [FIXED] Fixed tunnels not showing up in the underground preview.
 </value>
   </data>
-  <data name="Mod_WhatsNewMessage1_4_44" xml:space="preserve">
+  <data name="Mod_WhatsNewMessage1_4_4" xml:space="preserve">
     <value>[UPDATED] Compatibility with Patch 1.17.0-f3</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_4_5" xml:space="preserve">
+    <value>[FIXED] Fixed tunnel medians facing the wrong direction in LHT.</value>
+  </data>
+  <data name="Mod_WhatsNewMessage1_4_6Mod_WhatsNewMessage1_4_6" xml:space="preserve">
+    <value>[NEW] Added a new "Stopping Lane" add-on, using it will force Road Builder to use the selected vehicle lanes for stops instead of automatically choosing them.
+[NEW] Added an option to only show lane arrows when traffic lights are present.
+[UPDATED] Tunnel pillars no longer get generated if the lane has tram poles on it, or if it's too close to the walls.
+[UPDATED] Improved the "Save Thumbnail" dialog.
+[FIXED] Fixed the error when saving a thumbnail on your computer.
+[FIXED] Fixed the error when copying a road's name or description.</value>
   </data>
 </root>

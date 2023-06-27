@@ -108,7 +108,7 @@ public partial class LanePropsUtil
 			m_tree = propInfo,
 			m_flagsRequired = flagsRequired,
 			m_flagsForbidden = flagsForbidden,
-			m_endFlagsRequired = NetNode.Flags.Junction,
+			m_endFlagsRequired = NetNode.Flags.Junction | (ModOptions.OnlyShowArrowsOnTL ? NetNode.Flags.TrafficLights : NetNode.Flags.None),
 			m_endFlagsForbidden = NetNode.Flags.LevelCrossing | NetNode.Flags.Bend,
 			m_angle = propInfo.Angle,
 			m_minLength = 10,
